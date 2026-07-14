@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El verbo · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "verbo";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>El verbo</h1>
+        <p class="content-subtitle">Raíz y desinencia, conjugaciones, y formas personales y no personales.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es el verbo?</h2>
+        <p>El <strong>verbo</strong> expresa una acción, un estado o un proceso. Es la palabra que más cambia de forma: se <strong>conjuga</strong> según la persona, el número, el tiempo y el modo.</p>
+        <p class="examples"><strong>Ejemplos:</strong> cantar, comer, vivir, saltar, pensar</p>
+
+        <h2>Raíz y desinencia</h2>
+        <p>Todo verbo se divide en dos partes:</p>
+        <div class="rule-box aguda">
+          <h4>Raíz (o lexema)</h4>
+          <p>Es la parte que no cambia y lleva el significado del verbo.</p>
+          <p class="examples"><strong>Ejemplo:</strong> en <em>cant</em>-amos, <em>cant</em>-aba, <em>cant</em>-aré, la raíz es siempre <strong>cant-</strong>.</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Desinencia</h4>
+          <p>Es la parte que cambia y nos indica la persona, el número, el tiempo y el modo.</p>
+          <p class="examples"><strong>Ejemplo:</strong> cant-<strong>amos</strong> (nosotros, presente) · cant-<strong>aba</strong> (yo, pasado) · cant-<strong>aré</strong> (yo, futuro)</p>
+        </div>
+
+        <h2>Las conjugaciones</h2>
+        <p>Según la terminación del infinitivo, los verbos se agrupan en tres conjugaciones:</p>
+        <table class="rules-table">
+          <tr><th>Conjugación</th><th>Terminación</th><th>Ejemplos</th></tr>
+          <tr><td>1ª</td><td>-AR</td><td>cantar, saltar, jugar, estudiar</td></tr>
+          <tr><td>2ª</td><td>-ER</td><td>comer, beber, temer, correr</td></tr>
+          <tr><td>3ª</td><td>-IR</td><td>vivir, partir, dormir, escribir</td></tr>
+        </table>
+
+        <h2>Formas personales y no personales</h2>
+        <p>Las <strong>formas personales</strong> indican persona y número (canto, cantabas, cantaremos...). Las <strong>formas no personales</strong> no indican persona ni número: son el infinitivo, el gerundio y el participio.</p>
+
+        <div class="rule-box esdrujula">
+          <h4>Infinitivo</h4>
+          <p>Termina en -ar, -er, -ir. Nombra la acción, como si fuera un sustantivo.</p>
+          <p class="examples"><strong>Ejemplos:</strong> cantar, comer, vivir</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Gerundio</h4>
+          <p>Termina en -ando, -iendo. Expresa una acción que se está desarrollando.</p>
+          <p class="examples"><strong>Ejemplos:</strong> cantando, comiendo, viviendo</p>
+        </div>
+        <div class="rule-box diptongo">
+          <h4>Participio</h4>
+          <p>Termina en -ado, -ido (aunque hay muchos irregulares). Expresa una acción terminada, y también se usa como adjetivo.</p>
+          <p class="examples"><strong>Ejemplos:</strong> cantado, comido, vivido · roto, escrito, hecho (irregulares)</p>
+        </div>
+
+        <div class="tip-box">
+          <strong>Analizar un verbo:</strong> para analizar una forma verbal personal decimos su persona (1ª, 2ª o 3ª), su número (singular o plural) y a qué infinitivo pertenece. Por ejemplo, "cantamos" → 1ª persona del plural, del verbo cantar.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="formas">Tipo de forma verbal</button>
+            <button class="btn btn-secondary" data-mode="conjugacion">Conjugación</button>
+            <button class="btn btn-secondary" data-mode="persona">Persona y número</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/verbo.js"></script>
+</body>
+</html>
