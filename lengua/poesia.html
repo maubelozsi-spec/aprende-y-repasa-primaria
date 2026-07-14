@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poesía y recursos literarios · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "poesia";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>Poesía y recursos literarios</h1>
+        <p class="content-subtitle">Verso, estrofa y rima · el haiku y los refranes · metáfora, personificación e hipérbole.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Verso, estrofa y rima</h2>
+        <div class="rule-box aguda">
+          <h4>Verso</h4>
+          <p>Cada línea de un poema.</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Estrofa</h4>
+          <p>Conjunto de versos agrupados, separado de otras estrofas por un espacio en blanco.</p>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>Rima</h4>
+          <p>Repetición de sonidos al final de los versos, a partir de la última vocal acentuada.</p>
+          <p class="examples"><strong>Rima consonante</strong> (coinciden todos los sonidos): cielo / suelo · cantar / lugar<br>
+          <strong>Rima asonante</strong> (solo coinciden las vocales): cielo / beso · casa / cara</p>
+        </div>
+
+        <h2>La medida de los versos</h2>
+        <p>Para medir un verso se cuentan sus sílabas. Según el número de sílabas, los versos son de <strong>arte menor</strong> (8 sílabas o menos) o de <strong>arte mayor</strong> (9 sílabas o más).</p>
+
+        <h2>El haiku</h2>
+        <p>El <strong>haiku</strong> es un poema breve de origen japonés, formado por 3 versos sin rima, de <strong>5, 7 y 5 sílabas</strong>. Suele hablar de la naturaleza.</p>
+        <p class="examples"><strong>Ejemplo:</strong><br>Hoja que cae (5)<br>el viento la levanta (7)<br>y sigue el vuelo. (5)</p>
+
+        <h2>Los refranes</h2>
+        <p>Los <strong>refranes</strong> son frases breves y populares que transmiten un consejo o una enseñanza, transmitidas de generación en generación. Muchos tienen rima.</p>
+        <p class="examples"><strong>Ejemplos:</strong> "A quien madruga, Dios le ayuda." · "En boca cerrada no entran moscas." · "Más vale tarde que nunca."</p>
+
+        <h2>Recursos literarios</h2>
+        <div class="rule-box sobresdrujula">
+          <h4>Metáfora</h4>
+          <p>Se identifica una cosa con otra por su parecido, sin usar "como".</p>
+          <p class="examples"><strong>Ejemplo:</strong> "Sus ojos son dos luceros." (los ojos = luceros)</p>
+        </div>
+        <div class="rule-box diptongo">
+          <h4>Personificación</h4>
+          <p>Se dan cualidades humanas a algo que no es humano (animales, objetos, la naturaleza).</p>
+          <p class="examples"><strong>Ejemplo:</strong> "El viento silbaba una canción triste."</p>
+        </div>
+        <div class="rule-box hiato">
+          <h4>Hipérbole</h4>
+          <p>Exageración muy grande de algo, para darle más fuerza expresiva.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "Te lo he dicho un millón de veces."</p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="versoestrofa">Verso, estrofa o rima</button>
+            <button class="btn btn-secondary" data-mode="recursos">Recursos literarios</button>
+            <button class="btn btn-secondary" data-mode="haikurefran">Haiku o refrán</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/poesia.js"></script>
+</body>
+</html>
