@@ -18,6 +18,7 @@ const NAV = [
       { id: "morfologico", label: "Análisis morfológico", href: "lengua/morfologico.html", available: true },
       { id: "sinonimos-antonimos", label: "Sinónimos y antónimos", href: "lengua/sinonimos-antonimos.html", available: true },
       { id: "sustantivo-pronombre", label: "El sustantivo y el pronombre", href: "lengua/sustantivo-pronombre.html", available: true },
+      { id: "adjetivo", label: "El adjetivo", href: "lengua/adjetivo.html", available: true },
     ],
   },
   {

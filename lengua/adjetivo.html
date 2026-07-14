@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El adjetivo · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "adjetivo";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>El adjetivo</h1>
+        <p class="content-subtitle">Clases de adjetivo, sus grados y cómo se forman.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es el adjetivo?</h2>
+        <p>El <strong>adjetivo</strong> acompaña al sustantivo y expresa una cualidad o característica suya. Concuerda con el sustantivo en género y número.</p>
+        <p class="examples"><strong>Ejemplos:</strong> el coche <em>rojo</em> · la niña <em>alegre</em> · unos zapatos <em>nuevos</em></p>
+
+        <h2>Clases de adjetivos</h2>
+        <div class="rule-box aguda">
+          <h4>Calificativo</h4>
+          <p>Expresa una cualidad del sustantivo: cómo es.</p>
+          <p class="examples"><strong>Ejemplos:</strong> alto, inteligente, feliz, rápido, amable</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Gentilicio</h4>
+          <p>Indica el lugar de origen o procedencia de alguien o algo.</p>
+          <p class="examples"><strong>Ejemplos:</strong> español, madrileño, francés, italiano, andaluz</p>
+        </div>
+
+        <h2>Los grados del adjetivo</h2>
+        <p>Un mismo adjetivo puede expresar la cualidad con distinta intensidad. Hay tres grados:</p>
+
+        <div class="rule-box esdrujula">
+          <h4>Positivo</h4>
+          <p>Expresa la cualidad sin compararla con nada. <span class="examples">Ejemplo: Juan es <strong>alto</strong>.</span></p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Comparativo</h4>
+          <p>Compara la cualidad entre dos o más elementos. Puede ser de superioridad (<em>más...que</em>), de igualdad (<em>tan...como</em>) o de inferioridad (<em>menos...que</em>).</p>
+          <p class="examples"><strong>Ejemplos:</strong> Juan es <strong>más alto que</strong> Pedro · Juan es <strong>tan alto como</strong> Pedro · Juan es <strong>menos alto que</strong> Pedro</p>
+        </div>
+        <div class="rule-box diptongo">
+          <h4>Superlativo</h4>
+          <p>Expresa la cualidad en su grado máximo. Puede ser absoluto (añadiendo <em>-ísimo</em> o <em>muy</em>) o relativo (<em>el/la más... de</em>).</p>
+          <p class="examples"><strong>Ejemplos:</strong> Juan es <strong>altísimo</strong> · Juan es <strong>muy alto</strong> · Juan es <strong>el más alto de</strong> la clase</p>
+        </div>
+
+        <h2>Formación de adjetivos</h2>
+        <p>Podemos formar adjetivos nuevos añadiendo sufijos a sustantivos.</p>
+        <p class="examples"><strong>Ejemplos:</strong> miedo + -oso → miedoso · nación + -al → nacional · cariño + -oso → cariñoso · color + -ido → colorido</p>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="clases">Calificativo o gentilicio</button>
+            <button class="btn btn-secondary" data-mode="grados">Grados del adjetivo</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/adjetivo.js"></script>
+</body>
+</html>
