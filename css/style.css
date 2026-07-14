@@ -839,6 +839,14 @@ table.rules-table tr:last-child td {
   min-height: 24px;
 }
 
+/* ---------- Cuadrícula de coordenadas ---------- */
+
+.grid-example {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
 /* ---------- Fichas de valor posicional ---------- */
 
 .pv-tiles {

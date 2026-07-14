@@ -44,6 +44,7 @@ const NAV = [
       { id: "operaciones-combinadas", label: "Operaciones combinadas", href: "matematicas/operaciones-combinadas.html", available: true },
       { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", href: "matematicas/multiplos-divisores.html", available: true },
       { id: "angulos", label: "Ángulos", href: "matematicas/angulos.html", available: true },
+      { id: "coordenadas", label: "Coordenadas, simetrías, traslaciones y giros", href: "matematicas/coordenadas.html", available: true },
     ],
   },
 ];

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coordenadas, simetrías, traslaciones y giros · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "coordenadas";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Coordenadas, simetrías, traslaciones y giros</h1>
+        <p class="content-subtitle">El plano cartesiano y los movimientos de figuras.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Las coordenadas</h2>
+        <p>Un <strong>plano cartesiano</strong> tiene dos ejes perpendiculares: el eje <strong>X</strong> (horizontal) y el eje <strong>Y</strong> (vertical). Se cruzan en el <strong>origen</strong>, el punto (0, 0).</p>
+        <p>Cada punto se localiza con dos números, sus <strong>coordenadas</strong> (x, y): el primero dice cuánto te mueves en horizontal, el segundo cuánto en vertical.</p>
+        <div class="grid-example" id="ejemplo-coordenadas"></div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> el punto P(3, 5) está 3 unidades a la derecha del origen y 5 unidades hacia arriba.
+        </div>
+
+        <h2>La simetría</h2>
+        <p>Un punto es <strong>simétrico</strong> de otro respecto a un <strong>eje de simetría</strong> cuando está a la misma distancia del eje, pero al otro lado, como un reflejo en un espejo.</p>
+        <div class="grid-example" id="ejemplo-simetria"></div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> A(4, 3) reflejado respecto al eje Y (vertical) es B(−4, 3): la coordenada x cambia de signo y la y se mantiene.
+        </div>
+
+        <h2>La traslación</h2>
+        <p>Trasladar una figura es moverla en línea recta, sin girarla, según un <strong>vector</strong> que indica cuánto se mueve en horizontal y en vertical.</p>
+        <div class="grid-example" id="ejemplo-traslacion"></div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> A(−3, −2) trasladado según el vector (+4, +1) es B(1, −1): se suma el vector a las coordenadas de A.
+        </div>
+
+        <h2>El giro</h2>
+        <p>Girar una figura es rotarla alrededor de un <strong>centro de giro</strong> un cierto ángulo (90°, 180° o 270°).</p>
+        <div class="grid-example" id="ejemplo-giro"></div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> A(3, 2) girado 90° respecto al origen es B(−2, 3).
+        </div>
+
+        <table class="rules-table">
+          <tr><th>Giro respecto al origen</th><th>Fórmula</th></tr>
+          <tr><td>90°</td><td>(x, y) → (−y, x)</td></tr>
+          <tr><td>180°</td><td>(x, y) → (−x, −y)</td></tr>
+          <tr><td>270°</td><td>(x, y) → (y, −x)</td></tr>
+        </table>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="coordenadas">Coordenadas</button>
+            <button class="btn btn-secondary" data-mode="simetria">Simetría</button>
+            <button class="btn btn-secondary" data-mode="traslacion">Traslación</button>
+            <button class="btn btn-secondary" data-mode="giro">Giro</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="grid-example" id="game-grid"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/coordenadas.js"></script>
+</body>
+</html>
