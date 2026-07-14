@@ -50,6 +50,7 @@ const NAV = [
       { id: "decimales", label: "Números decimales", href: "matematicas/decimales.html", available: true },
       { id: "decimales-md", label: "Multiplicación y división de decimales", href: "matematicas/decimales-md.html", available: true },
       { id: "porcentajes", label: "Porcentajes", href: "matematicas/porcentajes.html", available: true },
+      { id: "medidas", label: "Medidas: longitud, capacidad, masa y superficie", href: "matematicas/medidas.html", available: true },
     ],
   },
 ];

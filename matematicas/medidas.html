@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medidas: longitud, capacidad, masa y superficie · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "medidas";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Medidas: longitud, capacidad, masa y superficie</h1>
+        <p class="content-subtitle">Unidades y conversiones.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Unidades de longitud</h2>
+        <table class="rules-table">
+          <tr><th>km</th><th>hm</th><th>dam</th><th>m</th><th>dm</th><th>cm</th><th>mm</th></tr>
+          <tr><td>1000 m</td><td>100 m</td><td>10 m</td><td>1 m</td><td>0,1 m</td><td>0,01 m</td><td>0,001 m</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>La escalera:</strong> cada unidad es <strong>10 veces</strong> mayor que la siguiente. Para bajar un escalón se multiplica por 10; para subir, se divide entre 10 (se mueve la coma un lugar).
+        </div>
+
+        <h2>Unidades de capacidad</h2>
+        <table class="rules-table">
+          <tr><th>kl</th><th>hl</th><th>dal</th><th>l</th><th>dl</th><th>cl</th><th>ml</th></tr>
+          <tr><td>1000 l</td><td>100 l</td><td>10 l</td><td>1 l</td><td>0,1 l</td><td>0,01 l</td><td>0,001 l</td></tr>
+        </table>
+
+        <h2>Unidades de masa</h2>
+        <table class="rules-table">
+          <tr><th>kg</th><th>hg</th><th>dag</th><th>g</th><th>dg</th><th>cg</th><th>mg</th></tr>
+          <tr><td>1000 g</td><td>100 g</td><td>10 g</td><td>1 g</td><td>0,1 g</td><td>0,01 g</td><td>0,001 g</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Longitud, capacidad y masa</strong> siguen la misma escalera de ×10. Solo cambia la unidad principal: metro (m), litro (l) o gramo (g).
+        </div>
+
+        <h2>Unidades de superficie</h2>
+        <table class="rules-table">
+          <tr><th>km²</th><th>hm²</th><th>dam²</th><th>m²</th><th>dm²</th><th>cm²</th><th>mm²</th></tr>
+          <tr><td>×100</td><td>×100</td><td>×100</td><td>1 m²</td><td>×100</td><td>×100</td><td>×100</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Cuidado:</strong> las unidades de superficie miden en dos dimensiones, así que cada escalón vale <strong>100 veces</strong> (no 10). 1 m² = 100 dm² = 10.000 cm².
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="longitud">Longitud</button>
+            <button class="btn btn-secondary" data-mode="capacidad">Capacidad</button>
+            <button class="btn btn-secondary" data-mode="masa">Masa</button>
+            <button class="btn btn-secondary" data-mode="superficie">Superficie</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/medidas.js"></script>
+</body>
+</html>
