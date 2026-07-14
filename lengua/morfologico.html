@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análisis morfológico · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "morfologico";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>Análisis morfológico</h1>
+        <p class="content-subtitle">Las categorías gramaticales: sustantivo, adjetivo, determinante, pronombre, verbo, adverbio, preposición y conjunción.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es el análisis morfológico?</h2>
+        <p>Analizar morfológicamente una palabra es decir a qué <strong>categoría gramatical</strong> (o "clase de palabra") pertenece dentro de una oración: si es un sustantivo, un adjetivo, un verbo...</p>
+
+        <h2>Sustantivo</h2>
+        <p>Nombra personas, animales, cosas o ideas. Tiene género (masculino/femenino) y número (singular/plural).</p>
+        <p class="examples"><strong>Ejemplos:</strong> perro, casa, parque, alegría, María</p>
+
+        <h2>Adjetivo</h2>
+        <p>Acompaña al sustantivo y expresa una cualidad. Concuerda en género y número con el sustantivo al que se refiere.</p>
+        <p class="examples"><strong>Ejemplos:</strong> pequeño, azul, interesante, amable</p>
+
+        <h2>Determinante</h2>
+        <p>Va delante del sustantivo y lo concreta. Hay varios tipos:</p>
+        <div class="rule-box aguda">
+          <h4>Tipos de determinante</h4>
+          <p><strong>Artículos:</strong> el, la, los, las, un, una, unos, unas.</p>
+          <p><strong>Demostrativos:</strong> este, ese, aquel, esta, aquella...</p>
+          <p><strong>Posesivos:</strong> mi, tu, su, nuestro...</p>
+          <p><strong>Numerales:</strong> dos, primero, tercero...</p>
+          <p><strong>Indefinidos:</strong> algunos, muchos, todos, varios...</p>
+        </div>
+
+        <h2>Pronombre</h2>
+        <p>Sustituye a un sustantivo que ya conocemos o que no hace falta nombrar.</p>
+        <p class="examples"><strong>Ejemplos:</strong> yo, tú, él, nosotros, este (sin sustantivo detrás), alguien</p>
+
+        <h2>Verbo</h2>
+        <p>Expresa una acción, un estado o un proceso. Cambia de forma según la persona, el número, el tiempo y el modo.</p>
+        <p class="examples"><strong>Ejemplos:</strong> corre, estudia, es, ayudó, iremos</p>
+
+        <h2>Adverbio</h2>
+        <p>Modifica al verbo, al adjetivo o a otro adverbio. No cambia de forma (no tiene género ni número).</p>
+        <div class="rule-box llana">
+          <h4>Tipos de adverbio</h4>
+          <p><strong>Lugar:</strong> aquí, allí, cerca · <strong>Tiempo:</strong> hoy, ayer, pronto, tarde</p>
+          <p><strong>Modo:</strong> bien, mal, despacio, rápido · <strong>Cantidad:</strong> mucho, poco, muy</p>
+          <p><strong>Afirmación:</strong> sí, también · <strong>Negación:</strong> no, nunca · <strong>Duda:</strong> quizás, acaso</p>
+        </div>
+
+        <h2>Preposición</h2>
+        <p>Relaciona dos palabras o grupos de palabras dentro de la oración. No cambia de forma.</p>
+        <p class="examples"><strong>Ejemplos:</strong> a, de, en, con, por, para, sin</p>
+
+        <h2>Conjunción</h2>
+        <p>Une palabras u oraciones.</p>
+        <p class="examples"><strong>Ejemplos:</strong> y, o, pero, porque, si</p>
+
+        <div class="tip-box">
+          <strong>Truco:</strong> para averiguar la categoría de una palabra, fíjate en su función dentro de la frase: ¿nombra algo? (sustantivo) ¿acompaña a un sustantivo? (adjetivo o determinante) ¿expresa una acción? (verbo) ¿modifica al verbo? (adverbio)...
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok">
+              <span class="game-stat-value" id="score-ok">0</span>
+              <span class="game-stat-label">Aciertos</span>
+            </div>
+            <div class="game-stat ko">
+              <span class="game-stat-value" id="score-ko">0</span>
+              <span class="game-stat-label">Fallos</span>
+            </div>
+          </div>
+
+          <div class="game-step-label">Identifica la categoría gramatical</div>
+          <p class="instructions">¿Qué categoría gramatical es la palabra subrayada?</p>
+          <div class="sentence-display" id="sentence-display"></div>
+
+          <div class="syllable-row" id="category-buttons">
+            <button class="syllable-chip" data-cat="sustantivo">Sustantivo</button>
+            <button class="syllable-chip" data-cat="adjetivo">Adjetivo</button>
+            <button class="syllable-chip" data-cat="determinante">Determinante</button>
+            <button class="syllable-chip" data-cat="pronombre">Pronombre</button>
+            <button class="syllable-chip" data-cat="verbo">Verbo</button>
+            <button class="syllable-chip" data-cat="adverbio">Adverbio</button>
+            <button class="syllable-chip" data-cat="preposicion">Preposición</button>
+            <button class="syllable-chip" data-cat="conjuncion">Conjunción</button>
+          </div>
+
+          <!-- Feedback final -->
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente palabra</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/morfologico.js"></script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análisis sintáctico · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "sintactico";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>Análisis sintáctico</h1>
+        <p class="content-subtitle">Sujeto y predicado · predicado nominal y verbal · complementos (CD, CI, CC).</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>La oración</h2>
+        <p>Una <strong>oración</strong> es un grupo de palabras con sentido completo que tiene un verbo en forma personal (conjugado). Toda oración se divide en dos partes: <strong>sujeto</strong> y <strong>predicado</strong>.</p>
+        <div class="tip-box">
+          <strong>Truco:</strong> busca primero el verbo de la oración. A partir de él podrás encontrar el sujeto y el predicado.
+        </div>
+
+        <h2>El sujeto</h2>
+        <p>El sujeto es la palabra o el grupo de palabras que realiza la acción del verbo, o de quien se dice algo. Para encontrarlo, pregunta <strong>¿quién o quiénes?</strong> delante del verbo.</p>
+        <p class="examples"><strong>Ejemplo:</strong> <em>Los niños juegan en el parque.</em> ¿Quién juega? → <strong>Los niños</strong> (sujeto).</p>
+        <p>La palabra principal del sujeto se llama <strong>núcleo del sujeto</strong>, y siempre concuerda en número (singular/plural) con el verbo.</p>
+
+        <div class="tip-box">
+          <strong>Sujeto omitido (o elíptico):</strong> a veces el sujeto no aparece escrito en la oración, pero lo conocemos por la terminación del verbo. <br>
+          <span class="examples"><strong>Ejemplo:</strong> <em>Comemos fruta.</em> ¿Quién come? → nosotros (sujeto omitido).</span>
+        </div>
+
+        <h2>El predicado</h2>
+        <p>El predicado es todo lo que se dice del sujeto: lo que hace, cómo es o cómo está. Su palabra principal, el <strong>núcleo del predicado</strong>, es siempre el verbo.</p>
+        <p class="examples"><strong>Ejemplo:</strong> <em>Los niños <u>juegan en el parque</u>.</em> "Juegan en el parque" es el predicado.</p>
+
+        <h2>Predicado nominal y predicado verbal</h2>
+        <div class="rule-box aguda">
+          <h4>Predicado nominal (PN)</h4>
+          <p>Aparece con los verbos <strong>ser, estar o parecer</strong>. Lleva un <strong>atributo</strong>: una palabra que dice cómo es o cómo está el sujeto.</p>
+          <p class="examples"><strong>Ejemplos:</strong> Mi madre <strong>es profesora</strong> · El cielo <strong>está nublado</strong> · Los niños <strong>parecen cansados</strong></p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Predicado verbal (PV)</h4>
+          <p>Aparece con el resto de los verbos. Puede llevar distintos complementos que completan el significado del verbo.</p>
+          <p class="examples"><strong>Ejemplos:</strong> María <strong>compra un regalo</strong> · El tren <strong>llega tarde</strong></p>
+        </div>
+
+        <h2>Los complementos del predicado verbal</h2>
+        <div class="rule-box esdrujula">
+          <h4>Complemento directo (CD)</h4>
+          <p>Responde a la pregunta <strong>¿qué?</strong> hecha después del verbo. Se puede sustituir por <em>lo, la, los, las</em>.</p>
+          <p class="examples"><strong>Ejemplo:</strong> María compra <strong>un regalo</strong> (¿qué compra? → un regalo → lo compra).</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Complemento indirecto (CI)</h4>
+          <p>Responde a las preguntas <strong>¿a quién?</strong> o <strong>¿para quién?</strong>. Suele empezar por "a" o "para". Se puede sustituir por <em>le, les</em>.</p>
+          <p class="examples"><strong>Ejemplo:</strong> Pedro regala flores <strong>a su abuela</strong> (¿a quién regala flores? → a su abuela → le regala flores).</p>
+        </div>
+        <div class="rule-box diptongo">
+          <h4>Complemento circunstancial (CC)</h4>
+          <p>Añade información sobre las circunstancias: <strong>dónde</strong> (lugar), <strong>cuándo</strong> (tiempo), <strong>cómo</strong> (modo) o <strong>cuánto</strong> (cantidad).</p>
+          <p class="examples"><strong>Ejemplos:</strong> Juegan <strong>en el parque</strong> (lugar) · Llegan <strong>tarde</strong> (tiempo) · Trabajan <strong>bien</strong> (modo) · Estudia <strong>mucho</strong> (cantidad)</p>
+        </div>
+
+        <div class="tip-box">
+          <strong>Resumen rápido:</strong> sujeto = ¿quién? · predicado = el resto de la oración (núcleo = el verbo) · predicado nominal = ser/estar/parecer + atributo · predicado verbal = verbo + CD (¿qué?), CI (¿a quién?) y/o CC (dónde, cuándo, cómo, cuánto).
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok">
+              <span class="game-stat-value" id="score-ok">0</span>
+              <span class="game-stat-label">Aciertos</span>
+            </div>
+            <div class="game-stat ko">
+              <span class="game-stat-value" id="score-ko">0</span>
+              <span class="game-stat-label">Fallos</span>
+            </div>
+          </div>
+
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+
+          <!-- Paso 1: sujeto -->
+          <div id="step-subject">
+            <div class="game-step-label" id="step-subject-label">Paso 1 · Encuentra el sujeto</div>
+            <p class="instructions">Selecciona las palabras que forman el sujeto. Si no aparece escrito, marca "Sujeto omitido".</p>
+            <div class="syllable-row" id="word-tokens"></div>
+            <div class="actions-row">
+              <button class="btn btn-secondary" id="omitted-toggle">Sujeto omitido</button>
+            </div>
+            <div class="actions-row">
+              <button class="btn btn-primary" id="check-subject">Comprobar sujeto</button>
+            </div>
+          </div>
+
+          <!-- Paso 2: tipo de predicado -->
+          <div id="step-predtype" style="display:none;">
+            <div class="game-step-label" id="step-predtype-label">Paso 2 · Tipo de predicado</div>
+            <div class="sentence-display" id="sentence-after-subject"></div>
+            <p class="instructions">¿El predicado de esta oración es nominal o verbal?</p>
+            <div class="choice-row">
+              <button class="btn btn-secondary" data-pt="nominal">Predicado nominal</button>
+              <button class="btn btn-secondary" data-pt="verbal">Predicado verbal</button>
+            </div>
+          </div>
+
+          <!-- Paso 3: complementos (solo si es verbal) -->
+          <div id="step-complements" style="display:none;">
+            <div class="game-step-label">Paso 3 · Complementos</div>
+            <p class="instructions">¿Qué complementos aparecen en el predicado? Selecciona todos los que veas.</p>
+            <div class="syllable-row" id="complement-chips">
+              <button class="syllable-chip" data-comp="CD">CD</button>
+              <button class="syllable-chip" data-comp="CI">CI</button>
+              <button class="syllable-chip" data-comp="CC">CC</button>
+              <button class="syllable-chip" data-comp="NINGUNO">Ninguno</button>
+            </div>
+            <div class="actions-row">
+              <button class="btn btn-primary" id="check-complements">Comprobar complementos</button>
+            </div>
+          </div>
+
+          <!-- Feedback final -->
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-sentence" style="display:none;">Siguiente oración</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/sintactico.js"></script>
+</body>
+</html>

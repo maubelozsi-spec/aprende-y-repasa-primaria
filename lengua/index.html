@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lengua · Aprende y Repasa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "lengua";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>Contenidos de Lengua</h1>
+        <p class="content-subtitle">Elige un contenido para ver la explicación y practicar.</p>
+      </header>
+
+      <ul class="content-list">
+        <li>
+          <a href="ortografia.html" class="content-list-item" style="--item-color: var(--color-indigo);">
+            <span class="content-list-text">
+              <strong>Ortografía</strong>
+              <span>Sílabas, agudas, llanas, esdrújulas, sobresdrújulas, diptongo, hiato y triptongo.</span>
+            </span>
+            <span class="status-pill status-available">Disponible</span>
+          </a>
+        </li>
+        <li>
+          <a href="sintactico.html" class="content-list-item" style="--item-color: var(--color-plum);">
+            <span class="content-list-text">
+              <strong>Análisis sintáctico</strong>
+              <span>Sujeto, predicado y estructura de la oración.</span>
+            </span>
+            <span class="status-pill status-available">Disponible</span>
+          </a>
+        </li>
+        <li>
+          <a href="morfologico.html" class="content-list-item" style="--item-color: var(--color-amber);">
+            <span class="content-list-text">
+              <strong>Análisis morfológico</strong>
+              <span>Categorías gramaticales: sustantivo, adjetivo, verbo...</span>
+            </span>
+            <span class="status-pill status-available">Disponible</span>
+          </a>
+        </li>
+      </ul>
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+</body>
+</html>
