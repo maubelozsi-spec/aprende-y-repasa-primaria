@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablas de multiplicar · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "tablas";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Tablas de multiplicar</h1>
+        <p class="content-subtitle">Repasa las tablas del 1 al 10, con trucos para memorizarlas y juegos para practicar.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es una tabla de multiplicar?</h2>
+        <p>La tabla de un número es la lista de los resultados de multiplicarlo por 1, 2, 3... hasta 10. Multiplicar es sumar un mismo número varias veces: por ejemplo, 3 × 4 significa "3 sumado 4 veces" (3+3+3+3=12).</p>
+        <div class="tip-box">
+          <strong>Propiedad conmutativa:</strong> el orden de los factores no cambia el resultado (3 × 7 = 7 × 3 = 21). Si te sabes una tabla, ¡ya te sabes la mitad de todas las demás!
+        </div>
+
+        <h2>Trucos para memorizar</h2>
+        <div class="tricks-grid">
+          <div class="rule-box aguda">
+            <h4>Tabla del 1</h4>
+            <p>El resultado es siempre el mismo número.</p>
+          </div>
+          <div class="rule-box llana">
+            <h4>Tabla del 2</h4>
+            <p>Es el doble del número (sumarlo consigo mismo).</p>
+          </div>
+          <div class="rule-box esdrujula">
+            <h4>Tabla del 5</h4>
+            <p>Siempre termina en 0 o en 5.</p>
+          </div>
+          <div class="rule-box sobresdrujula">
+            <h4>Tabla del 9</h4>
+            <p>Las cifras del resultado siempre suman 9 (18→1+8=9, 27→2+7=9...), y cada resultado es 10 veces el factor menos el factor.</p>
+          </div>
+          <div class="rule-box diptongo">
+            <h4>Tabla del 10</h4>
+            <p>Se añade un 0 al final del número.</p>
+          </div>
+          <div class="rule-box hiato">
+            <h4>Tabla del 4</h4>
+            <p>Es el doble del doble (multiplicar por 2 y luego otra vez por 2).</p>
+          </div>
+        </div>
+
+        <h2>Consulta una tabla</h2>
+        <p>Elige un número para ver su tabla completa.</p>
+
+        <div class="table-picker" id="table-picker">
+          <button class="btn btn-secondary active" data-table="1">1</button>
+          <button class="btn btn-secondary" data-table="2">2</button>
+          <button class="btn btn-secondary" data-table="3">3</button>
+          <button class="btn btn-secondary" data-table="4">4</button>
+          <button class="btn btn-secondary" data-table="5">5</button>
+          <button class="btn btn-secondary" data-table="6">6</button>
+          <button class="btn btn-secondary" data-table="7">7</button>
+          <button class="btn btn-secondary" data-table="8">8</button>
+          <button class="btn btn-secondary" data-table="9">9</button>
+          <button class="btn btn-secondary" data-table="10">10</button>
+        </div>
+
+        <table class="rules-table" id="table-display">
+          <tr><th>Multiplicación</th><th>Resultado</th></tr>
+        </table>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+            <div class="game-stat streak"><span class="game-stat-value" id="score-streak">0</span><span class="game-stat-label">Racha</span></div>
+          </div>
+
+          <div class="game-step-label">Elige cómo quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="tabla">Practicar una tabla</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Todas mezcladas</button>
+          </div>
+
+          <div class="table-picker" id="game-table-picker">
+            <button class="btn btn-secondary active" data-table="1">1</button>
+            <button class="btn btn-secondary" data-table="2">2</button>
+            <button class="btn btn-secondary" data-table="3">3</button>
+            <button class="btn btn-secondary" data-table="4">4</button>
+            <button class="btn btn-secondary" data-table="5">5</button>
+            <button class="btn btn-secondary" data-table="6">6</button>
+            <button class="btn btn-secondary" data-table="7">7</button>
+            <button class="btn btn-secondary" data-table="8">8</button>
+            <button class="btn btn-secondary" data-table="9">9</button>
+            <button class="btn btn-secondary" data-table="10">10</button>
+          </div>
+
+          <div class="fact-display" id="fact-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/tablas.js"></script>
+</body>
+</html>

@@ -629,6 +629,7 @@ table.rules-table tr:last-child td {
 
 .game-stat.ok .game-stat-value { color: var(--color-success); }
 .game-stat.ko .game-stat-value { color: var(--color-error); }
+.game-stat.streak .game-stat-value { color: var(--color-indigo); }
 
 .progress-track {
   height: 5px;
@@ -1006,6 +1007,42 @@ table.rules-table tr:last-child td {
 
 .mult-partial-row .letter {
   background: #f7f8fb;
+}
+
+/* ---------- Tablas de multiplicar ---------- */
+
+.table-picker {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.table-picker .btn {
+  min-width: 46px;
+  padding: 10px 0;
+}
+
+.fact-display {
+  font-family: var(--font);
+  font-size: 40px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--text);
+  margin: 26px 0;
+}
+
+.fact-display .op {
+  color: var(--text-faint);
+  font-weight: 700;
+}
+
+.tricks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
 }
 
 .syllable-row {
