@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El texto teatral · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "texto-teatral";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>El texto teatral</h1>
+        <p class="content-subtitle">Diálogo y acotaciones, actos y escenas, y la estructura de la historia.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es un texto teatral?</h2>
+        <p>El <strong>texto teatral</strong> está escrito para ser representado ante un público, con actores, decorados y vestuario. Combina lo que dicen los personajes con las indicaciones del autor.</p>
+
+        <h2>Diálogo y acotaciones</h2>
+        <div class="rule-box aguda">
+          <h4>Diálogo</h4>
+          <p>Es lo que dicen los personajes. Va precedido del nombre del personaje que habla.</p>
+          <p class="examples"><strong>Ejemplo:</strong> LUCÍA: ¡No puedo creer que hayas venido!</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Acotaciones</h4>
+          <p>Son las indicaciones del autor sobre el escenario, los gestos, los movimientos o el tono de voz. No las dicen los personajes en voz alta: suelen ir entre paréntesis o en cursiva.</p>
+          <p class="examples"><strong>Ejemplo:</strong> (Entra corriendo y mira hacia la puerta.)</p>
+        </div>
+
+        <h2>Actos y escenas</h2>
+        <div class="rule-box esdrujula">
+          <h4>Acto</h4>
+          <p>Cada una de las grandes partes en que se divide una obra de teatro. Suele coincidir con un cambio importante en la historia, y normalmente cambia el decorado.</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Escena</h4>
+          <p>Cada una de las partes en que se divide un acto. Cambia cuando entra o sale un personaje del escenario.</p>
+        </div>
+
+        <h2>La estructura de la historia</h2>
+        <p>Como en cualquier narración, una obra de teatro suele tener tres partes:</p>
+        <table class="rules-table">
+          <tr><th>Parte</th><th>Qué ocurre</th></tr>
+          <tr><td>Planteamiento</td><td>se presentan los personajes y el lugar de la historia</td></tr>
+          <tr><td>Nudo</td><td>surge el problema o conflicto principal</td></tr>
+          <tr><td>Desenlace</td><td>se resuelve el conflicto y termina la historia</td></tr>
+        </table>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="dialogoacotacion">Diálogo o acotación</button>
+            <button class="btn btn-secondary" data-mode="actoescena">Acto o escena</button>
+            <button class="btn btn-secondary" data-mode="estructura">Estructura de la historia</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/texto-teatral.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+// ============================================================
+// El texto teatral: banco de datos + lógica del quiz
+// ============================================================
+
+const DIALOGO_ACOTACION_ENTRIES = [
+  { display: "(Entra corriendo y mira hacia la puerta.)", tipo: "Acotación" },
+  { display: "¡No puedo creer que hayas venido!", tipo: "Diálogo" },
+  { display: "(Se oye un trueno a lo lejos.)", tipo: "Acotación" },
+  { display: "¿Dónde has estado todo este tiempo?", tipo: "Diálogo" },
+  { display: "(Silencio. Todos se miran sorprendidos.)", tipo: "Acotación" },
+  { display: "Yo no fui quien rompió el jarrón.", tipo: "Diálogo" },
+  { display: "(Sale por la puerta de la izquierda.)", tipo: "Acotación" },
+  { display: "Esto no puede estar pasando de verdad.", tipo: "Diálogo" },
+];
+
+const ACTO_ESCENA_ENTRIES = [
+  { display: "Cada una de las grandes partes de una obra, marcada por un cambio de decorado", tipo: "Acto" },
+  { display: "Cambia cuando entra o sale un personaje del escenario", tipo: "Escena" },
+  { display: "Puede contener varias divisiones más pequeñas dentro", tipo: "Acto" },
+  { display: "Es una subdivisión dentro de una parte más grande de la obra", tipo: "Escena" },
+];
+
+const ESTRUCTURA_ENTRIES = [
+  { display: "Se presentan los personajes y el lugar donde ocurre la historia.", tipo: "Planteamiento" },
+  { display: "Conocemos quién es el protagonista y dónde vive.", tipo: "Planteamiento" },
+  { display: "Surge el problema o conflicto principal de la historia.", tipo: "Nudo" },
+  { display: "Los personajes se enfrentan a las consecuencias del conflicto.", tipo: "Nudo" },
+  { display: "Se resuelve el conflicto y termina la historia.", tipo: "Desenlace" },
+  { display: "El problema encuentra su solución final.", tipo: "Desenlace" },
+];
+
+const MODE_GROUPS = {
+  dialogoacotacion: {
+    pool: DIALOGO_ACOTACION_ENTRIES,
+    field: "tipo",
+    question: () => "¿Es un diálogo o una acotación?",
+    options: ["Diálogo", "Acotación"],
+  },
+  actoescena: {
+    pool: ACTO_ESCENA_ENTRIES,
+    field: "tipo",
+    question: () => "¿Esto describe un acto o una escena?",
+    options: ["Acto", "Escena"],
+  },
+  estructura: {
+    pool: ESTRUCTURA_ENTRIES,
+    field: "tipo",
+    question: () => "¿A qué parte de la estructura corresponde esto?",
+    options: ["Planteamiento", "Nudo", "Desenlace"],
+  },
+};
+
+function shuffle(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initTabs();
+  if (document.getElementById("word-display")) initGame();
+});
+
+function initTabs() {
+  const tabBtns = document.querySelectorAll(".tab-btn");
+  const panels = {
+    teoria: document.getElementById("tab-teoria"),
+    practica: document.getElementById("tab-practica"),
+  };
+  if (tabBtns.length === 0) return;
+
+  function activateTab(name) {
+    tabBtns.forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+    Object.entries(panels).forEach(([key, el]) => el.classList.toggle("active", key === name));
+  }
+
+  tabBtns.forEach((btn) => btn.addEventListener("click", () => activateTab(btn.dataset.tab)));
+
+  const goBtn = document.getElementById("go-to-practice");
+  if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
+}
+
+function initGame() {
+  const els = {
+    modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
+    instructions: document.getElementById("instructions"),
+    wordDisplay: document.getElementById("word-display"),
+    answerButtons: document.getElementById("answer-buttons"),
+    feedback: document.getElementById("feedback"),
+    nextBtn: document.getElementById("next-word"),
+    scoreOk: document.getElementById("score-ok"),
+    scoreKo: document.getElementById("score-ko"),
+  };
+
+  const modeKeys = Object.keys(MODE_GROUPS);
+  let scoreOk = 0;
+  let scoreKo = 0;
+  let mode = "dialogoacotacion";
+  let current;
+  let lastDisplay = "";
+
+  function pickQuestion() {
+    const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
+    const group = MODE_GROUPS[groupKey];
+    let entry;
+    do {
+      entry = group.pool[Math.floor(Math.random() * group.pool.length)];
+    } while (group.pool.length > 1 && entry.display === lastDisplay);
+    lastDisplay = entry.display;
+    return { entry, group };
+  }
+
+  function startRound() {
+    current = pickQuestion();
+
+    els.instructions.textContent = current.group.question();
+    els.wordDisplay.textContent = current.entry.display;
+
+    els.feedback.classList.remove("show", "ok", "ko");
+    els.feedback.innerHTML = "";
+    els.nextBtn.style.display = "none";
+
+    const correct = current.entry[current.group.field];
+    let options = current.group.options.slice();
+    if (options.length > 4) {
+      const others = options.filter((o) => o !== correct);
+      options = shuffle([correct, ...shuffle(others).slice(0, 3)]);
+    } else {
+      options = shuffle(options);
+    }
+
+    els.answerButtons.innerHTML = "";
+    options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.className = "syllable-chip";
+      btn.textContent = opt;
+      btn.addEventListener("click", () => chooseAnswer(opt, btn));
+      els.answerButtons.appendChild(btn);
+    });
+  }
+
+  function chooseAnswer(chosen, btn) {
+    const correct = current.entry[current.group.field];
+    const isCorrect = chosen === correct;
+
+    if (isCorrect) scoreOk++;
+    else scoreKo++;
+    els.scoreOk.textContent = scoreOk;
+    els.scoreKo.textContent = scoreKo;
+
+    const allBtns = els.answerButtons.querySelectorAll(".syllable-chip");
+    allBtns.forEach((b) => {
+      b.disabled = true;
+      if (b.textContent === correct) b.classList.add("correct");
+      else if (b === btn && !isCorrect) b.classList.add("incorrect");
+    });
+
+    const titleText = isCorrect ? "Correcto" : "No era esa";
+
+    els.feedback.classList.add("show", isCorrect ? "ok" : "ko");
+    els.feedback.innerHTML = `<p class="feedback-title">${titleText}</p><p>${current.entry.display} → <strong>${correct}</strong>.</p>`;
+
+    els.nextBtn.style.display = "";
+  }
+
+  els.modeBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      els.modeBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      mode = btn.dataset.mode;
+      startRound();
+    });
+  });
+
+  els.nextBtn.addEventListener("click", startRound);
+
+  startRound();
+}

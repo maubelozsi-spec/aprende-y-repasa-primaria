@@ -24,6 +24,7 @@ const NAV = [
       { id: "adverbio-preposicion-conjuncion", label: "Adverbio, preposición y conjunción", href: "lengua/adverbio-preposicion-conjuncion.html", available: true },
       { id: "formacion-palabras", label: "Formación de palabras", href: "lengua/formacion-palabras.html", available: true },
       { id: "comunicacion-textos", label: "Comunicación y tipos de texto", href: "lengua/comunicacion-textos.html", available: true },
+      { id: "texto-teatral", label: "El texto teatral", href: "lengua/texto-teatral.html", available: true },
     ],
   },
   {
