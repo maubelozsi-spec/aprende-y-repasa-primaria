@@ -24,6 +24,9 @@ const NAV = [
     href: "matematicas/index.html",
     color: "teal",
     children: [
+      { id: "sumas", label: "Sumas", href: "matematicas/sumas.html", available: true },
+      { id: "restas", label: "Restas", href: "matematicas/restas.html", available: true },
+      { id: "multiplicaciones", label: "Multiplicaciones", href: "matematicas/multiplicaciones.html", available: true },
       { id: "divisiones", label: "Divisiones", href: "matematicas/divisiones.html", available: true },
     ],
   },

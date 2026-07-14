@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiplicaciones · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "multiplicaciones";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Multiplicaciones</h1>
+        <p class="content-subtitle">Multiplicaciones con productos parciales, explicadas paso a paso.</p>
+      </header>
+
+      <div class="choice-row method-picker" id="method-picker">
+        <button class="btn btn-secondary active" data-method="escrita">Método escrito</button>
+        <button class="btn btn-secondary" data-method="mental">Cálculo mental</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active">
+
+        <!-- ---- Teoría: método escrito ---- -->
+        <div id="teoria-escrita" class="theory">
+
+          <h2>Multiplicar con productos parciales</h2>
+          <p>Cuando el multiplicador tiene más de una cifra, se multiplica el multiplicando por cada cifra del multiplicador por separado (empezando por las unidades), y luego se suman todos esos <strong>productos parciales</strong>.</p>
+          <div class="tip-box">
+            <strong>El truco del valor posicional:</strong> si multiplicamos por la cifra de las decenas, en realidad estamos multiplicando por ese número por 10 (por ejemplo, la cifra "4" en las decenas vale 40).
+          </div>
+
+          <h2>Ejemplo paso a paso</h2>
+          <p>Elige un ejemplo y pulsa "Siguiente paso" para ver cómo se calculan los productos parciales y su suma.</p>
+
+          <div class="choice-row" id="example-picker">
+            <button class="btn btn-secondary active" data-example="0">Multiplicador de 1 cifra</button>
+            <button class="btn btn-secondary" data-example="1">Multiplicador de 2 cifras</button>
+            <button class="btn btn-secondary" data-example="2">Multiplicador de 3 cifras</button>
+          </div>
+
+          <div class="arith-visual">
+            <div class="arith-row" id="demo-multiplicand"></div>
+            <div class="arith-addend-with-sign">
+              <span class="arith-op-sign">×</span>
+              <div class="arith-row" id="demo-multiplier"></div>
+            </div>
+            <div class="arith-line"></div>
+            <div class="mult-partials" id="demo-partials"></div>
+            <div class="arith-line" id="demo-sum-line" style="display:none;"></div>
+            <div class="arith-row arith-result" id="demo-result" style="display:none;"></div>
+          </div>
+
+          <div class="division-step-explanation" id="demo-explanation"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-secondary" id="demo-prev">Paso anterior</button>
+            <button class="btn btn-primary" id="demo-next">Siguiente paso</button>
+            <button class="btn btn-secondary" id="demo-reset">Reiniciar</button>
+          </div>
+
+          <p style="text-align:center; margin-top:32px;">
+            <button class="btn btn-primary" id="go-to-practice-escrita">Ir a practicar</button>
+          </p>
+        </div>
+
+        <!-- ---- Teoría: cálculo mental ---- -->
+        <div id="teoria-mental" class="theory" style="display:none;">
+
+          <h2>Multiplicar mentalmente</h2>
+          <p>Para multiplicar "de cabeza", podemos <strong>descomponer el multiplicador</strong> en dos partes fáciles, multiplicar el multiplicando por cada parte, y sumar los resultados (propiedad distributiva).</p>
+          <div class="tip-box">
+            <strong>Ejemplo:</strong> 236 × 34 → pensamos 34 como 30 + 4 → 236×30 = 7080 y 236×4 = 944 → 7080+944 = 8024.
+          </div>
+
+          <h2>Ejemplo paso a paso</h2>
+          <div class="choice-row" id="mental-example-picker">
+            <button class="btn btn-secondary active" data-example="0">Multiplicador de 1 cifra</button>
+            <button class="btn btn-secondary" data-example="1">Multiplicador de 2 cifras</button>
+            <button class="btn btn-secondary" data-example="2">Multiplicador de 3 cifras</button>
+          </div>
+
+          <div class="mental-box">
+            <div class="mental-line" id="mental-demo-line1">Pulsa «Siguiente paso» para empezar.</div>
+            <div class="mental-line" id="mental-demo-line2"></div>
+            <div class="mental-line" id="mental-demo-line3"></div>
+          </div>
+
+          <div class="actions-row">
+            <button class="btn btn-secondary" id="mental-demo-prev">Paso anterior</button>
+            <button class="btn btn-primary" id="mental-demo-next">Siguiente paso</button>
+            <button class="btn btn-secondary" id="mental-demo-reset">Reiniciar</button>
+          </div>
+
+          <p style="text-align:center; margin-top:32px;">
+            <button class="btn btn-primary" id="go-to-practice-mental">Ir a practicar</button>
+          </p>
+        </div>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+
+        <!-- ---- Práctica: método escrito ---- -->
+        <div id="practica-escrita" class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok-w">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko-w">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="progress-track"><div class="progress-fill" id="progress-fill-w"></div></div>
+
+          <div class="game-step-label">Elige el multiplicador</div>
+          <div class="choice-row" id="length-picker-w">
+            <button class="btn btn-secondary active" data-len="1">1 cifra</button>
+            <button class="btn btn-secondary" data-len="2">2 cifras</button>
+            <button class="btn btn-secondary" data-len="3">3 cifras</button>
+          </div>
+
+          <div class="arith-visual">
+            <div class="arith-row" id="game-multiplicand"></div>
+            <div class="arith-addend-with-sign">
+              <span class="arith-op-sign">×</span>
+              <div class="arith-row" id="game-multiplier"></div>
+            </div>
+            <div class="arith-line"></div>
+            <div class="mult-partials" id="game-partials"></div>
+            <div class="arith-line" id="game-sum-line" style="display:none;"></div>
+            <div class="arith-row arith-result" id="game-result" style="display:none;"></div>
+          </div>
+
+          <p class="instructions" id="game-instruction"></p>
+          <div class="mental-inputs-row">
+            <input type="number" class="number-input" id="game-answer-input">
+            <button class="btn btn-primary" id="game-check-btn">Comprobar</button>
+          </div>
+
+          <div id="feedback-w" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-problem-w" style="display:none;">Nueva multiplicación</button>
+          </div>
+        </div>
+
+        <!-- ---- Práctica: cálculo mental ---- -->
+        <div id="practica-mental" class="game-card" style="display:none;">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok-m">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko-m">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="progress-track"><div class="progress-fill" id="progress-fill-m"></div></div>
+
+          <div class="game-step-label">Elige el multiplicador</div>
+          <div class="choice-row" id="length-picker-m">
+            <button class="btn btn-secondary active" data-len="1">1 cifra</button>
+            <button class="btn btn-secondary" data-len="2">2 cifras</button>
+            <button class="btn btn-secondary" data-len="3">3 cifras</button>
+          </div>
+
+          <div class="mental-box">
+            <div class="mental-line" id="mental-game-equation"></div>
+          </div>
+
+          <p class="instructions" id="mental-game-instruction"></p>
+          <div class="mental-inputs-row">
+            <input type="number" class="number-input" id="mental-answer-input">
+            <button class="btn btn-primary" id="mental-check-btn">Comprobar</button>
+          </div>
+
+          <div id="feedback-m" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-problem-m" style="display:none;">Nueva multiplicación</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/multiplicaciones.js"></script>
+</body>
+</html>

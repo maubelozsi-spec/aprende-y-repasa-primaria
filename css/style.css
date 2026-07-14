@@ -912,6 +912,102 @@ table.rules-table tr:last-child td {
   font-weight: 700;
 }
 
+/* ---------- Suma / resta en columna ---------- */
+
+.arith-visual {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin: 24px auto;
+}
+
+.arith-carries {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+  min-height: 22px;
+}
+
+.arith-carries .carry-tile {
+  width: 46px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-error);
+  text-align: center;
+}
+
+.arith-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2px;
+}
+
+.arith-addend-with-sign {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.arith-op-sign {
+  width: 30px;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-soft);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.arith-line {
+  align-self: stretch;
+  border-top: 3px solid var(--text);
+  margin: 8px 0 6px;
+}
+
+.arith-result .letter {
+  background: var(--color-indigo-tint);
+  border-color: var(--color-indigo);
+  color: var(--color-indigo);
+}
+
+.letter.empty {
+  background: transparent !important;
+  border-style: dashed;
+  color: transparent;
+}
+
+.arith-step-block {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 4px 0;
+}
+
+.arith-step-block strong {
+  color: var(--color-indigo);
+}
+
+/* ---------- Multiplicación ---------- */
+
+.mult-partials {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  margin: 4px 0;
+}
+
+.mult-partial-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.mult-partial-row .letter {
+  background: #f7f8fb;
+}
+
 .syllable-row {
   display: flex;
   justify-content: center;
