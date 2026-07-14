@@ -47,6 +47,7 @@ const NAV = [
       { id: "coordenadas", label: "Coordenadas, simetrías, traslaciones y giros", href: "matematicas/coordenadas.html", available: true },
       { id: "fracciones", label: "Fracciones y número mixto", href: "matematicas/fracciones.html", available: true },
       { id: "operaciones-fracciones", label: "Operaciones con fracciones", href: "matematicas/operaciones-fracciones.html", available: true },
+      { id: "decimales", label: "Números decimales", href: "matematicas/decimales.html", available: true },
     ],
   },
 ];

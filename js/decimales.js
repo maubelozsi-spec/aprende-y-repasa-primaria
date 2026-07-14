@@ -1,0 +1,176 @@
+// ============================================================
+// Números decimales: banco de datos + lógica del quiz
+// ============================================================
+
+const FRACCIONADECIMAL_ENTRIES = [
+  { display: "3/10", correct: "0,3", options: ["0,3", "0,03", "3,10", "1,3"] },
+  { display: "25/100", correct: "0,25", options: ["0,25", "2,5", "0,025", "25,0"] },
+  { display: "7/10", correct: "0,7", options: ["0,7", "0,07", "7,10", "1,7"] },
+  { display: "125/1000", correct: "0,125", options: ["0,125", "1,25", "0,0125", "125,0"] },
+  { display: "9/100", correct: "0,09", options: ["0,09", "0,9", "9,100", "0,009"] },
+  { display: "4/1000", correct: "0,004", options: ["0,004", "0,04", "0,4", "4,1"] },
+];
+
+const COMPARAR_ENTRIES = [
+  { display: "3,45 ␣ 3,5", correct: "<" },
+  { display: "2,7 ␣ 2,70", correct: "=" },
+  { display: "5,08 ␣ 5,8", correct: "<" },
+  { display: "6,3 ␣ 6,29", correct: ">" },
+  { display: "0,9 ␣ 0,90", correct: "=" },
+  { display: "4,15 ␣ 4,105", correct: ">" },
+  { display: "8,2 ␣ 8,25", correct: "<" },
+  { display: "1,03 ␣ 1,3", correct: "<" },
+];
+
+const SUMARRESTAR_ENTRIES = [
+  { display: "2,5 + 1,3", correct: "3,8", options: ["3,8", "3,7", "1,2", "4,8"] },
+  { display: "4,25 + 2,5", correct: "6,75", options: ["6,75", "6,5", "4,50", "2,75"] },
+  { display: "5,6 − 2,4", correct: "3,2", options: ["3,2", "3,3", "8,0", "2,4"] },
+  { display: "7,35 − 3,15", correct: "4,2", options: ["4,2", "4,02", "3,20", "10,5"] },
+  { display: "3,08 + 1,2", correct: "4,28", options: ["4,28", "4,20", "3,20", "4,08"] },
+  { display: "9,4 − 5,15", correct: "4,25", options: ["4,25", "4,15", "14,55", "3,25"] },
+];
+
+const MODE_GROUPS = {
+  fraccionadecimal: {
+    pool: FRACCIONADECIMAL_ENTRIES,
+    field: "correct",
+    question: () => "¿Cómo se escribe esta fracción en forma decimal?",
+  },
+  comparar: {
+    pool: COMPARAR_ENTRIES,
+    field: "correct",
+    question: () => "¿Qué signo va en el hueco (␣)?",
+    options: ["<", "=", ">"],
+  },
+  sumarrestar: {
+    pool: SUMARRESTAR_ENTRIES,
+    field: "correct",
+    question: () => "Calcula el resultado:",
+  },
+};
+
+function shuffle(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initTabs();
+  if (document.getElementById("word-display")) initGame();
+});
+
+function initTabs() {
+  const tabBtns = document.querySelectorAll(".tab-btn");
+  const panels = {
+    teoria: document.getElementById("tab-teoria"),
+    practica: document.getElementById("tab-practica"),
+  };
+  if (tabBtns.length === 0) return;
+
+  function activateTab(name) {
+    tabBtns.forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+    Object.entries(panels).forEach(([key, el]) => el.classList.toggle("active", key === name));
+  }
+
+  tabBtns.forEach((btn) => btn.addEventListener("click", () => activateTab(btn.dataset.tab)));
+
+  const goBtn = document.getElementById("go-to-practice");
+  if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
+}
+
+function initGame() {
+  const els = {
+    modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
+    instructions: document.getElementById("instructions"),
+    wordDisplay: document.getElementById("word-display"),
+    answerButtons: document.getElementById("answer-buttons"),
+    feedback: document.getElementById("feedback"),
+    nextBtn: document.getElementById("next-word"),
+    scoreOk: document.getElementById("score-ok"),
+    scoreKo: document.getElementById("score-ko"),
+  };
+
+  const modeKeys = Object.keys(MODE_GROUPS);
+  let scoreOk = 0;
+  let scoreKo = 0;
+  let mode = "fraccionadecimal";
+  let current;
+  let lastDisplay = "";
+
+  function pickQuestion() {
+    const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
+    const group = MODE_GROUPS[groupKey];
+    let entry;
+    do {
+      entry = group.pool[Math.floor(Math.random() * group.pool.length)];
+    } while (group.pool.length > 1 && entry.display === lastDisplay);
+    lastDisplay = entry.display;
+    return { entry, group };
+  }
+
+  function startRound() {
+    current = pickQuestion();
+    const { entry, group } = current;
+
+    els.instructions.textContent = group.question();
+    els.wordDisplay.textContent = entry.display;
+
+    els.feedback.classList.remove("show", "ok", "ko");
+    els.feedback.innerHTML = "";
+    els.nextBtn.style.display = "none";
+
+    const options = shuffle((entry.options || group.options).slice());
+
+    els.answerButtons.innerHTML = "";
+    options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.className = "syllable-chip";
+      btn.textContent = opt;
+      btn.addEventListener("click", () => chooseAnswer(opt, btn));
+      els.answerButtons.appendChild(btn);
+    });
+  }
+
+  function chooseAnswer(chosen, btn) {
+    const { entry, group } = current;
+    const correct = entry[group.field];
+    const isCorrect = chosen === correct;
+
+    if (isCorrect) scoreOk++;
+    else scoreKo++;
+    els.scoreOk.textContent = scoreOk;
+    els.scoreKo.textContent = scoreKo;
+
+    const allBtns = els.answerButtons.querySelectorAll(".syllable-chip");
+    allBtns.forEach((b) => {
+      b.disabled = true;
+      if (b.textContent === correct) b.classList.add("correct");
+      else if (b === btn && !isCorrect) b.classList.add("incorrect");
+    });
+
+    const titleText = isCorrect ? "Correcto" : "No era esa";
+
+    els.feedback.classList.add("show", isCorrect ? "ok" : "ko");
+    els.feedback.innerHTML = `<p class="feedback-title">${titleText}</p><p>${entry.display} → <strong>${correct}</strong>.</p>`;
+
+    els.nextBtn.style.display = "";
+  }
+
+  els.modeBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      els.modeBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      mode = btn.dataset.mode;
+      startRound();
+    });
+  });
+
+  els.nextBtn.addEventListener("click", startRound);
+
+  startRound();
+}
