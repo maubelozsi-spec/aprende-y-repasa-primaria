@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fracciones y número mixto · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "fracciones";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Fracciones y número mixto</h1>
+        <p class="content-subtitle">Numerador y denominador, propias e impropias, número mixto y comparación.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es una fracción?</h2>
+        <p>Una <strong>fracción</strong> representa una o varias partes iguales de un todo. Se escribe con dos números separados por una raya:</p>
+        <div class="grid-example" id="ejemplo-fraccion"></div>
+        <table class="rules-table">
+          <tr><th>Numerador</th><th>Denominador</th></tr>
+          <tr><td>Cuántas partes se toman (arriba)</td><td>En cuántas partes se divide el todo (abajo)</td></tr>
+        </table>
+
+        <h2>Cómo se leen las fracciones</h2>
+        <table class="rules-table">
+          <tr><th>Denominador</th><th>Se lee</th></tr>
+          <tr><td>2</td><td>medios</td></tr>
+          <tr><td>3</td><td>tercios</td></tr>
+          <tr><td>4</td><td>cuartos</td></tr>
+          <tr><td>5</td><td>quintos</td></tr>
+          <tr><td>6, 7, 8, 9</td><td>sextos, séptimos, octavos, novenos</td></tr>
+          <tr><td>10 o más</td><td>décimos, onceavos, doceavos...</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> 3/5 se lee "tres quintos".
+        </div>
+
+        <h2>Fracciones propias e impropias</h2>
+        <div class="rule-box aguda">
+          <h4>Fracción propia</h4>
+          <p>El numerador es <strong>menor</strong> que el denominador. Representa menos de la unidad.</p>
+          <div class="grid-example" id="ejemplo-propia"></div>
+        </div>
+        <div class="rule-box llana">
+          <h4>Fracción impropia</h4>
+          <p>El numerador es <strong>mayor o igual</strong> que el denominador. Representa una unidad completa o más.</p>
+          <div class="grid-example" id="ejemplo-impropia"></div>
+        </div>
+
+        <h2>El número mixto</h2>
+        <p>Una fracción impropia se puede escribir como un <strong>número mixto</strong>: un número entero más una fracción propia.</p>
+        <div class="grid-example" id="ejemplo-mixto"></div>
+        <div class="tip-box">
+          <strong>Cómo convertir:</strong> divide el numerador entre el denominador. El cociente es el número entero; el resto es el nuevo numerador, con el mismo denominador.<br>
+          <strong>Ejemplo:</strong> 7 ÷ 3 = 2 y sobran 1 → 7/3 = 2 <sup>1</sup>&frasl;<sub>3</sub>
+        </div>
+
+        <h2>Comparar fracciones</h2>
+        <div class="rule-box esdrujula">
+          <h4>Mismo denominador</h4>
+          <p>Es mayor la que tiene el numerador más grande.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 4/5 &gt; 3/5</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Mismo numerador</h4>
+          <p>Es mayor la que tiene el denominador más pequeño (las partes son más grandes).</p>
+          <p class="examples"><strong>Ejemplo:</strong> 2/3 &gt; 2/5</p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="identificar">Identificar</button>
+            <button class="btn btn-secondary" data-mode="propiaimpropia">Propia o impropia</button>
+            <button class="btn btn-secondary" data-mode="mixto">A número mixto</button>
+            <button class="btn btn-secondary" data-mode="comparar">Comparar</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="grid-example" id="game-visual"></div>
+          <div class="sentence-display" id="word-display" style="display:none;"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/fracciones.js"></script>
+</body>
+</html>

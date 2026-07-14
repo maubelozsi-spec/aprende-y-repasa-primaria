@@ -45,6 +45,7 @@ const NAV = [
       { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", href: "matematicas/multiplos-divisores.html", available: true },
       { id: "angulos", label: "Ángulos", href: "matematicas/angulos.html", available: true },
       { id: "coordenadas", label: "Coordenadas, simetrías, traslaciones y giros", href: "matematicas/coordenadas.html", available: true },
+      { id: "fracciones", label: "Fracciones y número mixto", href: "matematicas/fracciones.html", available: true },
     ],
   },
 ];
