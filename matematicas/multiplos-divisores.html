@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Múltiplos, divisores y números primos · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "multiplos-divisores";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Múltiplos, divisores y números primos</h1>
+        <p class="content-subtitle">Criterios de divisibilidad, números primos y compuestos.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Múltiplos</h2>
+        <div class="rule-box aguda">
+          <h4>¿Qué es un múltiplo?</h4>
+          <p>Un número es <strong>múltiplo</strong> de otro cuando se obtiene multiplicándolo por un número natural (1, 2, 3...). Todo número tiene infinitos múltiplos.</p>
+          <p class="examples"><strong>Ejemplo:</strong> los múltiplos de 6 son 6, 12, 18, 24, 30... (6×1, 6×2, 6×3, 6×4, 6×5...)</p>
+        </div>
+
+        <h2>Divisores</h2>
+        <div class="rule-box llana">
+          <h4>¿Qué es un divisor?</h4>
+          <p>Un número es <strong>divisor</strong> de otro cuando lo divide de forma exacta (el resto es 0). Un número solo tiene un número limitado de divisores.</p>
+          <p class="examples"><strong>Ejemplo:</strong> los divisores de 12 son 1, 2, 3, 4, 6 y 12, porque 12 se puede repartir exactamente entre todos ellos.</p>
+        </div>
+
+        <div class="tip-box">
+          <strong>Fíjate:</strong> "42 es múltiplo de 6" y "6 es divisor de 42" son la misma idea vista desde dos lados: 6 × 7 = 42.
+        </div>
+
+        <h2>Criterios de divisibilidad</h2>
+        <p>Para saber si un número es divisible entre otro sin hacer la división, existen estos trucos:</p>
+        <table class="rules-table">
+          <tr><th>Divisible entre...</th><th>Se cumple si...</th></tr>
+          <tr><td>2</td><td>termina en cifra par (0, 2, 4, 6 u 8)</td></tr>
+          <tr><td>3</td><td>la suma de sus cifras es múltiplo de 3</td></tr>
+          <tr><td>5</td><td>termina en 0 o en 5</td></tr>
+          <tr><td>10</td><td>termina en 0</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> 348 es divisible entre 3 porque 3 + 4 + 8 = 15, y 15 es múltiplo de 3.
+        </div>
+
+        <h2>Números primos y compuestos</h2>
+        <div class="rule-box esdrujula">
+          <h4>Número primo</h4>
+          <p>Solo tiene <strong>dos divisores</strong>: el 1 y él mismo.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 2, 3, 5, 7, 11, 13, 17, 19...</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Número compuesto</h4>
+          <p>Tiene <strong>más de dos divisores</strong>.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 12 (divisores: 1, 2, 3, 4, 6, 12)</p>
+        </div>
+        <div class="tip-box">
+          <strong>Cuidado con el 1:</strong> el número 1 no es primo ni compuesto, porque solo tiene un divisor (él mismo). Y el 2 es el único número primo que es par.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="multiplos">Múltiplos</button>
+            <button class="btn btn-secondary" data-mode="divisores">Divisores</button>
+            <button class="btn btn-secondary" data-mode="divisibilidad">Divisibilidad</button>
+            <button class="btn btn-secondary" data-mode="primoscompuesto">Primos y compuestos</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/multiplos-divisores.js"></script>
+</body>
+</html>
