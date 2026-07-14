@@ -25,6 +25,7 @@ const NAV = [
       { id: "formacion-palabras", label: "Formación de palabras", href: "lengua/formacion-palabras.html", available: true },
       { id: "comunicacion-textos", label: "Comunicación y tipos de texto", href: "lengua/comunicacion-textos.html", available: true },
       { id: "texto-teatral", label: "El texto teatral", href: "lengua/texto-teatral.html", available: true },
+      { id: "narrativa", label: "Narrativa", href: "lengua/narrativa.html", available: true },
     ],
   },
   {

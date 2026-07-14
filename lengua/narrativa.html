@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narrativa · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "narrativa";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>Narrativa</h1>
+        <p class="content-subtitle">El cuento, la novela y la leyenda, y las partes de la narración.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Géneros narrativos</h2>
+        <div class="rule-box aguda">
+          <h4>El cuento</h4>
+          <p>Narración <strong>breve</strong>, con pocos personajes y una trama sencilla que ocurre en poco tiempo. Se puede leer de una sola vez.</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>La novela</h4>
+          <p>Narración <strong>extensa</strong>, dividida en capítulos, con muchos personajes y tramas más complejas (a veces con varias historias que se entrelazan).</p>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>La leyenda</h4>
+          <p>Narración que mezcla <strong>hechos reales</strong> (personas, lugares) con <strong>elementos fantásticos</strong>. Se transmite de generación en generación y suele explicar el origen de algo.</p>
+        </div>
+
+        <h2>Las partes de la narración</h2>
+        <table class="rules-table">
+          <tr><th>Elemento</th><th>Qué es</th></tr>
+          <tr><td>Narrador</td><td>quien cuenta la historia</td></tr>
+          <tr><td>Personajes</td><td>quienes viven la historia: principales (protagonista, antagonista) y secundarios</td></tr>
+          <tr><td>Espacio</td><td>el lugar donde ocurre la historia</td></tr>
+          <tr><td>Tiempo</td><td>la época o el momento en que ocurre</td></tr>
+        </table>
+
+        <h2>El narrador: 1ª y 3ª persona</h2>
+        <div class="rule-box sobresdrujula">
+          <h4>Narrador en 1ª persona</h4>
+          <p>Cuenta la historia como si la viviera él mismo. Usa "yo".</p>
+          <p class="examples"><strong>Ejemplo:</strong> "Yo caminaba solo por el bosque cuando escuché un ruido."</p>
+        </div>
+        <div class="rule-box diptongo">
+          <h4>Narrador en 3ª persona</h4>
+          <p>Cuenta la historia desde fuera, sin ser un personaje. Usa "él/ella".</p>
+          <p class="examples"><strong>Ejemplo:</strong> "Ella caminaba sola por el bosque cuando escuchó un ruido."</p>
+        </div>
+
+        <h2>La estructura de la narración</h2>
+        <p>Como en el teatro, toda narración suele tener tres partes: <strong>planteamiento</strong> (se presentan los personajes y el lugar), <strong>nudo</strong> (surge el conflicto) y <strong>desenlace</strong> (se resuelve y termina la historia).</p>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="genero">Cuento, novela o leyenda</button>
+            <button class="btn btn-secondary" data-mode="narrador">El narrador</button>
+            <button class="btn btn-secondary" data-mode="elementos">Partes de la narración</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/narrativa.js"></script>
+</body>
+</html>
