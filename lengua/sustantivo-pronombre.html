@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El sustantivo y el pronombre · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "sustantivo-pronombre";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>El sustantivo y el pronombre</h1>
+        <p class="content-subtitle">Clases de sustantivo, género y número, y los pronombres personales.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>El sustantivo</h2>
+        <p>El <strong>sustantivo</strong> (o nombre) es la palabra que usamos para nombrar personas, animales, cosas, lugares o ideas.</p>
+        <p class="examples"><strong>Ejemplos:</strong> niño, gato, mesa, Madrid, alegría</p>
+
+        <h2>Clases de sustantivos</h2>
+
+        <div class="rule-box aguda">
+          <h4>Común / Propio</h4>
+          <p>El <strong>común</strong> nombra a cualquier ser de una clase (niño, ciudad, río). El <strong>propio</strong> nombra a un ser concreto y único, y siempre se escribe con mayúscula (Pablo, Madrid, Ebro).</p>
+        </div>
+
+        <div class="rule-box llana">
+          <h4>Individual / Colectivo</h4>
+          <p>El <strong>individual</strong> nombra a un solo ser (árbol, oveja, alumno). El <strong>colectivo</strong>, aunque está en singular, nombra a un conjunto de seres (bosque = conjunto de árboles; rebaño = conjunto de ovejas; alumnado = conjunto de alumnos).</p>
+        </div>
+
+        <div class="rule-box esdrujula">
+          <h4>Concreto / Abstracto</h4>
+          <p>El <strong>concreto</strong> nombra algo que podemos percibir con los sentidos (ver, tocar, oír...): mesa, perro, música. El <strong>abstracto</strong> nombra ideas, sentimientos o cualidades que no se pueden tocar ni ver: alegría, libertad, bondad.</p>
+        </div>
+
+        <h2>Género y número</h2>
+        <p>Los sustantivos tienen <strong>género</strong> (masculino o femenino) y <strong>número</strong> (singular o plural).</p>
+        <div class="tip-box">
+          <strong>Ojo:</strong> el género no siempre se nota en la terminación. Hay palabras que cambian de raíz (el toro / la vaca), y otras que no cambian de forma entre masculino y femenino (el estudiante / la estudiante).
+        </div>
+        <p class="examples"><strong>Número:</strong> gato → gatos · flor → flores · lápiz → lápices (normalmente se añade "-s" o "-es")</p>
+
+        <h2>Formación de nombres</h2>
+        <p>Podemos formar sustantivos nuevos añadiendo sufijos a otras palabras (verbos, adjetivos u otros sustantivos).</p>
+        <p class="examples"><strong>Ejemplos:</strong> pan + -adero → panadero · cantar + -ante → cantante · nadar + -ción → natación · feliz + -idad → felicidad</p>
+
+        <h2>El pronombre personal</h2>
+        <p>El <strong>pronombre personal</strong> sustituye al nombre para no repetirlo. Cambia según la persona (quién habla) y el número.</p>
+        <table class="rules-table">
+          <tr><th>Persona</th><th>Singular</th><th>Plural</th></tr>
+          <tr><td>1ª (el que habla)</td><td>yo</td><td>nosotros / nosotras</td></tr>
+          <tr><td>2ª (a quien se habla)</td><td>tú</td><td>vosotros / vosotras</td></tr>
+          <tr><td>3ª (de quien se habla)</td><td>él / ella</td><td>ellos / ellas</td></tr>
+        </table>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="clases">Clases de sustantivo</button>
+            <button class="btn btn-secondary" data-mode="generonumero">Género y número</button>
+            <button class="btn btn-secondary" data-mode="pronombres">Pronombres</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente palabra</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/sustantivo-pronombre.js"></script>
+</body>
+</html>
