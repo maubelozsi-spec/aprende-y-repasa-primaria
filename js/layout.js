@@ -46,6 +46,7 @@ const NAV = [
       { id: "angulos", label: "Ángulos", href: "matematicas/angulos.html", available: true },
       { id: "coordenadas", label: "Coordenadas, simetrías, traslaciones y giros", href: "matematicas/coordenadas.html", available: true },
       { id: "fracciones", label: "Fracciones y número mixto", href: "matematicas/fracciones.html", available: true },
+      { id: "operaciones-fracciones", label: "Operaciones con fracciones", href: "matematicas/operaciones-fracciones.html", available: true },
     ],
   },
 ];

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operaciones con fracciones · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "operaciones-fracciones";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Operaciones con fracciones</h1>
+        <p class="content-subtitle">Fracción de un número, suma y resta de fracciones.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>La fracción de un número</h2>
+        <div class="rule-box aguda">
+          <h4>Cómo se calcula</h4>
+          <p>Se <strong>divide</strong> el número entre el denominador, y el resultado se <strong>multiplica</strong> por el numerador.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> 3/4 de 20 → 20 ÷ 4 = 5 → 5 × 3 = <strong>15</strong>.
+        </div>
+
+        <h2>Suma y resta de fracciones con el mismo denominador</h2>
+        <div class="rule-box llana">
+          <h4>Cómo se suman o restan</h4>
+          <p>Se suman o restan los <strong>numeradores</strong>, y el <strong>denominador se mantiene igual</strong>.</p>
+        </div>
+        <div class="grid-example" id="ejemplo-suma"></div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> 2/7 + 3/7 = 5/7 (se suman 2 + 3, el denominador sigue siendo 7).
+        </div>
+        <div class="tip-box">
+          <strong>Cuidado:</strong> si al sumar el numerador supera al denominador, el resultado es una fracción impropia (puede convertirse a número mixto). Ejemplo: 3/5 + 3/5 = 6/5.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="fracciondenum">Fracción de un número</button>
+            <button class="btn btn-secondary" data-mode="sumarrestar">Sumar y restar</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/operaciones-fracciones.js"></script>
+</body>
+</html>
