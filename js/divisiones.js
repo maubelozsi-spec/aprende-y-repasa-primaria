@@ -1,5 +1,7 @@
 // ============================================================
 // Divisiones: motor de cálculo paso a paso + demo teórica + juego
+// Dos métodos: división escrita (algoritmo tradicional) y
+// cálculo mental (descomposición del dividendo).
 // ============================================================
 
 function computeDivisionSteps(dividend, divisor) {
@@ -33,6 +35,33 @@ function computeDivisionSteps(dividend, divisor) {
 
   const quotient = String(Number(steps.map((s) => s.quotientDigit).join("")));
   return { dividend: String(dividend), divisor, digits, steps, quotient, finalRemainder: remainder };
+}
+
+function computeMentalDecomposition(dividend, divisor) {
+  const quotient = Math.floor(dividend / divisor);
+  const remainder = dividend % divisor;
+
+  const qStr = String(quotient);
+  const numDigits = qStr.length;
+  const leadingDigit = Number(qStr[0]);
+  const placeValue = Math.pow(10, numDigits - 1);
+
+  const part1Q = leadingDigit * placeValue;
+  const part2Q = quotient - part1Q;
+  const part1Dividend = part1Q * divisor;
+  const part2Dividend = part2Q * divisor;
+
+  return {
+    dividend,
+    divisor,
+    quotient,
+    remainder,
+    part1Q,
+    part2Q,
+    part1Dividend,
+    part2Dividend,
+    trivial: numDigits === 1 || part2Q === 0,
+  };
 }
 
 function stepExplanation(problem, stepIndex) {
@@ -83,8 +112,10 @@ function appendQuotientDigit(view, digit) {
 }
 
 function appendWorkStep(view, step) {
+  const startDigitIndex = step.digitsUsedUpTo - step.broughtDigits.length;
   const block = document.createElement("div");
   block.className = "division-step-block";
+  block.style.marginLeft = startDigitIndex * 48 + "px";
   block.innerHTML = `
     <div>${step.workingNumber}</div>
     <div class="op-line">− ${step.product}</div>
@@ -95,8 +126,11 @@ function appendWorkStep(view, step) {
 
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
+  initMethodPicker();
   if (document.getElementById("demo-dividend")) initDemo();
   if (document.getElementById("game-dividend")) initGame();
+  if (document.getElementById("mental-demo-line1")) initMentalDemo();
+  if (document.getElementById("mental-game-equation")) initMentalGame();
 });
 
 function initTabs() {
@@ -114,11 +148,34 @@ function initTabs() {
 
   tabBtns.forEach((btn) => btn.addEventListener("click", () => activateTab(btn.dataset.tab)));
 
-  const goBtn = document.getElementById("go-to-practice");
-  if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
+  document.querySelectorAll("#go-to-practice-escrita, #go-to-practice-mental").forEach((btn) => {
+    btn.addEventListener("click", () => activateTab("practica"));
+  });
 }
 
-// ---------------- Demo (Teoría) ----------------
+function initMethodPicker() {
+  const picker = document.getElementById("method-picker");
+  if (!picker) return;
+  const btns = picker.querySelectorAll("[data-method]");
+  const groups = {
+    escrita: [document.getElementById("teoria-escrita"), document.getElementById("practica-escrita")],
+    mental: [document.getElementById("teoria-mental"), document.getElementById("practica-mental")],
+  };
+
+  function setMethod(method) {
+    Object.entries(groups).forEach(([key, els]) => {
+      els.forEach((el) => {
+        if (el) el.style.display = key === method ? "" : "none";
+      });
+    });
+    btns.forEach((b) => b.classList.toggle("active", b.dataset.method === method));
+  }
+
+  btns.forEach((btn) => btn.addEventListener("click", () => setMethod(btn.dataset.method)));
+  setMethod("escrita");
+}
+
+// ---------------- Demo (Teoría · método escrito) ----------------
 
 const DEMO_EXAMPLES = [
   { dividend: 936, divisor: 4 },
@@ -196,13 +253,13 @@ function initDemo() {
   loadExample(0);
 }
 
-// ---------------- Juego (Práctica) ----------------
+// ---------------- Generación aleatoria de problemas ----------------
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function generateDivisionProblem(length) {
+function randomDivisionPair(length) {
   let divisor, dividend;
   if (length === 1) {
     divisor = randomInt(2, 9);
@@ -214,20 +271,38 @@ function generateDivisionProblem(length) {
     divisor = randomInt(100, 999);
     dividend = randomInt(10000, 99999);
   }
+  return { dividend, divisor };
+}
+
+function generateDivisionProblem(length) {
+  const { dividend, divisor } = randomDivisionPair(length);
   return computeDivisionSteps(dividend, divisor);
 }
+
+function generateMentalProblem(length) {
+  let data;
+  let attempts = 0;
+  do {
+    const { dividend, divisor } = randomDivisionPair(length);
+    data = computeMentalDecomposition(dividend, divisor);
+    attempts++;
+  } while (data.trivial && attempts < 20);
+  return data;
+}
+
+// ---------------- Juego (Práctica · método escrito) ----------------
 
 function initGame() {
   const view = createDivisionView("game");
   const els = {
-    lengthBtns: document.querySelectorAll("#length-picker [data-len]"),
+    lengthBtns: document.querySelectorAll("#length-picker-w [data-len]"),
     instruction: document.getElementById("game-instruction"),
     digitButtons: document.getElementById("digit-buttons"),
-    feedback: document.getElementById("feedback"),
-    nextBtn: document.getElementById("next-problem"),
-    scoreOk: document.getElementById("score-ok"),
-    scoreKo: document.getElementById("score-ko"),
-    progressFill: document.getElementById("progress-fill"),
+    feedback: document.getElementById("feedback-w"),
+    nextBtn: document.getElementById("next-problem-w"),
+    scoreOk: document.getElementById("score-ok-w"),
+    scoreKo: document.getElementById("score-ko-w"),
+    progressFill: document.getElementById("progress-fill-w"),
   };
 
   let scoreOk = 0;
@@ -350,6 +425,235 @@ function initGame() {
 
     els.nextBtn.style.display = "";
   }
+
+  els.lengthBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      els.lengthBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentLength = Number(btn.dataset.len);
+      startProblem();
+    });
+  });
+
+  els.nextBtn.addEventListener("click", startProblem);
+
+  startProblem();
+}
+
+// ---------------- Demo (Teoría · cálculo mental) ----------------
+
+const MENTAL_EXAMPLES = [
+  { dividend: 936, divisor: 4 },
+  { dividend: 1476, divisor: 12 },
+  { dividend: 45678, divisor: 123 },
+];
+
+function initMentalDemo() {
+  const line1 = document.getElementById("mental-demo-line1");
+  const line2 = document.getElementById("mental-demo-line2");
+  const line3 = document.getElementById("mental-demo-line3");
+  const prevBtn = document.getElementById("mental-demo-prev");
+  const nextBtn = document.getElementById("mental-demo-next");
+  const resetBtn = document.getElementById("mental-demo-reset");
+  const pickerBtns = document.querySelectorAll("#mental-example-picker [data-example]");
+
+  let data;
+  let stepIndex;
+
+  function render() {
+    if (stepIndex < 0) {
+      line1.textContent = "Pulsa «Siguiente paso» para empezar.";
+      line2.innerHTML = "";
+      line3.innerHTML = "";
+    } else {
+      line1.innerHTML = `${data.dividend} ÷ ${data.divisor} = (<span class="fact">${data.part1Dividend}</span> + <span class="fact">${data.part2Dividend}</span>) ÷ ${data.divisor}`;
+      line2.innerHTML =
+        stepIndex >= 1
+          ? `${data.part1Dividend} ÷ ${data.divisor} = <span class="fact">${data.part1Q}</span> &nbsp;&nbsp; ${data.part2Dividend} ÷ ${data.divisor} = <span class="fact">${data.part2Q}</span>`
+          : "";
+      line3.innerHTML =
+        stepIndex >= 2
+          ? `${data.part1Q} + ${data.part2Q} = <span class="fact">${data.quotient}</span>` +
+            (data.remainder ? ` &nbsp; (y sobran ${data.remainder})` : "")
+          : "";
+    }
+
+    prevBtn.disabled = stepIndex <= -1;
+    nextBtn.disabled = stepIndex >= 2;
+  }
+
+  function loadExample(idx) {
+    const ex = MENTAL_EXAMPLES[idx];
+    data = computeMentalDecomposition(ex.dividend, ex.divisor);
+    stepIndex = -1;
+    render();
+  }
+
+  nextBtn.addEventListener("click", () => {
+    if (stepIndex < 2) {
+      stepIndex++;
+      render();
+    }
+  });
+  prevBtn.addEventListener("click", () => {
+    if (stepIndex > -1) {
+      stepIndex--;
+      render();
+    }
+  });
+  resetBtn.addEventListener("click", () => {
+    stepIndex = -1;
+    render();
+  });
+
+  pickerBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pickerBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      loadExample(Number(btn.dataset.example));
+    });
+  });
+
+  loadExample(0);
+}
+
+// ---------------- Juego (Práctica · cálculo mental) ----------------
+
+function initMentalGame() {
+  const els = {
+    lengthBtns: document.querySelectorAll("#length-picker-m [data-len]"),
+    equation: document.getElementById("mental-game-equation"),
+    instruction: document.getElementById("mental-game-instruction"),
+    input: document.getElementById("mental-answer-input"),
+    checkBtn: document.getElementById("mental-check-btn"),
+    feedback: document.getElementById("feedback-m"),
+    nextBtn: document.getElementById("next-problem-m"),
+    scoreOk: document.getElementById("score-ok-m"),
+    scoreKo: document.getElementById("score-ko-m"),
+    progressFill: document.getElementById("progress-fill-m"),
+  };
+
+  let scoreOk = 0;
+  let scoreKo = 0;
+  let currentLength = 1;
+  let data, stage, attempts, roundHasError;
+
+  function setProgress(pct) {
+    els.progressFill.style.width = pct + "%";
+  }
+
+  function startProblem() {
+    data = generateMentalProblem(currentLength);
+    stage = 0;
+    attempts = 0;
+    roundHasError = false;
+
+    setProgress(0);
+    els.nextBtn.style.display = "none";
+    els.feedback.classList.remove("show", "ok", "ko");
+    els.feedback.innerHTML = "";
+    els.input.style.display = "";
+    els.checkBtn.style.display = "";
+
+    els.equation.innerHTML = `${data.dividend} ÷ ${data.divisor} = (<span class="fact">${data.part1Dividend}</span> + <span class="fact">${data.part2Dividend}</span>) ÷ ${data.divisor}`;
+
+    askStage();
+  }
+
+  function askStage() {
+    els.input.value = "";
+    els.input.classList.remove("correct", "incorrect");
+    els.input.disabled = false;
+
+    if (stage === 0) {
+      els.instruction.innerHTML = `¿Cuánto es <strong>${data.part1Dividend} ÷ ${data.divisor}</strong>?`;
+    } else if (stage === 1) {
+      els.instruction.innerHTML = `¿Cuánto es <strong>${data.part2Dividend} ÷ ${data.divisor}</strong>?`;
+    } else {
+      els.instruction.innerHTML = `¿Cuánto es <strong>${data.part1Q} + ${data.part2Q}</strong>?`;
+    }
+  }
+
+  function expectedAnswer() {
+    if (stage === 0) return data.part1Q;
+    if (stage === 1) return data.part2Q;
+    return data.quotient;
+  }
+
+  function checkAnswer() {
+    if (els.input.value.trim() === "") return;
+    const val = Number(els.input.value);
+    if (Number.isNaN(val)) return;
+
+    const expected = expectedAnswer();
+    const isCorrect = val === expected;
+    attempts++;
+
+    if (isCorrect) {
+      els.input.classList.add("correct");
+      els.input.disabled = true;
+      setTimeout(advanceStage, 600);
+      return;
+    }
+
+    els.input.classList.add("incorrect");
+
+    if (attempts >= 2) {
+      roundHasError = true;
+      els.input.disabled = true;
+      els.input.value = expected;
+      els.input.classList.remove("incorrect");
+      els.input.classList.add("correct");
+      setTimeout(advanceStage, 900);
+    } else {
+      setTimeout(() => {
+        els.input.classList.remove("incorrect");
+        els.input.value = "";
+      }, 700);
+    }
+  }
+
+  function advanceStage() {
+    setProgress(Math.round(((stage + 1) / 3) * 100));
+    attempts = 0;
+    if (stage < 2) {
+      stage++;
+      askStage();
+    } else {
+      finishRound();
+    }
+  }
+
+  function finishRound() {
+    const allCorrect = !roundHasError;
+    if (allCorrect) scoreOk++;
+    else scoreKo++;
+    els.scoreOk.textContent = scoreOk;
+    els.scoreKo.textContent = scoreKo;
+
+    els.instruction.textContent = "";
+    els.input.style.display = "none";
+    els.checkBtn.style.display = "none";
+
+    const titleText = allCorrect ? "Correcto en todos los pasos" : "Casi, revisa los pasos marcados";
+    const resultLine = data.remainder
+      ? `${data.dividend} ÷ ${data.divisor} = ${data.quotient}, resto ${data.remainder}`
+      : `${data.dividend} ÷ ${data.divisor} = ${data.quotient} (división exacta)`;
+
+    els.feedback.classList.add("show", allCorrect ? "ok" : "ko");
+    els.feedback.innerHTML = `
+      <p class="feedback-title">${titleText}</p>
+      <p><strong>${resultLine}</strong></p>
+      <p>Descomposición: ${data.part1Dividend} ÷ ${data.divisor} = ${data.part1Q}, ${data.part2Dividend} ÷ ${data.divisor} = ${data.part2Q}, ${data.part1Q} + ${data.part2Q} = ${data.quotient}</p>
+    `;
+
+    els.nextBtn.style.display = "";
+  }
+
+  els.checkBtn.addEventListener("click", checkAnswer);
+  els.input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") checkAnswer();
+  });
 
   els.lengthBtns.forEach((btn) => {
     btn.addEventListener("click", () => {

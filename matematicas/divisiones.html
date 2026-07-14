@@ -32,96 +32,143 @@
         <p class="content-subtitle">Divisiones con divisor de 1, 2 y 3 cifras, explicadas paso a paso.</p>
       </header>
 
+      <div class="choice-row method-picker" id="method-picker">
+        <button class="btn btn-secondary active" data-method="escrita">Método de la división</button>
+        <button class="btn btn-secondary" data-method="mental">Cálculo mental</button>
+      </div>
+
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
       <!-- ================= TEORÍA ================= -->
-      <section id="tab-teoria" class="tab-panel active theory">
+      <section id="tab-teoria" class="tab-panel active">
 
-        <h2>Las partes de la división</h2>
-        <p>En una división hay cuatro elementos:</p>
-        <table class="rules-table">
-          <tr><th>Dividendo</th><th>Divisor</th><th>Cociente</th><th>Resto</th></tr>
-          <tr><td>El número que se reparte</td><td>El número de partes</td><td>El resultado</td><td>Lo que sobra</td></tr>
-        </table>
-        <div class="tip-box">
-          <strong>Comprobación:</strong> dividendo = divisor × cociente + resto. El resto siempre debe ser menor que el divisor.
-        </div>
+        <!-- ---- Teoría: método escrito ---- -->
+        <div id="teoria-escrita" class="theory">
 
-        <h2>Pasos para dividir</h2>
-        <div class="rule-box aguda">
-          <h4>Paso 1</h4>
-          <p>Se toman las primeras cifras del dividendo, las que hagan falta hasta formar un número igual o mayor que el divisor.</p>
-        </div>
-        <div class="rule-box llana">
-          <h4>Paso 2</h4>
-          <p>Se calcula cuántas veces cabe el divisor en ese número: esa cantidad es la cifra del cociente.</p>
-        </div>
-        <div class="rule-box esdrujula">
-          <h4>Paso 3</h4>
-          <p>Se multiplica la cifra del cociente por el divisor, y se resta ese resultado del número que teníamos.</p>
-        </div>
-        <div class="rule-box sobresdrujula">
-          <h4>Paso 4</h4>
-          <p>Se baja la siguiente cifra del dividendo, se junta con lo que ha sobrado, y se repite desde el paso 2. Cuando no quedan más cifras, lo que sobra es el resto final.</p>
-        </div>
-
-        <h2>Ejemplo paso a paso</h2>
-        <p>Elige un ejemplo y pulsa "Siguiente paso" para ver cómo se resuelve la división.</p>
-
-        <div class="choice-row" id="example-picker">
-          <button class="btn btn-secondary active" data-example="0">Divisor de 1 cifra</button>
-          <button class="btn btn-secondary" data-example="1">Divisor de 2 cifras</button>
-          <button class="btn btn-secondary" data-example="2">Divisor de 3 cifras</button>
-        </div>
-
-        <div class="division-visual">
-          <div class="division-left">
-            <div class="division-dividend" id="demo-dividend"></div>
-            <div class="division-workarea" id="demo-workarea"></div>
+          <h2>Las partes de la división</h2>
+          <p>En una división hay cuatro elementos:</p>
+          <table class="rules-table">
+            <tr><th>Dividendo</th><th>Divisor</th><th>Cociente</th><th>Resto</th></tr>
+            <tr><td>El número que se reparte</td><td>El número de partes</td><td>El resultado</td><td>Lo que sobra</td></tr>
+          </table>
+          <div class="tip-box">
+            <strong>Comprobación:</strong> dividendo = divisor × cociente + resto. El resto siempre debe ser menor que el divisor.
           </div>
-          <div class="division-right">
-            <div class="division-divisor" id="demo-divisor"></div>
-            <div class="division-quotient" id="demo-quotient"></div>
+
+          <h2>Pasos para dividir</h2>
+          <div class="rule-box aguda">
+            <h4>Paso 1</h4>
+            <p>Se toman las primeras cifras del dividendo, las que hagan falta hasta formar un número igual o mayor que el divisor.</p>
           </div>
+          <div class="rule-box llana">
+            <h4>Paso 2</h4>
+            <p>Se calcula cuántas veces cabe el divisor en ese número: esa cantidad es la cifra del cociente.</p>
+          </div>
+          <div class="rule-box esdrujula">
+            <h4>Paso 3</h4>
+            <p>Se multiplica la cifra del cociente por el divisor, y se resta ese resultado del número que teníamos.</p>
+          </div>
+          <div class="rule-box sobresdrujula">
+            <h4>Paso 4</h4>
+            <p>Se baja la siguiente cifra del dividendo, se junta con lo que ha sobrado, y se repite desde el paso 2. Cuando no quedan más cifras, lo que sobra es el resto final.</p>
+          </div>
+
+          <h2>Ejemplo paso a paso</h2>
+          <p>Elige un ejemplo y pulsa "Siguiente paso" para ver cómo se resuelve la división. Fíjate en que cada resta se escribe un poco más a la derecha, según se van bajando cifras.</p>
+
+          <div class="choice-row" id="example-picker">
+            <button class="btn btn-secondary active" data-example="0">Divisor de 1 cifra</button>
+            <button class="btn btn-secondary" data-example="1">Divisor de 2 cifras</button>
+            <button class="btn btn-secondary" data-example="2">Divisor de 3 cifras</button>
+          </div>
+
+          <div class="division-visual">
+            <div class="division-left">
+              <div class="division-dividend" id="demo-dividend"></div>
+              <div class="division-workarea" id="demo-workarea"></div>
+            </div>
+            <div class="division-right">
+              <div class="division-divisor" id="demo-divisor"></div>
+              <div class="division-quotient" id="demo-quotient"></div>
+            </div>
+          </div>
+
+          <div class="division-step-explanation" id="demo-explanation"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-secondary" id="demo-prev">Paso anterior</button>
+            <button class="btn btn-primary" id="demo-next">Siguiente paso</button>
+            <button class="btn btn-secondary" id="demo-reset">Reiniciar</button>
+          </div>
+
+          <p style="text-align:center; margin-top:32px;">
+            <button class="btn btn-primary" id="go-to-practice-escrita">Ir a practicar</button>
+          </p>
         </div>
 
-        <div class="division-step-explanation" id="demo-explanation"></div>
+        <!-- ---- Teoría: cálculo mental ---- -->
+        <div id="teoria-mental" class="theory" style="display:none;">
 
-        <div class="actions-row">
-          <button class="btn btn-secondary" id="demo-prev">Paso anterior</button>
-          <button class="btn btn-primary" id="demo-next">Siguiente paso</button>
-          <button class="btn btn-secondary" id="demo-reset">Reiniciar</button>
+          <h2>Calcular una división mentalmente</h2>
+          <p>Para dividir "de cabeza", sin usar el método escrito, podemos <strong>descomponer el dividendo</strong> en dos partes fáciles de dividir entre el divisor, y después sumar los resultados.</p>
+          <div class="tip-box">
+            <strong>Ejemplo:</strong> 936 ÷ 4 → pensamos 936 como 800 + 136 → 800 ÷ 4 = 200 y 136 ÷ 4 = 34 → 200 + 34 = 234.
+          </div>
+          <p>Para descomponer, fíjate en la cifra más alta del cociente aproximado: esa cifra, multiplicada por su valor posicional y por el divisor, nos da la primera parte del dividendo; el resto del dividendo es la segunda parte.</p>
+
+          <h2>Ejemplo paso a paso</h2>
+          <p>Elige un ejemplo y pulsa "Siguiente paso" para ver cómo se piensa la división mentalmente.</p>
+
+          <div class="choice-row" id="mental-example-picker">
+            <button class="btn btn-secondary active" data-example="0">Divisor de 1 cifra</button>
+            <button class="btn btn-secondary" data-example="1">Divisor de 2 cifras</button>
+            <button class="btn btn-secondary" data-example="2">Divisor de 3 cifras</button>
+          </div>
+
+          <div class="mental-box">
+            <div class="mental-line" id="mental-demo-line1">Pulsa «Siguiente paso» para empezar.</div>
+            <div class="mental-line" id="mental-demo-line2"></div>
+            <div class="mental-line" id="mental-demo-line3"></div>
+          </div>
+
+          <div class="actions-row">
+            <button class="btn btn-secondary" id="mental-demo-prev">Paso anterior</button>
+            <button class="btn btn-primary" id="mental-demo-next">Siguiente paso</button>
+            <button class="btn btn-secondary" id="mental-demo-reset">Reiniciar</button>
+          </div>
+
+          <p style="text-align:center; margin-top:32px;">
+            <button class="btn btn-primary" id="go-to-practice-mental">Ir a practicar</button>
+          </p>
         </div>
-
-        <p style="text-align:center; margin-top:32px;">
-          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
-        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
       <section id="tab-practica" class="tab-panel">
-        <div class="game-card">
+
+        <!-- ---- Práctica: método escrito ---- -->
+        <div id="practica-escrita" class="game-card">
 
           <div class="game-score">
             <div class="game-stat ok">
-              <span class="game-stat-value" id="score-ok">0</span>
+              <span class="game-stat-value" id="score-ok-w">0</span>
               <span class="game-stat-label">Aciertos</span>
             </div>
             <div class="game-stat ko">
-              <span class="game-stat-value" id="score-ko">0</span>
+              <span class="game-stat-value" id="score-ko-w">0</span>
               <span class="game-stat-label">Fallos</span>
             </div>
           </div>
 
           <div class="progress-track">
-            <div class="progress-fill" id="progress-fill"></div>
+            <div class="progress-fill" id="progress-fill-w"></div>
           </div>
 
           <div class="game-step-label">Elige el tipo de división</div>
-          <div class="choice-row" id="length-picker">
+          <div class="choice-row" id="length-picker-w">
             <button class="btn btn-secondary active" data-len="1">Divisor de 1 cifra</button>
             <button class="btn btn-secondary" data-len="2">Divisor de 2 cifras</button>
             <button class="btn btn-secondary" data-len="3">Divisor de 3 cifras</button>
@@ -141,10 +188,52 @@
           <p class="instructions" id="game-instruction"></p>
           <div class="syllable-row" id="digit-buttons"></div>
 
-          <div id="feedback" class="feedback-box"></div>
+          <div id="feedback-w" class="feedback-box"></div>
 
           <div class="actions-row">
-            <button class="btn btn-success" id="next-problem" style="display:none;">Nueva división</button>
+            <button class="btn btn-success" id="next-problem-w" style="display:none;">Nueva división</button>
+          </div>
+        </div>
+
+        <!-- ---- Práctica: cálculo mental ---- -->
+        <div id="practica-mental" class="game-card" style="display:none;">
+
+          <div class="game-score">
+            <div class="game-stat ok">
+              <span class="game-stat-value" id="score-ok-m">0</span>
+              <span class="game-stat-label">Aciertos</span>
+            </div>
+            <div class="game-stat ko">
+              <span class="game-stat-value" id="score-ko-m">0</span>
+              <span class="game-stat-label">Fallos</span>
+            </div>
+          </div>
+
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill-m"></div>
+          </div>
+
+          <div class="game-step-label">Elige el tipo de división</div>
+          <div class="choice-row" id="length-picker-m">
+            <button class="btn btn-secondary active" data-len="1">Divisor de 1 cifra</button>
+            <button class="btn btn-secondary" data-len="2">Divisor de 2 cifras</button>
+            <button class="btn btn-secondary" data-len="3">Divisor de 3 cifras</button>
+          </div>
+
+          <div class="mental-box">
+            <div class="mental-line" id="mental-game-equation"></div>
+          </div>
+
+          <p class="instructions" id="mental-game-instruction"></p>
+          <div class="mental-inputs-row">
+            <input type="number" class="number-input" id="mental-answer-input">
+            <button class="btn btn-primary" id="mental-check-btn">Comprobar</button>
+          </div>
+
+          <div id="feedback-m" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-problem-m" style="display:none;">Nueva división</button>
           </div>
         </div>
       </section>
