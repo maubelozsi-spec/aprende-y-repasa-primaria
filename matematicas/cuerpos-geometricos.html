@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuerpos geométricos y su desarrollo · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "cuerpos-geometricos";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Cuerpos geométricos y su desarrollo</h1>
+        <p class="content-subtitle">Prismas, pirámides, cilindro, cono y esfera.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Poliedros y cuerpos redondos</h2>
+        <p>Los <strong>cuerpos geométricos</strong> son figuras de 3 dimensiones. Los <strong>poliedros</strong> (prismas, pirámides...) tienen todas sus caras planas. Los <strong>cuerpos redondos</strong> (cilindro, cono, esfera) tienen alguna superficie curva.</p>
+
+        <h2>El cubo y su desarrollo</h2>
+        <div class="pv-tiles">
+          <svg viewBox="0 0 140 120" width="140" height="120">
+            <polygon points="20,40 80,40 80,100 20,100" fill="none" stroke="var(--text)" stroke-width="2"/>
+            <polygon points="20,40 40,20 100,20 80,40" fill="none" stroke="var(--text)" stroke-width="2"/>
+            <polygon points="80,40 100,20 100,80 80,100" fill="none" stroke="var(--text)" stroke-width="2"/>
+          </svg>
+          <svg viewBox="0 0 160 160" width="160" height="160">
+            <g fill="none" stroke="var(--color-indigo)" stroke-width="2">
+              <rect x="40" y="10" width="30" height="30"/>
+              <rect x="10" y="40" width="30" height="30"/>
+              <rect x="40" y="40" width="30" height="30"/>
+              <rect x="70" y="40" width="30" height="30"/>
+              <rect x="100" y="40" width="30" height="30"/>
+              <rect x="40" y="70" width="30" height="30"/>
+            </g>
+          </svg>
+        </div>
+        <p style="text-align:center;">El cubo (izquierda) y su <strong>desarrollo</strong>: lo que se ve si lo "desdoblamos" en el plano (derecha) — 6 cuadrados iguales.</p>
+
+        <h2>La pirámide cuadrangular y su desarrollo</h2>
+        <div class="pv-tiles">
+          <svg viewBox="0 0 140 120" width="140" height="120">
+            <polygon points="20,90 100,90 120,70 40,70" fill="none" stroke="var(--text)" stroke-width="2"/>
+            <line x1="20" y1="90" x2="65" y2="15" stroke="var(--text)" stroke-width="2"/>
+            <line x1="100" y1="90" x2="65" y2="15" stroke="var(--text)" stroke-width="2"/>
+            <line x1="120" y1="70" x2="65" y2="15" stroke="var(--text)" stroke-width="2"/>
+            <line x1="40" y1="70" x2="65" y2="15" stroke="var(--text)" stroke-width="2"/>
+          </svg>
+          <svg viewBox="0 0 160 160" width="160" height="160">
+            <g fill="none" stroke="var(--color-plum)" stroke-width="2">
+              <rect x="55" y="55" width="50" height="50"/>
+              <polygon points="55,55 105,55 80,15"/>
+              <polygon points="105,55 105,105 145,80"/>
+              <polygon points="105,105 55,105 80,145"/>
+              <polygon points="55,105 55,55 15,80"/>
+            </g>
+          </svg>
+        </div>
+        <p style="text-align:center;">Una base cuadrada y 4 caras triangulares que se juntan en el vértice superior.</p>
+
+        <h2>El cilindro y su desarrollo</h2>
+        <div class="pv-tiles">
+          <svg viewBox="0 0 120 140" width="120" height="140">
+            <ellipse cx="60" cy="30" rx="40" ry="14" fill="none" stroke="var(--text)" stroke-width="2"/>
+            <line x1="20" y1="30" x2="20" y2="110" stroke="var(--text)" stroke-width="2"/>
+            <line x1="100" y1="30" x2="100" y2="110" stroke="var(--text)" stroke-width="2"/>
+            <path d="M 20 110 A 40 14 0 0 0 100 110" fill="none" stroke="var(--text)" stroke-width="2"/>
+            <ellipse cx="60" cy="30" rx="40" ry="14" fill="none" stroke="var(--text)" stroke-width="2"/>
+          </svg>
+          <svg viewBox="0 0 200 100" width="200" height="100">
+            <circle cx="25" cy="25" r="20" fill="none" stroke="var(--color-teal)" stroke-width="2"/>
+            <rect x="55" y="5" width="90" height="40" fill="none" stroke="var(--color-teal)" stroke-width="2"/>
+            <circle cx="170" cy="25" r="20" fill="none" stroke="var(--color-teal)" stroke-width="2"/>
+          </svg>
+        </div>
+        <p style="text-align:center;">Dos círculos (las bases) y un rectángulo (la superficie lateral, que era curva y se "desenrolla").</p>
+
+        <h2>Resumen: caras, aristas, vértices y desarrollo</h2>
+        <table class="rules-table">
+          <tr><th>Cuerpo</th><th>Caras</th><th>Aristas</th><th>Vértices</th><th>Desarrollo</th></tr>
+          <tr><td>Cubo</td><td>6</td><td>12</td><td>8</td><td>6 cuadrados en forma de cruz</td></tr>
+          <tr><td>Prisma triangular</td><td>5</td><td>9</td><td>6</td><td>2 triángulos y 3 rectángulos</td></tr>
+          <tr><td>Pirámide cuadrangular</td><td>5</td><td>8</td><td>5</td><td>1 cuadrado y 4 triángulos</td></tr>
+          <tr><td>Cilindro</td><td>—</td><td>—</td><td>—</td><td>2 círculos y 1 rectángulo</td></tr>
+          <tr><td>Cono</td><td>—</td><td>—</td><td>—</td><td>1 círculo y 1 sector circular</td></tr>
+          <tr><td>Esfera</td><td>—</td><td>—</td><td>—</td><td>No tiene desarrollo plano</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Curiosidad:</strong> la esfera es el único cuerpo que no se puede "desdoblar" en un plano sin deformarla — por eso los mapamundis siempre tienen algo de distorsión.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="identificar">Identificar el cuerpo</button>
+            <button class="btn btn-secondary" data-mode="cav">Caras, aristas y vértices</button>
+            <button class="btn btn-secondary" data-mode="desarrollo">Su desarrollo</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/cuerpos-geometricos.js"></script>
+</body>
+</html>

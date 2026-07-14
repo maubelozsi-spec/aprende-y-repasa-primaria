@@ -52,6 +52,7 @@ const NAV = [
       { id: "porcentajes", label: "Porcentajes", href: "matematicas/porcentajes.html", available: true },
       { id: "medidas", label: "Medidas: longitud, capacidad, masa y superficie", href: "matematicas/medidas.html", available: true },
       { id: "areas", label: "Área de figuras planas y polígonos", href: "matematicas/areas.html", available: true },
+      { id: "cuerpos-geometricos", label: "Cuerpos geométricos y su desarrollo", href: "matematicas/cuerpos-geometricos.html", available: true },
     ],
   },
 ];
