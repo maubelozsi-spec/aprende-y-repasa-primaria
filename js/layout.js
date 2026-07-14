@@ -19,6 +19,7 @@ const NAV = [
       { id: "sinonimos-antonimos", label: "Sinónimos y antónimos", href: "lengua/sinonimos-antonimos.html", available: true },
       { id: "sustantivo-pronombre", label: "El sustantivo y el pronombre", href: "lengua/sustantivo-pronombre.html", available: true },
       { id: "adjetivo", label: "El adjetivo", href: "lengua/adjetivo.html", available: true },
+      { id: "determinantes", label: "Los determinantes", href: "lengua/determinantes.html", available: true },
     ],
   },
   {

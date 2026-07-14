@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Los determinantes · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "determinantes";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>Los determinantes</h1>
+        <p class="content-subtitle">Artículos, demostrativos, posesivos, numerales e indefinidos.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es un determinante?</h2>
+        <p>El <strong>determinante</strong> va delante del sustantivo y lo concreta: indica de qué estamos hablando, de cuántos, o de quién es.</p>
+        <p class="examples"><strong>Ejemplo:</strong> <em>el</em> perro · <em>este</em> perro · <em>mi</em> perro · <em>tres</em> perros · <em>algunos</em> perros</p>
+
+        <h2>Tipos de determinantes</h2>
+
+        <div class="rule-box aguda">
+          <h4>Artículos</h4>
+          <p><strong>Determinados</strong> (hablamos de algo conocido): el, la, los, las. <strong>Indeterminados</strong> (hablamos de algo no conocido o no concreto): un, una, unos, unas.</p>
+          <p class="examples"><strong>Ejemplo:</strong> vi <em>un</em> perro (no sabemos cuál) → luego, <em>el</em> perro me siguió (ya sabemos cuál).</p>
+        </div>
+
+        <div class="rule-box llana">
+          <h4>Demostrativos</h4>
+          <p>Indican la distancia entre quien habla y lo que se nombra.</p>
+          <p class="examples"><strong>Cerca:</strong> este, esta, estos, estas · <strong>Media distancia:</strong> ese, esa, esos, esas · <strong>Lejos:</strong> aquel, aquella, aquellos, aquellas</p>
+        </div>
+
+        <div class="rule-box esdrujula">
+          <h4>Posesivos</h4>
+          <p>Indican a quién pertenece algo.</p>
+          <p class="examples"><strong>Ejemplos:</strong> mi/mis, tu/tus, su/sus, nuestro/nuestra/nuestros/nuestras, vuestro/vuestra/vuestros/vuestras</p>
+        </div>
+
+        <div class="rule-box sobresdrujula">
+          <h4>Numerales</h4>
+          <p><strong>Cardinales</strong> indican cantidad exacta (uno, dos, tres...). <strong>Ordinales</strong> indican orden (primero, segundo, tercero...).</p>
+        </div>
+
+        <div class="rule-box diptongo">
+          <h4>Indefinidos</h4>
+          <p>Indican una cantidad imprecisa, sin decir exactamente cuánto.</p>
+          <p class="examples"><strong>Ejemplos:</strong> algunos, muchos, pocos, varios, ningún, todos, cualquier</p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="tipo">Tipo de determinante</button>
+            <button class="btn btn-secondary" data-mode="articulo">Artículo determinado/indeterminado</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/determinantes.js"></script>
+</body>
+</html>
