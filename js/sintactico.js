@@ -41,6 +41,74 @@ const SENTENCES = [
   { words: ["Mi", "perro", "ladra"], subject: { indices: [0, 1] }, predicateType: "verbal", complements: [] },
 ];
 
+const TIPO_ORACION_ENTRIES = [
+  { sentence: "Hace frío.", tipo: "Enunciativa" },
+  { sentence: "El perro ladra en el jardín.", tipo: "Enunciativa" },
+  { sentence: "No me gusta el pescado.", tipo: "Enunciativa" },
+  { sentence: "¿Hace frío?", tipo: "Interrogativa" },
+  { sentence: "¿Vienes a la fiesta?", tipo: "Interrogativa" },
+  { sentence: "¡Qué frío hace!", tipo: "Exclamativa" },
+  { sentence: "¡Qué alegría verte!", tipo: "Exclamativa" },
+  { sentence: "Abrígate.", tipo: "Imperativa" },
+  { sentence: "Cierra la puerta.", tipo: "Imperativa" },
+  { sentence: "Ojalá no haga frío.", tipo: "Desiderativa" },
+  { sentence: "Ojalá apruebe el examen.", tipo: "Desiderativa" },
+  { sentence: "Quizás haga frío.", tipo: "Dubitativa" },
+  { sentence: "Tal vez llueva mañana.", tipo: "Dubitativa" },
+];
+
+const VOZ_ENTRIES = [
+  { sentence: "El perro muerde la pelota.", voz: "Activa" },
+  { sentence: "La pelota es mordida por el perro.", voz: "Pasiva" },
+  { sentence: "María escribe la carta.", voz: "Activa" },
+  { sentence: "La carta es escrita por María.", voz: "Pasiva" },
+  { sentence: "El gato caza al ratón.", voz: "Activa" },
+  { sentence: "El ratón es cazado por el gato.", voz: "Pasiva" },
+  { sentence: "Los alumnos hacen los deberes.", voz: "Activa" },
+  { sentence: "Los deberes son hechos por los alumnos.", voz: "Pasiva" },
+];
+
+const ELIPSIS_ENTRIES = [
+  { sentence: "Vamos al cine.", omitidoLabel: "Sí" },
+  { sentence: "Los niños juegan.", omitidoLabel: "No" },
+  { sentence: "Como fruta.", omitidoLabel: "Sí" },
+  { sentence: "Ella canta muy bien.", omitidoLabel: "No" },
+  { sentence: "Llegamos tarde.", omitidoLabel: "Sí" },
+  { sentence: "El sol brilla.", omitidoLabel: "No" },
+  { sentence: "Estudiamos mucho.", omitidoLabel: "Sí" },
+  { sentence: "Mi hermano cocina bien.", omitidoLabel: "No" },
+];
+
+const SECONDARY_MODE_GROUPS = {
+  tipo: {
+    pool: TIPO_ORACION_ENTRIES,
+    field: "tipo",
+    question: () => "¿Qué tipo de oración es esta?",
+    options: ["Enunciativa", "Interrogativa", "Exclamativa", "Imperativa", "Desiderativa", "Dubitativa"],
+  },
+  voz: {
+    pool: VOZ_ENTRIES,
+    field: "voz",
+    question: () => "¿Esta oración está en voz activa o pasiva?",
+    options: ["Activa", "Pasiva"],
+  },
+  elipsis: {
+    pool: ELIPSIS_ENTRIES,
+    field: "omitidoLabel",
+    question: () => "¿Tiene el sujeto omitido (elíptico) esta oración?",
+    options: ["Sí", "No"],
+  },
+};
+
+function shuffle(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
 function setsEqual(a, b) {
   if (a.size !== b.size) return false;
   for (const v of a) if (!b.has(v)) return false;
@@ -52,7 +120,127 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("word-tokens")) {
     initGame();
   }
+  if (document.getElementById("quiz-answer-buttons")) {
+    initSecondaryQuiz();
+  }
+  initPracticaModePicker();
 });
+
+function initPracticaModePicker() {
+  const picker = document.getElementById("practica-mode-picker");
+  if (!picker) return;
+  const btns = picker.querySelectorAll("[data-pmode]");
+  const panels = {
+    analisis: document.getElementById("practica-analisis"),
+    quiz: document.getElementById("practica-quiz"),
+  };
+
+  function setMode(pmode) {
+    Object.entries(panels).forEach(([key, el]) => {
+      if (el) el.style.display = key === pmode ? "" : "none";
+    });
+    btns.forEach((b) => b.classList.toggle("active", b.dataset.pmode === pmode));
+  }
+
+  btns.forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.pmode)));
+  setMode("analisis");
+}
+
+function initSecondaryQuiz() {
+  const els = {
+    modeBtns: document.querySelectorAll("#quiz-mode-picker [data-mode]"),
+    instructions: document.getElementById("quiz-instructions"),
+    sentenceDisplay: document.getElementById("quiz-sentence"),
+    answerButtons: document.getElementById("quiz-answer-buttons"),
+    feedback: document.getElementById("quiz-feedback"),
+    nextBtn: document.getElementById("quiz-next"),
+    scoreOk: document.getElementById("score-ok-2"),
+    scoreKo: document.getElementById("score-ko-2"),
+  };
+
+  const modeKeys = Object.keys(SECONDARY_MODE_GROUPS);
+  let scoreOk = 0;
+  let scoreKo = 0;
+  let mode = "tipo";
+  let current;
+  let lastSentence = "";
+
+  function pickQuestion() {
+    const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
+    const group = SECONDARY_MODE_GROUPS[groupKey];
+    let entry;
+    do {
+      entry = group.pool[Math.floor(Math.random() * group.pool.length)];
+    } while (group.pool.length > 1 && entry.sentence === lastSentence);
+    lastSentence = entry.sentence;
+    return { entry, group };
+  }
+
+  function startQuizRound() {
+    current = pickQuestion();
+
+    els.instructions.textContent = current.group.question();
+    els.sentenceDisplay.textContent = current.entry.sentence;
+
+    els.feedback.classList.remove("show", "ok", "ko");
+    els.feedback.innerHTML = "";
+    els.nextBtn.style.display = "none";
+
+    const correct = current.entry[current.group.field];
+    let options = current.group.options.slice();
+    if (options.length > 4) {
+      const others = options.filter((o) => o !== correct);
+      options = shuffle([correct, ...shuffle(others).slice(0, 3)]);
+    } else {
+      options = shuffle(options);
+    }
+
+    els.answerButtons.innerHTML = "";
+    options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.className = "syllable-chip";
+      btn.textContent = opt;
+      btn.addEventListener("click", () => chooseQuizAnswer(opt, btn));
+      els.answerButtons.appendChild(btn);
+    });
+  }
+
+  function chooseQuizAnswer(chosen, btn) {
+    const correct = current.entry[current.group.field];
+    const isCorrect = chosen === correct;
+
+    if (isCorrect) scoreOk++;
+    else scoreKo++;
+    els.scoreOk.textContent = scoreOk;
+    els.scoreKo.textContent = scoreKo;
+
+    const allBtns = els.answerButtons.querySelectorAll(".syllable-chip");
+    allBtns.forEach((b) => {
+      b.disabled = true;
+      if (b.textContent === correct) b.classList.add("correct");
+      else if (b === btn && !isCorrect) b.classList.add("incorrect");
+    });
+
+    const titleText = isCorrect ? "Correcto" : "No era esa";
+    els.feedback.classList.add("show", isCorrect ? "ok" : "ko");
+    els.feedback.innerHTML = `<p class="feedback-title">${titleText}</p><p>Respuesta: <strong>${correct}</strong>.</p>`;
+
+    els.nextBtn.style.display = "";
+  }
+
+  els.modeBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      els.modeBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      mode = btn.dataset.mode;
+      startQuizRound();
+    });
+  });
+
+  els.nextBtn.addEventListener("click", startQuizRound);
+
+  startQuizRound();
+}
 
 function initTabs() {
   const tabBtns = document.querySelectorAll(".tab-btn");

@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Lengua</p>
         <h1>Análisis sintáctico</h1>
-        <p class="content-subtitle">Sujeto y predicado · predicado nominal y verbal · complementos (CD, CI, CC).</p>
+        <p class="content-subtitle">Sujeto y predicado · complementos (CD, CI, CC) · tipos de oración · voz activa y pasiva.</p>
       </header>
 
       <div class="tabs">
@@ -93,6 +93,37 @@
           <strong>Resumen rápido:</strong> sujeto = ¿quién? · predicado = el resto de la oración (núcleo = el verbo) · predicado nominal = ser/estar/parecer + atributo · predicado verbal = verbo + CD (¿qué?), CI (¿a quién?) y/o CC (dónde, cuándo, cómo, cuánto).
         </div>
 
+        <h2>Tipos de oración según la actitud del hablante</h2>
+        <p>Según lo que queremos expresar, las oraciones pueden ser de distintos tipos:</p>
+        <table class="rules-table">
+          <tr><th>Tipo</th><th>Expresa</th><th>Ejemplo</th></tr>
+          <tr><td>Enunciativa</td><td>afirma o niega algo, de forma objetiva</td><td>Hace frío. / No hace frío.</td></tr>
+          <tr><td>Interrogativa</td><td>pregunta algo</td><td>¿Hace frío?</td></tr>
+          <tr><td>Exclamativa</td><td>una emoción intensa</td><td>¡Qué frío hace!</td></tr>
+          <tr><td>Imperativa</td><td>una orden, un ruego o un consejo</td><td>Abrígate.</td></tr>
+          <tr><td>Desiderativa</td><td>un deseo</td><td>Ojalá no haga frío.</td></tr>
+          <tr><td>Dubitativa</td><td>duda o posibilidad</td><td>Quizás haga frío.</td></tr>
+        </table>
+
+        <h2>Las interjecciones</h2>
+        <p>La <strong>interjección</strong> es una palabra (o grupo de palabras) que expresa un sentimiento, una sensación o llama la atención, de forma aislada. Siempre va entre signos de exclamación.</p>
+        <p class="examples"><strong>Ejemplos:</strong> ¡ay!, ¡oh!, ¡eh!, ¡hola!, ¡bravo!, ¡socorro!</p>
+
+        <h2>Voz activa y voz pasiva</h2>
+        <div class="rule-box aguda">
+          <h4>Voz activa</h4>
+          <p>El sujeto realiza la acción del verbo (es quien hace algo).</p>
+          <p class="examples"><strong>Ejemplo:</strong> <strong>El perro</strong> muerde la pelota.</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Voz pasiva</h4>
+          <p>El sujeto recibe la acción del verbo, no la realiza (se llama sujeto paciente). Se forma con el verbo <strong>ser</strong> + participio, y a veces "por" + quien hace la acción (complemento agente).</p>
+          <p class="examples"><strong>Ejemplo:</strong> <strong>La pelota</strong> es mordida por el perro.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Truco:</strong> en la oración activa "El perro muerde la pelota", el CD ("la pelota") pasa a ser el sujeto de la pasiva; el sujeto de la activa ("el perro") pasa a ser el complemento agente ("por el perro").
+        </div>
+
         <p style="text-align:center; margin-top:32px;">
           <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
         </p>
@@ -100,7 +131,13 @@
 
       <!-- ================= PRÁCTICA ================= -->
       <section id="tab-practica" class="tab-panel">
-        <div class="game-card">
+
+        <div class="choice-row method-picker" id="practica-mode-picker">
+          <button class="btn btn-secondary active" data-pmode="analisis">Sujeto, predicado y complementos</button>
+          <button class="btn btn-secondary" data-pmode="quiz">Tipos de oración y voz</button>
+        </div>
+
+        <div id="practica-analisis" class="game-card">
 
           <div class="game-score">
             <div class="game-stat ok">
@@ -161,6 +198,33 @@
 
           <div class="actions-row">
             <button class="btn btn-success" id="next-sentence" style="display:none;">Siguiente oración</button>
+          </div>
+        </div>
+
+        <div id="practica-quiz" class="game-card" style="display:none;">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok-2">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko-2">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="quiz-mode-picker">
+            <button class="btn btn-secondary active" data-mode="tipo">Tipo de oración</button>
+            <button class="btn btn-secondary" data-mode="voz">Voz activa o pasiva</button>
+            <button class="btn btn-secondary" data-mode="elipsis">Sujeto elíptico</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="quiz-instructions"></p>
+          <div class="sentence-display" id="quiz-sentence"></div>
+
+          <div class="syllable-row" id="quiz-answer-buttons"></div>
+
+          <div id="quiz-feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="quiz-next" style="display:none;">Siguiente</button>
           </div>
         </div>
       </section>
