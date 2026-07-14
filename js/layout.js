@@ -41,6 +41,7 @@ const NAV = [
       { id: "multiplicaciones", label: "Multiplicaciones", href: "matematicas/multiplicaciones.html", available: true },
       { id: "divisiones", label: "Divisiones", href: "matematicas/divisiones.html", available: true },
       { id: "numeros-grandes", label: "Números grandes y aproximación", href: "matematicas/numeros-grandes.html", available: true },
+      { id: "operaciones-combinadas", label: "Operaciones combinadas", href: "matematicas/operaciones-combinadas.html", available: true },
     ],
   },
 ];
