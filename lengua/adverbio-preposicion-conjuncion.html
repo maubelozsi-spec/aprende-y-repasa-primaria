@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El adverbio, la preposición y la conjunción · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "adverbio-preposicion-conjuncion";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>El adverbio, la preposición y la conjunción</h1>
+        <p class="content-subtitle">Palabras que no cambian de forma: modifican, relacionan o unen.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>El adverbio</h2>
+        <p>El <strong>adverbio</strong> modifica al verbo, al adjetivo o a otro adverbio. A diferencia del sustantivo o el adjetivo, <strong>no cambia de forma</strong>: no tiene género ni número.</p>
+        <p class="examples"><strong>Ejemplos:</strong> corre <em>rápido</em> · muy <em>alto</em> · bastante <em>despacio</em></p>
+
+        <h2>Tipos de adverbio</h2>
+        <table class="rules-table">
+          <tr><th>Tipo</th><th>Ejemplos</th></tr>
+          <tr><td>Lugar</td><td>aquí, allí, cerca, lejos, arriba, abajo, dentro, fuera</td></tr>
+          <tr><td>Tiempo</td><td>hoy, ayer, mañana, siempre, pronto, tarde, ahora</td></tr>
+          <tr><td>Modo</td><td>bien, mal, despacio, así, rápidamente, tranquilamente</td></tr>
+          <tr><td>Cantidad</td><td>mucho, poco, bastante, demasiado, más, menos, muy</td></tr>
+          <tr><td>Afirmación</td><td>sí, también, claro, efectivamente</td></tr>
+          <tr><td>Negación</td><td>no, nunca, tampoco, jamás</td></tr>
+          <tr><td>Duda</td><td>quizás, acaso, probablemente</td></tr>
+        </table>
+
+        <h2>La preposición</h2>
+        <p>La <strong>preposición</strong> relaciona dos palabras o grupos de palabras dentro de la oración. Tampoco cambia de forma.</p>
+        <p class="examples"><strong>Ejemplos:</strong> a, ante, bajo, con, contra, de, desde, en, entre, hacia, hasta, para, por, según, sin, sobre, tras</p>
+        <div class="tip-box">
+          <strong>Ejemplo de uso:</strong> el libro <em>de</em> Ana está <em>sobre</em> la mesa · vengo <em>desde</em> mi casa <em>hasta</em> el colegio.
+        </div>
+
+        <h2>La conjunción</h2>
+        <p>La <strong>conjunción</strong> une palabras u oraciones.</p>
+        <table class="rules-table">
+          <tr><th>Tipo</th><th>Ejemplos</th><th>Idea que expresa</th></tr>
+          <tr><td>Copulativa</td><td>y, e, ni</td><td>suma</td></tr>
+          <tr><td>Disyuntiva</td><td>o, u</td><td>opción</td></tr>
+          <tr><td>Adversativa</td><td>pero, sino, aunque</td><td>contraste</td></tr>
+          <tr><td>Causal</td><td>porque, ya que</td><td>causa</td></tr>
+          <tr><td>Condicional</td><td>si</td><td>condición</td></tr>
+        </table>
+
+        <div class="tip-box">
+          <strong>Truco para distinguirlas:</strong> si la palabra no cambia y modifica a un verbo/adjetivo/adverbio → adverbio. Si relaciona dos elementos (normalmente antes de un sustantivo) → preposición. Si une dos palabras u oraciones → conjunción.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="categoria">Adverbio, preposición o conjunción</button>
+            <button class="btn btn-secondary" data-mode="tipoadverbio">Tipo de adverbio</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/adverbio-preposicion-conjuncion.js"></script>
+</body>
+</html>
