@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Área de figuras planas y polígonos · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "areas";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Área de figuras planas y polígonos</h1>
+        <p class="content-subtitle">Fórmulas de área del cuadrado, rectángulo, triángulo, romboide y rombo.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Área del cuadrado</h2>
+        <div class="pv-tiles">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <rect x="20" y="20" width="80" height="80" fill="none" stroke="var(--text)" stroke-width="3"/>
+            <text x="60" y="14" text-anchor="middle" font-size="13">lado</text>
+            <text x="4" y="64" font-size="13">lado</text>
+          </svg>
+        </div>
+        <div class="rule-box aguda">
+          <h4>Fórmula</h4>
+          <p>Área = lado × lado</p>
+        </div>
+        <div class="tip-box"><strong>Ejemplo:</strong> lado 5 cm → 5 × 5 = 25 cm²</div>
+
+        <h2>Área del rectángulo</h2>
+        <div class="pv-tiles">
+          <svg viewBox="0 0 140 100" width="140" height="100">
+            <rect x="20" y="20" width="100" height="60" fill="none" stroke="var(--text)" stroke-width="3"/>
+            <text x="70" y="14" text-anchor="middle" font-size="13">base</text>
+            <text x="2" y="54" font-size="13">altura</text>
+          </svg>
+        </div>
+        <div class="rule-box llana">
+          <h4>Fórmula</h4>
+          <p>Área = base × altura</p>
+        </div>
+        <div class="tip-box"><strong>Ejemplo:</strong> base 6 cm, altura 4 cm → 6 × 4 = 24 cm²</div>
+
+        <h2>Área del triángulo</h2>
+        <div class="pv-tiles">
+          <svg viewBox="0 0 140 100" width="140" height="100">
+            <polygon points="20,80 120,80 70,20" fill="none" stroke="var(--text)" stroke-width="3"/>
+            <line x1="70" y1="80" x2="70" y2="20" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
+            <text x="70" y="96" text-anchor="middle" font-size="13">base</text>
+            <text x="78" y="52" font-size="13">altura</text>
+          </svg>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>Fórmula</h4>
+          <p>Área = (base × altura) ÷ 2</p>
+        </div>
+        <div class="tip-box"><strong>Ejemplo:</strong> base 8 cm, altura 5 cm → (8 × 5) ÷ 2 = 20 cm²</div>
+
+        <h2>Área del romboide (paralelogramo)</h2>
+        <div class="pv-tiles">
+          <svg viewBox="0 0 160 100" width="160" height="100">
+            <polygon points="30,80 110,80 140,20 60,20" fill="none" stroke="var(--text)" stroke-width="3"/>
+            <line x1="60" y1="20" x2="60" y2="80" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
+            <text x="70" y="96" text-anchor="middle" font-size="13">base</text>
+            <text x="38" y="52" font-size="13">altura</text>
+          </svg>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Fórmula</h4>
+          <p>Área = base × altura</p>
+        </div>
+        <div class="tip-box"><strong>Ejemplo:</strong> base 7 cm, altura 4 cm → 7 × 4 = 28 cm²</div>
+
+        <h2>Área del rombo</h2>
+        <div class="pv-tiles">
+          <svg viewBox="0 0 140 140" width="140" height="140">
+            <polygon points="70,10 130,70 70,130 10,70" fill="none" stroke="var(--text)" stroke-width="3"/>
+            <line x1="70" y1="10" x2="70" y2="130" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
+            <line x1="10" y1="70" x2="130" y2="70" stroke="var(--color-teal)" stroke-width="2" stroke-dasharray="4 3"/>
+            <text x="76" y="45" font-size="13">D</text>
+            <text x="45" y="64" font-size="13">d</text>
+          </svg>
+        </div>
+        <div class="rule-box diptongo">
+          <h4>Fórmula</h4>
+          <p>Área = (diagonal mayor × diagonal menor) ÷ 2</p>
+        </div>
+        <div class="tip-box"><strong>Ejemplo:</strong> diagonales 10 cm y 6 cm → (10 × 6) ÷ 2 = 30 cm²</div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="calcular">Calcular el área</button>
+            <button class="btn btn-secondary" data-mode="formula">Elegir la fórmula</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/areas.js"></script>
+</body>
+</html>

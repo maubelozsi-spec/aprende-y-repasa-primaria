@@ -51,6 +51,7 @@ const NAV = [
       { id: "decimales-md", label: "Multiplicación y división de decimales", href: "matematicas/decimales-md.html", available: true },
       { id: "porcentajes", label: "Porcentajes", href: "matematicas/porcentajes.html", available: true },
       { id: "medidas", label: "Medidas: longitud, capacidad, masa y superficie", href: "matematicas/medidas.html", available: true },
+      { id: "areas", label: "Área de figuras planas y polígonos", href: "matematicas/areas.html", available: true },
     ],
   },
 ];
