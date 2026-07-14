@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Lengua</p>
         <h1>El verbo</h1>
-        <p class="content-subtitle">Raíz y desinencia, conjugaciones, y formas personales y no personales.</p>
+        <p class="content-subtitle">Raíz y desinencia, conjugaciones, formas personales y no personales, y cómo conjugar los tiempos verbales.</p>
       </header>
 
       <div class="tabs">
@@ -89,6 +89,44 @@
           <strong>Analizar un verbo:</strong> para analizar una forma verbal personal decimos su persona (1ª, 2ª o 3ª), su número (singular o plural) y a qué infinitivo pertenece. Por ejemplo, "cantamos" → 1ª persona del plural, del verbo cantar.
         </div>
 
+        <h2>Aprende a conjugar: los tiempos verbales</h2>
+        <p><strong>Conjugar</strong> un verbo es escribir todas sus formas cambiando la persona y el tiempo. En el modo indicativo, los tiempos más importantes son estos cinco:</p>
+
+        <div class="rule-box aguda">
+          <h4>Presente</h4>
+          <p>La acción ocurre ahora. <span class="examples">Ejemplo: yo <strong>canto</strong>.</span></p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Pretérito perfecto simple</h4>
+          <p>La acción pasó y ya ha terminado. <span class="examples">Ejemplo: yo <strong>canté</strong>.</span></p>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>Pretérito imperfecto</h4>
+          <p>La acción pasada era habitual o estaba en desarrollo. <span class="examples">Ejemplo: yo <strong>cantaba</strong>.</span></p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Futuro</h4>
+          <p>La acción todavía no ha ocurrido. <span class="examples">Ejemplo: yo <strong>cantaré</strong>.</span></p>
+        </div>
+        <div class="rule-box diptongo">
+          <h4>Condicional</h4>
+          <p>La acción es posible, pero depende de algo. <span class="examples">Ejemplo: yo <strong>cantaría</strong>.</span></p>
+        </div>
+
+        <p>Cada tiempo tiene una terminación distinta para cada persona. Aquí tienes el verbo <strong>cantar</strong> conjugado por completo:</p>
+        <table class="rules-table">
+          <tr><th>Persona</th><th>Presente</th><th>Pret. perf. simple</th><th>Pret. imperfecto</th><th>Futuro</th><th>Condicional</th></tr>
+          <tr><td>yo</td><td>canto</td><td>canté</td><td>cantaba</td><td>cantaré</td><td>cantaría</td></tr>
+          <tr><td>tú</td><td>cantas</td><td>cantaste</td><td>cantabas</td><td>cantarás</td><td>cantarías</td></tr>
+          <tr><td>él/ella</td><td>canta</td><td>cantó</td><td>cantaba</td><td>cantará</td><td>cantaría</td></tr>
+          <tr><td>nosotros/as</td><td>cantamos</td><td>cantamos</td><td>cantábamos</td><td>cantaremos</td><td>cantaríamos</td></tr>
+          <tr><td>vosotros/as</td><td>cantáis</td><td>cantasteis</td><td>cantabais</td><td>cantaréis</td><td>cantaríais</td></tr>
+          <tr><td>ellos/as</td><td>cantan</td><td>cantaron</td><td>cantaban</td><td>cantarán</td><td>cantarían</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Ojo:</strong> esta tabla es de un verbo <strong>regular</strong>. Los verbos irregulares (como ser, estar, tener, ir...) cambian la raíz y no siguen exactamente estas terminaciones; los iremos viendo en otro contenido.
+        </div>
+
         <p style="text-align:center; margin-top:32px;">
           <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
         </p>
@@ -108,6 +146,7 @@
             <button class="btn btn-secondary active" data-mode="formas">Tipo de forma verbal</button>
             <button class="btn btn-secondary" data-mode="conjugacion">Conjugación</button>
             <button class="btn btn-secondary" data-mode="persona">Persona y número</button>
+            <button class="btn btn-secondary" data-mode="conjugar">Conjugar verbos</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
@@ -115,6 +154,11 @@
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="mental-inputs-row" id="conjugar-input-row" style="display:none;">
+            <input type="text" class="number-input" id="conjugar-input" autocomplete="off">
+            <button class="btn btn-primary" id="conjugar-check-btn">Comprobar</button>
+          </div>
 
           <div id="feedback" class="feedback-box"></div>
 
