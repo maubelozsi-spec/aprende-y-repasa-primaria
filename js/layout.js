@@ -40,6 +40,7 @@ const NAV = [
       { id: "tablas", label: "Tablas de multiplicar", href: "matematicas/tablas.html", available: true },
       { id: "multiplicaciones", label: "Multiplicaciones", href: "matematicas/multiplicaciones.html", available: true },
       { id: "divisiones", label: "Divisiones", href: "matematicas/divisiones.html", available: true },
+      { id: "numeros-grandes", label: "Números grandes y aproximación", href: "matematicas/numeros-grandes.html", available: true },
     ],
   },
 ];

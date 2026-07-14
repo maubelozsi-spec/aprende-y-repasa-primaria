@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Números grandes y aproximación · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "numeros-grandes";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Números grandes y aproximación</h1>
+        <p class="content-subtitle">Valor posicional en números de 6 cifras, comparación y redondeo.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Los números de 6 cifras</h2>
+        <p>En un número de 6 cifras, cada cifra ocupa un lugar (una <strong>posición</strong>) y vale más o menos según dónde esté. Fíjate en el número <strong>348.256</strong>:</p>
+
+        <div class="pv-tiles">
+          <div class="pv-col"><span class="letter">3</span><span class="pv-label">Centena de millar</span></div>
+          <div class="pv-col"><span class="letter">4</span><span class="pv-label">Decena de millar</span></div>
+          <div class="pv-col"><span class="letter">8</span><span class="pv-label">Unidad de millar</span></div>
+          <div class="pv-col"><span class="letter">2</span><span class="pv-label">Centena</span></div>
+          <div class="pv-col"><span class="letter">5</span><span class="pv-label">Decena</span></div>
+          <div class="pv-col"><span class="letter">6</span><span class="pv-label">Unidad</span></div>
+        </div>
+
+        <div class="tip-box">
+          <strong>Se lee:</strong> trescientos cuarenta y ocho mil doscientos cincuenta y seis. El punto separa los <strong>millares</strong> (348) de las <strong>unidades</strong> (256).
+        </div>
+
+        <div class="rule-box aguda">
+          <h4>Descomposición</h4>
+          <p>348.256 = 300.000 + 40.000 + 8.000 + 200 + 50 + 6</p>
+        </div>
+
+        <h2>Comparar y ordenar números</h2>
+        <div class="rule-box llana">
+          <h4>Cómo comparar</h4>
+          <p>Primero se compara el número de cifras: gana el que tiene más cifras. Si tienen las mismas cifras, se comparan de izquierda a derecha hasta encontrar una cifra distinta.</p>
+          <p class="examples"><strong>Ejemplos:</strong> 348.256 &lt; 348.512 (la centena de millar y la decena de millar coinciden, pero 2 &lt; 5 en la unidad de millar) · 63.000 &lt; 630.000 (menos cifras)</p>
+        </div>
+
+        <h2>Aproximar (redondear) números</h2>
+        <div class="rule-box esdrujula">
+          <h4>La regla del redondeo</h4>
+          <p>Para aproximar un número a una posición (decena, centena, millar...), se mira la cifra que está justo a la derecha de esa posición:</p>
+          <p class="examples">
+            <strong>Si es 5, 6, 7, 8 o 9</strong> → la cifra de esa posición sube una unidad.<br>
+            <strong>Si es 0, 1, 2, 3 o 4</strong> → la cifra de esa posición se queda igual.<br>
+            En los dos casos, todas las cifras siguientes se convierten en <strong>ceros</strong>.
+          </p>
+        </div>
+
+        <table class="rules-table">
+          <tr><th>Número</th><th>Aproximación</th><th>Resultado</th></tr>
+          <tr><td>273.849</td><td>a la centena de millar</td><td>300.000</td></tr>
+          <tr><td>273.849</td><td>a la decena de millar</td><td>270.000</td></tr>
+          <tr><td>273.849</td><td>al millar</td><td>274.000</td></tr>
+          <tr><td>273.849</td><td>a la centena</td><td>273.800</td></tr>
+        </table>
+
+        <div class="tip-box">
+          <strong>Truco:</strong> subraya la cifra de la posición pedida y mira solo la que tiene justo a la derecha. Esa es la que decide si sube o se queda igual.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="valorposicional">Valor posicional</button>
+            <button class="btn btn-secondary" data-mode="comparar">Comparar números</button>
+            <button class="btn btn-secondary" data-mode="aproximar">Aproximar</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="pv-tiles" id="tiles-display" style="display:none;"></div>
+          <div class="sentence-display" id="word-display" style="display:none;"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/numeros-grandes.js"></script>
+</body>
+</html>
