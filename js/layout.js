@@ -43,6 +43,7 @@ const NAV = [
       { id: "numeros-grandes", label: "Números grandes y aproximación", href: "matematicas/numeros-grandes.html", available: true },
       { id: "operaciones-combinadas", label: "Operaciones combinadas", href: "matematicas/operaciones-combinadas.html", available: true },
       { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", href: "matematicas/multiplos-divisores.html", available: true },
+      { id: "angulos", label: "Ángulos", href: "matematicas/angulos.html", available: true },
     ],
   },
 ];

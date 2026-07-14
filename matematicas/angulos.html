@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ángulos · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "angulos";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Ángulos</h1>
+        <p class="content-subtitle">Los tipos de ángulos y cómo se miden.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es un ángulo?</h2>
+        <p>Un <strong>ángulo</strong> es el espacio que forman dos semirrectas (dos "rayos") que salen de un mismo punto, llamado <strong>vértice</strong>. Los ángulos se miden en <strong>grados</strong> (°), con un instrumento llamado <strong>transportador</strong>.</p>
+
+        <h2>Tipos de ángulos</h2>
+        <p>Fíjate en cómo se abren las dos semirrectas en cada tipo:</p>
+
+        <div class="pv-tiles" style="gap: 22px;">
+          <div class="pv-col">
+            <svg viewBox="0 0 120 100" width="120" height="100">
+              <line x1="60" y1="70" x2="110" y2="70" stroke="var(--text)" stroke-width="4"/>
+              <line x1="60" y1="70" x2="95" y2="35" stroke="var(--text)" stroke-width="4"/>
+              <circle cx="60" cy="70" r="4" fill="var(--text)"/>
+            </svg>
+            <span class="pv-label">Agudo<br>menos de 90°</span>
+          </div>
+          <div class="pv-col">
+            <svg viewBox="0 0 120 100" width="120" height="100">
+              <line x1="60" y1="70" x2="110" y2="70" stroke="var(--text)" stroke-width="4"/>
+              <line x1="60" y1="70" x2="60" y2="20" stroke="var(--text)" stroke-width="4"/>
+              <path d="M 60 52 L 78 52 L 78 70" fill="none" stroke="var(--color-plum)" stroke-width="3"/>
+              <circle cx="60" cy="70" r="4" fill="var(--text)"/>
+            </svg>
+            <span class="pv-label">Recto<br>exactamente 90°</span>
+          </div>
+          <div class="pv-col">
+            <svg viewBox="0 0 120 100" width="120" height="100">
+              <line x1="60" y1="70" x2="110" y2="70" stroke="var(--text)" stroke-width="4"/>
+              <line x1="60" y1="70" x2="25" y2="35" stroke="var(--text)" stroke-width="4"/>
+              <circle cx="60" cy="70" r="4" fill="var(--text)"/>
+            </svg>
+            <span class="pv-label">Obtuso<br>entre 90° y 180°</span>
+          </div>
+          <div class="pv-col">
+            <svg viewBox="0 0 120 100" width="120" height="100">
+              <line x1="10" y1="70" x2="110" y2="70" stroke="var(--text)" stroke-width="4"/>
+              <circle cx="60" cy="70" r="4" fill="var(--text)"/>
+            </svg>
+            <span class="pv-label">Llano<br>exactamente 180°</span>
+          </div>
+          <div class="pv-col">
+            <svg viewBox="0 0 120 100" width="120" height="100">
+              <circle cx="60" cy="70" r="35" fill="none" stroke="var(--color-indigo)" stroke-width="4" stroke-dasharray="6 6"/>
+              <line x1="60" y1="70" x2="95" y2="70" stroke="var(--text)" stroke-width="4"/>
+              <circle cx="60" cy="70" r="4" fill="var(--text)"/>
+            </svg>
+            <span class="pv-label">Completo<br>exactamente 360°</span>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <strong>Truco:</strong> el ángulo recto se marca siempre con una pequeña "escuadra" en el vértice, como en el dibujo. Si ves esa marca, son 90° seguro.
+        </div>
+
+        <div class="rule-box aguda">
+          <h4>Ángulo agudo</h4>
+          <p>Mide menos de 90°. Las dos semirrectas están muy juntas.</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Ángulo recto</h4>
+          <p>Mide exactamente 90°. Forma una esquina perfecta, como la de un folio.</p>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>Ángulo obtuso</h4>
+          <p>Mide más de 90° y menos de 180°.</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Ángulo llano</h4>
+          <p>Mide exactamente 180°. Las dos semirrectas forman una línea recta.</p>
+        </div>
+        <div class="rule-box diptongo">
+          <h4>Ángulo completo</h4>
+          <p>Mide 360°: la semirrecta da una vuelta entera y vuelve a su posición inicial.</p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <p class="instructions" id="instructions">¿Qué tipo de ángulo es?</p>
+          <div class="pv-tiles" id="angle-display" style="min-height: 240px; align-items: center;"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/angulos.js"></script>
+</body>
+</html>
