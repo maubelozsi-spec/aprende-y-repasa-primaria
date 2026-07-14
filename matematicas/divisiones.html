@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divisiones · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "divisiones";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Divisiones</h1>
+        <p class="content-subtitle">Divisiones con divisor de 1, 2 y 3 cifras, explicadas paso a paso.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Las partes de la división</h2>
+        <p>En una división hay cuatro elementos:</p>
+        <table class="rules-table">
+          <tr><th>Dividendo</th><th>Divisor</th><th>Cociente</th><th>Resto</th></tr>
+          <tr><td>El número que se reparte</td><td>El número de partes</td><td>El resultado</td><td>Lo que sobra</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Comprobación:</strong> dividendo = divisor × cociente + resto. El resto siempre debe ser menor que el divisor.
+        </div>
+
+        <h2>Pasos para dividir</h2>
+        <div class="rule-box aguda">
+          <h4>Paso 1</h4>
+          <p>Se toman las primeras cifras del dividendo, las que hagan falta hasta formar un número igual o mayor que el divisor.</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Paso 2</h4>
+          <p>Se calcula cuántas veces cabe el divisor en ese número: esa cantidad es la cifra del cociente.</p>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>Paso 3</h4>
+          <p>Se multiplica la cifra del cociente por el divisor, y se resta ese resultado del número que teníamos.</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Paso 4</h4>
+          <p>Se baja la siguiente cifra del dividendo, se junta con lo que ha sobrado, y se repite desde el paso 2. Cuando no quedan más cifras, lo que sobra es el resto final.</p>
+        </div>
+
+        <h2>Ejemplo paso a paso</h2>
+        <p>Elige un ejemplo y pulsa "Siguiente paso" para ver cómo se resuelve la división.</p>
+
+        <div class="choice-row" id="example-picker">
+          <button class="btn btn-secondary active" data-example="0">Divisor de 1 cifra</button>
+          <button class="btn btn-secondary" data-example="1">Divisor de 2 cifras</button>
+          <button class="btn btn-secondary" data-example="2">Divisor de 3 cifras</button>
+        </div>
+
+        <div class="division-visual">
+          <div class="division-left">
+            <div class="division-dividend" id="demo-dividend"></div>
+            <div class="division-workarea" id="demo-workarea"></div>
+          </div>
+          <div class="division-right">
+            <div class="division-divisor" id="demo-divisor"></div>
+            <div class="division-quotient" id="demo-quotient"></div>
+          </div>
+        </div>
+
+        <div class="division-step-explanation" id="demo-explanation"></div>
+
+        <div class="actions-row">
+          <button class="btn btn-secondary" id="demo-prev">Paso anterior</button>
+          <button class="btn btn-primary" id="demo-next">Siguiente paso</button>
+          <button class="btn btn-secondary" id="demo-reset">Reiniciar</button>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok">
+              <span class="game-stat-value" id="score-ok">0</span>
+              <span class="game-stat-label">Aciertos</span>
+            </div>
+            <div class="game-stat ko">
+              <span class="game-stat-value" id="score-ko">0</span>
+              <span class="game-stat-label">Fallos</span>
+            </div>
+          </div>
+
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+
+          <div class="game-step-label">Elige el tipo de división</div>
+          <div class="choice-row" id="length-picker">
+            <button class="btn btn-secondary active" data-len="1">Divisor de 1 cifra</button>
+            <button class="btn btn-secondary" data-len="2">Divisor de 2 cifras</button>
+            <button class="btn btn-secondary" data-len="3">Divisor de 3 cifras</button>
+          </div>
+
+          <div class="division-visual">
+            <div class="division-left">
+              <div class="division-dividend" id="game-dividend"></div>
+              <div class="division-workarea" id="game-workarea"></div>
+            </div>
+            <div class="division-right">
+              <div class="division-divisor" id="game-divisor"></div>
+              <div class="division-quotient" id="game-quotient"></div>
+            </div>
+          </div>
+
+          <p class="instructions" id="game-instruction"></p>
+          <div class="syllable-row" id="digit-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-problem" style="display:none;">Nueva división</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/divisiones.js"></script>
+</body>
+</html>

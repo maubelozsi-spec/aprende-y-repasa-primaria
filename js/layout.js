@@ -23,7 +23,9 @@ const NAV = [
     label: "Matemáticas",
     href: "matematicas/index.html",
     color: "teal",
-    children: [],
+    children: [
+      { id: "divisiones", label: "Divisiones", href: "matematicas/divisiones.html", available: true },
+    ],
   },
 ];
 
