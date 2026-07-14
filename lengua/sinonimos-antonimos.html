@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sinónimos y antónimos · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "sinonimos-antonimos";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>Sinónimos y antónimos</h1>
+        <p class="content-subtitle">Palabras que significan lo mismo y palabras que significan lo contrario.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Los sinónimos</h2>
+        <p>Los <strong>sinónimos</strong> son palabras diferentes que tienen un significado igual o muy parecido. Sirven para no repetir siempre la misma palabra cuando hablamos o escribimos.</p>
+        <div class="tip-box">
+          <strong>Ojo:</strong> aunque signifiquen casi lo mismo, a veces un sinónimo suena mejor que otro según la frase. Por ejemplo, "mi perro es <em>veloz</em>" sí, pero "mi perro es <em>ligero</em>" cambia un poco el sentido (ligero también puede significar "poco pesado").
+        </div>
+        <table class="rules-table">
+          <tr><th>Palabra</th><th>Sinónimo</th></tr>
+          <tr><td>feliz</td><td>contento</td></tr>
+          <tr><td>bonito</td><td>hermoso</td></tr>
+          <tr><td>rápido</td><td>veloz</td></tr>
+          <tr><td>comenzar</td><td>empezar</td></tr>
+        </table>
+
+        <h2>Los antónimos</h2>
+        <p>Los <strong>antónimos</strong> son palabras que tienen un significado contrario u opuesto.</p>
+        <p class="examples"><strong>Ejemplos:</strong> feliz ↔ triste · grande ↔ pequeño · subir ↔ bajar · abrir ↔ cerrar</p>
+        <div class="tip-box">
+          <strong>Truco:</strong> para encontrar el antónimo de una palabra, piensa "¿cuál es lo contrario de esto?". Muchas veces el antónimo se forma añadiendo un prefijo como <em>des-</em> o <em>in-</em>: hacer → deshacer, feliz → infeliz.
+        </div>
+
+        <div class="rule-box aguda">
+          <h4>No confundas</h4>
+          <p><strong>Sinónimo</strong> = significa lo mismo (feliz / contento). <strong>Antónimo</strong> = significa lo contrario (feliz / triste).</p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="sinonimo">Sinónimos</button>
+            <button class="btn btn-secondary" data-mode="antonimo">Antónimos</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente palabra</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/sinonimos-antonimos.js"></script>
+</body>
+</html>
