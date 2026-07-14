@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiplicación y división de decimales · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "decimales-md";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Multiplicación y división de decimales</h1>
+        <p class="content-subtitle">Multiplicar decimales y dividir un decimal entre un número natural.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Multiplicar números decimales</h2>
+        <div class="rule-box aguda">
+          <h4>Cómo se multiplica</h4>
+          <p>Se multiplica <strong>como si no hubiera comas</strong> (como números naturales). Después, en el resultado, se coloca la coma contando desde la derecha tantas cifras decimales como haya <strong>en total</strong> entre los dos factores.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> 1,2 × 0,3 → 12 × 3 = 36 → entre los dos factores hay 2 cifras decimales (1 + 1) → 0,36
+        </div>
+        <div class="tip-box">
+          <strong>Otro ejemplo:</strong> 2,5 × 3 → 25 × 3 = 75 → 1 cifra decimal en total → 7,5
+        </div>
+
+        <h2>Dividir un decimal entre un número natural</h2>
+        <div class="rule-box llana">
+          <h4>Cómo se divide</h4>
+          <p>Se divide igual que una división normal. Cuando se baja la <strong>primera cifra decimal</strong> del dividendo, se coloca una coma en el cociente en ese mismo momento.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> 7,5 ÷ 3 → 7 ÷ 3 = 2 y sobra 1; se baja el 5 (primera cifra decimal), se coloca la coma en el cociente → 15 ÷ 3 = 5 → resultado: 2,5
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="multiplicar">Multiplicar</button>
+            <button class="btn btn-secondary" data-mode="dividir">Dividir</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/decimales-md.js"></script>
+</body>
+</html>
