@@ -23,6 +23,7 @@ const NAV = [
       { id: "verbo", label: "El verbo", href: "lengua/verbo.html", available: true },
       { id: "adverbio-preposicion-conjuncion", label: "Adverbio, preposición y conjunción", href: "lengua/adverbio-preposicion-conjuncion.html", available: true },
       { id: "formacion-palabras", label: "Formación de palabras", href: "lengua/formacion-palabras.html", available: true },
+      { id: "comunicacion-textos", label: "Comunicación y tipos de texto", href: "lengua/comunicacion-textos.html", available: true },
     ],
   },
   {

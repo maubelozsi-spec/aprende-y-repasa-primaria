@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comunicación y tipos de texto · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "comunicacion-textos";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>Comunicación y tipos de texto</h1>
+        <p class="content-subtitle">Elementos de la comunicación, lenguaje verbal y no verbal, y los principales tipos de texto.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Los elementos de la comunicación</h2>
+        <p>Cada vez que nos comunicamos intervienen estos elementos:</p>
+        <table class="rules-table">
+          <tr><th>Elemento</th><th>Qué es</th></tr>
+          <tr><td>Emisor</td><td>quien envía el mensaje</td></tr>
+          <tr><td>Receptor</td><td>quien recibe el mensaje</td></tr>
+          <tr><td>Mensaje</td><td>lo que se comunica</td></tr>
+          <tr><td>Canal</td><td>el medio por el que viaja el mensaje (aire, teléfono, papel...)</td></tr>
+          <tr><td>Código</td><td>el sistema de signos que se usa (un idioma, gestos...)</td></tr>
+          <tr><td>Contexto</td><td>la situación en la que se produce la comunicación</td></tr>
+        </table>
+
+        <h2>Lenguaje verbal y no verbal</h2>
+        <div class="rule-box aguda">
+          <h4>Lenguaje verbal</h4>
+          <p>Utiliza palabras, habladas o escritas.</p>
+          <p class="examples"><strong>Ejemplos:</strong> una conversación, una carta, un mensaje de texto</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Lenguaje no verbal</h4>
+          <p>No utiliza palabras: usa gestos, imágenes, sonidos o señales.</p>
+          <p class="examples"><strong>Ejemplos:</strong> un semáforo, una señal de tráfico, un gesto, una sonrisa</p>
+        </div>
+
+        <h2>Tipos de texto</h2>
+        <div class="rule-box esdrujula">
+          <h4>Texto predictivo</h4>
+          <p>Anticipa algo que va a ocurrir.</p>
+          <p class="examples"><strong>Ejemplo:</strong> el pronóstico del tiempo, un horóscopo</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Texto argumentativo</h4>
+          <p>Defiende una opinión aportando razones o argumentos.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "Creo que deberíamos reciclar más porque ayuda al planeta."</p>
+        </div>
+        <div class="rule-box diptongo">
+          <h4>Texto expositivo</h4>
+          <p>Explica un tema de forma objetiva y clara, sin dar opiniones.</p>
+          <p class="examples"><strong>Ejemplo:</strong> un texto de un libro de ciencias</p>
+        </div>
+        <div class="rule-box hiato">
+          <h4>Texto instructivo (las instrucciones)</h4>
+          <p>Explica cómo hacer algo, paso a paso.</p>
+          <p class="examples"><strong>Ejemplo:</strong> una receta de cocina, el manual de un juguete</p>
+        </div>
+        <div class="rule-box triptongo">
+          <h4>La noticia</h4>
+          <p>Cuenta un hecho reciente de forma objetiva. Responde a: ¿qué?, ¿quién?, ¿cuándo?, ¿dónde?, ¿cómo?, ¿por qué?</p>
+          <p class="examples"><strong>Ejemplo:</strong> "Ayer se celebró un partido de fútbol en el estadio municipal."</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>El reportaje</h4>
+          <p>Profundiza en un tema con más detalle que la noticia: incluye opiniones, entrevistas y varias fuentes.</p>
+          <p class="examples"><strong>Ejemplo:</strong> un reportaje sobre la vida de los pingüinos, con entrevistas a científicos</p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="elementos">Elementos de la comunicación</button>
+            <button class="btn btn-secondary" data-mode="verbalnoverbal">Verbal o no verbal</button>
+            <button class="btn btn-secondary" data-mode="tipotexto">Tipo de texto</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/comunicacion-textos.js"></script>
+</body>
+</html>
