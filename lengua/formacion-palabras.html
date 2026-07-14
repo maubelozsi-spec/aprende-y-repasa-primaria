@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formación de palabras · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "formacion-palabras";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>Formación de palabras</h1>
+        <p class="content-subtitle">Prefijos, sufijos, palabras compuestas, familia y campo semántico, polisemia y homofonía.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Prefijos y sufijos</h2>
+        <div class="rule-box aguda">
+          <h4>Prefijo</h4>
+          <p>Se coloca <strong>delante</strong> de la raíz y cambia o matiza su significado.</p>
+          <p class="examples"><strong>Ejemplos:</strong> des-hacer, in-feliz, re-hacer, pre-ver, sub-marino, anti-héroe</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Sufijo</h4>
+          <p>Se coloca <strong>detrás</strong> de la raíz.</p>
+          <p class="examples"><strong>Ejemplos:</strong> pan-adero, flor-ista, niñ-ez, feliz-mente, cant-ante</p>
+        </div>
+
+        <h2>Palabras compuestas</h2>
+        <p>Una <strong>palabra compuesta</strong> se forma uniendo dos palabras simples que ya existían por separado.</p>
+        <p class="examples"><strong>Ejemplos:</strong> saca + puntas → sacapuntas · para + aguas → paraguas · rompe + cabezas → rompecabezas · lava + platos → lavaplatos</p>
+
+        <h2>Familia de palabras y campo semántico</h2>
+        <div class="rule-box esdrujula">
+          <h4>Familia de palabras</h4>
+          <p>Conjunto de palabras que comparten la <strong>misma raíz</strong> y están relacionadas en su significado.</p>
+          <p class="examples"><strong>Ejemplo:</strong> pan, panadero, panadería, empanar (todas comparten la raíz "pan-")</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Campo semántico</h4>
+          <p>Conjunto de palabras con <strong>raíces distintas</strong> que están relacionadas por pertenecer a un mismo tema.</p>
+          <p class="examples"><strong>Ejemplo (campo semántico de "escuela"):</strong> profesor, alumno, pizarra, libro, examen</p>
+        </div>
+
+        <h2>Polisemia y homofonía</h2>
+        <div class="rule-box diptongo">
+          <h4>Polisemia</h4>
+          <p>Una palabra tiene <strong>varios significados</strong> relacionados entre sí (se escribe igual).</p>
+          <p class="examples"><strong>Ejemplos:</strong> banco (asiento / entidad financiera) · hoja (de papel / de una planta) · gato (animal / herramienta para levantar coches)</p>
+        </div>
+        <div class="rule-box hiato">
+          <h4>Homofonía</h4>
+          <p>Dos palabras <strong>distintas</strong> que suenan igual pero se escriben diferente y significan cosas distintas.</p>
+          <p class="examples"><strong>Ejemplos:</strong> vaca / baca · hola / ola · tuvo / tubo · hecho / echo · botar / votar</p>
+        </div>
+
+        <div class="tip-box">
+          <strong>No las confundas:</strong> en la polisemia es <em>la misma palabra escrita igual</em> con dos significados. En la homofonía son <em>dos palabras distintas, escritas de forma diferente</em>, que solo coinciden en cómo suenan.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="prefijosufijo">Prefijo o sufijo</button>
+            <button class="btn btn-secondary" data-mode="familiacampo">Familia o campo semántico</button>
+            <button class="btn btn-secondary" data-mode="polisemiahomofonia">Polisemia u homofonía</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/formacion-palabras.js"></script>
+</body>
+</html>

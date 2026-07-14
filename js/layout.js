@@ -22,6 +22,7 @@ const NAV = [
       { id: "determinantes", label: "Los determinantes", href: "lengua/determinantes.html", available: true },
       { id: "verbo", label: "El verbo", href: "lengua/verbo.html", available: true },
       { id: "adverbio-preposicion-conjuncion", label: "Adverbio, preposición y conjunción", href: "lengua/adverbio-preposicion-conjuncion.html", available: true },
+      { id: "formacion-palabras", label: "Formación de palabras", href: "lengua/formacion-palabras.html", available: true },
     ],
   },
   {
