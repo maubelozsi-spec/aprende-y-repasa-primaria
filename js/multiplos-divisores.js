@@ -46,6 +46,24 @@ const PRIMOS_COMPUESTOS_ENTRIES = [
   { display: "2", correct: "Primo" },
 ];
 
+const MCD_ENTRIES = [
+  { display: "M.C.D. de 12 y 18", correct: "6", options: ["6", "3", "36", "2"] },
+  { display: "M.C.D. de 8 y 20", correct: "4", options: ["4", "2", "40", "8"] },
+  { display: "M.C.D. de 15 y 25", correct: "5", options: ["5", "3", "75", "1"] },
+  { display: "M.C.D. de 24 y 36", correct: "12", options: ["12", "6", "4", "72"] },
+  { display: "M.C.D. de 9 y 27", correct: "9", options: ["9", "3", "27", "18"] },
+  { display: "M.C.D. de 10 y 15", correct: "5", options: ["5", "3", "30", "1"] },
+];
+
+const MCM_ENTRIES = [
+  { display: "m.c.m. de 4 y 6", correct: "12", options: ["12", "24", "2", "6"] },
+  { display: "m.c.m. de 3 y 5", correct: "15", options: ["15", "8", "3", "5"] },
+  { display: "m.c.m. de 6 y 8", correct: "24", options: ["24", "48", "2", "14"] },
+  { display: "m.c.m. de 2 y 9", correct: "18", options: ["18", "11", "9", "2"] },
+  { display: "m.c.m. de 5 y 10", correct: "10", options: ["10", "50", "5", "15"] },
+  { display: "m.c.m. de 4 y 10", correct: "20", options: ["20", "40", "14", "10"] },
+];
+
 const MODE_GROUPS = {
   multiplos: {
     pool: MULTIPLOS_ENTRIES,
@@ -70,6 +88,18 @@ const MODE_GROUPS = {
     field: "correct",
     question: () => "¿Es un número primo, compuesto o ninguno de los dos?",
     options: ["Primo", "Compuesto", "Ninguno de los dos"],
+  },
+  mcd: {
+    pool: MCD_ENTRIES,
+    field: "correct",
+    question: () => "Calcula el máximo común divisor:",
+    options: null,
+  },
+  mcm: {
+    pool: MCM_ENTRIES,
+    field: "correct",
+    question: () => "Calcula el mínimo común múltiplo:",
+    options: null,
   },
 };
 
@@ -148,7 +178,7 @@ function initGame() {
     els.nextBtn.style.display = "none";
 
     const correct = entry[group.field];
-    const options = shuffle(group.options.slice());
+    const options = shuffle((entry.options || group.options).slice());
 
     els.answerButtons.innerHTML = "";
     options.forEach((opt) => {
