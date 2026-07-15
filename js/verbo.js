@@ -120,6 +120,19 @@ function normalizeAnswer(str) {
     .trim();
 }
 
+const PREDICATIVOCOPULATIVO_ENTRIES = [
+  { word: "Mi madre es profesora.", tipo: "Copulativo" },
+  { word: "El cielo está nublado.", tipo: "Copulativo" },
+  { word: "Los niños parecen cansados.", tipo: "Copulativo" },
+  { word: "María compra un regalo.", tipo: "Predicativo" },
+  { word: "El tren llega tarde.", tipo: "Predicativo" },
+  { word: "Estoy en casa.", tipo: "Predicativo" },
+  { word: "Los pájaros cantan.", tipo: "Predicativo" },
+  { word: "Esta sopa está deliciosa.", tipo: "Copulativo" },
+  { word: "El perro ladra mucho.", tipo: "Predicativo" },
+  { word: "Este ejercicio es muy difícil.", tipo: "Copulativo" },
+];
+
 const MODE_GROUPS = {
   formas: {
     pool: FORMAS_ENTRIES,
@@ -138,6 +151,12 @@ const MODE_GROUPS = {
     field: "label",
     question: (e) => `¿Persona y número de "${e.word}"?`,
     options: PERSONA_OPTIONS,
+  },
+  predicativocopulativo: {
+    pool: PREDICATIVOCOPULATIVO_ENTRIES,
+    field: "tipo",
+    question: (e) => `El verbo de "${e.word}" es...`,
+    options: ["Copulativo", "Predicativo"],
   },
 };
 
