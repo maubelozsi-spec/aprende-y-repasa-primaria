@@ -1492,6 +1492,58 @@ table.rules-table tr:last-child td {
   padding: 26px 20px;
 }
 
+/* ---------- Generador de fichas ---------- */
+
+.generator-card {
+  text-align: left;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.generator-field {
+  margin-bottom: 22px;
+}
+
+.generator-field label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.generator-select {
+  width: 100%;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px 14px;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  background: var(--surface);
+}
+
+.generator-select:focus {
+  outline: none;
+  border-color: var(--color-indigo);
+}
+
+.generator-resumen {
+  color: var(--text-soft);
+  font-size: 14px;
+  font-style: italic;
+  margin: -8px 0 20px;
+}
+
+.generator-preview {
+  margin-top: 26px;
+  text-align: left;
+}
+
+.generator-preview h4 {
+  margin: 0 0 10px;
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {

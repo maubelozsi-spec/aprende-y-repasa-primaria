@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de fichas · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "generador-fichas";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Generador de fichas de problemas</h1>
+        <p class="content-subtitle">Elige un contenido, el curso y cuántos problemas quieres, y descarga la ficha y su hoja de soluciones en Word.</p>
+      </header>
+
+      <div class="game-card generator-card">
+
+        <div class="generator-field">
+          <label for="gen-topic">Contenido</label>
+          <select id="gen-topic" class="generator-select"></select>
+        </div>
+
+        <div class="generator-field">
+          <label>Curso</label>
+          <div class="choice-row" id="gen-curso-picker">
+            <button class="btn btn-secondary active" data-curso="5">5º de Primaria</button>
+            <button class="btn btn-secondary" data-curso="6">6º de Primaria</button>
+          </div>
+        </div>
+
+        <div class="generator-field">
+          <label for="gen-count">Número de problemas (1-10, 5 por hoja)</label>
+          <input type="number" id="gen-count" class="number-input" min="1" max="10" value="5">
+        </div>
+
+        <p class="generator-resumen" id="gen-resumen"></p>
+
+        <div class="actions-row">
+          <button class="btn btn-primary" id="gen-generate-btn">Generar ficha y soluciones (Word)</button>
+        </div>
+
+        <div id="gen-status" class="feedback-box"></div>
+
+        <div id="gen-preview" class="generator-preview" style="display:none;">
+          <h4>Vista previa del problema 1</h4>
+          <p id="gen-preview-enunciado"></p>
+          <div class="rule-box llana">
+            <h4>Datos</h4>
+            <p id="gen-preview-datos"></p>
+          </div>
+          <div class="rule-box esdrujula">
+            <h4>Operación</h4>
+            <p id="gen-preview-operacion"></p>
+          </div>
+          <div class="rule-box aguda">
+            <h4>Solución</h4>
+            <p id="gen-preview-solucion"></p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/docx-writer.js"></script>
+<script src="../js/ficha-generator.js"></script>
+<script src="../js/generador-fichas-ui.js"></script>
+</body>
+</html>
