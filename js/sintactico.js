@@ -79,6 +79,15 @@ const ELIPSIS_ENTRIES = [
   { sentence: "Mi hermano cocina bien.", omitidoLabel: "No" },
 ];
 
+const ATRIBUTO_ENTRIES = [
+  { sentence: "El cielo está nublado.", correct: "nublado", options: ["nublado", "El cielo", "está", "cielo"] },
+  { sentence: "Mi madre es profesora.", correct: "profesora", options: ["profesora", "Mi madre", "es", "madre"] },
+  { sentence: "Los estudiantes parecen cansados.", correct: "cansados", options: ["cansados", "Los estudiantes", "parecen", "estudiantes"] },
+  { sentence: "Este ejercicio es muy difícil.", correct: "muy difícil", options: ["muy difícil", "difícil", "Este ejercicio", "es"] },
+  { sentence: "Esta sopa está deliciosa.", correct: "deliciosa", options: ["deliciosa", "Esta sopa", "está", "sopa"] },
+  { sentence: "El examen parece bastante fácil.", correct: "bastante fácil", options: ["bastante fácil", "fácil", "El examen", "parece"] },
+];
+
 const SECONDARY_MODE_GROUPS = {
   tipo: {
     pool: TIPO_ORACION_ENTRIES,
@@ -97,6 +106,12 @@ const SECONDARY_MODE_GROUPS = {
     field: "omitidoLabel",
     question: () => "¿Tiene el sujeto omitido (elíptico) esta oración?",
     options: ["Sí", "No"],
+  },
+  atributo: {
+    pool: ATRIBUTO_ENTRIES,
+    field: "correct",
+    question: () => "¿Cuál es el atributo de esta oración?",
+    options: null,
   },
 };
 
@@ -187,7 +202,7 @@ function initSecondaryQuiz() {
     els.nextBtn.style.display = "none";
 
     const correct = current.entry[current.group.field];
-    let options = current.group.options.slice();
+    let options = (current.entry.options || current.group.options).slice();
     if (options.length > 4) {
       const others = options.filter((o) => o !== correct);
       options = shuffle([correct, ...shuffle(others).slice(0, 3)]);
