@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El tiempo · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "tiempo";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>El tiempo</h1>
+        <p class="content-subtitle">Horas, minutos y segundos: lectura del reloj, conversiones y operaciones.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Unidades de tiempo</h2>
+        <table class="rules-table">
+          <tr><th>1 día</th><th>1 hora</th><th>1 minuto</th></tr>
+          <tr><td>24 horas</td><td>60 minutos</td><td>60 segundos</td></tr>
+        </table>
+
+        <h2>Leer el reloj</h2>
+        <div class="pv-tiles" id="ejemplo-reloj"></div>
+        <div class="tip-box">
+          <strong>La aguja corta</strong> señala la hora; <strong>la aguja larga</strong> señala los minutos. En este ejemplo son las 3 y 15 minutos.
+        </div>
+
+        <h2>Sumar y restar tiempo</h2>
+        <div class="rule-box aguda">
+          <h4>Cómo se suma</h4>
+          <p>Se suman las horas con las horas y los minutos con los minutos. Si los minutos superan 60, se restan 60 y se añade 1 hora más (una "llevada").</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> 2h 30min + 1h 45min → minutos: 30+45=75 → 75−60=15 min y 1 hora más → horas: 2+1+1=4 → resultado: 4h 15min
+        </div>
+        <div class="rule-box llana">
+          <h4>Cómo se resta</h4>
+          <p>Se restan las horas con las horas y los minutos con los minutos. Si los minutos del primer tiempo son menos que los del segundo, se "pide prestada" 1 hora (=60 minutos) antes de restar.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> 5h 15min − 2h 40min → 15 min no llega a 40, así que se presta 1 hora: 15+60=75 → 75−40=35 min; horas: 5−1−2=2 → resultado: 2h 35min
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="leerreloj">Leer el reloj</button>
+            <button class="btn btn-secondary" data-mode="conversiones">Conversiones</button>
+            <button class="btn btn-secondary" data-mode="sumarrestar">Sumar y restar</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="pv-tiles" id="game-clock" style="display:none;"></div>
+          <div class="sentence-display" id="word-display" style="display:none;"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/tiempo.js"></script>
+</body>
+</html>
