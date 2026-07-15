@@ -74,6 +74,16 @@ function cuantosFor(objeto) {
   return /as$/.test(primera) ? "Cuántas" : "Cuántos";
 }
 
+// Dos elementos distintos al azar (para problemas con dos personas distintas)
+function pickTwo(arr) {
+  const i = randomInt(0, arr.length - 1);
+  let j = randomInt(0, arr.length - 1);
+  while (j === i) j = randomInt(0, arr.length - 1);
+  return [arr[i], arr[j]];
+}
+
+const SUPERINDICES = { 2: "²", 3: "³", 4: "⁴", 5: "⁵" };
+
 // ---------------- Generadores de problemas por tema ----------------
 // Cada función recibe el curso ("5" o "6") y devuelve
 // { enunciado, datos: string[], operacion, solucion }
@@ -86,7 +96,7 @@ const ESCENARIOS_SUMAS = [
   { lugar: "un club de atletismo", objeto: "kilómetros", verbo: "recorrieron" },
 ];
 
-function genSumas(curso) {
+function sumasDosDias(curso) {
   const min = curso === "6" ? 1000 : 100;
   const max = curso === "6" ? 9000 : 900;
   const a = randomInt(min, max);
@@ -101,6 +111,49 @@ function genSumas(curso) {
   };
 }
 
+function sumasComparativa(curso) {
+  const min = curso === "6" ? 40 : 10;
+  const max = curso === "6" ? 300 : 60;
+  const base = randomInt(min, max);
+  const extra = randomInt(5, curso === "6" ? 100 : 20);
+  const [n1, n2] = pickTwo(NOMBRES);
+  const objeto = pick(["sellos", "cromos", "canicas", "libros"]);
+  const segundo = base + extra;
+  const total = base + segundo;
+  return {
+    enunciado: `${n1} tiene ${base} ${objeto}. ${n2} tiene ${extra} ${objeto} más que ${n1}. ¿${cuantosFor(objeto)} ${objeto} tienen entre los dos?`,
+    datos: [`${n1}: ${base} ${objeto}`, `${n2}: ${base} + ${extra} ${objeto}`],
+    operacion: `${n2} tiene ${base} + ${extra} = ${segundo}. Entre los dos: ${base} + ${segundo} = ${total}`,
+    solucion: `${total}. Entre los dos tienen ${total} ${objeto}.`,
+  };
+}
+
+const ESCENARIOS_SUMA_TRIPLE = [
+  { lugar: "un almacén de frutas", objeto: "kilos de fruta", detalle: (a, b, c) => `${a} kg de manzanas, ${b} kg de peras y ${c} kg de naranjas` },
+  { lugar: "una biblioteca", objeto: "libros", detalle: (a, b, c) => `${a} libros de aventuras, ${b} de misterio y ${c} de poesía` },
+  { lugar: "un zoo", objeto: "animales", detalle: (a, b, c) => `${a} aves, ${b} mamíferos y ${c} reptiles` },
+];
+
+function sumasTresSumandos(curso) {
+  const min = curso === "6" ? 200 : 20;
+  const max = curso === "6" ? 2000 : 200;
+  const a = randomInt(min, max);
+  const b = randomInt(min, max);
+  const c = randomInt(min, max);
+  const esc = pick(ESCENARIOS_SUMA_TRIPLE);
+  const total = a + b + c;
+  return {
+    enunciado: `En ${esc.lugar} hay ${esc.detalle(a, b, c)}. ¿${cuantosFor(esc.objeto)} ${esc.objeto} hay en total?`,
+    datos: [`Grupo 1: ${a}`, `Grupo 2: ${b}`, `Grupo 3: ${c}`],
+    operacion: `${a} + ${b} + ${c} = ${total}`,
+    solucion: `${total}. Hay ${total} ${esc.objeto} en total.`,
+  };
+}
+
+function genSumas(curso) {
+  return pick([sumasDosDias, sumasComparativa, sumasTresSumandos])(curso);
+}
+
 const ESCENARIOS_RESTAS = [
   { contenedor: "Un depósito de agua", objeto: "litros", verbo: "usado" },
   { contenedor: "Una hucha", objeto: "euros", verbo: "gastado" },
@@ -108,7 +161,7 @@ const ESCENARIOS_RESTAS = [
   { contenedor: "Un rollo de papel", objeto: "metros", verbo: "gastado" },
 ];
 
-function genRestas(curso) {
+function restasContenedor(curso) {
   const min = curso === "6" ? 2000 : 200;
   const max = curso === "6" ? 9000 : 900;
   const a = randomInt(min, max);
@@ -123,6 +176,47 @@ function genRestas(curso) {
   };
 }
 
+function restasComparativa(curso) {
+  const min = curso === "6" ? 50 : 10;
+  const max = curso === "6" ? 500 : 80;
+  const a = randomInt(min, max);
+  const diferencia = randomInt(5, curso === "6" ? 150 : 30);
+  const b = a + diferencia;
+  const [n1, n2] = pickTwo(NOMBRES);
+  const objeto = pick(["canicas", "cromos", "puntos", "euros"]);
+  return {
+    enunciado: `${n1} tiene ${b} ${objeto} y ${n2} tiene ${a} ${objeto}. ¿${cuantosFor(objeto)} ${objeto} más tiene ${n1} que ${n2}?`,
+    datos: [`${n1}: ${b} ${objeto}`, `${n2}: ${a} ${objeto}`],
+    operacion: `${b} - ${a} = ${diferencia}`,
+    solucion: `${diferencia}. ${n1} tiene ${diferencia} ${objeto} más que ${n2}.`,
+  };
+}
+
+const ESCENARIOS_RESTA_TRAYECTO = [
+  { medio: "Un tren", unidad: "km" },
+  { medio: "Un ciclista", unidad: "km" },
+  { medio: "Un avión", unidad: "km" },
+];
+
+function restasTrayecto(curso) {
+  const min = curso === "6" ? 300 : 30;
+  const max = curso === "6" ? 3000 : 300;
+  const total = randomInt(min, max);
+  const recorrido = randomInt(Math.floor(min / 2), total - 10);
+  const quedan = total - recorrido;
+  const esc = pick(ESCENARIOS_RESTA_TRAYECTO);
+  return {
+    enunciado: `${esc.medio} tiene que recorrer un trayecto de ${total} ${esc.unidad}. Ya ha recorrido ${recorrido} ${esc.unidad}. ¿Cuántos ${esc.unidad} le quedan por recorrer?`,
+    datos: [`Trayecto total: ${total} ${esc.unidad}`, `Ya recorridos: ${recorrido} ${esc.unidad}`],
+    operacion: `${total} - ${recorrido} = ${quedan}`,
+    solucion: `${quedan} ${esc.unidad}. Le quedan ${quedan} ${esc.unidad} por recorrer.`,
+  };
+}
+
+function genRestas(curso) {
+  return pick([restasContenedor, restasComparativa, restasTrayecto])(curso);
+}
+
 const ESCENARIOS_MULTIPLICACIONES = [
   { contenedorSing: "caja", contenedorPlur: "cajas", objeto: "lápices" },
   { contenedorSing: "paquete", contenedorPlur: "paquetes", objeto: "cromos" },
@@ -130,7 +224,7 @@ const ESCENARIOS_MULTIPLICACIONES = [
   { contenedorSing: "caja", contenedorPlur: "cajas", objeto: "botellas" },
 ];
 
-function genMultiplicaciones(curso) {
+function multiplicacionesContenedor(curso) {
   const a = curso === "6" ? randomInt(120, 950) : randomInt(12, 95);
   const b = curso === "6" ? randomInt(12, 45) : randomInt(2, 9);
   const esc = pick(ESCENARIOS_MULTIPLICACIONES);
@@ -143,7 +237,49 @@ function genMultiplicaciones(curso) {
   };
 }
 
-function genDivisiones(curso) {
+const ESCENARIOS_MULTIPLICACIONES_RITMO = [
+  { sujeto: "Un grifo", verbo: "llena", unidad: "litros", verboUnidad: "por minuto", tiempoUnidad: "minutos" },
+  { sujeto: "Una fotocopiadora", verbo: "hace", unidad: "copias", verboUnidad: "por minuto", tiempoUnidad: "minutos" },
+  { sujeto: "Un coche", verbo: "recorre", unidad: "km", verboUnidad: "por hora", tiempoUnidad: "horas" },
+];
+
+function multiplicacionesRitmo(curso) {
+  const ritmo = curso === "6" ? randomInt(15, 60) : randomInt(3, 12);
+  const tiempo = curso === "6" ? randomInt(12, 45) : randomInt(4, 9);
+  const esc = pick(ESCENARIOS_MULTIPLICACIONES_RITMO);
+  const total = ritmo * tiempo;
+  return {
+    enunciado: `${esc.sujeto} ${esc.verbo} ${ritmo} ${esc.unidad} ${esc.verboUnidad}. ¿${cuantosFor(esc.unidad)} ${esc.unidad} ${esc.verbo} en ${tiempo} ${esc.tiempoUnidad}?`,
+    datos: [`Ritmo: ${ritmo} ${esc.unidad} ${esc.verboUnidad}`, `Tiempo: ${tiempo} ${esc.tiempoUnidad}`],
+    operacion: `${ritmo} × ${tiempo} = ${total}`,
+    solucion: `${total} ${esc.unidad}. En ${tiempo} ${esc.tiempoUnidad} ${esc.verbo} ${total} ${esc.unidad}.`,
+  };
+}
+
+const ESCENARIOS_MULTIPLICACIONES_FILAS = [
+  { lugar: "un cine", fila: "fila", objeto: "asientos" },
+  { lugar: "un huerto", fila: "hilera", objeto: "plantas" },
+  { lugar: "un estadio", fila: "grada", objeto: "espectadores" },
+];
+
+function multiplicacionesFilas(curso) {
+  const filas = curso === "6" ? randomInt(15, 40) : randomInt(4, 12);
+  const porFila = curso === "6" ? randomInt(15, 30) : randomInt(4, 10);
+  const esc = pick(ESCENARIOS_MULTIPLICACIONES_FILAS);
+  const total = filas * porFila;
+  return {
+    enunciado: `En ${esc.lugar} hay ${filas} ${esc.fila}s con ${porFila} ${esc.objeto} cada una. ¿${cuantosFor(esc.objeto)} ${esc.objeto} caben en total?`,
+    datos: [`Número de ${esc.fila}s: ${filas}`, `${esc.objeto} por ${esc.fila}: ${porFila}`],
+    operacion: `${filas} × ${porFila} = ${total}`,
+    solucion: `${total}. Caben ${total} ${esc.objeto} en total.`,
+  };
+}
+
+function genMultiplicaciones(curso) {
+  return pick([multiplicacionesContenedor, multiplicacionesRitmo, multiplicacionesFilas])(curso);
+}
+
+function divisionesReparto(curso) {
   const divisor = curso === "6" ? randomInt(12, 45) : randomInt(2, 9);
   const cociente = randomInt(15, 80);
   const resto = randomInt(0, divisor - 1);
@@ -160,7 +296,45 @@ function genDivisiones(curso) {
   };
 }
 
-function genOperacionesCombinadas(curso) {
+function divisionesCajasNecesarias(curso) {
+  const capacidad = curso === "6" ? randomInt(12, 45) : randomInt(4, 9);
+  const cajasCompletas = randomInt(8, 40);
+  const sobran = randomInt(1, capacidad - 1);
+  const total = cajasCompletas * capacidad + sobran;
+  const cajasNecesarias = cajasCompletas + 1;
+  const objeto = pick(["libros", "botellas", "manzanas", "camisetas"]);
+  return {
+    enunciado: `Se quieren guardar ${total} ${objeto} en cajas de ${capacidad} ${objeto} cada una. ¿Cuántas cajas se necesitan como mínimo?`,
+    datos: [`Total de ${objeto}: ${total}`, `Capacidad por caja: ${capacidad}`],
+    operacion: `${total} ÷ ${capacidad} = ${cajasCompletas} y sobran ${sobran}, así que hace falta ${cajasCompletas} + 1 caja más`,
+    solucion: `${cajasNecesarias} cajas. Se necesitan ${cajasNecesarias} cajas (una para guardar las ${sobran} que sobran).`,
+  };
+}
+
+const ESCENARIOS_DIVISION_TRAMOS = [
+  { contexto: "Una carretera", unidad: "km", parteSing: "tramo", partePlur: "tramos iguales" },
+  { contexto: "Una cinta", unidad: "cm", parteSing: "trozo", partePlur: "trozos iguales" },
+  { contexto: "Una cuerda", unidad: "m", parteSing: "trozo", partePlur: "trozos iguales" },
+];
+
+function divisionesTramos(curso) {
+  const divisor = curso === "6" ? randomInt(12, 40) : randomInt(3, 9);
+  const porTramo = randomInt(15, 80);
+  const total = divisor * porTramo;
+  const esc = pick(ESCENARIOS_DIVISION_TRAMOS);
+  return {
+    enunciado: `${esc.contexto} de ${total} ${esc.unidad} se divide en ${divisor} ${esc.partePlur}. ¿Cuántos ${esc.unidad} mide cada ${esc.parteSing}?`,
+    datos: [`Longitud total: ${total} ${esc.unidad}`, `Número de partes: ${divisor}`],
+    operacion: `${total} ÷ ${divisor} = ${porTramo}`,
+    solucion: `${porTramo} ${esc.unidad}. Cada ${esc.parteSing} mide ${porTramo} ${esc.unidad}.`,
+  };
+}
+
+function genDivisiones(curso) {
+  return pick([divisionesReparto, divisionesCajasNecesarias, divisionesTramos])(curso);
+}
+
+function operacionesCombinadasCompra(curso) {
   const isSixth = curso === "6";
   const p1 = isSixth ? roundMoney(randomInt(150, 500) / 100) : randomInt(2, 9);
   const p2 = isSixth ? roundMoney(randomInt(150, 500) / 100) : randomInt(2, 9);
@@ -181,19 +355,77 @@ function genOperacionesCombinadas(curso) {
   };
 }
 
-function genNumerosRomanos(curso) {
+function operacionesCombinadasExpresion(curso) {
+  const a = randomInt(2, 9);
+  const b = randomInt(2, 9);
+  const c = randomInt(2, 9);
+  if (curso === "6") {
+    const paso1 = a + b;
+    const paso2 = paso1 * c;
+    const divisores = [2, 3, 4, 5, 6].filter((x) => paso2 % x === 0);
+    const d = divisores.length ? pick(divisores) : 1;
+    const paso3 = paso2 / d;
+    const e = randomInt(2, 15);
+    const resultado = paso3 + e;
+    return {
+      enunciado: `Calcula: (${a} + ${b}) × ${c} ÷ ${d} + ${e}`,
+      datos: [`Expresión: (${a} + ${b}) × ${c} ÷ ${d} + ${e}`],
+      operacion: `Paréntesis: ${a} + ${b} = ${paso1}. Multiplicación: ${paso1} × ${c} = ${paso2}. División: ${paso2} ÷ ${d} = ${paso3}. Suma: ${paso3} + ${e} = ${resultado}`,
+      solucion: `${resultado}. El resultado es ${resultado}.`,
+    };
+  }
+  const d = randomInt(2, 20);
+  const paso1 = a + b;
+  const paso2 = paso1 * c;
+  const resultado = paso2 - d;
+  return {
+    enunciado: `Calcula: (${a} + ${b}) × ${c} − ${d}`,
+    datos: [`Expresión: (${a} + ${b}) × ${c} − ${d}`],
+    operacion: `Paréntesis primero: ${a} + ${b} = ${paso1}. Multiplicación: ${paso1} × ${c} = ${paso2}. Resta: ${paso2} − ${d} = ${resultado}`,
+    solucion: `${resultado}. El resultado es ${resultado}.`,
+  };
+}
+
+function operacionesCombinadasTrabajo(curso) {
+  const horas = randomInt(3, 8);
+  const tarifa = curso === "6" ? roundMoney(randomInt(800, 1500) / 100) : randomInt(5, 12);
+  const dias = randomInt(2, 5);
+  const gastos = curso === "6" ? roundMoney(randomInt(500, 3000) / 100) : randomInt(5, 30);
+  const fmt = (n) => fmtAuto(n);
+  const porDia = roundMoney(horas * tarifa);
+  const totalBruto = roundMoney(porDia * dias);
+  const neto = roundMoney(totalBruto - gastos);
+  const nombre = pick(NOMBRES);
+  return {
+    enunciado: `${nombre} trabaja ${horas} horas al día a ${fmt(tarifa)} € la hora, durante ${dias} días. Si tiene ${fmt(gastos)} € de gastos, ¿cuánto dinero le queda?`,
+    datos: [`Horas al día: ${horas}`, `Precio por hora: ${fmt(tarifa)} €`, `Días trabajados: ${dias}`, `Gastos: ${fmt(gastos)} €`],
+    operacion: `${horas} × ${fmt(tarifa)} = ${fmt(porDia)} €/día. ${fmt(porDia)} × ${dias} = ${fmt(totalBruto)} €. ${fmt(totalBruto)} − ${fmt(gastos)} = ${fmt(neto)}`,
+    solucion: `${fmt(neto)} €. Le quedan ${fmt(neto)} €.`,
+  };
+}
+
+function genOperacionesCombinadas(curso) {
+  return pick([operacionesCombinadasCompra, operacionesCombinadasExpresion, operacionesCombinadasTrabajo])(curso);
+}
+
+function numerosRomanosAFormato(curso) {
   const max = curso === "6" ? 3999 : 500;
   const min = curso === "6" ? 500 : 11;
   const n = randomInt(min, max);
   const roman = toRoman(n);
-  if (Math.random() < 0.5) {
-    return {
-      enunciado: `Escribe en números romanos el número ${n}.`,
-      datos: [`Número: ${n}`],
-      operacion: `${n} se descompone según el valor de cada cifra romana`,
-      solucion: `${roman}. El número ${n} en números romanos es ${roman}.`,
-    };
-  }
+  return {
+    enunciado: `Escribe en números romanos el número ${n}.`,
+    datos: [`Número: ${n}`],
+    operacion: `${n} se descompone según el valor de cada cifra romana`,
+    solucion: `${roman}. El número ${n} en números romanos es ${roman}.`,
+  };
+}
+
+function numerosRomanosDesdeFormato(curso) {
+  const max = curso === "6" ? 3999 : 500;
+  const min = curso === "6" ? 500 : 11;
+  const n = randomInt(min, max);
+  const roman = toRoman(n);
   return {
     enunciado: `¿Qué número representa la cifra romana ${roman}?`,
     datos: [`Cifra romana: ${roman}`],
@@ -202,11 +434,28 @@ function genNumerosRomanos(curso) {
   };
 }
 
-function genPotencias(curso) {
+function numerosRomanosOperacion(curso) {
+  const max = curso === "6" ? 500 : 100;
+  const a = randomInt(10, max);
+  const b = randomInt(10, max);
+  const suma = a + b;
+  return {
+    enunciado: `Calcula ${toRoman(a)} + ${toRoman(b)} y escribe el resultado en números romanos.`,
+    datos: [`${toRoman(a)} = ${a}`, `${toRoman(b)} = ${b}`],
+    operacion: `${a} + ${b} = ${suma} → ${toRoman(suma)}`,
+    solucion: `${toRoman(suma)}. El resultado es ${toRoman(suma)} (${suma}).`,
+  };
+}
+
+function genNumerosRomanos(curso) {
+  return pick([numerosRomanosAFormato, numerosRomanosDesdeFormato, numerosRomanosOperacion])(curso);
+}
+
+function potenciasCalcular(curso) {
   const base = randomInt(2, curso === "6" ? 12 : 9);
   const exp = curso === "6" ? pick([2, 3]) : 2;
   const valor = Math.pow(base, exp);
-  const signo = exp === 2 ? "²" : "³";
+  const signo = SUPERINDICES[exp];
   const factores = Array(exp).fill(base).join(" × ");
   return {
     enunciado: `Calcula la potencia ${base}${signo}.`,
@@ -216,7 +465,51 @@ function genPotencias(curso) {
   };
 }
 
-function genNumerosEnteros(curso) {
+function potenciasComparar(curso) {
+  const base1 = randomInt(2, curso === "6" ? 6 : 4);
+  const exp1 = curso === "6" ? pick([2, 3]) : 2;
+  const base2 = randomInt(2, curso === "6" ? 6 : 4);
+  const exp2 = curso === "6" ? pick([2, 3]) : 2;
+  const val1 = Math.pow(base1, exp1);
+  const val2 = Math.pow(base2, exp2);
+  const signo1 = SUPERINDICES[exp1];
+  const signo2 = SUPERINDICES[exp2];
+  const etiqueta1 = `${base1}${signo1}`;
+  const etiqueta2 = `${base2}${signo2}`;
+  if (val1 === val2) {
+    return {
+      enunciado: `¿Cuál es mayor, ${etiqueta1} o ${etiqueta2}?`,
+      datos: [etiqueta1, etiqueta2],
+      operacion: `${etiqueta1} = ${val1}. ${etiqueta2} = ${val2}.`,
+      solucion: `${etiqueta1} y ${etiqueta2} son iguales (ambos valen ${val1}).`,
+    };
+  }
+  const mayor = val1 > val2 ? etiqueta1 : etiqueta2;
+  return {
+    enunciado: `¿Cuál es mayor, ${etiqueta1} o ${etiqueta2}?`,
+    datos: [etiqueta1, etiqueta2],
+    operacion: `${etiqueta1} = ${val1}. ${etiqueta2} = ${val2}.`,
+    solucion: `${mayor}. ${mayor} es mayor (${Math.max(val1, val2)} > ${Math.min(val1, val2)}).`,
+  };
+}
+
+function potenciasDiez(curso) {
+  const exp = curso === "6" ? randomInt(2, 5) : randomInt(2, 3);
+  const valor = Math.pow(10, exp);
+  const signo = SUPERINDICES[exp];
+  return {
+    enunciado: `¿Cuánto vale 10${signo}?`,
+    datos: [`Base: 10`, `Exponente: ${exp}`],
+    operacion: `10${signo} = ${Array(exp).fill(10).join(" × ")} = ${valor}`,
+    solucion: `${valor}. 10 elevado a ${exp} es ${valor}.`,
+  };
+}
+
+function genPotencias(curso) {
+  return pick([potenciasCalcular, potenciasComparar, potenciasDiez])(curso);
+}
+
+function enterosTemperatura(curso) {
   const inicial = randomInt(-5, 15);
   const rango = curso === "6" ? 20 : 10;
   const cambio = randomInt(-rango, rango) || 3;
@@ -230,19 +523,38 @@ function genNumerosEnteros(curso) {
   };
 }
 
-function genMultiplosDivisores(curso) {
-  if (curso === "6") {
-    const a = randomInt(4, 12);
-    const b = randomInt(4, 12);
-    const resultado = lcm(a, b);
-    return {
-      enunciado: `Dos autobuses salen juntos de la estación a las 8:00h. El primero repite su recorrido cada ${a} minutos y el segundo cada ${b} minutos. ¿Dentro de cuántos minutos volverán a coincidir en la estación?`,
-      datos: [`Primer autobús: cada ${a} min`, `Segundo autobús: cada ${b} min`],
-      operacion: `m.c.m.(${a}, ${b}) = ${resultado}`,
-      solucion: `${resultado} minutos. Volverán a coincidir dentro de ${resultado} minutos.`,
-    };
-  }
-  const n = randomInt(3, 12);
+function enterosBanco(curso) {
+  const inicial = randomInt(curso === "6" ? -200 : -50, curso === "6" ? 500 : 100);
+  const movimiento = randomInt(curso === "6" ? 20 : 10, curso === "6" ? 300 : 60);
+  const esIngreso = Math.random() < 0.5;
+  const resultado = esIngreso ? inicial + movimiento : inicial - movimiento;
+  return {
+    enunciado: `Una cuenta bancaria tiene ${inicial} €. Se ${esIngreso ? "ingresan" : "retiran"} ${movimiento} €. ¿Cuál es el saldo final?`,
+    datos: [`Saldo inicial: ${inicial} €`, `${esIngreso ? "Ingreso" : "Retirada"}: ${movimiento} €`],
+    operacion: `${inicial} ${esIngreso ? "+" : "−"} ${movimiento} = ${resultado}`,
+    solucion: `${resultado} €. El saldo final es ${resultado} €.`,
+  };
+}
+
+function enterosAltitud(curso) {
+  const inicial = randomInt(-30, curso === "6" ? 3000 : 200);
+  const cambio = randomInt(curso === "6" ? 20 : 5, curso === "6" ? 500 : 50);
+  const sube = Math.random() < 0.5;
+  const resultado = sube ? inicial + cambio : inicial - cambio;
+  return {
+    enunciado: `Un submarino está a ${inicial} m respecto al nivel del mar. ${sube ? "Sube" : "Baja"} ${cambio} m. ¿A qué altura respecto al nivel del mar queda?`,
+    datos: [`Posición inicial: ${inicial} m`, `Cambio: ${sube ? "+" : "−"}${cambio} m`],
+    operacion: `${inicial} ${sube ? "+" : "−"} ${cambio} = ${resultado}`,
+    solucion: `${resultado} m. Queda a ${resultado} m respecto al nivel del mar.`,
+  };
+}
+
+function genNumerosEnteros(curso) {
+  return pick([enterosTemperatura, enterosBanco, enterosAltitud])(curso);
+}
+
+function multiplosDivisoresLista(curso) {
+  const n = curso === "6" ? randomInt(6, 15) : randomInt(3, 12);
   const multiplos = Array.from({ length: 5 }, (_, i) => n * (i + 1));
   return {
     enunciado: `Escribe los 5 primeros múltiplos de ${n} (sin contar el 0).`,
@@ -252,7 +564,35 @@ function genMultiplosDivisores(curso) {
   };
 }
 
-function genFracciones(curso) {
+function multiplosDivisoresMCM(curso) {
+  const a = curso === "6" ? randomInt(6, 15) : randomInt(3, 10);
+  const b = curso === "6" ? randomInt(6, 15) : randomInt(3, 10);
+  const resultado = lcm(a, b);
+  return {
+    enunciado: `Dos autobuses salen juntos de la estación a las 8:00h. El primero repite su recorrido cada ${a} minutos y el segundo cada ${b} minutos. ¿Dentro de cuántos minutos volverán a coincidir en la estación?`,
+    datos: [`Primer autobús: cada ${a} min`, `Segundo autobús: cada ${b} min`],
+    operacion: `m.c.m.(${a}, ${b}) = ${resultado}`,
+    solucion: `${resultado} minutos. Volverán a coincidir dentro de ${resultado} minutos.`,
+  };
+}
+
+function multiplosDivisoresMCD(curso) {
+  const a = curso === "6" ? randomInt(12, 60) : randomInt(6, 24);
+  const b = curso === "6" ? randomInt(12, 60) : randomInt(6, 24);
+  const resultado = gcd(a, b);
+  return {
+    enunciado: `Se quieren repartir ${a} caramelos y ${b} chuches en bolsas iguales, con el mayor número de bolsas posible y sin mezclar caramelos con chuches. ¿Cuántas unidades debe llevar cada bolsa?`,
+    datos: [`Caramelos: ${a}`, `Chuches: ${b}`],
+    operacion: `M.C.D.(${a}, ${b}) = ${resultado}`,
+    solucion: `${resultado}. Cada bolsa debe llevar ${resultado} unidades.`,
+  };
+}
+
+function genMultiplosDivisores(curso) {
+  return pick([multiplosDivisoresLista, multiplosDivisoresMCM, multiplosDivisoresMCD])(curso);
+}
+
+function fraccionesTartaResto(curso) {
   const den = curso === "6" ? randomInt(6, 12) : randomInt(3, 8);
   const comidos = randomInt(1, den - 1);
   const quedan = den - comidos;
@@ -264,7 +604,39 @@ function genFracciones(curso) {
   };
 }
 
-function genOperacionesFracciones(curso) {
+function fraccionesEquivalente(curso) {
+  const den = curso === "6" ? randomInt(3, 8) : randomInt(2, 5);
+  const num = randomInt(1, den - 1);
+  const factor = randomInt(2, curso === "6" ? 6 : 4);
+  const numEq = num * factor;
+  const denEq = den * factor;
+  return {
+    enunciado: `Completa la fracción equivalente: ${num}/${den} = ?/${denEq}`,
+    datos: [`Fracción: ${num}/${den}`, `Nuevo denominador: ${denEq}`],
+    operacion: `${denEq} ÷ ${den} = ${factor}. ${num} × ${factor} = ${numEq}`,
+    solucion: `${numEq}/${denEq}. La fracción equivalente es ${numEq}/${denEq}.`,
+  };
+}
+
+function fraccionesDeGrupo(curso) {
+  const den = curso === "6" ? randomInt(4, 8) : randomInt(2, 5);
+  const num = randomInt(1, den - 1);
+  const multiplo = randomInt(2, curso === "6" ? 12 : 6);
+  const total = den * multiplo;
+  const parte = num * multiplo;
+  return {
+    enunciado: `En una clase de ${total} alumnos, ${num}/${den} partes son niñas. ¿Cuántas niñas hay en la clase?`,
+    datos: [`Total de alumnos: ${total}`, `Fracción de niñas: ${num}/${den}`],
+    operacion: `${total} ÷ ${den} = ${multiplo}. ${multiplo} × ${num} = ${parte}`,
+    solucion: `${parte}. Hay ${parte} niñas en la clase.`,
+  };
+}
+
+function genFracciones(curso) {
+  return pick([fraccionesTartaResto, fraccionesEquivalente, fraccionesDeGrupo])(curso);
+}
+
+function operacionesFraccionesSuma(curso) {
   if (curso === "6") {
     const d1 = randomInt(2, 6);
     const d2 = randomInt(2, 6);
@@ -293,34 +665,124 @@ function genOperacionesFracciones(curso) {
   };
 }
 
-function genDecimales(curso) {
+function operacionesFraccionesResta(curso) {
+  if (curso === "6") {
+    let d1 = randomInt(2, 6);
+    let d2 = randomInt(2, 6);
+    let n1 = randomInt(1, d1 - 1);
+    let n2 = randomInt(1, d2 - 1);
+    const comunDen = lcm(d1, d2);
+    let num1 = n1 * (comunDen / d1);
+    let num2 = n2 * (comunDen / d2);
+    if (num1 < num2) {
+      [d1, d2] = [d2, d1];
+      [n1, n2] = [n2, n1];
+      [num1, num2] = [num2, num1];
+    }
+    const resultNum = num1 - num2;
+    return {
+      enunciado: `Calcula: ${n1}/${d1} − ${n2}/${d2}`,
+      datos: [`Fracción 1: ${n1}/${d1}`, `Fracción 2: ${n2}/${d2}`],
+      operacion: `${n1}/${d1} − ${n2}/${d2} = ${num1}/${comunDen} − ${num2}/${comunDen} = ${resultNum}/${comunDen}`,
+      solucion: `${resultNum}/${comunDen}. El resultado es ${resultNum}/${comunDen}.`,
+    };
+  }
+  const den = randomInt(4, 10);
+  const n1 = randomInt(2, den - 1);
+  const n2 = randomInt(1, n1 - 1);
+  const resultado = n1 - n2;
+  return {
+    enunciado: `Calcula: ${n1}/${den} − ${n2}/${den}`,
+    datos: [`Fracción 1: ${n1}/${den}`, `Fracción 2: ${n2}/${den}`],
+    operacion: `${n1}/${den} − ${n2}/${den} = ${resultado}/${den}`,
+    solucion: `${resultado}/${den}. El resultado es ${resultado}/${den}.`,
+  };
+}
+
+function operacionesFraccionesMultiplicacion(curso) {
+  const den = curso === "6" ? randomInt(3, 8) : randomInt(2, 6);
+  const num = randomInt(1, den - 1);
+  const entero = randomInt(2, curso === "6" ? 6 : 4);
+  const productoNum = num * entero;
+  const g = gcd(productoNum, den);
+  const numSimpl = productoNum / g;
+  const denSimpl = den / g;
+  return {
+    enunciado: `Calcula: ${num}/${den} × ${entero}`,
+    datos: [`Fracción: ${num}/${den}`, `Número: ${entero}`],
+    operacion: `${num} × ${entero} = ${productoNum}. ${productoNum}/${den}${g > 1 ? ` = ${numSimpl}/${denSimpl} (simplificando entre ${g})` : ""}`,
+    solucion: g > 1 ? `${numSimpl}/${denSimpl}. El resultado es ${numSimpl}/${denSimpl}.` : `${productoNum}/${den}. El resultado es ${productoNum}/${den}.`,
+  };
+}
+
+function genOperacionesFracciones(curso) {
+  return pick([operacionesFraccionesSuma, operacionesFraccionesResta, operacionesFraccionesMultiplicacion])(curso);
+}
+
+function decimalesRedondeo(curso) {
   const entero = randomInt(1, curso === "6" ? 99 : 20);
   const milesimas = randomInt(0, 999);
   const numero = entero + milesimas / 1000;
-  const decimalesRedondeo = curso === "6" ? 2 : 1;
-  const factor = Math.pow(10, decimalesRedondeo);
+  const decimalesRedondeoN = curso === "6" ? 2 : 1;
+  const factor = Math.pow(10, decimalesRedondeoN);
   const redondeado = Math.round(numero * factor) / factor;
-  const nombreRedondeo = decimalesRedondeo === 1 ? "las décimas" : "las centésimas";
+  const nombreRedondeo = decimalesRedondeoN === 1 ? "las décimas" : "las centésimas";
   return {
     enunciado: `Redondea el número ${fmtEs(numero, 3)} a ${nombreRedondeo}.`,
     datos: [`Número: ${fmtEs(numero, 3)}`],
     operacion: `Miramos la cifra siguiente a ${nombreRedondeo}: si es 5 o más, redondeamos hacia arriba.`,
-    solucion: `${fmtEs(redondeado, decimalesRedondeo)}. El número redondeado es ${fmtEs(redondeado, decimalesRedondeo)}.`,
+    solucion: `${fmtEs(redondeado, decimalesRedondeoN)}. El número redondeado es ${fmtEs(redondeado, decimalesRedondeoN)}.`,
   };
 }
 
-function genDecimalesMD(curso) {
+function decimalesComparar(curso) {
+  const max = curso === "6" ? 9999 : 999;
+  const a = roundMoney(randomInt(100, max) / 100);
+  let b = roundMoney(randomInt(100, max) / 100);
+  while (b === a) b = roundMoney(randomInt(100, max) / 100);
+  const mayor = a > b ? a : b;
+  const menor = a > b ? b : a;
+  return {
+    enunciado: `¿Cuál de estos dos números es mayor: ${fmtEs(a)} o ${fmtEs(b)}?`,
+    datos: [`Número 1: ${fmtEs(a)}`, `Número 2: ${fmtEs(b)}`],
+    operacion: `Comparamos la parte entera y luego las cifras decimales una a una.`,
+    solucion: `${fmtEs(mayor)}. ${fmtEs(mayor)} es mayor que ${fmtEs(menor)}.`,
+  };
+}
+
+function decimalesFraccion(curso) {
+  const decimales = curso === "6" ? 2 : 1;
+  const denominador = Math.pow(10, decimales);
+  const numerador = randomInt(1, denominador - 1);
+  const decimal = numerador / denominador;
+  return {
+    enunciado: `Escribe en forma decimal la fracción ${numerador}/${denominador}.`,
+    datos: [`Fracción: ${numerador}/${denominador}`],
+    operacion: `${numerador} ÷ ${denominador} = ${fmtEs(decimal, decimales)}`,
+    solucion: `${fmtEs(decimal, decimales)}. La fracción ${numerador}/${denominador} es ${fmtEs(decimal, decimales)}.`,
+  };
+}
+
+function genDecimales(curso) {
+  return pick([decimalesRedondeo, decimalesComparar, decimalesFraccion])(curso);
+}
+
+function decimalesMDMultiplicar(curso) {
   const precio = roundMoney(randomInt(105, curso === "6" ? 995 : 495) / 100);
   const cantidad = randomInt(2, curso === "6" ? 9 : 6);
   const total = roundMoney(precio * cantidad);
-  if (Math.random() < 0.5) {
-    return {
-      enunciado: `Un kilo de naranjas cuesta ${fmtEs(precio)} €. ¿Cuánto cuestan ${cantidad} kilos?`,
-      datos: [`Precio por kilo: ${fmtEs(precio)} €`, `Cantidad: ${cantidad} kg`],
-      operacion: `${fmtEs(precio)} × ${cantidad} = ${fmtEs(total)}`,
-      solucion: `${fmtEs(total)} €. Cuestan ${fmtEs(total)} €.`,
-    };
-  }
+  return {
+    enunciado: `Un kilo de naranjas cuesta ${fmtEs(precio)} €. ¿Cuánto cuestan ${cantidad} kilos?`,
+    datos: [`Precio por kilo: ${fmtEs(precio)} €`, `Cantidad: ${cantidad} kg`],
+    operacion: `${fmtEs(precio)} × ${cantidad} = ${fmtEs(total)}`,
+    solucion: `${fmtEs(total)} €. Cuestan ${fmtEs(total)} €.`,
+  };
+}
+
+function decimalesMDDividirPrecio(curso) {
+  const precio = roundMoney(randomInt(105, curso === "6" ? 995 : 495) / 100);
+  const cantidad = randomInt(2, curso === "6" ? 9 : 6);
+  const total = roundMoney(precio * cantidad);
   return {
     enunciado: `${cantidad} kilos de peras cuestan ${fmtEs(total)} € en total. ¿Cuánto cuesta 1 kilo?`,
     datos: [`Precio total: ${fmtEs(total)} €`, `Cantidad: ${cantidad} kg`],
@@ -329,21 +791,26 @@ function genDecimalesMD(curso) {
   };
 }
 
-function genPorcentajes(curso) {
+function decimalesMDReparto(curso) {
+  const personas = randomInt(2, curso === "6" ? 9 : 5);
+  const porPersona = (curso === "6" ? randomInt(50, 300) : randomInt(15, 100)) / 10;
+  const total = Math.round(porPersona * personas * 10) / 10;
+  const unidad = pick(["litros de agua", "kilos de arroz", "metros de cuerda"]);
+  return {
+    enunciado: `Se reparten ${fmtEs(total, 1)} ${unidad} entre ${personas} personas a partes iguales. ¿Cuánto le toca a cada una?`,
+    datos: [`Total: ${fmtEs(total, 1)} ${unidad}`, `Personas: ${personas}`],
+    operacion: `${fmtEs(total, 1)} ÷ ${personas} = ${fmtEs(porPersona, 1)}`,
+    solucion: `${fmtEs(porPersona, 1)} ${unidad}. Le toca ${fmtEs(porPersona, 1)} ${unidad} a cada una.`,
+  };
+}
+
+function genDecimalesMD(curso) {
+  return pick([decimalesMDMultiplicar, decimalesMDDividirPrecio, decimalesMDReparto])(curso);
+}
+
+function porcentajesDirecto(curso) {
   const precio = roundMoney(randomInt(500, curso === "6" ? 9900 : 5000) / 100);
   const pct = curso === "6" ? pick([10, 15, 20, 25, 30, 40]) : pick([10, 20, 25, 50]);
-  if (curso === "6") {
-    const esDescuento = Math.random() < 0.5;
-    const cambio = roundMoney((precio * pct) / 100);
-    const final = roundMoney(esDescuento ? precio - cambio : precio + cambio);
-    const etiqueta = esDescuento ? "descuento" : "recargo";
-    return {
-      enunciado: `Un artículo cuesta ${fmtEs(precio)} €. Tiene un ${etiqueta} del ${pct}%. ¿Cuánto cuesta ahora?`,
-      datos: [`Precio inicial: ${fmtEs(precio)} €`, `${etiqueta[0].toUpperCase()}${etiqueta.slice(1)}: ${pct}%`],
-      operacion: `${pct}% de ${fmtEs(precio)} = ${fmtEs(cambio)}. ${fmtEs(precio)} ${esDescuento ? "−" : "+"} ${fmtEs(cambio)} = ${fmtEs(final)}`,
-      solucion: `${fmtEs(final)} €. Ahora cuesta ${fmtEs(final)} €.`,
-    };
-  }
   const resultado = roundMoney((precio * pct) / 100);
   return {
     enunciado: `Calcula el ${pct}% de ${fmtEs(precio)} €.`,
@@ -353,7 +820,38 @@ function genPorcentajes(curso) {
   };
 }
 
-function genProblemasMixtos(curso) {
+function porcentajesDescuentoRecargo(curso) {
+  const precio = roundMoney(randomInt(500, curso === "6" ? 9900 : 5000) / 100);
+  const pct = curso === "6" ? pick([10, 15, 20, 25, 30, 40]) : pick([10, 20, 25, 50]);
+  const esDescuento = Math.random() < 0.5;
+  const cambio = roundMoney((precio * pct) / 100);
+  const final = roundMoney(esDescuento ? precio - cambio : precio + cambio);
+  const etiqueta = esDescuento ? "descuento" : "recargo";
+  return {
+    enunciado: `Un artículo cuesta ${fmtEs(precio)} €. Tiene un ${etiqueta} del ${pct}%. ¿Cuánto cuesta ahora?`,
+    datos: [`Precio inicial: ${fmtEs(precio)} €`, `${etiqueta[0].toUpperCase()}${etiqueta.slice(1)}: ${pct}%`],
+    operacion: `${pct}% de ${fmtEs(precio)} = ${fmtEs(cambio)}. ${fmtEs(precio)} ${esDescuento ? "−" : "+"} ${fmtEs(cambio)} = ${fmtEs(final)}`,
+    solucion: `${fmtEs(final)} €. Ahora cuesta ${fmtEs(final)} €.`,
+  };
+}
+
+function porcentajesInverso(curso) {
+  const totalUnidades = randomInt(curso === "6" ? 3 : 1, curso === "6" ? 15 : 6) * 20;
+  const pct = curso === "6" ? pick([5, 10, 15, 20, 25, 30, 40, 50, 60, 75]) : pick([10, 20, 25, 50]);
+  const parte = (totalUnidades * pct) / 100;
+  return {
+    enunciado: `De un grupo de ${totalUnidades} personas, ${parte} son socios de un club deportivo. ¿Qué porcentaje del grupo son socios?`,
+    datos: [`Total: ${totalUnidades}`, `Socios: ${parte}`],
+    operacion: `${parte} ÷ ${totalUnidades} × 100 = ${pct}%`,
+    solucion: `${pct}%. Los socios son el ${pct}% del grupo.`,
+  };
+}
+
+function genPorcentajes(curso) {
+  return pick([porcentajesDirecto, porcentajesDescuentoRecargo, porcentajesInverso])(curso);
+}
+
+function problemasMixtosCompraGrupo(curso) {
   const isSixth = curso === "6";
   const precio = isSixth ? roundMoney(randomInt(150, 600) / 100) : randomInt(2, 9);
   const cantidad = randomInt(3, 8);
@@ -372,14 +870,58 @@ function genProblemasMixtos(curso) {
   };
 }
 
-function genMedidas(curso) {
-  const conversiones = [
-    { from: "km", to: "m", factor: 1000, frase: (c) => `Un ciclista recorre ${c} km en una etapa. ¿Cuántos m son?` },
-    { from: "kg", to: "g", factor: 1000, frase: (c) => `Un camión transporta ${c} kg de mercancía. ¿Cuántos g son?` },
-    { from: "L", to: "mL", factor: 1000, frase: (c) => `Un depósito contiene ${c} L de agua. ¿Cuántos mL son?` },
-    { from: "m", to: "cm", factor: 100, frase: (c) => `Un rollo de tela mide ${c} m de largo. ¿Cuántos cm son?` },
-  ];
-  const conv = pick(conversiones);
+function problemasMixtosDineroRestante(curso) {
+  const isSixth = curso === "6";
+  const precioObjeto = isSixth ? roundMoney(randomInt(500, 3000) / 100) : randomInt(2, 15);
+  const cantidad = randomInt(2, 5);
+  const amigos = randomInt(2, 4);
+  const gastoTotal = roundMoney(precioObjeto * cantidad);
+  const extra = isSixth ? roundMoney(randomInt(500, 5000) / 100) : randomInt(10, 40);
+  const dineroInicial = roundMoney(gastoTotal + extra);
+  const restante = roundMoney(dineroInicial - gastoTotal);
+  const porPersona = roundMoney(restante / amigos);
+  const fmt = (n) => fmtAuto(n);
+  const objeto = pick(["balones", "raquetas", "mochilas"]);
+  return {
+    enunciado: `Un grupo de ${amigos} amigos tiene ${fmt(dineroInicial)} € en total para gastar. Compran ${cantidad} ${objeto} a ${fmt(precioObjeto)} € cada uno. Si reparten el dinero que sobra a partes iguales, ¿cuánto le toca a cada uno?`,
+    datos: [`Dinero inicial: ${fmt(dineroInicial)} €`, `${objeto} comprados: ${cantidad} a ${fmt(precioObjeto)} € cada uno`, `Amigos: ${amigos}`],
+    operacion: `${cantidad} × ${fmt(precioObjeto)} = ${fmt(gastoTotal)} €. ${fmt(dineroInicial)} − ${fmt(gastoTotal)} = ${fmt(restante)} €. ${fmt(restante)} ÷ ${amigos} = ${fmt(porPersona)}`,
+    solucion: `${fmt(porPersona)} € cada uno.`,
+  };
+}
+
+function problemasMixtosProduccion(curso) {
+  const isSixth = curso === "6";
+  const porDia = isSixth ? randomInt(80, 300) : randomInt(20, 80);
+  const dias = randomInt(3, 6);
+  const totalProducido = porDia * dias;
+  const defectuosos = randomInt(5, Math.floor(totalProducido * 0.1));
+  const buenos = totalProducido - defectuosos;
+  const porCaja = isSixth ? randomInt(12, 30) : randomInt(5, 15);
+  const cajasCompletas = Math.floor(buenos / porCaja);
+  const sobran = buenos % porCaja;
+  const objeto = pick(["piezas", "juguetes", "bolígrafos"]);
+  return {
+    enunciado: `Una fábrica produce ${porDia} ${objeto} al día durante ${dias} días. De todo lo producido, ${defectuosos} ${objeto} salen defectuosas y se descartan. El resto se empaqueta en cajas de ${porCaja} ${objeto}. ¿Cuántas cajas completas se llenan y cuántas ${objeto} sobran?`,
+    datos: [`Producción: ${porDia} × ${dias} = ${totalProducido} ${objeto}`, `Defectuosas: ${defectuosos}`, `Por caja: ${porCaja}`],
+    operacion: `${porDia} × ${dias} = ${totalProducido}. ${totalProducido} − ${defectuosos} = ${buenos}. ${buenos} ÷ ${porCaja} = ${cajasCompletas} y sobran ${sobran}`,
+    solucion: sobran > 0 ? `${cajasCompletas} cajas completas y sobran ${sobran} ${objeto}.` : `${cajasCompletas} cajas completas (reparto exacto).`,
+  };
+}
+
+function genProblemasMixtos(curso) {
+  return pick([problemasMixtosCompraGrupo, problemasMixtosDineroRestante, problemasMixtosProduccion])(curso);
+}
+
+const ESCENARIOS_MEDIDAS = [
+  { from: "km", to: "m", factor: 1000, frase: (c) => `Un ciclista recorre ${c} km en una etapa. ¿Cuántos m son?` },
+  { from: "kg", to: "g", factor: 1000, frase: (c) => `Un camión transporta ${c} kg de mercancía. ¿Cuántos g son?` },
+  { from: "L", to: "mL", factor: 1000, frase: (c) => `Un depósito contiene ${c} L de agua. ¿Cuántos mL son?` },
+  { from: "m", to: "cm", factor: 100, frase: (c) => `Un rollo de tela mide ${c} m de largo. ¿Cuántos cm son?` },
+];
+
+function medidasConversion(curso) {
+  const conv = pick(ESCENARIOS_MEDIDAS);
   const cantidad = curso === "6" ? roundMoney(randomInt(105, 4995) / 100) : randomInt(2, 12);
   const resultado = roundMoney(cantidad * conv.factor);
   const fmt = (n) => fmtAuto(n);
@@ -391,19 +933,58 @@ function genMedidas(curso) {
   };
 }
 
-function genAreas(curso) {
+const ESCENARIOS_MEDIDAS_MIXTA = [
+  { mayor: "km", menor: "m", factor: 1000, frase: (pM, pm) => `Un ciclista recorre ${pM} km y ${pm} m en una etapa. ¿Cuántos m recorre en total?` },
+  { mayor: "kg", menor: "g", factor: 1000, frase: (pM, pm) => `Un paquete pesa ${pM} kg y ${pm} g. ¿Cuántos g pesa en total?` },
+  { mayor: "L", menor: "mL", factor: 1000, frase: (pM, pm) => `Una garrafa contiene ${pM} L y ${pm} mL. ¿Cuántos mL contiene en total?` },
+  { mayor: "m", menor: "cm", factor: 100, frase: (pM, pm) => `Una cuerda mide ${pM} m y ${pm} cm. ¿Cuántos cm mide en total?` },
+];
+
+function medidasSumaMixta(curso) {
+  const esc = pick(ESCENARIOS_MEDIDAS_MIXTA);
+  const partesMayor = curso === "6" ? randomInt(2, 20) : randomInt(1, 8);
+  const partesMenor = randomInt(1, esc.factor - 1);
+  const totalMayorEnMenor = partesMayor * esc.factor;
+  const totalEnMenor = totalMayorEnMenor + partesMenor;
+  return {
+    enunciado: esc.frase(partesMayor, partesMenor),
+    datos: [`${partesMayor} ${esc.mayor}`, `${partesMenor} ${esc.menor}`, `1 ${esc.mayor} = ${esc.factor} ${esc.menor}`],
+    operacion: `${partesMayor} × ${esc.factor} = ${totalMayorEnMenor}. ${totalMayorEnMenor} + ${partesMenor} = ${totalEnMenor}`,
+    solucion: `${totalEnMenor} ${esc.menor}. En total son ${totalEnMenor} ${esc.menor}.`,
+  };
+}
+
+const ESCENARIOS_MEDIDAS_COMPARAR = [
+  { unidadA: "km", unidadB: "m", factor: 1000 },
+  { unidadA: "kg", unidadB: "g", factor: 1000 },
+  { unidadA: "L", unidadB: "mL", factor: 1000 },
+  { unidadA: "m", unidadB: "cm", factor: 100 },
+];
+
+function medidasComparar(curso) {
+  const esc = pick(ESCENARIOS_MEDIDAS_COMPARAR);
+  const cantidadA = curso === "6" ? randomInt(1, 8) : randomInt(1, 4);
+  const cantidadBEnMenor = cantidadA * esc.factor;
+  const rangeMax = Math.max(cantidadBEnMenor * 2, 20);
+  let cantidadB = randomInt(1, rangeMax);
+  while (cantidadB === cantidadBEnMenor) cantidadB = randomInt(1, rangeMax);
+  const aEsMayor = cantidadBEnMenor > cantidadB;
+  const mayorTexto = aEsMayor ? `${cantidadA} ${esc.unidadA}` : `${cantidadB} ${esc.unidadB}`;
+  return {
+    enunciado: `¿Qué cantidad es mayor: ${cantidadA} ${esc.unidadA} o ${cantidadB} ${esc.unidadB}?`,
+    datos: [`${cantidadA} ${esc.unidadA} = ${cantidadBEnMenor} ${esc.unidadB}`, `${cantidadB} ${esc.unidadB}`],
+    operacion: `${cantidadA} ${esc.unidadA} = ${cantidadA} × ${esc.factor} = ${cantidadBEnMenor} ${esc.unidadB}. Comparamos ${cantidadBEnMenor} ${esc.unidadB} con ${cantidadB} ${esc.unidadB}.`,
+    solucion: `${mayorTexto}. ${mayorTexto} es mayor.`,
+  };
+}
+
+function genMedidas(curso) {
+  return pick([medidasConversion, medidasSumaMixta, medidasComparar])(curso);
+}
+
+function areasRectangulo(curso) {
   const base = randomInt(4, curso === "6" ? 25 : 15);
   const altura = randomInt(3, curso === "6" ? 20 : 12);
-  const esTriangulo = curso === "6" && Math.random() < 0.4;
-  if (esTriangulo) {
-    const area = (base * altura) / 2;
-    return {
-      enunciado: `Un terreno triangular tiene una base de ${base} m y una altura de ${altura} m. ¿Cuál es su área?`,
-      datos: [`Base: ${base} m`, `Altura: ${altura} m`],
-      operacion: `(${base} × ${altura}) ÷ 2 = ${fmtAuto(area)}`,
-      solucion: `${fmtAuto(area)} m². El área del terreno es ${fmtAuto(area)} m².`,
-    };
-  }
   const area = base * altura;
   const perimetro = 2 * (base + altura);
   return {
@@ -414,18 +995,38 @@ function genAreas(curso) {
   };
 }
 
-function genCircunferencia(curso) {
+function areasCuadrado(curso) {
+  const lado = randomInt(3, curso === "6" ? 30 : 15);
+  const area = lado * lado;
+  const perimetro = 4 * lado;
+  return {
+    enunciado: `Una parcela cuadrada tiene ${lado} m de lado. ¿Cuál es su área y su perímetro?`,
+    datos: [`Lado: ${lado} m`],
+    operacion: `Área: ${lado} × ${lado} = ${area}. Perímetro: 4 × ${lado} = ${perimetro}`,
+    solucion: `Área = ${area} m², Perímetro = ${perimetro} m.`,
+  };
+}
+
+function areasTriangulo(curso) {
+  const base = randomInt(4, curso === "6" ? 25 : 15);
+  const altura = randomInt(3, curso === "6" ? 20 : 12);
+  const area = (base * altura) / 2;
+  return {
+    enunciado: `Un terreno triangular tiene una base de ${base} m y una altura de ${altura} m. ¿Cuál es su área?`,
+    datos: [`Base: ${base} m`, `Altura: ${altura} m`],
+    operacion: `(${base} × ${altura}) ÷ 2 = ${fmtAuto(area)}`,
+    solucion: `${fmtAuto(area)} m². El área del terreno es ${fmtAuto(area)} m².`,
+  };
+}
+
+function genAreas(curso) {
+  const variantes = curso === "6" ? [areasRectangulo, areasCuadrado, areasTriangulo] : [areasRectangulo, areasCuadrado];
+  return pick(variantes)(curso);
+}
+
+function circunferenciaLongitud(curso) {
   const radio = randomInt(2, curso === "6" ? 15 : 10);
   const PI = 3.14;
-  if (curso === "6" && Math.random() < 0.5) {
-    const area = roundMoney(PI * radio * radio);
-    return {
-      enunciado: `Una piscina circular tiene un radio de ${radio} m. ¿Cuál es su área? (usa π ≈ 3,14)`,
-      datos: [`Radio: ${radio} m`, `π ≈ 3,14`],
-      operacion: `π × ${radio}² = 3,14 × ${radio * radio} = ${fmtEs(area)}`,
-      solucion: `${fmtEs(area)} m². El área de la piscina es ${fmtEs(area)} m².`,
-    };
-  }
   const longitud = roundMoney(2 * PI * radio);
   return {
     enunciado: `Una piscina circular tiene un radio de ${radio} m. ¿Cuál es la longitud de su circunferencia? (usa π ≈ 3,14)`,
@@ -435,7 +1036,37 @@ function genCircunferencia(curso) {
   };
 }
 
-function genProporcionalidad(curso) {
+function circunferenciaArea(curso) {
+  const radio = randomInt(2, curso === "6" ? 15 : 10);
+  const PI = 3.14;
+  const area = roundMoney(PI * radio * radio);
+  return {
+    enunciado: `Una piscina circular tiene un radio de ${radio} m. ¿Cuál es su área? (usa π ≈ 3,14)`,
+    datos: [`Radio: ${radio} m`, `π ≈ 3,14`],
+    operacion: `π × ${radio}² = 3,14 × ${radio * radio} = ${fmtEs(area)}`,
+    solucion: `${fmtEs(area)} m². El área de la piscina es ${fmtEs(area)} m².`,
+  };
+}
+
+function circunferenciaDesdeDiametro(curso) {
+  const radio = randomInt(2, curso === "6" ? 15 : 10);
+  const diametro = radio * 2;
+  const PI = 3.14;
+  const longitud = roundMoney(PI * diametro);
+  return {
+    enunciado: `Una noria circular tiene un diámetro de ${diametro} m. ¿Cuál es la longitud de su circunferencia? (usa π ≈ 3,14)`,
+    datos: [`Diámetro: ${diametro} m`, `π ≈ 3,14`],
+    operacion: `Radio = ${diametro} ÷ 2 = ${radio}. Longitud = 2 × π × ${radio} = ${fmtEs(longitud)}`,
+    solucion: `${fmtEs(longitud)} m. La circunferencia mide ${fmtEs(longitud)} m.`,
+  };
+}
+
+function genCircunferencia(curso) {
+  const variantes = curso === "6" ? [circunferenciaLongitud, circunferenciaArea, circunferenciaDesdeDiametro] : [circunferenciaLongitud, circunferenciaDesdeDiametro];
+  return pick(variantes)(curso);
+}
+
+function proporcionalidadPrecio(curso) {
   const a = randomInt(2, 6);
   const precioUnidad = curso === "6" ? roundMoney(randomInt(105, 995) / 100) : randomInt(2, 9);
   const totalA = roundMoney(a * precioUnidad);
@@ -451,7 +1082,41 @@ function genProporcionalidad(curso) {
   };
 }
 
-function genEstadistica(curso) {
+function proporcionalidadEscala(curso) {
+  const escala = curso === "6" ? pick([50, 100, 200, 500, 1000]) : pick([10, 100]);
+  const medidaPlano = curso === "6" ? randomInt(2, 40) : randomInt(2, 20);
+  const medidaReal = medidaPlano * escala;
+  return {
+    enunciado: `En un plano con escala 1:${escala}, una habitación mide ${medidaPlano} cm. ¿Cuánto mide en la realidad (en cm)?`,
+    datos: [`Escala: 1:${escala}`, `Medida en el plano: ${medidaPlano} cm`],
+    operacion: `${medidaPlano} × ${escala} = ${medidaReal}`,
+    solucion: `${medidaReal} cm. En la realidad mide ${medidaReal} cm.`,
+  };
+}
+
+function proporcionalidadVelocidad(curso) {
+  const velocidad = curso === "6" ? randomInt(40, 120) : randomInt(20, 60);
+  const horas = randomInt(2, curso === "6" ? 8 : 5);
+  const distancia = velocidad * horas;
+  return {
+    enunciado: `Un coche circula a una velocidad constante de ${velocidad} km/h. ¿Cuántos km recorrerá en ${horas} horas?`,
+    datos: [`Velocidad: ${velocidad} km/h`, `Tiempo: ${horas} horas`],
+    operacion: `${velocidad} × ${horas} = ${distancia}`,
+    solucion: `${distancia} km. Recorrerá ${distancia} km.`,
+  };
+}
+
+function genProporcionalidad(curso) {
+  return pick([proporcionalidadPrecio, proporcionalidadEscala, proporcionalidadVelocidad])(curso);
+}
+
+const ESCENARIOS_ESTADISTICA = [
+  { contexto: "goles marcados en", marco: "partidos" },
+  { contexto: "libros leídos en", marco: "meses" },
+  { contexto: "puntos obtenidos en", marco: "partidos" },
+];
+
+function estadisticaMediaMediana(curso) {
   const n = curso === "6" ? 6 : 5;
   const valores = Array.from({ length: n }, () => randomInt(1, 10));
   const suma = valores.reduce((acc, v) => acc + v, 0);
@@ -459,11 +1124,7 @@ function genEstadistica(curso) {
   const ordenados = [...valores].sort((a, b) => a - b);
   const mediana =
     n % 2 === 0 ? fmtTrim((ordenados[n / 2 - 1] + ordenados[n / 2]) / 2) : String(ordenados[(n - 1) / 2]);
-  const escenario = pick([
-    { contexto: "goles marcados en", marco: "partidos" },
-    { contexto: "libros leídos en", marco: "meses" },
-    { contexto: "puntos obtenidos en", marco: "partidos" },
-  ]);
+  const escenario = pick(ESCENARIOS_ESTADISTICA);
   if (curso === "6") {
     return {
       enunciado: `Estos son los ${escenario.contexto} ${n} ${escenario.marco}: ${valores.join(", ")}. Calcula la media y la mediana.`,
@@ -478,6 +1139,46 @@ function genEstadistica(curso) {
     operacion: `(${valores.join(" + ")}) ÷ ${n} = ${suma} ÷ ${n} = ${media}`,
     solucion: `${media}. La media es ${media}.`,
   };
+}
+
+function estadisticaRango(curso) {
+  const n = curso === "6" ? 7 : 5;
+  const valores = Array.from({ length: n }, () => randomInt(1, curso === "6" ? 50 : 20));
+  const maximo = Math.max(...valores);
+  const minimo = Math.min(...valores);
+  const rango = maximo - minimo;
+  const escenario = pick(ESCENARIOS_ESTADISTICA);
+  return {
+    enunciado: `Estos son ${escenario.contexto} ${n} ${escenario.marco}: ${valores.join(", ")}. Calcula el rango (diferencia entre el valor máximo y el mínimo).`,
+    datos: [`Valores: ${valores.join(", ")}`],
+    operacion: `Máximo: ${maximo}. Mínimo: ${minimo}. Rango: ${maximo} − ${minimo} = ${rango}`,
+    solucion: `${rango}. El rango es ${rango}.`,
+  };
+}
+
+function estadisticaModa(curso) {
+  const n = curso === "6" ? 8 : 6;
+  const modaValor = randomInt(1, 6);
+  const otros = [1, 2, 3, 4, 5, 6].filter((v) => v !== modaValor);
+  const valores = [modaValor, modaValor, modaValor];
+  for (let i = 0; valores.length < n; i++) {
+    valores.push(otros[i % otros.length]);
+  }
+  for (let i = valores.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [valores[i], valores[j]] = [valores[j], valores[i]];
+  }
+  const vecesModa = valores.filter((v) => v === modaValor).length;
+  return {
+    enunciado: `Estos son los goles marcados por un equipo en ${n} partidos: ${valores.join(", ")}. Calcula la moda (el valor que más se repite).`,
+    datos: [`Valores: ${valores.join(", ")}`],
+    operacion: `Contamos cuántas veces se repite cada valor. El ${modaValor} aparece ${vecesModa} veces, más que los demás.`,
+    solucion: `${modaValor}. La moda es ${modaValor}.`,
+  };
+}
+
+function genEstadistica(curso) {
+  return pick([estadisticaMediaMediana, estadisticaRango, estadisticaModa])(curso);
 }
 
 // ---------------- Registro de temas ----------------
