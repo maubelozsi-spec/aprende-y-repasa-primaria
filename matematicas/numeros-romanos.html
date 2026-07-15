@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Números romanos · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "numeros-romanos";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas · 6º de Primaria</p>
+        <h1>Números romanos</h1>
+        <p class="content-subtitle">Las letras romanas y sus reglas para leer y escribir números.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Las letras romanas</h2>
+        <p>Los romanos representaban los números con letras. Cada letra tiene un valor fijo:</p>
+        <table class="rules-table">
+          <tr><th>Letra</th><th>I</th><th>V</th><th>X</th><th>L</th><th>C</th><th>D</th><th>M</th></tr>
+          <tr><td>Valor</td><td>1</td><td>5</td><td>10</td><td>50</td><td>100</td><td>500</td><td>1000</td></tr>
+        </table>
+
+        <h2>Reglas para leer y escribir</h2>
+        <div class="rule-box aguda">
+          <h4>1. Se suman los valores</h4>
+          <p>Si una letra de igual o menor valor se escribe <strong>a la derecha</strong> de otra, su valor se suma.</p>
+          <p class="examples"><strong>Ejemplo:</strong> VI = 5 + 1 = 6 &nbsp;·&nbsp; XV = 10 + 5 = 15</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>2. Se resta el valor</h4>
+          <p>Si una letra de menor valor se escribe <strong>a la izquierda</strong> de otra mayor, su valor se resta.</p>
+          <p class="examples"><strong>Ejemplo:</strong> IV = 5 − 1 = 4 &nbsp;·&nbsp; IX = 10 − 1 = 9 &nbsp;·&nbsp; XC = 100 − 10 = 90</p>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>3. No se repite una letra más de 3 veces seguidas</h4>
+          <p>I, X, C y M pueden repetirse hasta 3 veces (III = 3), pero nunca 4. V, L y D <strong>nunca se repiten</strong>.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 4 se escribe IV, nunca IIII.</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>4. Solo se puede restar una letra a la vez</h4>
+          <p>Las letras que restan (I, X, C) solo se colocan delante de la letra inmediatamente superior o de la siguiente: I delante de V o X; X delante de L o C; C delante de D o M.</p>
+        </div>
+
+        <svg viewBox="0 0 400 130" style="max-width:400px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
+          <text x="200" y="35" text-anchor="middle" font-size="28" font-weight="700" fill="var(--color-plum)">MCMXCIV</text>
+          <line x1="70" y1="50" x2="70" y2="70" stroke="var(--color-teal)" stroke-width="2"/>
+          <line x1="150" y1="50" x2="150" y2="70" stroke="var(--color-teal)" stroke-width="2"/>
+          <line x1="230" y1="50" x2="230" y2="70" stroke="var(--color-teal)" stroke-width="2"/>
+          <line x1="310" y1="50" x2="310" y2="70" stroke="var(--color-teal)" stroke-width="2"/>
+          <text x="70" y="90" text-anchor="middle" font-size="14" fill="var(--color-teal)">M=1000</text>
+          <text x="150" y="90" text-anchor="middle" font-size="14" fill="var(--color-teal)">CM=900</text>
+          <text x="230" y="90" text-anchor="middle" font-size="14" fill="var(--color-teal)">XC=90</text>
+          <text x="310" y="90" text-anchor="middle" font-size="14" fill="var(--color-teal)">IV=4</text>
+          <text x="200" y="115" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text-muted)">1000 + 900 + 90 + 4 = 1994</text>
+        </svg>
+
+        <h2>Números romanos frecuentes</h2>
+        <table class="rules-table">
+          <tr><th>Romano</th><th>Valor</th><th>Romano</th><th>Valor</th></tr>
+          <tr><td>I, II, III, IV, V</td><td>1, 2, 3, 4, 5</td><td>XL, L</td><td>40, 50</td></tr>
+          <tr><td>VI, VII, VIII, IX, X</td><td>6, 7, 8, 9, 10</td><td>XC, C</td><td>90, 100</td></tr>
+          <tr><td>XX, XXX</td><td>20, 30</td><td>CD, D, CM, M</td><td>400, 500, 900, 1000</td></tr>
+        </table>
+
+        <div class="tip-box">
+          <strong>¿Dónde los vemos hoy?</strong> En relojes, en los siglos (siglo XXI), en tomos de libros, o detrás del nombre de reyes y papas (Felipe VI, Juan Pablo II).
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="aromano">De número a romano</button>
+            <button class="btn btn-secondary" data-mode="adecimal">De romano a número</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/numeros-romanos.js"></script>
+</body>
+</html>
