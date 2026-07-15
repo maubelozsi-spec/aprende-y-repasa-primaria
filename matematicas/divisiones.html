@@ -98,15 +98,20 @@
             <button class="btn btn-secondary" data-example="2">Divisor de 3 cifras</button>
           </div>
 
-          <div class="division-visual">
-            <div class="division-left">
-              <div class="division-dividend" id="demo-dividend"></div>
-              <div class="division-workarea" id="demo-workarea"></div>
+          <div class="division-card">
+            <div class="division-visual">
+              <div class="division-left">
+                <div class="division-dividend" id="demo-dividend">
+                  <svg class="division-bracket" id="demo-bracket" viewBox="0 0 100 22" preserveAspectRatio="none"><path d="M 2 20 Q 50 -4 98 20" stroke="var(--color-plum)" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+                </div>
+                <div class="division-workarea" id="demo-workarea"></div>
+              </div>
+              <div class="division-right">
+                <div class="division-divisor" id="demo-divisor"></div>
+                <div class="division-quotient" id="demo-quotient"></div>
+              </div>
             </div>
-            <div class="division-right">
-              <div class="division-divisor" id="demo-divisor"></div>
-              <div class="division-quotient" id="demo-quotient"></div>
-            </div>
+            <div class="division-result-banner" id="demo-result-banner"></div>
           </div>
 
           <div class="division-step-explanation" id="demo-explanation"></div>

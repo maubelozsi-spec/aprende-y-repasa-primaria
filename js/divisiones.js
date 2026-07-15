@@ -84,24 +84,62 @@ function createDivisionView(prefix) {
     workarea: document.getElementById(prefix + "-workarea"),
     divisor: document.getElementById(prefix + "-divisor"),
     quotient: document.getElementById(prefix + "-quotient"),
+    resultBanner: document.getElementById(prefix + "-result-banner"),
   };
 }
 
-function renderDividend(view, problem, usedCount) {
+function renderDividend(view, problem, usedCount, currentStart) {
+  const start = currentStart === undefined ? usedCount : currentStart;
   view.dividend.innerHTML = "";
+  const bracket = view.dividend._bracket;
   problem.digits.forEach((d, i) => {
     const span = document.createElement("span");
-    span.className = "letter" + (i < usedCount ? " used" : "");
+    let cls = "letter";
+    if (i < start) cls += " used";
+    else if (i < usedCount) cls += " current";
+    span.className = cls;
     span.textContent = d;
     view.dividend.appendChild(span);
   });
+  if (bracket) view.dividend.appendChild(bracket);
+}
+
+function positionBracket(view, problem, stepIndex) {
+  const bracket = view.dividend._bracket;
+  if (!bracket) return;
+  const DIGIT_W = 48;
+  if (stepIndex <= 0 && problem.steps.length) {
+    const groupSize = problem.steps[0].broughtDigits.length;
+    bracket.style.width = groupSize * DIGIT_W - 2 + "px";
+    bracket.style.opacity = "1";
+  } else {
+    bracket.style.opacity = "0";
+  }
+}
+
+function showResultBanner(bannerEl, problem, visible) {
+  if (!bannerEl) return;
+  if (!visible) {
+    bannerEl.classList.remove("show");
+    bannerEl.innerHTML = "";
+    return;
+  }
+  const resultText = problem.finalRemainder
+    ? `${problem.dividend} ÷ ${problem.divisor} = ${problem.quotient}  (resto ${problem.finalRemainder})`
+    : `${problem.dividend} ÷ ${problem.divisor} = ${problem.quotient}`;
+  bannerEl.innerHTML = `${resultText}<span class="banner-emoji">🎉</span>`;
+  bannerEl.classList.add("show");
 }
 
 function resetDivisionView(view, problem) {
   view.divisor.textContent = problem.divisor;
   view.workarea.innerHTML = "";
   view.quotient.innerHTML = "";
-  renderDividend(view, problem, 0);
+  const existingBracket = view.dividend.querySelector(".division-bracket");
+  view.dividend._bracket = existingBracket || null;
+  renderDividend(view, problem, 0, 0);
+  positionBracket(view, problem, -1);
+  showResultBanner(view.resultBanner, problem, false);
 }
 
 function appendQuotientDigit(view, digit) {
@@ -117,7 +155,7 @@ function appendWorkStep(view, step) {
   block.className = "division-step-block";
   block.style.marginLeft = startDigitIndex * 48 + "px";
   block.innerHTML = `
-    <div>${step.workingNumber}</div>
+    <div class="working-line">${step.workingNumber}</div>
     <div class="op-line">− ${step.product}</div>
     <div class="result-line">${step.remainder}</div>
   `;
@@ -209,13 +247,27 @@ function initDemo() {
       appendQuotientDigit(view, problem.steps[s].quotientDigit);
     }
 
-    const lastVisibleStep = Math.min(idx, problem.steps.length - 1);
-    const usedCount = idx >= 0 ? problem.steps[lastVisibleStep].digitsUsedUpTo : 0;
-    renderDividend(view, problem, usedCount);
+    let usedCount = 0;
+    let currentStart = 0;
+    if (idx >= 0) {
+      const lastVisibleStep = Math.min(idx, problem.steps.length - 1);
+      usedCount = problem.steps[lastVisibleStep].digitsUsedUpTo;
+      if (idx < problem.steps.length) {
+        const curStep = problem.steps[idx];
+        currentStart = curStep.digitsUsedUpTo - curStep.broughtDigits.length;
+      } else {
+        currentStart = usedCount;
+      }
+    }
+    renderDividend(view, problem, usedCount, currentStart);
+    positionBracket(view, problem, idx);
+
+    const isFinished = idx >= problem.steps.length;
+    showResultBanner(view.resultBanner, problem, isFinished);
 
     if (idx === -1) {
       explanationEl.innerHTML = "Pulsa «Siguiente paso» para empezar.";
-    } else if (idx >= problem.steps.length) {
+    } else if (isFinished) {
       explanationEl.innerHTML = finalExplanation(problem);
     } else {
       explanationEl.innerHTML = stepExplanation(problem, idx);
