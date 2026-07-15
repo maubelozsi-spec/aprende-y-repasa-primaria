@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Propiedades de las operaciones · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "propiedades-operaciones";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas · 6º de Primaria</p>
+        <h1>Propiedades de las operaciones</h1>
+        <p class="content-subtitle">Conmutativa, asociativa, distributiva y elemento neutro.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Propiedad conmutativa</h2>
+        <div class="rule-box aguda">
+          <h4>Suma y multiplicación</h4>
+          <p>Si cambiamos el orden de los sumandos o de los factores, <strong>el resultado no cambia</strong>.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 4 + 7 = 7 + 4 = 11 &nbsp;·&nbsp; 3 × 5 = 5 × 3 = 15</p>
+        </div>
+        <div class="tip-box">
+          <strong>Cuidado:</strong> la resta y la división <strong>no</strong> son conmutativas: 9 − 3 ≠ 3 − 9.
+        </div>
+
+        <h2>Propiedad asociativa</h2>
+        <div class="rule-box llana">
+          <h4>Suma y multiplicación</h4>
+          <p>Si tenemos tres o más sumandos (o factores), <strong>podemos agruparlos de distinta manera</strong> y el resultado es el mismo.</p>
+          <p class="examples"><strong>Ejemplo:</strong> (2 + 3) + 4 = 2 + (3 + 4) = 9 &nbsp;·&nbsp; (2 × 3) × 4 = 2 × (3 × 4) = 24</p>
+        </div>
+
+        <h2>Propiedad distributiva</h2>
+        <div class="rule-box esdrujula">
+          <h4>De la multiplicación respecto a la suma</h4>
+          <p>Para multiplicar un número por una suma, se puede multiplicar ese número por cada sumando por separado y luego sumar los resultados.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 3 × (4 + 5) = 3 × 4 + 3 × 5 = 12 + 15 = 27</p>
+        </div>
+
+        <svg viewBox="0 0 460 150" style="max-width:460px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
+          <text x="230" y="30" text-anchor="middle" font-size="20" font-weight="700" fill="var(--color-plum)">3 × (4 + 5)</text>
+          <text x="230" y="60" text-anchor="middle" font-size="16" fill="var(--text-muted)">se reparte así</text>
+          <line x1="230" y1="70" x2="120" y2="100" stroke="var(--color-plum)" stroke-width="2"/>
+          <line x1="230" y1="70" x2="340" y2="100" stroke="var(--color-plum)" stroke-width="2"/>
+          <rect x="60" y="100" width="120" height="36" rx="8" fill="var(--color-teal-tint)" stroke="var(--color-teal)"/>
+          <text x="120" y="123" text-anchor="middle" font-size="16" font-weight="700" fill="var(--color-teal)">3 × 4 = 12</text>
+          <rect x="280" y="100" width="120" height="36" rx="8" fill="var(--color-amber-tint)" stroke="var(--color-amber)"/>
+          <text x="340" y="123" text-anchor="middle" font-size="16" font-weight="700" fill="var(--color-amber)">3 × 5 = 15</text>
+        </svg>
+
+        <h2>Elemento neutro</h2>
+        <table class="rules-table">
+          <tr><th>Operación</th><th>Elemento neutro</th><th>Ejemplo</th></tr>
+          <tr><td>Suma</td><td>el 0 (no cambia el número)</td><td>8 + 0 = 8</td></tr>
+          <tr><td>Multiplicación</td><td>el 1 (no cambia el número)</td><td>8 × 1 = 8</td></tr>
+        </table>
+
+        <div class="tip-box">
+          <strong>¿Para qué sirven estas propiedades?</strong> Te permiten calcular mentalmente más rápido, reordenando o agrupando los números de la forma que te resulte más fácil.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="identificar">Identificar la propiedad</button>
+            <button class="btn btn-secondary" data-mode="completar">Completar la igualdad</button>
+            <button class="btn btn-secondary" data-mode="distributiva">Aplicar la distributiva</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/propiedades-operaciones.js"></script>
+</body>
+</html>

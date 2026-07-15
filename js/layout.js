@@ -42,6 +42,7 @@ const NAV = [
       { id: "divisiones", label: "Divisiones", href: "matematicas/divisiones.html", available: true },
       { id: "numeros-grandes", label: "Números grandes y aproximación", href: "matematicas/numeros-grandes.html", available: true },
       { id: "operaciones-combinadas", label: "Operaciones combinadas", href: "matematicas/operaciones-combinadas.html", available: true },
+      { id: "propiedades-operaciones", label: "Propiedades de las operaciones", href: "matematicas/propiedades-operaciones.html", available: true },
       { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", href: "matematicas/multiplos-divisores.html", available: true },
       { id: "angulos", label: "Ángulos", href: "matematicas/angulos.html", available: true },
       { id: "coordenadas", label: "Coordenadas, simetrías, traslaciones y giros", href: "matematicas/coordenadas.html", available: true },
