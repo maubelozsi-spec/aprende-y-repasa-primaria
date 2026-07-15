@@ -47,6 +47,19 @@ const POLISEMIA_HOMOFONIA_ENTRIES = [
   { display: "botar / votar", tipo: "Homofonía" },
 ];
 
+const MORFEMAS_ENTRIES = [
+  { display: "En \"niños\", el morfema -s indica número.", tipo: "Flexivo" },
+  { display: "En \"niña\", el morfema -a indica género.", tipo: "Flexivo" },
+  { display: "En \"cantas\", el morfema -as indica persona verbal.", tipo: "Flexivo" },
+  { display: "En \"floristas\", el morfema -s indica número.", tipo: "Flexivo" },
+  { display: "En \"deshacer\", el morfema des- crea una palabra nueva.", tipo: "Derivativo" },
+  { display: "En \"panadero\", el morfema -ero crea una palabra nueva.", tipo: "Derivativo" },
+  { display: "En \"florista\", el morfema -ista crea una palabra nueva.", tipo: "Derivativo" },
+  { display: "En \"infeliz\", el morfema in- crea una palabra nueva.", tipo: "Derivativo" },
+  { display: "En \"cantábamos\", el morfema -ábamos indica tiempo y persona.", tipo: "Flexivo" },
+  { display: "En \"reponer\", el morfema re- crea una palabra nueva.", tipo: "Derivativo" },
+];
+
 const MODE_GROUPS = {
   prefijosufijo: {
     pool: PREFIJO_SUFIJO_ENTRIES,
@@ -65,6 +78,12 @@ const MODE_GROUPS = {
     field: "tipo",
     question: () => "¿Es un caso de polisemia o de homofonía?",
     options: ["Polisemia", "Homofonía"],
+  },
+  morfemas: {
+    pool: MORFEMAS_ENTRIES,
+    field: "tipo",
+    question: () => "¿Es un morfema flexivo o derivativo?",
+    options: ["Flexivo", "Derivativo"],
   },
 };
 
