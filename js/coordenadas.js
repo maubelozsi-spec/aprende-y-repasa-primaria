@@ -49,6 +49,35 @@ function gridSVG(points, opts) {
   </svg>`;
 }
 
+function similarRectSVG(w1, h1, w2, h2) {
+  const cell = 18;
+  const gap = 40;
+  const margin = 20;
+  const maxH = Math.max(h1, h2) * cell;
+  const totalW = (w1 + w2) * cell + gap + margin * 2;
+  const totalH = maxH + margin * 2 + 24;
+  const x1 = margin;
+  const y1 = margin + (maxH - h1 * cell);
+  const x2 = x1 + w1 * cell + gap;
+  const y2 = margin + (maxH - h2 * cell);
+
+  return `<svg viewBox="0 0 ${totalW} ${totalH}" width="280" height="${Math.round((totalH / totalW) * 280)}">
+    <rect x="${x1}" y="${y1}" width="${w1 * cell}" height="${h1 * cell}" fill="var(--color-indigo-tint, #e4e4fb)" stroke="var(--color-indigo)" stroke-width="2"/>
+    <text x="${x1 + (w1 * cell) / 2}" y="${y1 + h1 * cell + 16}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--color-indigo)">${w1}×${h1}</text>
+    <rect x="${x2}" y="${y2}" width="${w2 * cell}" height="${h2 * cell}" fill="var(--color-teal-tint)" stroke="var(--color-teal)" stroke-width="2"/>
+    <text x="${x2 + (w2 * cell) / 2}" y="${y2 + h2 * cell + 16}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--color-teal)">${w2}×${h2}</text>
+  </svg>`;
+}
+
+const SEMEJANZA_ENTRIES = [
+  { w1: 2, h1: 3, w2: 4, h2: 6, correct: "×2", options: ["×2", "×3", "÷2", "×1,5"] },
+  { w1: 3, h1: 2, w2: 9, h2: 6, correct: "×3", options: ["×3", "×2", "÷3", "×1,5"] },
+  { w1: 4, h1: 6, w2: 2, h2: 3, correct: "÷2", options: ["÷2", "÷3", "×2", "×0,5"] },
+  { w1: 6, h1: 3, w2: 2, h2: 1, correct: "÷3", options: ["÷3", "÷2", "×3", "×2"] },
+  { w1: 2, h1: 2, w2: 6, h2: 6, correct: "×3", options: ["×3", "×2", "÷3", "×4"] },
+  { w1: 5, h1: 3, w2: 10, h2: 6, correct: "×2", options: ["×2", "×3", "÷2", "×1,5"] },
+];
+
 const COORDENADAS_ENTRIES = [
   { x: 3, y: 5, correct: "(3, 5)", options: ["(3, 5)", "(5, 3)", "(-3, 5)", "(3, -5)"] },
   { x: -4, y: 2, correct: "(-4, 2)", options: ["(-4, 2)", "(4, 2)", "(-4, -2)", "(2, -4)"] },
@@ -134,6 +163,12 @@ const MODE_GROUPS = {
         { x: entry.B[0], y: entry.B[1], label: "B", color: "var(--color-teal)" },
       ]),
   },
+  semejanza: {
+    pool: SEMEJANZA_ENTRIES,
+    field: "correct",
+    question: () => "¿Cuál es la escala entre las dos figuras semejantes?",
+    render: (entry) => similarRectSVG(entry.w1, entry.h1, entry.w2, entry.h2),
+  },
 };
 
 function shuffle(arr) {
@@ -178,6 +213,9 @@ function renderTeoriaExamples() {
       { x: 3, y: 2, label: "A", color: "var(--color-indigo)" },
       { x: -2, y: 3, label: "B", color: "var(--color-teal)" },
     ]);
+
+  const semEl = document.getElementById("ejemplo-semejanza");
+  if (semEl) semEl.innerHTML = similarRectSVG(2, 3, 4, 6);
 }
 
 function initTabs() {
