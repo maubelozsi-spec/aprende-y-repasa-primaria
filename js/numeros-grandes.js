@@ -39,7 +39,26 @@ const APROXIMAR_ENTRIES = [
   { display: "56.482 → al millar", correct: "56.000", options: ["56.000", "57.000", "56.500", "55.000"] },
   { display: "128.350 → a la centena de millar", correct: "100.000", options: ["100.000", "200.000", "130.000", "128.000"] },
   { display: "128.350 → a la centena", correct: "128.400", options: ["128.400", "128.300", "128.350", "128.000"] },
+  { display: "6.482.930 → al millón", correct: "6.000.000", options: ["6.000.000", "7.000.000", "6.500.000", "6.480.000"] },
+  { display: "12.740.000 → al millón", correct: "13.000.000", options: ["13.000.000", "12.000.000", "12.700.000", "13.500.000"] },
 ];
+
+const POSITIONS_MILLONES = ["Centena de millón", "Decena de millón", "Unidad de millón", "Centena de millar", "Decena de millar", "Unidad de millar", "Centena", "Decena", "Unidad"];
+
+const VALOR_MILLONES_ENTRIES = [
+  { number: "348256719", idx: 0 },
+  { number: "348256719", idx: 1 },
+  { number: "348256719", idx: 2 },
+  { number: "348256719", idx: 3 },
+  { number: "348256719", idx: 6 },
+  { number: "348256719", idx: 8 },
+  { number: "912074305", idx: 0 },
+  { number: "912074305", idx: 2 },
+  { number: "570631842", idx: 1 },
+  { number: "570631842", idx: 4 },
+  { number: "804395210", idx: 2 },
+  { number: "804395210", idx: 5 },
+].map((e) => ({ ...e, tipo: POSITIONS_MILLONES[e.idx] }));
 
 const MODE_GROUPS = {
   valorposicional: {
@@ -62,6 +81,13 @@ const MODE_GROUPS = {
     question: () => "Redondea este número:",
     options: null,
     display: "text",
+  },
+  millones: {
+    pool: VALOR_MILLONES_ENTRIES,
+    field: "tipo",
+    question: () => "¿Qué valor tiene la cifra remarcada? (números más grandes)",
+    options: POSITIONS_MILLONES,
+    display: "tiles",
   },
 };
 
