@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Las potencias · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "potencias";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas · 6º de Primaria</p>
+        <h1>Las potencias</h1>
+        <p class="content-subtitle">Base, exponente, cuadrados y cubos.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es una potencia?</h2>
+        <p>Una <strong>potencia</strong> es una forma abreviada de escribir una multiplicación en la que se repite el mismo factor varias veces.</p>
+
+        <svg viewBox="0 0 380 130" style="max-width:380px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
+          <text x="90" y="60" font-size="46" font-weight="700" fill="var(--color-teal)">3</text>
+          <text x="128" y="35" font-size="26" font-weight="700" fill="var(--color-plum)">4</text>
+          <text x="180" y="60" font-size="30" fill="var(--text-muted)">=</text>
+          <text x="220" y="60" font-size="24" fill="var(--text)">3×3×3×3</text>
+          <text x="180" y="100" font-size="15" text-anchor="middle" fill="var(--color-teal)">base</text>
+          <line x1="180" y1="85" x2="95" y2="70" stroke="var(--color-teal)" stroke-width="1.5"/>
+          <text x="280" y="100" font-size="15" text-anchor="middle" fill="var(--color-plum)">exponente</text>
+          <line x1="270" y1="85" x2="135" y2="45" stroke="var(--color-plum)" stroke-width="1.5"/>
+        </svg>
+
+        <div class="rule-box aguda">
+          <h4>Base y exponente</h4>
+          <p>La <strong>base</strong> es el número que se multiplica por sí mismo. El <strong>exponente</strong> indica cuántas veces se repite la base como factor.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 3⁴ = 3 × 3 × 3 × 3 = 81. Se lee "tres elevado a cuatro".</p>
+        </div>
+
+        <h2>Cuadrados y cubos</h2>
+        <div class="rule-box llana">
+          <h4>Elevar al cuadrado</h4>
+          <p>Un número <strong>elevado al cuadrado</strong> (exponente 2) es ese número multiplicado por sí mismo una vez.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 5² = 5 × 5 = 25</p>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>Elevar al cubo</h4>
+          <p>Un número <strong>elevado al cubo</strong> (exponente 3) es ese número multiplicado por sí mismo dos veces.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 4³ = 4 × 4 × 4 = 64</p>
+        </div>
+
+        <h2>Potencias de base 10</h2>
+        <table class="rules-table">
+          <tr><th>Potencia</th><th>Multiplicación</th><th>Resultado</th></tr>
+          <tr><td>10¹</td><td>10</td><td>10</td></tr>
+          <tr><td>10²</td><td>10 × 10</td><td>100</td></tr>
+          <tr><td>10³</td><td>10 × 10 × 10</td><td>1.000</td></tr>
+          <tr><td>10⁴</td><td>10 × 10 × 10 × 10</td><td>10.000</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Truco:</strong> una potencia de base 10 se calcula rápido: el exponente indica cuántos ceros se añaden al 1.
+        </div>
+
+        <h2>Tabla de potencias frecuentes</h2>
+        <table class="rules-table">
+          <tr><th>Número</th><th>Al cuadrado</th><th>Al cubo</th></tr>
+          <tr><td>2</td><td>2² = 4</td><td>2³ = 8</td></tr>
+          <tr><td>3</td><td>3² = 9</td><td>3³ = 27</td></tr>
+          <tr><td>4</td><td>4² = 16</td><td>4³ = 64</td></tr>
+          <tr><td>5</td><td>5² = 25</td><td>5³ = 125</td></tr>
+        </table>
+
+        <div class="tip-box">
+          <strong>Cuidado:</strong> un número elevado a 1 es él mismo (7¹ = 7), y un número elevado a 0 es siempre 1 (7⁰ = 1).
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="calcular">Calcular la potencia</button>
+            <button class="btn btn-secondary" data-mode="descomponer">Escribir como multiplicación</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/potencias.js"></script>
+</body>
+</html>
