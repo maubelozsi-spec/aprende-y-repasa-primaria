@@ -60,6 +60,7 @@ const NAV = [
       { id: "cuerpos-geometricos", label: "Cuerpos geométricos y su desarrollo", href: "matematicas/cuerpos-geometricos.html", available: true },
       { id: "tiempo", label: "El tiempo", href: "matematicas/tiempo.html", available: true },
       { id: "probabilidad", label: "Sucesos y probabilidad", href: "matematicas/probabilidad.html", available: true },
+      { id: "proporcionalidad", label: "Proporcionalidad y escalas", href: "matematicas/proporcionalidad.html", available: true },
       { id: "estadistica", label: "Estadística: diagramas de barras, moda y media", href: "matematicas/estadistica.html", available: true },
     ],
   },

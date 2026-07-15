@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proporcionalidad y escalas · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "proporcionalidad";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas · 6º de Primaria</p>
+        <h1>Proporcionalidad y escalas</h1>
+        <p class="content-subtitle">Magnitudes proporcionales, la regla de tres y las escalas.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Situaciones proporcionales y no proporcionales</h2>
+        <div class="rule-box aguda">
+          <h4>¿Cuándo son proporcionales?</h4>
+          <p>Dos magnitudes son <strong>proporcionales</strong> cuando, al multiplicar (o dividir) una por un número, la otra queda multiplicada (o dividida) por ese mismo número.</p>
+          <p class="examples"><strong>Ejemplo:</strong> el precio de las manzanas: si 2 kg cuestan 4€, 4 kg (el doble) cuestan 8€ (el doble). Es proporcional.</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>¿Cuándo NO lo son?</h4>
+          <p>Cuando esa relación no se cumple.</p>
+          <p class="examples"><strong>Ejemplo:</strong> la edad de una persona y su altura no son proporcionales: al doblar la edad no se dobla la altura.</p>
+        </div>
+
+        <h2>Tablas de proporcionalidad</h2>
+        <table class="rules-table">
+          <tr><th>Kg de manzanas</th><th>Precio</th></tr>
+          <tr><td>1</td><td>2 €</td></tr>
+          <tr><td>2</td><td>4 €</td></tr>
+          <tr><td>3</td><td>6 €</td></tr>
+          <tr><td>5</td><td>10 €</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Fíjate:</strong> el precio siempre es el doble del número de kilos. Esa relación constante (aquí, ×2) es la <strong>razón de proporcionalidad</strong>.
+        </div>
+
+        <h2>Calcular magnitudes proporcionales: la regla de tres</h2>
+        <div class="rule-box esdrujula">
+          <h4>Cómo se usa</h4>
+          <p>Si conocemos 3 valores de una relación proporcional, podemos calcular el cuarto: se multiplican los valores en cruz y se divide entre el que queda.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> si 3 lápices cuestan 6€, ¿cuánto cuestan 5 lápices?<br>
+          3 lápices → 6€<br>
+          5 lápices → x<br>
+          x = (5 × 6) ÷ 3 = <strong>10€</strong>
+        </div>
+
+        <h2>Escalas</h2>
+        <div class="rule-box sobresdrujula">
+          <h4>¿Qué es una escala?</h4>
+          <p>Una <strong>escala</strong> indica la proporción entre una medida en un plano o mapa y la medida real. Se escribe como 1:n, que significa que 1 unidad del dibujo equivale a n unidades reales.</p>
+          <p class="examples"><strong>Ejemplo:</strong> escala 1:100 → 1 cm en el plano = 100 cm (1 metro) en la realidad.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> en un plano a escala 1:200, una habitación mide 3 cm. La habitación real mide 3 × 200 = <strong>600 cm = 6 metros</strong>.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="esproporcional">¿Es proporcional?</button>
+            <button class="btn btn-secondary" data-mode="reglatres">Regla de tres</button>
+            <button class="btn btn-secondary" data-mode="escalas">Escalas</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/proporcionalidad.js"></script>
+</body>
+</html>
