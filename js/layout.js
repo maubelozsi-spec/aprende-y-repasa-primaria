@@ -45,6 +45,7 @@ const NAV = [
       { id: "propiedades-operaciones", label: "Propiedades de las operaciones", href: "matematicas/propiedades-operaciones.html", available: true },
       { id: "numeros-romanos", label: "Números romanos", href: "matematicas/numeros-romanos.html", available: true },
       { id: "potencias", label: "Las potencias", href: "matematicas/potencias.html", available: true },
+      { id: "numeros-enteros", label: "Números enteros", href: "matematicas/numeros-enteros.html", available: true },
       { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", href: "matematicas/multiplos-divisores.html", available: true },
       { id: "angulos", label: "Ángulos", href: "matematicas/angulos.html", available: true },
       { id: "coordenadas", label: "Coordenadas, simetrías, traslaciones y giros", href: "matematicas/coordenadas.html", available: true },
