@@ -47,6 +47,42 @@ const PROBLEMAS_ENTRIES = [
   { display: "Tengo 21 euros y gasto 2/3. ¿Cuánto he gastado?", correct: "14", options: ["14", "7", "16", "10"] },
 ];
 
+const DISTINTODENOM_ENTRIES = [
+  { display: "1/2 + 1/3", correct: "5/6", options: ["5/6", "2/5", "1/6", "3/6"] },
+  { display: "1/4 + 1/2", correct: "3/4", options: ["3/4", "2/6", "1/4", "2/4"] },
+  { display: "2/3 + 1/6", correct: "5/6", options: ["5/6", "3/9", "1/2", "3/6"] },
+  { display: "1/2 − 1/4", correct: "1/4", options: ["1/4", "1/2", "0/4", "2/4"] },
+  { display: "3/4 − 1/2", correct: "1/4", options: ["1/4", "2/4", "1/2", "2/2"] },
+  { display: "1/3 + 1/4", correct: "7/12", options: ["7/12", "2/7", "1/12", "2/12"] },
+  { display: "2/5 + 1/2", correct: "9/10", options: ["9/10", "3/7", "1/10", "3/10"] },
+  { display: "5/6 − 1/3", correct: "1/2", options: ["1/2", "4/6", "4/3", "1/3"] },
+];
+
+const MULTIPLICAR_ENTRIES = [
+  { display: "1/2 × 2/3", correct: "2/6", options: ["2/6", "3/5", "1/6", "2/3"] },
+  { display: "2/3 × 3/4", correct: "6/12", options: ["6/12", "5/7", "2/4", "6/7"] },
+  { display: "1/4 × 2/5", correct: "2/20", options: ["2/20", "3/9", "2/9", "1/20"] },
+  { display: "3/5 × 1/2", correct: "3/10", options: ["3/10", "4/7", "3/5", "4/10"] },
+  { display: "2/3 × 2/3", correct: "4/9", options: ["4/9", "4/6", "2/9", "4/3"] },
+  { display: "1/2 × 1/2", correct: "1/4", options: ["1/4", "2/4", "1/2", "2/2"] },
+];
+
+const DIVIDIR_ENTRIES = [
+  { display: "1/2 ÷ 1/3", correct: "3/2", options: ["3/2", "1/6", "2/3", "1/3"] },
+  { display: "2/3 ÷ 1/2", correct: "4/3", options: ["4/3", "2/6", "3/4", "2/3"] },
+  { display: "3/4 ÷ 1/2", correct: "6/4", options: ["6/4", "3/8", "4/6", "3/4"] },
+  { display: "1/2 ÷ 2/3", correct: "3/4", options: ["3/4", "2/6", "4/3", "1/3"] },
+  { display: "2/5 ÷ 1/2", correct: "4/5", options: ["4/5", "2/10", "5/4", "1/5"] },
+  { display: "3/4 ÷ 3/4", correct: "1", options: ["1", "0", "9/16", "6/4"] },
+];
+
+const COMODIVISION_ENTRIES = [
+  { display: "3/4 = ?", correct: "3 ÷ 4", options: ["3 ÷ 4", "4 ÷ 3", "3 × 4", "3 + 4"] },
+  { display: "5/2 = ?", correct: "5 ÷ 2", options: ["5 ÷ 2", "2 ÷ 5", "5 × 2", "5 − 2"] },
+  { display: "7/3 = ?", correct: "7 ÷ 3", options: ["7 ÷ 3", "3 ÷ 7", "7 × 3", "3 − 7"] },
+  { display: "9/5 = ?", correct: "9 ÷ 5", options: ["9 ÷ 5", "5 ÷ 9", "9 × 5", "5 + 9"] },
+];
+
 const MODE_GROUPS = {
   fracciondenum: {
     pool: FRACCIONDE_ENTRIES,
@@ -62,6 +98,26 @@ const MODE_GROUPS = {
     pool: PROBLEMAS_ENTRIES,
     field: "correct",
     question: () => "Resuelve el problema:",
+  },
+  distintodenom: {
+    pool: DISTINTODENOM_ENTRIES,
+    field: "correct",
+    question: () => "Calcula (distinto denominador):",
+  },
+  multiplicar: {
+    pool: MULTIPLICAR_ENTRIES,
+    field: "correct",
+    question: () => "Multiplica estas fracciones:",
+  },
+  dividir: {
+    pool: DIVIDIR_ENTRIES,
+    field: "correct",
+    question: () => "Divide estas fracciones:",
+  },
+  comodivision: {
+    pool: COMODIVISION_ENTRIES,
+    field: "correct",
+    question: () => "¿Qué división es equivalente a esta fracción?",
   },
 };
 
