@@ -37,6 +37,7 @@ const NAV = [
       { id: "signos-puntuacion", label: "Los signos de puntuación", href: "lengua/signos-puntuacion.html", available: true },
       { id: "siglas-abreviaturas", label: "Siglas y abreviaturas", href: "lengua/siglas-abreviaturas.html", available: true },
       { id: "lenguas-espana", label: "Las lenguas de España", href: "lengua/lenguas-espana.html", available: true },
+      { id: "prestamos-tabu-eufemismos", label: "Préstamos, palabras tabú y eufemismos", href: "lengua/prestamos-tabu-eufemismos.html", available: true },
     ],
   },
   {

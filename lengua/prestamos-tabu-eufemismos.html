@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Préstamos, palabras tabú y eufemismos · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "prestamos-tabu-eufemismos";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · 6º de Primaria</p>
+        <h1>Préstamos, palabras tabú y eufemismos</h1>
+        <p class="content-subtitle">Palabras que vienen de otros idiomas, palabras evitadas y formas suaves de decir algo.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Los préstamos lingüísticos</h2>
+        <div class="rule-box aguda">
+          <h4>¿Qué son?</h4>
+          <p>Son palabras que el español ha tomado de <strong>otros idiomas</strong> (extranjerismos) y ha incorporado a su vocabulario.</p>
+        </div>
+        <table class="rules-table">
+          <tr><th>Palabra</th><th>Idioma de origen</th></tr>
+          <tr><td>fútbol</td><td>inglés (football)</td></tr>
+          <tr><td>croissant</td><td>francés</td></tr>
+          <tr><td>pizza</td><td>italiano</td></tr>
+          <tr><td>selfi</td><td>inglés (selfie)</td></tr>
+          <tr><td>anorak</td><td>lengua inuit</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Curiosidad:</strong> muchas palabras de origen árabe forman parte del español desde hace siglos: "almohada", "aceituna", "azúcar".
+        </div>
+
+        <h2>Las palabras tabú</h2>
+        <div class="rule-box llana">
+          <h4>¿Qué son?</h4>
+          <p>Son palabras que se <strong>evitan</strong> por resultar desagradables, groseras o incómodas en determinados contextos sociales (temas como la muerte, ciertas enfermedades o funciones corporales).</p>
+        </div>
+
+        <h2>Los eufemismos</h2>
+        <div class="rule-box esdrujula">
+          <h4>¿Qué son?</h4>
+          <p>Son expresiones que se usan para sustituir una palabra tabú por otra <strong>más suave o educada</strong>, sin cambiar el significado real.</p>
+        </div>
+        <table class="rules-table">
+          <tr><th>Palabra tabú</th><th>Eufemismo</th></tr>
+          <tr><td>morir</td><td>fallecer, descansar en paz</td></tr>
+          <tr><td>viejo</td><td>persona mayor, de la tercera edad</td></tr>
+          <tr><td>despedir (del trabajo)</td><td>prescindir de sus servicios</td></tr>
+          <tr><td>gordo</td><td>persona con sobrepeso</td></tr>
+        </table>
+
+        <div class="tip-box">
+          <strong>Truco:</strong> si una expresión "suaviza" algo incómodo de decir directamente, es un eufemismo.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="origen">Origen del préstamo</button>
+            <button class="btn btn-secondary" data-mode="eufemismo">Encontrar el eufemismo</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/prestamos-tabu-eufemismos.js"></script>
+</body>
+</html>
