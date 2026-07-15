@@ -27,6 +27,15 @@ const PROBLEMAS_ENTRIES = [
   { display: "Un pastel de 8,4 kg se reparte en 4 trozos iguales. ¿Cuánto pesa cada trozo?", correct: "2,1", options: ["2,1", "21", "0,21", "4,2"] },
 ];
 
+const DIVIDIRDECIMAL_ENTRIES = [
+  { display: "4,8 ÷ 1,2", correct: "4", options: ["4", "0,4", "40", "4,8"] },
+  { display: "6,25 ÷ 0,5", correct: "12,5", options: ["12,5", "1,25", "125", "6,25"] },
+  { display: "3,6 ÷ 0,9", correct: "4", options: ["4", "0,4", "40", "3,6"] },
+  { display: "9,6 ÷ 1,6", correct: "6", options: ["6", "0,6", "60", "16"] },
+  { display: "5,4 ÷ 0,6", correct: "9", options: ["9", "0,9", "90", "5,4"] },
+  { display: "8,4 ÷ 2,1", correct: "4", options: ["4", "0,4", "40", "2,1"] },
+];
+
 const MODE_GROUPS = {
   multiplicar: {
     pool: MULTIPLICAR_ENTRIES,
@@ -42,6 +51,11 @@ const MODE_GROUPS = {
     pool: PROBLEMAS_ENTRIES,
     field: "correct",
     question: () => "Resuelve el problema:",
+  },
+  dividirdecimal: {
+    pool: DIVIDIRDECIMAL_ENTRIES,
+    field: "correct",
+    question: () => "Calcula el resultado (divisor decimal):",
   },
 };
 
