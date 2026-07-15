@@ -56,6 +56,7 @@ const NAV = [
       { id: "porcentajes", label: "Porcentajes", href: "matematicas/porcentajes.html", available: true },
       { id: "medidas", label: "Medidas: longitud, capacidad, masa y superficie", href: "matematicas/medidas.html", available: true },
       { id: "areas", label: "Área de figuras planas y polígonos", href: "matematicas/areas.html", available: true },
+      { id: "circunferencia", label: "Circunferencia y círculo", href: "matematicas/circunferencia.html", available: true },
       { id: "cuerpos-geometricos", label: "Cuerpos geométricos y su desarrollo", href: "matematicas/cuerpos-geometricos.html", available: true },
       { id: "tiempo", label: "El tiempo", href: "matematicas/tiempo.html", available: true },
       { id: "probabilidad", label: "Sucesos y probabilidad", href: "matematicas/probabilidad.html", available: true },

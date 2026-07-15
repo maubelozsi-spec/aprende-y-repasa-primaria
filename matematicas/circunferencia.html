@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circunferencia y círculo · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "circunferencia";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas · 6º de Primaria</p>
+        <h1>Circunferencia y círculo</h1>
+        <p class="content-subtitle">Radio, diámetro, longitud y área.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Circunferencia y círculo: ¿es lo mismo?</h2>
+        <svg viewBox="0 0 220 130" style="max-width:220px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="65" r="45" fill="none" stroke="var(--color-indigo)" stroke-width="3"/>
+          <text x="60" y="120" text-anchor="middle" font-size="13" fill="var(--color-indigo)">Circunferencia</text>
+          <circle cx="170" cy="65" r="45" fill="var(--color-teal-tint)" stroke="var(--color-teal)" stroke-width="3"/>
+          <text x="170" y="120" text-anchor="middle" font-size="13" fill="var(--color-teal)">Círculo</text>
+        </svg>
+        <div class="rule-box aguda">
+          <h4>Circunferencia</h4>
+          <p>Es la <strong>línea curva</strong> cerrada donde todos los puntos están a la misma distancia del centro. Es solo el "borde".</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Círculo</h4>
+          <p>Es la <strong>superficie</strong> plana que queda dentro de la circunferencia. Incluye el borde y todo lo de dentro.</p>
+        </div>
+
+        <h2>Radio y diámetro</h2>
+        <svg viewBox="0 0 180 140" style="max-width:180px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="90" cy="70" r="55" fill="none" stroke="var(--text)" stroke-width="2"/>
+          <line x1="90" y1="70" x2="145" y2="70" stroke="var(--color-plum)" stroke-width="3"/>
+          <circle cx="90" cy="70" r="3" fill="var(--text)"/>
+          <text x="118" y="62" text-anchor="middle" font-size="13" fill="var(--color-plum)">r</text>
+          <line x1="35" y1="115" x2="145" y2="115" stroke="var(--color-teal)" stroke-width="3"/>
+          <text x="90" y="132" text-anchor="middle" font-size="13" fill="var(--color-teal)">d</text>
+        </svg>
+        <div class="rule-box esdrujula">
+          <h4>El radio (r)</h4>
+          <p>Es la distancia desde el <strong>centro</strong> hasta cualquier punto de la circunferencia.</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>El diámetro (d)</h4>
+          <p>Es la distancia entre dos puntos de la circunferencia pasando por el centro. Es el doble del radio: <strong>d = 2 × r</strong></p>
+        </div>
+
+        <h2>Longitud de la circunferencia</h2>
+        <div class="rule-box diptongo">
+          <h4>Fórmula</h4>
+          <p>La longitud (el "perímetro" de la circunferencia) se calcula multiplicando el diámetro por el número <strong>π (pi)</strong>, que vale aproximadamente <strong>3,14</strong>.</p>
+          <p class="examples">Longitud = π × d = 2 × π × r</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> circunferencia de radio 5 cm → Longitud = 2 × 3,14 × 5 = <strong>31,4 cm</strong>
+        </div>
+
+        <h2>Área del círculo</h2>
+        <div class="rule-box aguda">
+          <h4>Fórmula</h4>
+          <p>Área = π × radio × radio (π × r²)</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> círculo de radio 4 cm → Área = 3,14 × 4 × 4 = <strong>50,24 cm²</strong>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="radiodiametro">Radio y diámetro</button>
+            <button class="btn btn-secondary" data-mode="longitud">Longitud</button>
+            <button class="btn btn-secondary" data-mode="area">Área</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/circunferencia.js"></script>
+</body>
+</html>
