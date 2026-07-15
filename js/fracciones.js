@@ -71,6 +71,28 @@ const COMPARAR_ENTRIES = [
   { display: "6/5 ␣ 6/9", correct: ">" },
 ];
 
+const EQUIVALENTES_ENTRIES = [
+  { display: "1/2 ␣ 2/4", correct: "Sí" },
+  { display: "2/3 ␣ 4/6", correct: "Sí" },
+  { display: "3/5 ␣ 6/9", correct: "No" },
+  { display: "1/3 ␣ 3/9", correct: "Sí" },
+  { display: "2/5 ␣ 4/9", correct: "No" },
+  { display: "4/6 ␣ 2/3", correct: "Sí" },
+  { display: "3/4 ␣ 6/9", correct: "No" },
+  { display: "5/10 ␣ 1/2", correct: "Sí" },
+];
+
+const IRREDUCIBLE_ENTRIES = [
+  { display: "8/12", correct: "2/3", options: ["2/3", "4/6", "1/3", "2/6"] },
+  { display: "6/9", correct: "2/3", options: ["2/3", "3/4", "1/3", "2/9"] },
+  { display: "10/15", correct: "2/3", options: ["2/3", "5/10", "1/3", "2/5"] },
+  { display: "4/8", correct: "1/2", options: ["1/2", "2/4", "1/4", "2/8"] },
+  { display: "9/12", correct: "3/4", options: ["3/4", "6/8", "1/4", "3/12"] },
+  { display: "6/8", correct: "3/4", options: ["3/4", "2/3", "1/2", "6/4"] },
+  { display: "12/18", correct: "2/3", options: ["2/3", "6/9", "1/3", "4/6"] },
+  { display: "15/20", correct: "3/4", options: ["3/4", "5/10", "1/4", "3/5"] },
+];
+
 const MODE_GROUPS = {
   identificar: {
     pool: IDENTIFICAR_ENTRIES,
@@ -96,6 +118,19 @@ const MODE_GROUPS = {
     field: "correct",
     question: () => "¿Qué signo va en el hueco (␣)?",
     options: ["<", "=", ">"],
+    display: "text",
+  },
+  equivalentes: {
+    pool: EQUIVALENTES_ENTRIES,
+    field: "correct",
+    question: () => "¿Son estas dos fracciones equivalentes?",
+    options: ["Sí", "No"],
+    display: "text",
+  },
+  irreducible: {
+    pool: IRREDUCIBLE_ENTRIES,
+    field: "correct",
+    question: () => "Simplifica hasta la fracción irreducible:",
     display: "text",
   },
 };
