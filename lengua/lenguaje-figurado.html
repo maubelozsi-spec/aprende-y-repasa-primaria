@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lenguaje literal y figurado · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "lenguaje-figurado";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · 6º de Primaria</p>
+        <h1>Lenguaje literal y figurado</h1>
+        <p class="content-subtitle">Sentido literal y figurado, frases hechas y homonimia.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Lenguaje literal</h2>
+        <div class="rule-box aguda">
+          <h4>¿Qué es?</h4>
+          <p>Las palabras se usan con su <strong>significado exacto y habitual</strong>, tal como aparece en el diccionario.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "Llueve mucho hoy" → simplemente está lloviendo.</p>
+        </div>
+
+        <h2>Lenguaje figurado</h2>
+        <div class="rule-box llana">
+          <h4>¿Qué es?</h4>
+          <p>Las palabras se usan con un significado <strong>distinto al habitual</strong>, para expresar algo de forma más expresiva o creativa.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "Está lloviendo a cántaros" → llueve muchísimo (no llueven cántaros de verdad).</p>
+        </div>
+        <div class="tip-box">
+          <strong>Truco:</strong> si al leer la frase literalmente no tiene sentido real (como "tener la cabeza en las nubes"), es lenguaje figurado.
+        </div>
+
+        <h2>Frases hechas (modismos)</h2>
+        <div class="rule-box esdrujula">
+          <h4>¿Qué son?</h4>
+          <p>Son expresiones fijas, muy usadas, cuyo significado no se puede deducir solo de las palabras que las forman.</p>
+        </div>
+        <table class="rules-table">
+          <tr><th>Frase hecha</th><th>Significado</th></tr>
+          <tr><td>Costar un ojo de la cara</td><td>ser muy caro</td></tr>
+          <tr><td>Tomar el pelo</td><td>burlarse o bromear con alguien</td></tr>
+          <tr><td>Estar en las nubes</td><td>estar distraído</td></tr>
+          <tr><td>Ponerse las pilas</td><td>esforzarse, ponerse a trabajar</td></tr>
+          <tr><td>No dar pie con bola</td><td>equivocarse mucho</td></tr>
+        </table>
+
+        <h2>La homonimia</h2>
+        <div class="rule-box sobresdrujula">
+          <h4>¿Qué es?</h4>
+          <p>Las <strong>palabras homónimas</strong> se pronuncian o se escriben igual (o casi igual) pero tienen significados completamente distintos.</p>
+        </div>
+        <div class="rule-box diptongo">
+          <h4>Homófonas</h4>
+          <p>Se pronuncian igual pero se escriben diferente.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "vaca" (animal) y "baca" (portaequipajes del coche)</p>
+        </div>
+        <div class="rule-box hiato">
+          <h4>Homógrafas</h4>
+          <p>Se escriben igual pero tienen significados distintos (a veces también se pronuncian igual).</p>
+          <p class="examples"><strong>Ejemplo:</strong> "banco" (asiento) y "banco" (entidad financiera)</p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="literalfigurado">Literal o figurado</button>
+            <button class="btn btn-secondary" data-mode="frasehecha">Significado de frases hechas</button>
+            <button class="btn btn-secondary" data-mode="homonimia">Homófonas u homógrafas</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/lenguaje-figurado.js"></script>
+</body>
+</html>

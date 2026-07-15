@@ -30,6 +30,7 @@ const NAV = [
       { id: "tipos-texto-6", label: "Textos científicos, históricos, descriptivos y discontinuos", href: "lengua/tipos-texto-6.html", available: true },
       { id: "dialogo-debate-argumentativo", label: "El diálogo, el debate y el texto argumentativo", href: "lengua/dialogo-debate-argumentativo.html", available: true },
       { id: "sintagmas", label: "Los sintagmas", href: "lengua/sintagmas.html", available: true },
+      { id: "lenguaje-figurado", label: "Lenguaje literal y figurado", href: "lengua/lenguaje-figurado.html", available: true },
     ],
   },
   {
