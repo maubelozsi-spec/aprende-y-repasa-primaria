@@ -561,6 +561,35 @@ main.content {
   color: var(--color-amber);
 }
 
+.video-embed {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  margin: 16px 0 24px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #000;
+}
+
+.video-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.theory-infographic {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  margin: 16px 0 24px;
+}
+
 table.rules-table {
   width: 100%;
   border-collapse: separate;
