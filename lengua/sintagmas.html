@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Los sintagmas · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "sintagmas";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · 6º de Primaria</p>
+        <h1>Los sintagmas</h1>
+        <p class="content-subtitle">Sintagma nominal, adjetival, adverbial y preposicional.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es un sintagma?</h2>
+        <p>Un <strong>sintagma</strong> es un grupo de una o varias palabras que se organiza alrededor de una palabra principal, llamada <strong>núcleo</strong>. El tipo de sintagma lo determina la categoría gramatical del núcleo.</p>
+
+        <h2>Sintagma nominal (SN)</h2>
+        <svg viewBox="0 0 260 110" style="max-width:260px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
+          <text x="130" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="var(--color-indigo)">SN</text>
+          <line x1="130" y1="26" x2="50" y2="55" stroke="var(--text)" stroke-width="1.5"/>
+          <line x1="130" y1="26" x2="130" y2="55" stroke="var(--text)" stroke-width="1.5"/>
+          <line x1="130" y1="26" x2="210" y2="55" stroke="var(--text)" stroke-width="1.5"/>
+          <text x="50" y="70" text-anchor="middle" font-size="13">Det</text>
+          <text x="130" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="var(--color-teal)">N (núcleo)</text>
+          <text x="210" y="70" text-anchor="middle" font-size="13">Adyacente</text>
+          <text x="50" y="90" text-anchor="middle" font-size="12" fill="var(--text-muted)">el</text>
+          <text x="130" y="90" text-anchor="middle" font-size="12" fill="var(--text-muted)">perro</text>
+          <text x="210" y="90" text-anchor="middle" font-size="12" fill="var(--text-muted)">negro</text>
+        </svg>
+        <div class="rule-box aguda">
+          <h4>¿Qué es?</h4>
+          <p>Su núcleo es un <strong>sustantivo o un pronombre</strong>. Puede llevar un determinante delante y adyacentes (adjetivos, otros sintagmas) que lo complementan.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "el perro negro" → núcleo: perro</p>
+        </div>
+
+        <h2>Sintagma adjetival (SAdj)</h2>
+        <div class="rule-box llana">
+          <h4>¿Qué es?</h4>
+          <p>Su núcleo es un <strong>adjetivo</strong>. Puede llevar un adverbio delante que lo intensifica.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "muy alto" → núcleo: alto</p>
+        </div>
+
+        <h2>Sintagma adverbial (SAdv)</h2>
+        <div class="rule-box esdrujula">
+          <h4>¿Qué es?</h4>
+          <p>Su núcleo es un <strong>adverbio</strong>.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "bastante lejos" → núcleo: lejos</p>
+        </div>
+
+        <h2>Sintagma preposicional (SPrep)</h2>
+        <svg viewBox="0 0 220 110" style="max-width:220px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
+          <text x="110" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="var(--color-plum)">SPrep</text>
+          <line x1="110" y1="26" x2="50" y2="55" stroke="var(--text)" stroke-width="1.5"/>
+          <line x1="110" y1="26" x2="150" y2="55" stroke="var(--text)" stroke-width="1.5"/>
+          <text x="50" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="var(--color-plum)">Enlace</text>
+          <text x="150" y="70" text-anchor="middle" font-size="13">Término (SN)</text>
+          <text x="50" y="90" text-anchor="middle" font-size="12" fill="var(--text-muted)">de</text>
+          <text x="150" y="90" text-anchor="middle" font-size="12" fill="var(--text-muted)">mi casa</text>
+        </svg>
+        <div class="rule-box sobresdrujula">
+          <h4>¿Qué es?</h4>
+          <p>Se forma con una <strong>preposición</strong> (el enlace: a, de, con, en, para...) seguida de un sintagma nominal (el término). No tiene núcleo propio: la preposición solo introduce el sintagma.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "de mi casa" → enlace: de · término: mi casa</p>
+        </div>
+
+        <div class="tip-box">
+          <strong>Truco:</strong> para saber el tipo de sintagma, busca su núcleo y mira su categoría gramatical: sustantivo → SN, adjetivo → SAdj, adverbio → SAdv, preposición + SN → SPrep.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="clasificar">Clasificar el sintagma</button>
+            <button class="btn btn-secondary" data-mode="nucleo">Encontrar el núcleo</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/sintagmas.js"></script>
+</body>
+</html>
