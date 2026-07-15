@@ -67,52 +67,79 @@ function todayEs() {
   return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
 }
 
+// "Cuántos"/"Cuántas" según el género de la primera palabra del sustantivo
+// (plurales femeninos en esta lista siempre acaban en "as": canicas, entradas, botellas...)
+function cuantosFor(objeto) {
+  const primera = objeto.trim().split(" ")[0];
+  return /as$/.test(primera) ? "Cuántas" : "Cuántos";
+}
+
 // ---------------- Generadores de problemas por tema ----------------
 // Cada función recibe el curso ("5" o "6") y devuelve
 // { enunciado, datos: string[], operacion, solucion }
+
+const ESCENARIOS_SUMAS = [
+  { lugar: "una tienda de frutas", objeto: "kilos de manzanas", verbo: "vendieron" },
+  { lugar: "una lechería", objeto: "litros de leche", verbo: "vendieron" },
+  { lugar: "un cine", objeto: "entradas", verbo: "vendieron" },
+  { lugar: "una papelería", objeto: "folios", verbo: "vendieron" },
+  { lugar: "un club de atletismo", objeto: "kilómetros", verbo: "recorrieron" },
+];
 
 function genSumas(curso) {
   const min = curso === "6" ? 1000 : 100;
   const max = curso === "6" ? 9000 : 900;
   const a = randomInt(min, max);
   const b = randomInt(min, max);
-  const objeto = pick(["kilos de manzanas", "litros de leche", "entradas de cine", "folios", "kilómetros recorridos"]);
-  const lugar = pick(["una tienda", "una fábrica", "un colegio", "una biblioteca"]);
+  const esc = pick(ESCENARIOS_SUMAS);
   const total = a + b;
   return {
-    enunciado: `En ${lugar} contaron ${a} ${objeto} el lunes y ${b} ${objeto} el martes. ¿Cuántos ${objeto} hubo entre los dos días?`,
+    enunciado: `En ${esc.lugar} ${esc.verbo} ${a} ${esc.objeto} el lunes y ${b} ${esc.objeto} el martes. ¿${cuantosFor(esc.objeto)} ${esc.objeto} ${esc.verbo} entre los dos días?`,
     datos: [`Lunes: ${a}`, `Martes: ${b}`],
     operacion: `${a} + ${b} = ${total}`,
-    solucion: `${total}. Entre los dos días hubo ${total} ${objeto}.`,
+    solucion: `${total}. Entre los dos días ${esc.verbo} ${total} ${esc.objeto}.`,
   };
 }
+
+const ESCENARIOS_RESTAS = [
+  { contenedor: "Un depósito de agua", objeto: "litros", verbo: "usado" },
+  { contenedor: "Una hucha", objeto: "euros", verbo: "gastado" },
+  { contenedor: "Una bolsa de canicas", objeto: "canicas", verbo: "perdido" },
+  { contenedor: "Un rollo de papel", objeto: "metros", verbo: "gastado" },
+];
 
 function genRestas(curso) {
   const min = curso === "6" ? 2000 : 200;
   const max = curso === "6" ? 9000 : 900;
   const a = randomInt(min, max);
   const b = randomInt(Math.floor(min / 2), a - 1);
-  const objeto = pick(["litros de agua", "euros ahorrados", "canicas", "páginas del libro"]);
+  const esc = pick(ESCENARIOS_RESTAS);
   const resultado = a - b;
   return {
-    enunciado: `Un depósito de ${objeto} tenía ${a} unidades y se han usado ${b}. ¿Cuántas quedan?`,
-    datos: [`Cantidad inicial: ${a}`, `Cantidad usada: ${b}`],
+    enunciado: `${esc.contenedor} tenía ${a} ${esc.objeto} y se han ${esc.verbo} ${b}. ¿${cuantosFor(esc.objeto)} ${esc.objeto} quedan?`,
+    datos: [`Cantidad inicial: ${a}`, `Cantidad ${esc.verbo}: ${b}`],
     operacion: `${a} - ${b} = ${resultado}`,
-    solucion: `${resultado}. Quedan ${resultado} ${objeto}.`,
+    solucion: `${resultado}. Quedan ${resultado} ${esc.objeto}.`,
   };
 }
+
+const ESCENARIOS_MULTIPLICACIONES = [
+  { contenedorSing: "caja", contenedorPlur: "cajas", objeto: "lápices" },
+  { contenedorSing: "paquete", contenedorPlur: "paquetes", objeto: "cromos" },
+  { contenedorSing: "cesta", contenedorPlur: "cestas", objeto: "huevos" },
+  { contenedorSing: "caja", contenedorPlur: "cajas", objeto: "botellas" },
+];
 
 function genMultiplicaciones(curso) {
   const a = curso === "6" ? randomInt(120, 950) : randomInt(12, 95);
   const b = curso === "6" ? randomInt(12, 45) : randomInt(2, 9);
-  const objeto = pick(["lápices", "cromos", "huevos", "botellas"]);
-  const contenedor = pick(["cajas", "paquetes", "bolsas", "estuches"]);
+  const esc = pick(ESCENARIOS_MULTIPLICACIONES);
   const total = a * b;
   return {
-    enunciado: `Cada ${contenedor.slice(0, -1)} tiene ${a} ${objeto} y hay ${b} ${contenedor}. ¿Cuántos ${objeto} hay en total?`,
-    datos: [`${objeto} por ${contenedor.slice(0, -1)}: ${a}`, `Número de ${contenedor}: ${b}`],
+    enunciado: `Cada ${esc.contenedorSing} tiene ${a} ${esc.objeto} y hay ${b} ${esc.contenedorPlur}. ¿${cuantosFor(esc.objeto)} ${esc.objeto} hay en total?`,
+    datos: [`${esc.objeto} por ${esc.contenedorSing}: ${a}`, `Número de ${esc.contenedorPlur}: ${b}`],
     operacion: `${a} × ${b} = ${total}`,
-    solucion: `${total}. Hay ${total} ${objeto} en total.`,
+    solucion: `${total}. Hay ${total} ${esc.objeto} en total.`,
   };
 }
 
@@ -122,10 +149,9 @@ function genDivisiones(curso) {
   const resto = randomInt(0, divisor - 1);
   const dividendo = cociente * divisor + resto;
   const objeto = pick(["canicas", "cromos", "caramelos", "globos"]);
-  const grupo = curso === "6" ? "cajas" : "niños";
   return {
-    enunciado: `Se reparten ${dividendo} ${objeto} entre ${divisor} ${grupo} a partes iguales. ¿Cuántos ${objeto} le tocan a cada uno y cuántos sobran?`,
-    datos: [`Total de ${objeto}: ${dividendo}`, `Número de ${grupo}: ${divisor}`],
+    enunciado: `Se reparten ${dividendo} ${objeto} entre ${divisor} niños a partes iguales. ¿${cuantosFor(objeto)} ${objeto} le tocan a cada uno y ${cuantosFor(objeto).toLowerCase()} sobran?`,
+    datos: [`Total de ${objeto}: ${dividendo}`, `Número de niños: ${divisor}`],
     operacion: `${dividendo} ÷ ${divisor} = ${cociente} y sobran ${resto}`,
     solucion:
       resto > 0
@@ -348,17 +374,17 @@ function genProblemasMixtos(curso) {
 
 function genMedidas(curso) {
   const conversiones = [
-    { from: "km", to: "m", factor: 1000 },
-    { from: "kg", to: "g", factor: 1000 },
-    { from: "L", to: "mL", factor: 1000 },
-    { from: "m", to: "cm", factor: 100 },
+    { from: "km", to: "m", factor: 1000, frase: (c) => `Un ciclista recorre ${c} km en una etapa. ¿Cuántos m son?` },
+    { from: "kg", to: "g", factor: 1000, frase: (c) => `Un camión transporta ${c} kg de mercancía. ¿Cuántos g son?` },
+    { from: "L", to: "mL", factor: 1000, frase: (c) => `Un depósito contiene ${c} L de agua. ¿Cuántos mL son?` },
+    { from: "m", to: "cm", factor: 100, frase: (c) => `Un rollo de tela mide ${c} m de largo. ¿Cuántos cm son?` },
   ];
   const conv = pick(conversiones);
   const cantidad = curso === "6" ? roundMoney(randomInt(105, 4995) / 100) : randomInt(2, 12);
   const resultado = roundMoney(cantidad * conv.factor);
   const fmt = (n) => fmtAuto(n);
   return {
-    enunciado: `Un camión transporta ${fmt(cantidad)} ${conv.from} de mercancía. ¿Cuántos ${conv.to} son?`,
+    enunciado: conv.frase(fmt(cantidad)),
     datos: [`Cantidad: ${fmt(cantidad)} ${conv.from}`, `1 ${conv.from} = ${conv.factor} ${conv.to}`],
     operacion: `${fmt(cantidad)} × ${conv.factor} = ${fmt(resultado)}`,
     solucion: `${fmt(resultado)} ${conv.to}. Son ${fmt(resultado)} ${conv.to}.`,
@@ -433,17 +459,21 @@ function genEstadistica(curso) {
   const ordenados = [...valores].sort((a, b) => a - b);
   const mediana =
     n % 2 === 0 ? fmtTrim((ordenados[n / 2 - 1] + ordenados[n / 2]) / 2) : String(ordenados[(n - 1) / 2]);
-  const contexto = pick(["goles marcados en", "libros leídos en", "puntos obtenidos en"]);
+  const escenario = pick([
+    { contexto: "goles marcados en", marco: "partidos" },
+    { contexto: "libros leídos en", marco: "meses" },
+    { contexto: "puntos obtenidos en", marco: "partidos" },
+  ]);
   if (curso === "6") {
     return {
-      enunciado: `Estos son los ${contexto} ${n} partidos: ${valores.join(", ")}. Calcula la media y la mediana.`,
+      enunciado: `Estos son los ${escenario.contexto} ${n} ${escenario.marco}: ${valores.join(", ")}. Calcula la media y la mediana.`,
       datos: [`Valores: ${valores.join(", ")}`],
       operacion: `Media: (${valores.join(" + ")}) ÷ ${n} = ${suma} ÷ ${n} = ${media}. Mediana: ordenamos (${ordenados.join(", ")}) y tomamos el valor central.`,
       solucion: `Media = ${media}, Mediana = ${mediana}.`,
     };
   }
   return {
-    enunciado: `Estos son los ${contexto} ${n} partidos: ${valores.join(", ")}. Calcula la media.`,
+    enunciado: `Estos son los ${escenario.contexto} ${n} ${escenario.marco}: ${valores.join(", ")}. Calcula la media.`,
     datos: [`Valores: ${valores.join(", ")}`],
     operacion: `(${valores.join(" + ")}) ÷ ${n} = ${suma} ÷ ${n} = ${media}`,
     solucion: `${media}. La media es ${media}.`,
