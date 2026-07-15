@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Las lenguas de España · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "lenguas-espana";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · 6º de Primaria</p>
+        <h1>Las lenguas de España</h1>
+        <p class="content-subtitle">Lenguas oficiales y variedades del español.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Las lenguas oficiales de España</h2>
+        <div class="rule-box aguda">
+          <h4>El castellano (español)</h4>
+          <p>Es la lengua oficial de todo el Estado español, y también la más hablada en el mundo hispano.</p>
+        </div>
+        <table class="rules-table">
+          <tr><th>Lengua</th><th>Dónde es cooficial</th></tr>
+          <tr><td>Catalán</td><td>Cataluña, Islas Baleares (y valenciano en la Comunidad Valenciana)</td></tr>
+          <tr><td>Gallego</td><td>Galicia</td></tr>
+          <tr><td>Euskera (vasco)</td><td>País Vasco y parte de Navarra</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Cooficial:</strong> significa que, junto al castellano, tiene también reconocimiento oficial en esa comunidad autónoma.
+        </div>
+
+        <h2>Variedades del español</h2>
+        <div class="rule-box llana">
+          <h4>¿Qué son?</h4>
+          <p>El español no se habla igual en todos los lugares: existen <strong>variedades o dialectos</strong> con diferencias de pronunciación, vocabulario y expresiones, según la zona geográfica.</p>
+        </div>
+        <table class="rules-table">
+          <tr><th>Variedad</th><th>Dónde se habla</th><th>Ejemplo característico</th></tr>
+          <tr><td>Castellano del norte</td><td>centro y norte de España</td><td>distingue "c/z" de "s"</td></tr>
+          <tr><td>Andaluz</td><td>Andalucía</td><td>aspira o pierde la "s" final</td></tr>
+          <tr><td>Canario</td><td>Islas Canarias</td><td>usa "ustedes" en vez de "vosotros"</td></tr>
+          <tr><td>Español de América</td><td>países hispanoamericanos</td><td>usa "vos" en vez de "tú" en varios países (voseo)</td></tr>
+        </table>
+
+        <div class="tip-box">
+          <strong>Truco:</strong> todas las variedades son igual de válidas y correctas: son formas distintas de hablar el mismo idioma, adaptadas a cada territorio.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="lenguas">Lenguas cooficiales</button>
+            <button class="btn btn-secondary" data-mode="variedades">Variedades del español</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/lenguas-espana.js"></script>
+</body>
+</html>
