@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sucesos y probabilidad · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "probabilidad";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Sucesos y probabilidad</h1>
+        <p class="content-subtitle">Sucesos seguros, posibles e imposibles, y cálculo de la probabilidad.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Tipos de sucesos</h2>
+        <div class="rule-box aguda">
+          <h4>Suceso seguro</h4>
+          <p>Siempre ocurre, sin excepción.</p>
+          <p class="examples"><strong>Ejemplo:</strong> al lanzar un dado, sacar un número menor que 7.</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Suceso posible</h4>
+          <p>Puede ocurrir o no.</p>
+          <p class="examples"><strong>Ejemplo:</strong> al lanzar una moneda, sacar cara.</p>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>Suceso imposible</h4>
+          <p>Nunca puede ocurrir.</p>
+          <p class="examples"><strong>Ejemplo:</strong> al lanzar un dado normal, sacar un 8.</p>
+        </div>
+
+        <h2>Comparar probabilidades</h2>
+        <div class="tip-box">
+          <strong>Cuantas más</strong> bolas (o casos) favorables haya, <strong>más probable</strong> es sacar ese resultado. Si dos bolsas tienen la misma proporción, la probabilidad es igual.
+        </div>
+        <p class="examples"><strong>Ejemplo:</strong> una bolsa con 4 bolas rojas y 1 azul tiene más probabilidad de dar una bola roja que una bolsa con 2 rojas y 3 azules.</p>
+
+        <h2>Calcular la probabilidad</h2>
+        <div class="rule-box sobresdrujula">
+          <h4>Fórmula</h4>
+          <p>Probabilidad = casos favorables ÷ casos totales, expresada como fracción.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> una bolsa con 3 bolas rojas y 2 azules (5 en total). La probabilidad de sacar una roja es 3/5.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="tipo">Seguro, posible o imposible</button>
+            <button class="btn btn-secondary" data-mode="comparar">Comparar probabilidades</button>
+            <button class="btn btn-secondary" data-mode="calcular">Calcular la probabilidad</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/probabilidad.js"></script>
+</body>
+</html>
