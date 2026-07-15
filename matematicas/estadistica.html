@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estadística: diagramas de barras, moda y media · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "estadistica";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Estadística: diagramas de barras, moda y media</h1>
+        <p class="content-subtitle">Leer gráficos y calcular la moda y la media de un conjunto de datos.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Diagramas de barras</h2>
+        <p>Un <strong>diagrama de barras</strong> muestra datos mediante barras: cuanto más alta es la barra, mayor es el valor de esa categoría.</p>
+        <div class="grid-example" id="ejemplo-barras"></div>
+
+        <h2>La moda</h2>
+        <div class="rule-box aguda">
+          <h4>Definición</h4>
+          <p>La <strong>moda</strong> es el valor que más se repite en un conjunto de datos.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> en 3, 5, 3, 7, 3, 8 → el 3 se repite 3 veces, más que cualquier otro. La moda es 3.
+        </div>
+
+        <h2>La media (promedio)</h2>
+        <div class="rule-box llana">
+          <h4>Cómo se calcula</h4>
+          <p>Se suman todos los datos y se divide entre el número de datos.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> 4, 6, 8 → (4+6+8) ÷ 3 = 18 ÷ 3 = 6. La media es 6.
+        </div>
+        <div class="tip-box">
+          <strong>Cuidado:</strong> la media no siempre da un número entero. Ejemplo: 10, 15, 20, 25 → (10+15+20+25) ÷ 4 = 70 ÷ 4 = 17,5.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="leerbarras">Leer el diagrama</button>
+            <button class="btn btn-secondary" data-mode="moda">Calcular la moda</button>
+            <button class="btn btn-secondary" data-mode="media">Calcular la media</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="grid-example" id="game-chart" style="display:none;"></div>
+          <div class="sentence-display" id="word-display" style="display:none;"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/estadistica.js"></script>
+</body>
+</html>
