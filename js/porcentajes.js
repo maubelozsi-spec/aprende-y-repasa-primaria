@@ -27,6 +27,17 @@ const PROBLEMAS_ENTRIES = [
   { display: "Un depósito de 80 litros está lleno al 50%. ¿Cuántos litros tiene?", correct: "40", options: ["40", "50", "30", "60"] },
 ];
 
+const AUMENTODISMINUCION_ENTRIES = [
+  { display: "Aumentar 80 un 20%", correct: "96", options: ["96", "100", "16", "64"] },
+  { display: "Disminuir 80 un 20%", correct: "64", options: ["64", "60", "16", "96"] },
+  { display: "Aumentar 50 un 10%", correct: "55", options: ["55", "60", "5", "45"] },
+  { display: "Disminuir 50 un 10%", correct: "45", options: ["45", "40", "5", "55"] },
+  { display: "Aumentar 200 un 15%", correct: "230", options: ["230", "215", "30", "170"] },
+  { display: "Disminuir 200 un 15%", correct: "170", options: ["170", "185", "30", "230"] },
+  { display: "Aumentar 40 un 25%", correct: "50", options: ["50", "45", "10", "30"] },
+  { display: "Disminuir 40 un 25%", correct: "30", options: ["30", "35", "10", "50"] },
+];
+
 const MODE_GROUPS = {
   relacion: {
     pool: RELACION_ENTRIES,
@@ -42,6 +53,11 @@ const MODE_GROUPS = {
     pool: PROBLEMAS_ENTRIES,
     field: "correct",
     question: () => "Resuelve el problema:",
+  },
+  aumentodisminucion: {
+    pool: AUMENTODISMINUCION_ENTRIES,
+    field: "correct",
+    question: () => "Calcula el resultado:",
   },
 };
 
