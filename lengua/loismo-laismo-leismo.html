@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loísmo, laísmo y leísmo · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "loismo-laismo-leismo";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · 6º de Primaria</p>
+        <h1>Loísmo, laísmo y leísmo</h1>
+        <p class="content-subtitle">El uso correcto de lo, la y le como pronombres.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>El uso correcto de lo, la y le</h2>
+        <div class="rule-box aguda">
+          <h4>Lo / los / la / las → Complemento directo (CD)</h4>
+          <p>Sustituyen al <strong>complemento directo</strong>: "lo/los" para masculino, "la/las" para femenino.</p>
+          <p class="examples"><strong>Ejemplo:</strong> Compré el pan → <strong>Lo</strong> compré. · Vi a María → <strong>La</strong> vi.</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Le / les → Complemento indirecto (CI)</h4>
+          <p>Sustituyen al <strong>complemento indirecto</strong>, sin distinguir género.</p>
+          <p class="examples"><strong>Ejemplo:</strong> Regalé flores a mi madre → <strong>Le</strong> regalé flores.</p>
+        </div>
+
+        <h2>Los errores: loísmo, laísmo y leísmo</h2>
+        <table class="rules-table">
+          <tr><th>Error</th><th>En qué consiste</th><th>Ejemplo incorrecto</th><th>Correcto</th></tr>
+          <tr><td>Loísmo</td><td>usar "lo/los" en lugar de "le/les" (CI)</td><td>Lo dije la verdad (a él)</td><td>Le dije la verdad</td></tr>
+          <tr><td>Laísmo</td><td>usar "la/las" en lugar de "le/les" (CI)</td><td>La dije que viniera (a ella)</td><td>Le dije que viniera</td></tr>
+          <tr><td>Leísmo</td><td>usar "le/les" en lugar de "lo/la" (CD)</td><td>Le vi ayer (a él, como CD)</td><td>Lo vi ayer</td></tr>
+        </table>
+
+        <div class="tip-box">
+          <strong>Truco:</strong> pregúntate qué tipo de complemento sustituyes. Si es CD (¿qué? o ¿a quién? como objeto directo) → lo/la/los/las. Si es CI (¿a quién? ¿para quién?) → le/les.
+        </div>
+        <div class="tip-box">
+          <strong>Cuidado:</strong> el leísmo referido a personas masculinas ("le vi" por "a él") está muy extendido y aceptado en algunas zonas, pero la forma más recomendada sigue siendo "lo vi".
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="completar">Completar con lo/la/le</button>
+            <button class="btn btn-secondary" data-mode="identificarerror">Identificar el error</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/loismo-laismo-leismo.js"></script>
+</body>
+</html>

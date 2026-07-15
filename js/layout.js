@@ -33,6 +33,7 @@ const NAV = [
       { id: "lenguaje-figurado", label: "Lenguaje literal y figurado", href: "lengua/lenguaje-figurado.html", available: true },
       { id: "ortografia-hgjxs", label: "Ortografía: la h, g/j y x/s", href: "lengua/ortografia-hgjxs.html", available: true },
       { id: "tilde-diacritica", label: "Tilde diacrítica", href: "lengua/tilde-diacritica.html", available: true },
+      { id: "loismo-laismo-leismo", label: "Loísmo, laísmo y leísmo", href: "lengua/loismo-laismo-leismo.html", available: true },
     ],
   },
   {
