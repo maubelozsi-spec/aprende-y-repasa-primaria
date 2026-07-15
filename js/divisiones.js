@@ -4,6 +4,15 @@
 // cálculo mental (descomposición del dividendo).
 // ============================================================
 
+function tanteoInfo(workingNumber, divisor) {
+  const divisorStr = String(divisor);
+  const divisorDigits = divisorStr.length;
+  const leadDigit = Number(divisorStr[0]);
+  const scaledLead = leadDigit * Math.pow(10, divisorDigits - 1);
+  const estimate = Math.min(9, Math.floor(workingNumber / scaledLead));
+  return { leadDigit, estimate };
+}
+
 function computeDivisionSteps(dividend, divisor) {
   const digits = String(dividend).split("").map(Number);
   const steps = [];
@@ -18,23 +27,32 @@ function computeDivisionSteps(dividend, divisor) {
     if (working >= divisor) break;
   }
 
-  let qDigit = Math.floor(working / divisor);
-  let product = qDigit * divisor;
-  let remainder = working - product;
-  steps.push({ broughtDigits: brought, workingNumber: working, quotientDigit: qDigit, product, remainder, digitsUsedUpTo: i });
+  function buildStep(workingNumber, broughtDigits, digitsUsedUpTo) {
+    const qDigit = Math.floor(workingNumber / divisor);
+    const product = qDigit * divisor;
+    const remainder = workingNumber - product;
+    const { leadDigit, estimate } = tanteoInfo(workingNumber, divisor);
+    const overshoot = estimate - qDigit;
+    let caseType;
+    if (qDigit === 0) caseType = "no-coge";
+    else if (overshoot <= 0) caseType = "directo";
+    else if (overshoot === 1) caseType = "se-pasa";
+    else caseType = "se-pasa-mucho";
+    return { broughtDigits, workingNumber, quotientDigit: qDigit, product, remainder, digitsUsedUpTo, leadDigit, estimate, overshoot, caseType };
+  }
+
+  steps.push(buildStep(working, brought, i));
 
   while (i < digits.length) {
     const nextDigit = digits[i];
-    const newWorking = remainder * 10 + nextDigit;
+    const newWorking = steps[steps.length - 1].remainder * 10 + nextDigit;
     i++;
-    qDigit = Math.floor(newWorking / divisor);
-    product = qDigit * divisor;
-    remainder = newWorking - product;
-    steps.push({ broughtDigits: String(nextDigit), workingNumber: newWorking, quotientDigit: qDigit, product, remainder, digitsUsedUpTo: i });
+    steps.push(buildStep(newWorking, String(nextDigit), i));
   }
 
   const quotient = String(Number(steps.map((s) => s.quotientDigit).join("")));
-  return { dividend: String(dividend), divisor, digits, steps, quotient, finalRemainder: remainder };
+  const finalRemainder = steps[steps.length - 1].remainder;
+  return { dividend: String(dividend), divisor, digits, steps, quotient, finalRemainder };
 }
 
 function computeMentalDecomposition(dividend, divisor) {
@@ -70,7 +88,23 @@ function stepExplanation(problem, stepIndex) {
   const bringText = isFirst
     ? `Tomamos las primeras cifras del dividendo: <strong>${step.broughtDigits}</strong>.`
     : `Bajamos la siguiente cifra (<strong>${step.broughtDigits}</strong>) y formamos el <strong>${step.workingNumber}</strong>.`;
-  return `${bringText} ¿Cuántas veces cabe el ${problem.divisor} en ${step.workingNumber}? → <strong>${step.quotientDigit}</strong> veces, porque ${step.quotientDigit} × ${problem.divisor} = ${step.product}. Restamos: ${step.workingNumber} − ${step.product} = ${step.remainder}.`;
+
+  if (step.caseType === "no-coge") {
+    return `${bringText} El grupo <strong>${step.workingNumber}</strong> es menor que el divisor (${problem.divisor}), así que esta cifra del cociente es <strong>0</strong> (no coge) y bajamos otra cifra sin restar.`;
+  }
+
+  const leadPhrase =
+    problem.divisor < 10
+      ? `comparamos el propio divisor (<strong>${problem.divisor}</strong>)`
+      : `miramos la primera cifra del divisor (<strong>${step.leadDigit}</strong>)`;
+
+  if (step.caseType === "directo") {
+    return `${bringText} Tanteamos: ${leadPhrase} con <strong>${step.workingNumber}</strong> → probamos <strong>${step.estimate}</strong>. Comprobamos: ${step.estimate} × ${problem.divisor} = ${step.product} y no se pasa (resto ${step.remainder} &lt; ${problem.divisor}) → el cociente es <strong>${step.quotientDigit}</strong>. ¡A la primera!`;
+  }
+
+  const severity = step.caseType === "se-pasa-mucho" ? "¡se pasa mucho!" : "¡se pasa!";
+  const adjustText = step.caseType === "se-pasa-mucho" ? "Bajamos el tanteo varias veces" : "Bajamos el tanteo";
+  return `${bringText} Tanteamos: ${leadPhrase} con <strong>${step.workingNumber}</strong> → probamos <strong>${step.estimate}</strong>. Comprobamos: ${step.estimate} × ${problem.divisor} = ${step.estimate * problem.divisor}, ${severity} (mayor que ${step.workingNumber}). ${adjustText} hasta <strong>${step.quotientDigit}</strong>: ${step.quotientDigit} × ${problem.divisor} = ${step.product}, resto ${step.remainder}.`;
 }
 
 function finalExplanation(problem) {
@@ -216,9 +250,9 @@ function initMethodPicker() {
 // ---------------- Demo (Teoría · método escrito) ----------------
 
 const DEMO_EXAMPLES = [
-  { dividend: 936, divisor: 4 },
-  { dividend: 1476, divisor: 12 },
-  { dividend: 40824, divisor: 204 },
+  { dividend: 812, divisor: 4 },
+  { dividend: 6273, divisor: 25 },
+  { dividend: 92568, divisor: 134 },
 ];
 
 function initDemo() {

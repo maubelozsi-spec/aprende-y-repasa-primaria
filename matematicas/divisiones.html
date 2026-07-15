@@ -71,26 +71,53 @@
             <strong>Comprobación:</strong> dividendo = divisor × cociente + resto. El resto siempre debe ser menor que el divisor.
           </div>
 
-          <h2>Pasos para dividir</h2>
+          <h2>Pasos para dividir: el método del tanteo</h2>
+          <p>Cuando el divisor tiene 2 o 3 cifras, no siempre se ve a simple vista cuántas veces cabe en el número. Por eso se usa el <strong>tanteo</strong>: una prueba rápida que después se comprueba y se corrige si hace falta.</p>
           <div class="rule-box aguda">
-            <h4>Paso 1</h4>
+            <h4>Paso 1 · Formar el grupo</h4>
             <p>Se toman las primeras cifras del dividendo, las que hagan falta hasta formar un número igual o mayor que el divisor.</p>
           </div>
           <div class="rule-box llana">
-            <h4>Paso 2</h4>
-            <p>Se calcula cuántas veces cabe el divisor en ese número: esa cantidad es la cifra del cociente.</p>
+            <h4>Paso 2 · Tantear</h4>
+            <p>Se mira la primera cifra del divisor y se compara con las primeras cifras del grupo, para hacer una primera prueba de cociente.</p>
           </div>
           <div class="rule-box esdrujula">
-            <h4>Paso 3</h4>
-            <p>Se multiplica la cifra del cociente por el divisor, y se resta ese resultado del número que teníamos.</p>
+            <h4>Paso 3 · Comprobar y ajustar</h4>
+            <p>Se multiplica la prueba por el divisor completo. Si el resultado se pasa del grupo, se baja el tanteo (una vez, o varias si se pasa mucho) y se comprueba otra vez. Si el grupo es menor que el divisor, esa cifra del cociente es 0 (no coge).</p>
           </div>
           <div class="rule-box sobresdrujula">
-            <h4>Paso 4</h4>
-            <p>Se baja la siguiente cifra del dividendo, se junta con lo que ha sobrado, y se repite desde el paso 2. Cuando no quedan más cifras, lo que sobra es el resto final.</p>
+            <h4>Paso 4 · Restar y bajar</h4>
+            <p>Se resta el resultado del grupo, se baja la siguiente cifra del dividendo, se junta con lo que ha sobrado, y se repite desde el paso 2. Cuando no quedan más cifras, lo que sobra es el resto final.</p>
+          </div>
+
+          <h2>Casos especiales al tantear</h2>
+          <table class="rules-table">
+            <tr><th>Caso</th><th>Divisor de 1 cifra</th><th>Divisor de 2 cifras</th><th>Divisor de 3 cifras</th></tr>
+            <tr>
+              <td><strong>No coge</strong><br>el grupo es menor que el divisor</td>
+              <td>812 ÷ 4: al bajar el "1", el grupo (1) es menor que 4 → esa cifra es 0</td>
+              <td>3712 ÷ 34: al bajar el "1", el grupo (31) es menor que 34 → esa cifra es 0</td>
+              <td>40824 ÷ 204: al bajar el "2" y el "4", los grupos (2 y 24) son menores que 204 → dos cifras 0 seguidas</td>
+            </tr>
+            <tr>
+              <td><strong>Se pasa</strong><br>el tanteo se queda corto y hay que bajarlo</td>
+              <td>No ocurre nunca: con 1 cifra el tanteo es siempre exacto</td>
+              <td>62 ÷ 12: 6:1 = 6, pero 6 × 12 = 72 se pasa de 62 → el cociente es 5</td>
+              <td>925 ÷ 312: 9:3 = 3, pero 3 × 312 = 936 se pasa de 925 → el cociente es 2</td>
+            </tr>
+            <tr>
+              <td><strong>Se pasa mucho</strong><br>el tanteo se equivoca por varias unidades</td>
+              <td>No ocurre nunca: con 1 cifra el tanteo es siempre exacto</td>
+              <td>85 ÷ 16: 8:1 = 8, pero 8 × 16 = 128 se pasa mucho de 85 → el cociente es 5</td>
+              <td>880 ÷ 150: 8:1 = 8, pero 8 × 150 = 1200 se pasa mucho de 880 → el cociente es 5</td>
+            </tr>
+          </table>
+          <div class="tip-box">
+            <strong>Truco:</strong> cuando el divisor tiene 1 cifra, esa cifra ES el divisor, así que el tanteo siempre acierta a la primera. Cuantas más unidades tenga escondidas el divisor detrás de su primera cifra (por ejemplo, acabar en 6, 7, 8 o 9), más fácil es que el tanteo "se pase".
           </div>
 
           <h2>Ejemplo paso a paso</h2>
-          <p>Elige un ejemplo y pulsa "Siguiente paso" para ver cómo se resuelve la división. Fíjate en que cada resta se escribe un poco más a la derecha, según se van bajando cifras.</p>
+          <p>Elige un ejemplo y pulsa "Siguiente paso" para ver cómo se tantea el cociente en cada paso: fíjate en si acierta a la primera, se pasa, o no coge.</p>
 
           <div class="choice-row" id="example-picker">
             <button class="btn btn-secondary active" data-example="0">Divisor de 1 cifra</button>
