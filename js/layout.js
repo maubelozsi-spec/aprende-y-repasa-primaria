@@ -35,6 +35,7 @@ const NAV = [
       { id: "tilde-diacritica", label: "Tilde diacrítica", href: "lengua/tilde-diacritica.html", available: true },
       { id: "loismo-laismo-leismo", label: "Loísmo, laísmo y leísmo", href: "lengua/loismo-laismo-leismo.html", available: true },
       { id: "signos-puntuacion", label: "Los signos de puntuación", href: "lengua/signos-puntuacion.html", available: true },
+      { id: "siglas-abreviaturas", label: "Siglas y abreviaturas", href: "lengua/siglas-abreviaturas.html", available: true },
     ],
   },
   {

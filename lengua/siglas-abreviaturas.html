@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Siglas y abreviaturas · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "siglas-abreviaturas";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · 6º de Primaria</p>
+        <h1>Siglas y abreviaturas</h1>
+        <p class="content-subtitle">Dos formas distintas de acortar palabras y expresiones.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Las siglas</h2>
+        <div class="rule-box aguda">
+          <h4>¿Qué son?</h4>
+          <p>Se forman con las <strong>letras iniciales</strong> de varias palabras, y se pronuncian letra por letra o como una palabra nueva. Se escriben en mayúsculas y <strong>sin puntos</strong>.</p>
+          <p class="examples"><strong>Ejemplos:</strong> ONU (Organización de las Naciones Unidas), ADN (ácido desoxirribonucleico), OVNI (objeto volador no identificado)</p>
+        </div>
+        <div class="tip-box">
+          <strong>Acrónimo:</strong> cuando una sigla se pronuncia como una palabra normal (no letra por letra), como "OVNI" o "láser", se llama acrónimo.
+        </div>
+
+        <h2>Las abreviaturas</h2>
+        <div class="rule-box llana">
+          <h4>¿Qué son?</h4>
+          <p>Son la <strong>reducción de una palabra o expresión</strong>, eliminando letras finales o centrales, y terminan casi siempre con un <strong>punto</strong>.</p>
+          <p class="examples"><strong>Ejemplos:</strong> Sr. (señor), pág. (página), etc. (etcétera), Dr. (doctor), c/ (calle)</p>
+        </div>
+
+        <h2>Diferencias entre sigla y abreviatura</h2>
+        <table class="rules-table">
+          <tr><th></th><th>Sigla</th><th>Abreviatura</th></tr>
+          <tr><td>Se forma con</td><td>letras iniciales de varias palabras</td><td>reducción de una sola palabra</td></tr>
+          <tr><td>Se escribe</td><td>en mayúsculas, sin puntos</td><td>normalmente con un punto</td></tr>
+          <tr><td>Ejemplo</td><td>UE (Unión Europea)</td><td>Ud. (usted)</td></tr>
+        </table>
+
+        <div class="tip-box">
+          <strong>Truco:</strong> si ves varias letras mayúsculas juntas representando varias palabras, es una sigla. Si ves una palabra recortada terminada en punto, es una abreviatura.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="siglaoabrev">¿Sigla o abreviatura?</button>
+            <button class="btn btn-secondary" data-mode="significado">¿Qué significa?</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/siglas-abreviaturas.js"></script>
+</body>
+</html>
