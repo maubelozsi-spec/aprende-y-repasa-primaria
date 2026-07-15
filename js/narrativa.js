@@ -31,6 +31,17 @@ const ELEMENTOS_ENTRIES = [
   { display: "El amigo que ayuda al protagonista de vez en cuando.", tipo: "Personaje secundario" },
 ];
 
+const SUBGENERO_ENTRIES = [
+  { display: "El protagonista viaja por selvas peligrosas buscando un tesoro escondido.", tipo: "Aventuras" },
+  { display: "Un detective investiga quién cometió el robo en la mansión.", tipo: "Misterio o policíaca" },
+  { display: "En el año 3000, los humanos viajan entre planetas en naves espaciales.", tipo: "Ciencia ficción" },
+  { display: "Un joven mago descubre un reino habitado por dragones y hechiceros.", tipo: "Fantástica" },
+  { display: "La historia ocurre durante la Segunda Guerra Mundial.", tipo: "Histórica" },
+  { display: "Los exploradores cruzan una jungla llena de peligros para llegar a las ruinas.", tipo: "Aventuras" },
+  { display: "Un inspector busca pistas para resolver un misterioso asesinato.", tipo: "Misterio o policíaca" },
+  { display: "Robots inteligentes conviven con humanos en una ciudad futurista.", tipo: "Ciencia ficción" },
+];
+
 const MODE_GROUPS = {
   genero: {
     pool: GENERO_ENTRIES,
@@ -49,6 +60,12 @@ const MODE_GROUPS = {
     field: "tipo",
     question: () => "¿A qué parte de la narración corresponde esto?",
     options: ["Narrador", "Personaje principal", "Personaje secundario", "Espacio", "Tiempo"],
+  },
+  subgenero: {
+    pool: SUBGENERO_ENTRIES,
+    field: "tipo",
+    question: () => "¿A qué subgénero de novela pertenece?",
+    options: ["Aventuras", "Misterio o policíaca", "Ciencia ficción", "Fantástica", "Histórica"],
   },
 };
 
