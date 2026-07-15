@@ -114,6 +114,37 @@
         </div>
         <div class="tip-box"><strong>Ejemplo:</strong> diagonales 10 cm y 6 cm → (10 × 6) ÷ 2 = 30 cm²</div>
 
+        <div class="grade-section">
+          <span class="grade-badge">Contenido de 6º</span>
+          <h2>El perímetro</h2>
+          <div class="rule-box aguda">
+            <h4>¿Qué es?</h4>
+            <p>El <strong>perímetro</strong> es la suma de las longitudes de todos los lados de una figura: la distancia total que hay que recorrer para rodearla por fuera.</p>
+            <p class="examples"><strong>Ejemplo:</strong> un rectángulo de 6 cm de base y 4 cm de altura tiene perímetro 6 + 4 + 6 + 4 = <strong>20 cm</strong>.</p>
+          </div>
+
+          <h2>Área de figuras irregulares</h2>
+          <div class="rule-box llana">
+            <h4>Descomponer en figuras conocidas</h4>
+            <p>Para calcular el área de una figura irregular, se <strong>descompone</strong> en varias figuras sencillas (rectángulos, cuadrados, triángulos...), se calcula el área de cada una y se <strong>suman</strong> los resultados.</p>
+          </div>
+
+          <svg viewBox="0 0 220 160" style="max-width:220px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="20,20 140,20 140,80 200,80 200,140 20,140" fill="none" stroke="var(--text)" stroke-width="3"/>
+            <line x1="20" y1="80" x2="140" y2="80" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
+            <text x="75" y="14" text-anchor="middle" font-size="12">6 cm</text>
+            <text x="6" y="55" font-size="12">6 cm</text>
+            <text x="80" y="55" font-size="12" fill="var(--color-indigo)">A</text>
+            <text x="165" y="115" font-size="12" fill="var(--color-teal)">B</text>
+            <text x="170" y="74" text-anchor="middle" font-size="12">3 cm</text>
+            <text x="6" y="115" font-size="12">6 cm</text>
+          </svg>
+
+          <div class="tip-box">
+            <strong>Ejemplo:</strong> esta figura en forma de L se divide en el rectángulo A (6×6 = 36 cm²) y el rectángulo B (3×6 = 18 cm²). Área total = 36 + 18 = <strong>54 cm²</strong>.
+          </div>
+        </div>
+
         <p style="text-align:center; margin-top:32px;">
           <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
         </p>
@@ -133,6 +164,8 @@
             <button class="btn btn-secondary active" data-mode="calcular">Calcular el área</button>
             <button class="btn btn-secondary" data-mode="formula">Elegir la fórmula</button>
             <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
+            <button class="btn btn-secondary" data-mode="perimetro">Perímetro <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+            <button class="btn btn-secondary" data-mode="irregular">Figuras irregulares <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 

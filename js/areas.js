@@ -28,6 +28,23 @@ const PROBLEMAS_ENTRIES = [
   { display: "Una cometa (rombo) tiene diagonales de 8 cm y 5 cm. ¿Cuál es su área?", correct: "20", options: ["20", "40", "13", "26"] },
 ];
 
+const PERIMETRO_ENTRIES = [
+  { display: "Cuadrado de lado 5 cm", correct: "20", options: ["20", "25", "10", "15"] },
+  { display: "Rectángulo de base 6 cm y altura 4 cm", correct: "20", options: ["20", "24", "10", "18"] },
+  { display: "Cuadrado de lado 9 cm", correct: "36", options: ["36", "81", "18", "27"] },
+  { display: "Rectángulo de base 8 cm y altura 3 cm", correct: "22", options: ["22", "24", "11", "18"] },
+  { display: "Triángulo de lados 5, 6 y 7 cm", correct: "18", options: ["18", "35", "13", "24"] },
+  { display: "Rectángulo de base 10 cm y altura 5 cm", correct: "30", options: ["30", "50", "15", "25"] },
+];
+
+const IRREGULAR_ENTRIES = [
+  { display: "Figura en L: rectángulo A (6×6) + rectángulo B (3×6)", correct: "54", options: ["54", "36", "18", "72"] },
+  { display: "Figura en L: rectángulo A (4×5) + rectángulo B (2×3)", correct: "26", options: ["26", "20", "6", "32"] },
+  { display: "Figura en L: rectángulo A (8×4) + rectángulo B (3×2)", correct: "38", options: ["38", "32", "6", "44"] },
+  { display: "Figura en T: rectángulo A (10×2) + rectángulo B (2×4)", correct: "28", options: ["28", "20", "8", "36"] },
+  { display: "Figura en L: rectángulo A (5×5) + rectángulo B (2×4)", correct: "33", options: ["33", "25", "8", "40"] },
+];
+
 const MODE_GROUPS = {
   calcular: {
     pool: CALCULAR_ENTRIES,
@@ -43,6 +60,16 @@ const MODE_GROUPS = {
     pool: PROBLEMAS_ENTRIES,
     field: "correct",
     question: () => "Resuelve el problema:",
+  },
+  perimetro: {
+    pool: PERIMETRO_ENTRIES,
+    field: "correct",
+    question: () => "Calcula el perímetro (en cm):",
+  },
+  irregular: {
+    pool: IRREGULAR_ENTRIES,
+    field: "correct",
+    question: () => "Calcula el área total sumando las partes (en cm²):",
   },
 };
 
