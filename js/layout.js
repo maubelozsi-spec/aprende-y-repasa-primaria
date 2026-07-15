@@ -31,6 +31,7 @@ const NAV = [
       { id: "dialogo-debate-argumentativo", label: "El diálogo, el debate y el texto argumentativo", href: "lengua/dialogo-debate-argumentativo.html", available: true },
       { id: "sintagmas", label: "Los sintagmas", href: "lengua/sintagmas.html", available: true },
       { id: "lenguaje-figurado", label: "Lenguaje literal y figurado", href: "lengua/lenguaje-figurado.html", available: true },
+      { id: "ortografia-hgjxs", label: "Ortografía: la h, g/j y x/s", href: "lengua/ortografia-hgjxs.html", available: true },
     ],
   },
   {
