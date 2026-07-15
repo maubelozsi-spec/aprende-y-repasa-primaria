@@ -90,7 +90,11 @@ function stepExplanation(problem, stepIndex) {
     : `Bajamos la siguiente cifra (<strong>${step.broughtDigits}</strong>) y formamos el <strong>${step.workingNumber}</strong>.`;
 
   if (step.caseType === "no-coge") {
-    return `${bringText} El grupo <strong>${step.workingNumber}</strong> es menor que el divisor (${problem.divisor}), así que esta cifra del cociente es <strong>0</strong> (no coge) y bajamos otra cifra sin restar.`;
+    const tanteoNote =
+      step.overshoot > 0
+        ? ` Si tanteamos <strong>${step.estimate}</strong>, ${step.estimate} × ${problem.divisor} = ${step.estimate * problem.divisor} también se pasa, así que confirmamos que es 0.`
+        : "";
+    return `${bringText} El grupo <strong>${step.workingNumber}</strong> es menor que el divisor (${problem.divisor}), así que esta cifra del cociente es <strong>0</strong> (no coge) y bajamos otra cifra sin restar.${tanteoNote}`;
   }
 
   const leadPhrase =
@@ -176,11 +180,20 @@ function resetDivisionView(view, problem) {
   showResultBanner(view.resultBanner, problem, false);
 }
 
-function appendQuotientDigit(view, digit) {
-  const span = document.createElement("span");
-  span.className = "letter";
-  span.textContent = digit;
-  view.quotient.appendChild(span);
+function appendQuotientDigit(view, step) {
+  const slot = document.createElement("span");
+  slot.className = "quotient-slot";
+  if (step.overshoot > 0) {
+    const wrong = document.createElement("span");
+    wrong.className = "tanteo-wrong";
+    wrong.textContent = step.estimate;
+    slot.appendChild(wrong);
+  }
+  const final = document.createElement("span");
+  final.className = "tanteo-final";
+  final.textContent = step.quotientDigit;
+  slot.appendChild(final);
+  view.quotient.appendChild(slot);
 }
 
 function appendWorkStep(view, step) {
@@ -278,7 +291,7 @@ function initDemo() {
 
     for (let s = 0; s <= idx && s < problem.steps.length; s++) {
       appendWorkStep(view, problem.steps[s]);
-      appendQuotientDigit(view, problem.steps[s].quotientDigit);
+      appendQuotientDigit(view, problem.steps[s]);
     }
 
     let usedCount = 0;
@@ -324,11 +337,14 @@ function initDemo() {
     if (stepIndex > -1) rebuildUpTo(stepIndex - 1);
   }
 
+  const videoCallout = document.getElementById("video-2cifras");
+
   pickerBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       pickerBtns.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       loadExample(Number(btn.dataset.example));
+      if (videoCallout) videoCallout.style.display = btn.dataset.example === "1" ? "" : "none";
     });
   });
 
@@ -471,7 +487,7 @@ function initGame() {
   function revealStep() {
     const step = problem.steps[stepIndex];
     appendWorkStep(view, step);
-    appendQuotientDigit(view, step.quotientDigit);
+    appendQuotientDigit(view, step);
     renderDividend(view, problem, step.digitsUsedUpTo);
 
     setProgress(Math.round(((stepIndex + 1) / problem.steps.length) * 100));
