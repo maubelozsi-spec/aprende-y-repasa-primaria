@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Los signos de puntuación · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "signos-puntuacion";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · 6º de Primaria</p>
+        <h1>Los signos de puntuación</h1>
+        <p class="content-subtitle">Punto y coma, puntos suspensivos, paréntesis, comillas y raya.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>El punto y coma (;)</h2>
+        <div class="rule-box aguda">
+          <h4>¿Cuándo se usa?</h4>
+          <p>Separa partes de una oración que ya tienen comas, o une dos oraciones relacionadas entre sí sin necesidad de una conjunción.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "Quería ir al cine; sin embargo, se quedó estudiando."</p>
+        </div>
+
+        <h2>Los puntos suspensivos (...)</h2>
+        <div class="rule-box llana">
+          <h4>¿Cuándo se usan?</h4>
+          <p>Indican que una frase queda incompleta, una duda, una interrupción o una pausa con suspense. Siempre son <strong>tres puntos</strong>.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "No sé si ir o quedarme..." · "Y de repente..."</p>
+        </div>
+
+        <h2>Los paréntesis ( )</h2>
+        <div class="rule-box esdrujula">
+          <h4>¿Cuándo se usan?</h4>
+          <p>Encierran una información adicional o aclaratoria que se puede quitar sin que la oración pierda sentido.</p>
+          <p class="examples"><strong>Ejemplo:</strong> "Cristóbal Colón (1451-1506) llegó a América en 1492."</p>
+        </div>
+
+        <h2>Las comillas (" ")</h2>
+        <div class="rule-box sobresdrujula">
+          <h4>¿Cuándo se usan?</h4>
+          <p>Se usan para citar textualmente lo que dice alguien, para señalar el título de una obra corta, o para destacar una palabra con un sentido especial o irónico.</p>
+          <p class="examples"><strong>Ejemplo:</strong> Mi madre dijo: "Vuelve pronto a casa." · Leímos el poema "Verde que te quiero verde".</p>
+        </div>
+
+        <h2>La raya (—)</h2>
+        <div class="rule-box diptongo">
+          <h4>¿Cuándo se usa?</h4>
+          <p>Se usa para marcar los diálogos e indicar quién habla, y para intercalar una aclaración dentro de una oración (como los paréntesis, pero con más énfasis).</p>
+          <p class="examples"><strong>Ejemplo:</strong> —¿Vienes al parque? —preguntó Ana.</p>
+        </div>
+
+        <div class="tip-box">
+          <strong>Truco:</strong> no confundas la raya (—), más larga, con el guion (-), que se usa para separar sílabas al final de renglón o para unir palabras compuestas.
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="identificar">Identificar el signo</button>
+            <button class="btn btn-secondary" data-mode="completar">Elegir el signo correcto</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/signos-puntuacion.js"></script>
+</body>
+</html>
