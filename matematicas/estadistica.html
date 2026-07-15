@@ -65,6 +65,43 @@
           <strong>Cuidado:</strong> la media no siempre da un número entero. Ejemplo: 10, 15, 20, 25 → (10+15+20+25) ÷ 4 = 70 ÷ 4 = 17,5.
         </div>
 
+        <div class="grade-section">
+          <span class="grade-badge">Contenido de 6º</span>
+          <h2>La mediana</h2>
+          <div class="rule-box aguda">
+            <h4>Cómo se calcula</h4>
+            <p>Se ordenan los datos de menor a mayor. La <strong>mediana</strong> es el valor que queda justo en el centro. Si hay un número par de datos, se hace la media de los dos centrales.</p>
+          </div>
+          <div class="tip-box">
+            <strong>Ejemplo:</strong> 3, 5, 7, 8, 9 (ya ordenados) → el central es <strong>7</strong>.<br>
+            <strong>Con número par:</strong> 2, 4, 6, 8 → los centrales son 4 y 6 → (4+6) ÷ 2 = <strong>5</strong>.
+          </div>
+
+          <h2>El rango</h2>
+          <div class="rule-box llana">
+            <h4>Cómo se calcula</h4>
+            <p>El <strong>rango</strong> es la diferencia entre el dato mayor y el dato menor. Indica cuánto se "extienden" los datos.</p>
+          </div>
+          <div class="tip-box">
+            <strong>Ejemplo:</strong> en 3, 5, 7, 8, 9 → rango = 9 − 3 = <strong>6</strong>.
+          </div>
+
+          <h2>Tabla de frecuencias</h2>
+          <div class="rule-box esdrujula">
+            <h4>¿Qué es?</h4>
+            <p>Una <strong>tabla de frecuencias</strong> muestra cuántas veces (la <strong>frecuencia</strong>) se repite cada valor en un conjunto de datos.</p>
+          </div>
+          <table class="rules-table">
+            <tr><th>Valor</th><th>Frecuencia</th></tr>
+            <tr><td>3</td><td>3 veces</td></tr>
+            <tr><td>5</td><td>1 vez</td></tr>
+            <tr><td>7</td><td>2 veces</td></tr>
+          </table>
+          <div class="tip-box">
+            <strong>Ejemplo:</strong> para los datos 3, 5, 3, 7, 3, 7, la tabla de frecuencias cuenta cuántas veces aparece cada número.
+          </div>
+        </div>
+
         <p style="text-align:center; margin-top:32px;">
           <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
         </p>
@@ -84,6 +121,9 @@
             <button class="btn btn-secondary active" data-mode="leerbarras">Leer el diagrama</button>
             <button class="btn btn-secondary" data-mode="moda">Calcular la moda</button>
             <button class="btn btn-secondary" data-mode="media">Calcular la media</button>
+            <button class="btn btn-secondary" data-mode="mediana">Mediana <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+            <button class="btn btn-secondary" data-mode="rango">Rango <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+            <button class="btn btn-secondary" data-mode="frecuencias">Frecuencias <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 

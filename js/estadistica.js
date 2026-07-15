@@ -55,6 +55,32 @@ const MEDIA_ENTRIES = [
   { display: "10, 15, 20, 25", correct: "17,5", options: ["17,5", "70", "18", "17"] },
 ];
 
+const MEDIANA_ENTRIES = [
+  { display: "3, 5, 7, 8, 9", correct: "7", options: ["7", "8", "6,4", "5"] },
+  { display: "2, 4, 6, 8", correct: "5", options: ["5", "6", "4", "14"] },
+  { display: "1, 3, 3, 6, 9", correct: "3", options: ["3", "6", "4,4", "1"] },
+  { display: "10, 12, 14, 16", correct: "13", options: ["13", "14", "12", "26"] },
+  { display: "5, 5, 6, 8, 10", correct: "6", options: ["6", "5", "8", "6,8"] },
+  { display: "4, 8, 12, 16, 20", correct: "12", options: ["12", "8", "16", "10"] },
+];
+
+const RANGO_ENTRIES = [
+  { display: "3, 5, 7, 8, 9", correct: "6", options: ["6", "9", "3", "32"] },
+  { display: "2, 4, 6, 8", correct: "6", options: ["6", "8", "2", "20"] },
+  { display: "10, 12, 14, 16", correct: "6", options: ["6", "16", "10", "52"] },
+  { display: "5, 5, 6, 8, 10", correct: "5", options: ["5", "10", "6", "34"] },
+  { display: "1, 3, 3, 6, 9", correct: "8", options: ["8", "9", "1", "22"] },
+  { display: "20, 25, 30, 45", correct: "25", options: ["25", "45", "20", "120"] },
+];
+
+const FRECUENCIAS_ENTRIES = [
+  { display: "Datos: 3, 5, 3, 7, 3, 7. ¿Frecuencia del 3?", correct: "3", options: ["3", "2", "1", "6"] },
+  { display: "Datos: 3, 5, 3, 7, 3, 7. ¿Frecuencia del 7?", correct: "2", options: ["2", "3", "1", "6"] },
+  { display: "Datos: 2, 2, 4, 4, 4, 6. ¿Frecuencia del 4?", correct: "3", options: ["3", "2", "1", "6"] },
+  { display: "Datos: 1, 1, 1, 2, 3, 3. ¿Frecuencia del 1?", correct: "3", options: ["3", "2", "1", "6"] },
+  { display: "Datos: 8, 9, 9, 9, 10, 10. ¿Frecuencia del 10?", correct: "2", options: ["2", "3", "1", "6"] },
+];
+
 const MODE_GROUPS = {
   leerbarras: {
     pool: LEERBARRAS_ENTRIES,
@@ -71,6 +97,24 @@ const MODE_GROUPS = {
     pool: MEDIA_ENTRIES,
     field: "correct",
     question: () => "¿Cuál es la media de estos datos?",
+    display: "text",
+  },
+  mediana: {
+    pool: MEDIANA_ENTRIES,
+    field: "correct",
+    question: () => "¿Cuál es la mediana de estos datos?",
+    display: "text",
+  },
+  rango: {
+    pool: RANGO_ENTRIES,
+    field: "correct",
+    question: () => "¿Cuál es el rango de estos datos?",
+    display: "text",
+  },
+  frecuencias: {
+    pool: FRECUENCIAS_ENTRIES,
+    field: "correct",
+    question: () => "Calcula la frecuencia pedida:",
     display: "text",
   },
 };
