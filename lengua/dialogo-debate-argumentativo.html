@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El diálogo, el debate y el texto argumentativo · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "dialogo-debate-argumentativo";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · 6º de Primaria</p>
+        <h1>El diálogo, el debate y el texto argumentativo</h1>
+        <p class="content-subtitle">Cómo se estructura una conversación, una discusión ordenada y una defensa de opinión.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>El diálogo</h2>
+        <div class="rule-box aguda">
+          <h4>¿Qué es?</h4>
+          <p>Es el intercambio de mensajes entre dos o más personas que hablan por turnos. En la escritura se marca con <strong>raya (—)</strong> o comillas para indicar quién habla.</p>
+          <p class="examples"><strong>Ejemplo:</strong><br>—¿Vienes al parque?<br>—Sí, ahora mismo salgo.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Normas básicas:</strong> escuchar sin interrumpir, respetar el turno de palabra, y mantenerse dentro del tema.
+        </div>
+
+        <h2>El debate</h2>
+        <div class="rule-box llana">
+          <h4>¿Qué es?</h4>
+          <p>Es una discusión ordenada sobre un tema en la que distintas personas defienden opiniones diferentes, siguiendo unas normas.</p>
+        </div>
+        <table class="rules-table">
+          <tr><th>Elemento del debate</th><th>Función</th></tr>
+          <tr><td>Moderador</td><td>organiza los turnos de palabra y controla el tiempo</td></tr>
+          <tr><td>Participantes</td><td>defienden su postura con argumentos</td></tr>
+          <tr><td>Tema</td><td>la cuestión sobre la que se discute</td></tr>
+          <tr><td>Conclusión</td><td>resumen final de las posturas expuestas</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Ejemplo de tema de debate:</strong> "¿Deberían los móviles estar permitidos en el colegio?"
+        </div>
+
+        <h2>El texto argumentativo</h2>
+        <div class="rule-box esdrujula">
+          <h4>¿Qué es?</h4>
+          <p>Defiende una <strong>opinión (tesis)</strong> aportando <strong>razones (argumentos)</strong> que la apoyan, para intentar convencer al lector.</p>
+        </div>
+        <div class="rule-box sobresdrujula">
+          <h4>Partes del texto argumentativo</h4>
+          <p><strong>Tesis:</strong> la opinión que se defiende.<br><strong>Argumentos:</strong> las razones que la sostienen.<br><strong>Conclusión:</strong> se reafirma la tesis.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> Tesis: "Deberíamos reciclar más." Argumento: "Porque reduce la contaminación y ahorra recursos naturales." Conclusión: "Por eso, reciclar es fundamental para cuidar el planeta."
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="elementos">Elementos del debate</button>
+            <button class="btn btn-secondary" data-mode="partesargumentativo">Partes del texto argumentativo</button>
+            <button class="btn btn-secondary" data-mode="identificar">¿Diálogo, debate o argumentativo?</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/dialogo-debate-argumentativo.js"></script>
+</body>
+</html>

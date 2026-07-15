@@ -28,6 +28,7 @@ const NAV = [
       { id: "narrativa", label: "Narrativa", href: "lengua/narrativa.html", available: true },
       { id: "poesia", label: "Poesía y recursos literarios", href: "lengua/poesia.html", available: true },
       { id: "tipos-texto-6", label: "Textos científicos, históricos, descriptivos y discontinuos", href: "lengua/tipos-texto-6.html", available: true },
+      { id: "dialogo-debate-argumentativo", label: "El diálogo, el debate y el texto argumentativo", href: "lengua/dialogo-debate-argumentativo.html", available: true },
     ],
   },
   {
