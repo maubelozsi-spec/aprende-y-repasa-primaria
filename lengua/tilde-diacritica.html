@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tilde diacrítica · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "tilde-diacritica";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · 6º de Primaria</p>
+        <h1>Tilde diacrítica</h1>
+        <p class="content-subtitle">Distinguir palabras iguales por su función, y acentuación de exclamativas e interrogativas.</p>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es la tilde diacrítica?</h2>
+        <div class="rule-box aguda">
+          <h4>Definición</h4>
+          <p>Es una tilde que no sigue las reglas normales de acentuación, sino que sirve para <strong>distinguir dos palabras que se escriben igual</strong> pero tienen distinta función gramatical.</p>
+        </div>
+
+        <table class="rules-table">
+          <tr><th>Con tilde</th><th>Sin tilde</th></tr>
+          <tr><td><strong>él</strong> (pronombre: "él llegó")</td><td>el (determinante: "el perro")</td></tr>
+          <tr><td><strong>tú</strong> (pronombre: "tú vienes")</td><td>tu (determinante: "tu casa")</td></tr>
+          <tr><td><strong>mí</strong> (pronombre: "para mí")</td><td>mi (determinante: "mi libro")</td></tr>
+          <tr><td><strong>sí</strong> (afirmación o pronombre: "dijo que sí")</td><td>si (condicional: "si vienes...")</td></tr>
+          <tr><td><strong>té</strong> (la bebida: "un té")</td><td>te (pronombre: "te veo")</td></tr>
+          <tr><td><strong>más</strong> (cantidad: "quiero más")</td><td>mas (equivale a "pero": "quiso, mas no pudo")</td></tr>
+          <tr><td><strong>dé</strong> (del verbo dar: "que dé las gracias")</td><td>de (preposición: "de casa")</td></tr>
+          <tr><td><strong>sé</strong> (del verbo saber o ser: "yo sé", "sé bueno")</td><td>se (pronombre: "se lava")</td></tr>
+        </table>
+
+        <div class="tip-box">
+          <strong>Truco:</strong> si la palabra hace de pronombre, verbo o tiene un significado "más fuerte" (como sí de afirmación), suele llevar tilde. Si es un determinante o una conjunción, normalmente no la lleva.
+        </div>
+
+        <h2>Acentuación en exclamativas e interrogativas</h2>
+        <div class="rule-box llana">
+          <h4>Qué, cuál, cómo, dónde, cuándo, cuánto, quién</h4>
+          <p>Estas palabras llevan <strong>tilde</strong> cuando introducen una pregunta o una exclamación (directa o indirecta).</p>
+        </div>
+        <table class="rules-table">
+          <tr><th>Con tilde (interrogativo/exclamativo)</th><th>Sin tilde (relativo/conjunción)</th></tr>
+          <tr><td>¿<strong>Qué</strong> quieres? / ¡<strong>Qué</strong> alegría!</td><td>Dijo <strong>que</strong> vendría.</td></tr>
+          <tr><td>¿<strong>Dónde</strong> vives?</td><td>La casa <strong>donde</strong> vivo.</td></tr>
+          <tr><td>No sé <strong>cómo</strong> lo hizo.</td><td>Lo hizo <strong>como</strong> quiso.</td></tr>
+          <tr><td>¿<strong>Cuánto</strong> cuesta?</td><td>Come <strong>cuanto</strong> quiera.</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Ejemplo de pregunta indirecta:</strong> "No sé <strong>qué</strong> hacer" también lleva tilde, aunque no haya signos de interrogación, porque sigue siendo una pregunta (indirecta).
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="diacritica">Elegir la palabra correcta</button>
+            <button class="btn btn-secondary" data-mode="exclamativa">Qué, cómo, dónde... ¿con tilde?</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/tilde-diacritica.js"></script>
+</body>
+</html>
