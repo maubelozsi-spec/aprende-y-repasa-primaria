@@ -31,6 +31,17 @@ const SUMARRESTAR_ENTRIES = [
   { display: "9,4 − 5,15", correct: "4,25", options: ["4,25", "4,15", "14,55", "3,25"] },
 ];
 
+const REDONDEAR_ENTRIES = [
+  { display: "3,467 → a las décimas", correct: "3,5", options: ["3,5", "3,4", "3,47", "3,0"] },
+  { display: "3,467 → a las centésimas", correct: "3,47", options: ["3,47", "3,46", "3,5", "3,4"] },
+  { display: "5,832 → a las décimas", correct: "5,8", options: ["5,8", "5,9", "5,83", "6,0"] },
+  { display: "5,832 → a las centésimas", correct: "5,83", options: ["5,83", "5,84", "5,8", "5,9"] },
+  { display: "2,149 → a las décimas", correct: "2,1", options: ["2,1", "2,2", "2,15", "2,0"] },
+  { display: "7,256 → a las centésimas", correct: "7,26", options: ["7,26", "7,25", "7,3", "7,2"] },
+  { display: "0,948 → a las décimas", correct: "0,9", options: ["0,9", "1,0", "0,95", "0,8"] },
+  { display: "4,375 → a las centésimas", correct: "4,38", options: ["4,38", "4,37", "4,4", "4,3"] },
+];
+
 const MODE_GROUPS = {
   fraccionadecimal: {
     pool: FRACCIONADECIMAL_ENTRIES,
@@ -47,6 +58,11 @@ const MODE_GROUPS = {
     pool: SUMARRESTAR_ENTRIES,
     field: "correct",
     question: () => "Calcula el resultado:",
+  },
+  redondear: {
+    pool: REDONDEAR_ENTRIES,
+    field: "correct",
+    question: () => "Redondea este número decimal:",
   },
 };
 

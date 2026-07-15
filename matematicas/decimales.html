@@ -80,6 +80,25 @@
           <strong>Ejemplo:</strong> 2,5 + 1,3 = 3,8
         </div>
 
+        <div class="grade-section">
+          <span class="grade-badge">Contenido de 6º</span>
+          <h2>Redondear números decimales</h2>
+          <div class="rule-box aguda">
+            <h4>La misma regla del redondeo</h4>
+            <p>Para aproximar un decimal a las décimas, centésimas..., se mira la cifra que está justo a la derecha de esa posición: si es 5 o más, la cifra sube una unidad; si es menor que 5, se queda igual. Todas las cifras posteriores se eliminan.</p>
+          </div>
+          <table class="rules-table">
+            <tr><th>Número</th><th>Aproximación</th><th>Resultado</th></tr>
+            <tr><td>3,467</td><td>a las décimas</td><td>3,5</td></tr>
+            <tr><td>3,467</td><td>a las centésimas</td><td>3,47</td></tr>
+            <tr><td>5,832</td><td>a las décimas</td><td>5,8</td></tr>
+            <tr><td>5,832</td><td>a las centésimas</td><td>5,83</td></tr>
+          </table>
+          <div class="tip-box">
+            <strong>Ejemplo:</strong> 3,467 a las décimas → miramos el 6 (centésimas) → como es 5 o más, la décima sube: 4 → 5 → <strong>3,5</strong>.
+          </div>
+        </div>
+
         <p style="text-align:center; margin-top:32px;">
           <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
         </p>
@@ -99,6 +118,7 @@
             <button class="btn btn-secondary active" data-mode="fraccionadecimal">Fracción a decimal</button>
             <button class="btn btn-secondary" data-mode="comparar">Comparar</button>
             <button class="btn btn-secondary" data-mode="sumarrestar">Sumar y restar</button>
+            <button class="btn btn-secondary" data-mode="redondear">Redondear <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
