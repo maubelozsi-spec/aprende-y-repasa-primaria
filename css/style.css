@@ -1857,6 +1857,7 @@ table.rules-table tr:last-child td {
 .lectgen-body p {
   margin-bottom: 14px;
   line-height: 1.7;
+  white-space: pre-line;
 }
 
 .lectgen-section-bar {
