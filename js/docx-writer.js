@@ -146,6 +146,7 @@ function escapeXml(str) {
 
 function buildRunProps(run) {
   let rpr = "";
+  if (run.font) rpr += `<w:rFonts w:ascii="${run.font}" w:hAnsi="${run.font}" w:cs="${run.font}"/>`;
   if (run.bold) rpr += "<w:b/>";
   if (run.italic) rpr += "<w:i/>";
   if (run.strike) rpr += "<w:strike/>";
@@ -186,8 +187,54 @@ function buildParagraph(p) {
   return `<w:p>${pPrXml}${runsXml}</w:p>`;
 }
 
-function buildDocumentXml(paragraphs) {
-  const bodyXml = paragraphs.map(buildParagraph).join("\n");
+function buildTableCellProps(cell, width) {
+  let tcPr = `<w:tcW w:w="${width}" w:type="dxa"/>`;
+  if (cell.colspan) tcPr += `<w:gridSpan w:val="${cell.colspan}"/>`;
+  if (cell.vAlign) tcPr += `<w:vAlign w:val="${cell.vAlign}"/>`;
+  if (cell.shading) tcPr += `<w:shd w:val="clear" w:color="auto" w:fill="${cell.shading}"/>`;
+  if (cell.borders) {
+    let bordersXml = "";
+    ["top", "left", "bottom", "right"].forEach((side) => {
+      const b = cell.borders[side];
+      if (b) bordersXml += `<w:${side} w:val="single" w:sz="${b.sz || 4}" w:space="0" w:color="${b.color || "000000"}"/>`;
+    });
+    if (bordersXml) tcPr += `<w:tcBorders>${bordersXml}</w:tcBorders>`;
+  }
+  if (cell.margins) {
+    let marginsXml = "";
+    ["top", "left", "bottom", "right"].forEach((side) => {
+      if (cell.margins[side] !== undefined) marginsXml += `<w:${side} w:w="${cell.margins[side]}" w:type="dxa"/>`;
+    });
+    if (marginsXml) tcPr += `<w:tcMar>${marginsXml}</w:tcMar>`;
+  }
+  return `<w:tcPr>${tcPr}</w:tcPr>`;
+}
+
+function buildTableCell(cell, width) {
+  const tcPr = buildTableCellProps(cell, width);
+  const paragraphs = cell.paragraphs && cell.paragraphs.length ? cell.paragraphs : [{ runs: [] }];
+  const content = paragraphs.map(buildParagraph).join("");
+  return `<w:tc>${tcPr}${content}</w:tc>`;
+}
+
+function buildTableRow(row, columnWidths) {
+  const cellsXml = row.cells.map((cell, i) => buildTableCell(cell, columnWidths[i])).join("");
+  return `<w:tr>${cellsXml}</w:tr>`;
+}
+
+function buildTable(table) {
+  const gridXml = table.columnWidths.map((w) => `<w:gridCol w:w="${w}"/>`).join("");
+  const totalWidth = table.columnWidths.reduce((a, b) => a + b, 0);
+  const rowsXml = table.rows.map((row) => buildTableRow(row, table.columnWidths)).join("");
+  return `<w:tbl><w:tblPr><w:tblW w:w="${totalWidth}" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders><w:top w:val="none"/><w:left w:val="none"/><w:bottom w:val="none"/><w:right w:val="none"/><w:insideH w:val="none"/><w:insideV w:val="none"/></w:tblBorders></w:tblPr><w:tblGrid>${gridXml}</w:tblGrid>${rowsXml}</w:tbl>`;
+}
+
+function buildBlock(block) {
+  return block.table ? buildTable(block.table) : buildParagraph(block);
+}
+
+function buildDocumentXml(blocks) {
+  const bodyXml = blocks.map(buildBlock).join("\n");
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>
 ${bodyXml}
@@ -197,9 +244,9 @@ ${bodyXml}
 
 // ---------------- API pública ----------------
 
-function createDocxBlob(paragraphs) {
+function createDocxBlob(blocks) {
   const encoder = new TextEncoder();
-  const documentXml = buildDocumentXml(paragraphs);
+  const documentXml = buildDocumentXml(blocks);
 
   const files = [
     { name: "[Content_Types].xml", data: encoder.encode(CONTENT_TYPES_XML) },

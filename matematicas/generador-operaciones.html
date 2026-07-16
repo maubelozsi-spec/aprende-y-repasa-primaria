@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de operaciones básicas · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "generador-operaciones";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Generador de operaciones básicas</h1>
+        <p class="content-subtitle">Configura cuántas cifras tiene cada elemento de la suma, la resta, la multiplicación y la división, y genera una ficha semanal (lunes a viernes) lista para imprimir en Word, con su hoja de soluciones.</p>
+      </header>
+
+      <div class="game-card generator-card opgen-card">
+
+        <div class="generator-field">
+          <label>Curso</label>
+          <div class="choice-row" id="opgen-curso-picker">
+            <button class="btn btn-secondary active" data-curso="5">5º de Primaria</button>
+            <button class="btn btn-secondary" data-curso="6">6º de Primaria</button>
+          </div>
+        </div>
+
+        <div class="opgen-config-grid">
+
+          <div class="opgen-config-block">
+            <h3>Suma</h3>
+            <div class="generator-field">
+              <label for="opgen-suma-count">Número de sumandos</label>
+              <select id="opgen-suma-count" class="generator-select">
+                <option value="2">2 sumandos</option>
+                <option value="3" selected>3 sumandos</option>
+              </select>
+            </div>
+            <div class="opgen-digit-row">
+              <div class="generator-field">
+                <label for="opgen-suma-d1">Cifras del 1er sumando</label>
+                <select id="opgen-suma-d1" class="generator-select"></select>
+              </div>
+              <div class="generator-field">
+                <label for="opgen-suma-d2">Cifras del 2º sumando</label>
+                <select id="opgen-suma-d2" class="generator-select"></select>
+              </div>
+              <div class="generator-field" id="opgen-suma-d3-field">
+                <label for="opgen-suma-d3">Cifras del 3er sumando</label>
+                <select id="opgen-suma-d3" class="generator-select"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="opgen-config-block">
+            <h3>Resta</h3>
+            <div class="opgen-digit-row">
+              <div class="generator-field">
+                <label for="opgen-resta-minuendo">Cifras del minuendo</label>
+                <select id="opgen-resta-minuendo" class="generator-select"></select>
+              </div>
+              <div class="generator-field">
+                <label for="opgen-resta-sustraendo">Cifras del sustraendo</label>
+                <select id="opgen-resta-sustraendo" class="generator-select"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="opgen-config-block">
+            <h3>Multiplicación</h3>
+            <div class="opgen-digit-row">
+              <div class="generator-field">
+                <label for="opgen-mult-multiplicando">Cifras del multiplicando</label>
+                <select id="opgen-mult-multiplicando" class="generator-select"></select>
+              </div>
+              <div class="generator-field">
+                <label for="opgen-mult-multiplicador">Cifras del multiplicador</label>
+                <select id="opgen-mult-multiplicador" class="generator-select"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="opgen-config-block">
+            <h3>División</h3>
+            <div class="opgen-digit-row">
+              <div class="generator-field">
+                <label for="opgen-div-dividendo">Cifras del dividendo</label>
+                <select id="opgen-div-dividendo" class="generator-select"></select>
+              </div>
+              <div class="generator-field">
+                <label for="opgen-div-divisor">Cifras del divisor</label>
+                <select id="opgen-div-divisor" class="generator-select"></select>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="actions-row">
+          <button class="btn btn-primary" id="opgen-generate-btn">Generar ficha semanal</button>
+        </div>
+
+        <div id="opgen-status" class="feedback-box"></div>
+
+        <div id="opgen-preview-wrap" style="display:none;">
+          <div class="actions-row">
+            <button class="btn btn-secondary" id="opgen-toggle-solutions">Mostrar soluciones</button>
+            <button class="btn btn-secondary" id="opgen-download-btn">Descargar en Word (ficha + soluciones)</button>
+          </div>
+          <div class="opgen-preview-scroll">
+            <div class="opgen-week-table" id="opgen-preview"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/docx-writer.js"></script>
+<script src="../js/operaciones-generator.js"></script>
+<script src="../js/generador-operaciones-ui.js"></script>
+</body>
+</html>

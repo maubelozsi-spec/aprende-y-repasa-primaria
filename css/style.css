@@ -1671,6 +1671,126 @@ table.rules-table tr:last-child td {
   line-height: 1.5;
 }
 
+/* ---------- Generador de operaciones básicas ---------- */
+
+.opgen-card {
+  max-width: 900px;
+}
+
+.opgen-config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 28px;
+  margin-bottom: 8px;
+}
+
+.opgen-config-block {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 16px 18px 4px;
+}
+
+.opgen-config-block h3 {
+  margin: 0 0 10px;
+  color: var(--color-teal);
+}
+
+.opgen-digit-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.opgen-digit-row .generator-field {
+  flex: 1;
+  min-width: 130px;
+}
+
+.opgen-preview-scroll {
+  overflow-x: auto;
+  margin-top: 22px;
+}
+
+.opgen-week-table {
+  display: flex;
+  gap: 10px;
+  min-width: 960px;
+}
+
+.opgen-day-col {
+  flex: 1;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.opgen-day-header {
+  background: #595959;
+  color: #ffffff;
+  text-align: center;
+  font-weight: 700;
+  padding: 8px 6px;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.opgen-day-body {
+  padding: 12px;
+}
+
+.opgen-op-block {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.opgen-op-block:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.opgen-op-label {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-bottom: 4px;
+}
+
+.opgen-mono-line {
+  font-family: "Consolas", "Courier New", monospace;
+  text-align: right;
+  font-size: 14px;
+  white-space: pre;
+  line-height: 1.5;
+}
+
+.opgen-mono-line.bold {
+  font-weight: 700;
+  color: var(--color-teal);
+}
+
+.opgen-mult-scratch {
+  height: 44px;
+}
+
+.opgen-div-expr {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.opgen-div-scratch {
+  height: 64px;
+  border-left: 1px dotted var(--border-strong);
+  margin-bottom: 6px;
+}
+
+.opgen-div-answer {
+  font-size: 12.5px;
+  color: var(--text-soft);
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {

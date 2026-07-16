@@ -76,6 +76,7 @@ const NAV = [
       { id: "proporcionalidad", label: "Proporcionalidad y escalas", href: "matematicas/proporcionalidad.html", available: true },
       { id: "estadistica", label: "Estadística: diagramas de barras, moda y media", href: "matematicas/estadistica.html", available: true },
       { id: "generador-fichas", label: "Generador de fichas de problemas", href: "matematicas/generador-fichas.html", available: true },
+      { id: "generador-operaciones", label: "Generador de operaciones básicas", href: "matematicas/generador-operaciones.html", available: true },
     ],
   },
 ];
