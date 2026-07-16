@@ -362,6 +362,7 @@ function initGame() {
     const allCorrect = !roundHasError;
     if (allCorrect) scoreOk++;
     else scoreKo++;
+    AppProgress.record("sumas", allCorrect);
     els.scoreOk.textContent = scoreOk;
     els.scoreKo.textContent = scoreKo;
 
@@ -578,6 +579,7 @@ function initMentalGame() {
     const allCorrect = !roundHasError;
     if (allCorrect) scoreOk++;
     else scoreKo++;
+    AppProgress.record("sumas", allCorrect);
     els.scoreOk.textContent = scoreOk;
     els.scoreKo.textContent = scoreKo;
 

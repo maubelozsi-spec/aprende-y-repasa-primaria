@@ -152,6 +152,7 @@ function initGame() {
 
     if (isCorrect) scoreOk++;
     else scoreKo++;
+    AppProgress.record("decimales-md", isCorrect);
     els.scoreOk.textContent = scoreOk;
     els.scoreKo.textContent = scoreKo;
 

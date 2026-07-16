@@ -167,9 +167,11 @@ function initGame() {
     if (isCorrect) {
       scoreOk++;
       streak++;
+      AppProgress.record("tablas", true);
     } else {
       scoreKo++;
       streak = 0;
+      AppProgress.record("tablas", false);
     }
     els.scoreOk.textContent = scoreOk;
     els.scoreKo.textContent = scoreKo;

@@ -139,6 +139,7 @@ function initGame() {
 
     if (isCorrect) scoreOk++;
     else scoreKo++;
+    AppProgress.record("dialogo-debate-argumentativo", isCorrect);
     els.scoreOk.textContent = scoreOk;
     els.scoreKo.textContent = scoreKo;
 

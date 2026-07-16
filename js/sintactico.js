@@ -226,6 +226,7 @@ function initSecondaryQuiz() {
 
     if (isCorrect) scoreOk++;
     else scoreKo++;
+    AppProgress.record("sintactico", isCorrect);
     els.scoreOk.textContent = scoreOk;
     els.scoreKo.textContent = scoreKo;
 
@@ -502,6 +503,7 @@ function initGame() {
 
     if (allCorrect) scoreOk++;
     else scoreKo++;
+    AppProgress.record("sintactico", allCorrect);
     els.scoreOk.textContent = scoreOk;
     els.scoreKo.textContent = scoreKo;
 

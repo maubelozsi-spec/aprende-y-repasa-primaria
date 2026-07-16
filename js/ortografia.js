@@ -344,6 +344,7 @@ function initGame() {
 
     if (allCorrect) scoreOk++;
     else scoreKo++;
+    AppProgress.record("ortografia", allCorrect);
     els.scoreOk.textContent = scoreOk;
     els.scoreKo.textContent = scoreKo;
 

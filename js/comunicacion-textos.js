@@ -158,6 +158,7 @@ function initGame() {
 
     if (isCorrect) scoreOk++;
     else scoreKo++;
+    AppProgress.record("comunicacion-textos", isCorrect);
     els.scoreOk.textContent = scoreOk;
     els.scoreKo.textContent = scoreKo;
 

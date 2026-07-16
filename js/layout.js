@@ -150,7 +150,12 @@ function buildSidebar(base, current) {
         <span class="sidebar-brand-text">Aprende y Repasa<small>5º y 6º de Primaria</small></span>
       </a>
     </div>
-    <nav class="sidebar-nav">
+    <a href="${base}mi-progreso.html" class="sidebar-progress-link${current === "mi-progreso" ? " active" : ""}">Mi progreso</a>
+    <div class="sidebar-search-wrap">
+      <input type="search" id="sidebar-search" class="sidebar-search" placeholder="Buscar un contenido..." autocomplete="off">
+      <span class="sidebar-search-empty" id="sidebar-search-empty" style="display:none;">Sin resultados</span>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
   `;
 
   NAV.forEach((section) => {
@@ -214,10 +219,214 @@ function initLayout() {
 
   const activeLink = sidebar ? sidebar.querySelector(".nav-children a.active") : null;
   if (activeLink) activeLink.scrollIntoView({ block: "center" });
+
+  initSidebarSearch();
+}
+
+function normalizeSearchText(str) {
+  return str
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function initSidebarSearch() {
+  const input = document.getElementById("sidebar-search");
+  const emptyMsg = document.getElementById("sidebar-search-empty");
+  const sidebarNav = document.getElementById("sidebar-nav");
+  if (!input || !sidebarNav) return;
+
+  input.addEventListener("input", () => {
+    const query = normalizeSearchText(input.value);
+    let anyVisible = false;
+
+    sidebarNav.querySelectorAll(".nav-section").forEach((section) => {
+      let sectionHasMatch = false;
+
+      section.querySelectorAll(".nav-group").forEach((group) => {
+        let groupHasMatch = false;
+
+        group.querySelectorAll(".nav-children li").forEach((li) => {
+          const text = normalizeSearchText(li.textContent);
+          const match = query === "" || text.includes(query);
+          li.style.display = match ? "" : "none";
+          if (match) groupHasMatch = true;
+        });
+
+        group.style.display = groupHasMatch ? "" : "none";
+        if (groupHasMatch) sectionHasMatch = true;
+      });
+
+      section.style.display = sectionHasMatch ? "" : "none";
+      if (sectionHasMatch) anyVisible = true;
+    });
+
+    emptyMsg.style.display = query !== "" && !anyVisible ? "" : "none";
+  });
+}
+
+// ============================================================
+// Seguimiento de progreso: cada juego de práctica llama a
+// AppProgress.record(temaId, esCorrecto) al comprobar una
+// respuesta. Se guarda en localStorage y lo lee la página
+// "Mi progreso" (matematicas/mi-progreso.html y lengua/... se
+// enlazan a la misma página en la raíz: mi-progreso.html).
+// ============================================================
+
+const PROGRESS_STORAGE_KEY = "ar_progreso";
+
+function loadProgressData() {
+  try {
+    const raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveProgressData(data) {
+  try {
+    localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    // localStorage no disponible: el progreso no se podrá guardar.
+  }
+}
+
+const AppProgress = {
+  record(topicId, isCorrect) {
+    const data = loadProgressData();
+    if (!data[topicId]) data[topicId] = { aciertos: 0, fallos: 0, ultima: null };
+    if (isCorrect) data[topicId].aciertos++;
+    else data[topicId].fallos++;
+    data[topicId].ultima = new Date().toISOString();
+    saveProgressData(data);
+  },
+  getAll() {
+    return loadProgressData();
+  },
+  getTopic(topicId) {
+    const data = loadProgressData();
+    return data[topicId] || { aciertos: 0, fallos: 0, ultima: null };
+  },
+  reset() {
+    saveProgressData({});
+  },
+};
+
+// ============================================================
+// Accesibilidad: fuente de lectura fácil y tamaño del texto,
+// disponibles en todas las páginas mediante un botón flotante.
+// Las preferencias se guardan en localStorage.
+// ============================================================
+
+const A11Y_STORAGE_KEY = "ar_accesibilidad";
+
+function loadA11yPrefs() {
+  try {
+    const raw = localStorage.getItem(A11Y_STORAGE_KEY);
+    if (!raw) return { dyslexia: false, fontSize: "normal" };
+    const parsed = JSON.parse(raw);
+    return {
+      dyslexia: !!parsed.dyslexia,
+      fontSize: ["normal", "large", "xlarge"].includes(parsed.fontSize) ? parsed.fontSize : "normal",
+    };
+  } catch (e) {
+    return { dyslexia: false, fontSize: "normal" };
+  }
+}
+
+function saveA11yPrefs(prefs) {
+  try {
+    localStorage.setItem(A11Y_STORAGE_KEY, JSON.stringify(prefs));
+  } catch (e) {
+    // localStorage no disponible: los ajustes solo durarán la sesión actual.
+  }
+}
+
+function applyA11yPrefs(prefs) {
+  const html = document.documentElement;
+  html.classList.toggle("a11y-dyslexia", prefs.dyslexia);
+  html.classList.remove("a11y-size-large", "a11y-size-xlarge");
+  if (prefs.fontSize === "large") html.classList.add("a11y-size-large");
+  if (prefs.fontSize === "xlarge") html.classList.add("a11y-size-xlarge");
+}
+
+function ensureDyslexiaFontLoaded() {
+  if (document.getElementById("a11y-font-link")) return;
+  const link = document.createElement("link");
+  link.id = "a11y-font-link";
+  link.rel = "stylesheet";
+  link.href = "https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap";
+  document.head.appendChild(link);
+}
+
+// Se aplica cuanto antes (sin esperar a DOMContentLoaded) para evitar parpadeos.
+const a11yPrefs = loadA11yPrefs();
+applyA11yPrefs(a11yPrefs);
+if (a11yPrefs.dyslexia) ensureDyslexiaFontLoaded();
+
+function buildA11yWidget() {
+  if (document.querySelector(".a11y-widget")) return;
+
+  const wrap = document.createElement("div");
+  wrap.className = "a11y-widget";
+  wrap.innerHTML = `
+    <div class="a11y-panel" id="a11y-panel">
+      <p class="a11y-panel-title">Accesibilidad</p>
+      <label class="a11y-row">
+        <span>Fuente de lectura fácil</span>
+        <input type="checkbox" id="a11y-dyslexia-toggle">
+      </label>
+      <p class="a11y-row-label">Tamaño del texto</p>
+      <div class="a11y-size-row">
+        <button type="button" class="a11y-size-btn" data-size="normal">A</button>
+        <button type="button" class="a11y-size-btn" data-size="large">A+</button>
+        <button type="button" class="a11y-size-btn" data-size="xlarge">A++</button>
+      </div>
+    </div>
+    <button type="button" class="a11y-fab" id="a11y-fab" aria-label="Opciones de accesibilidad" title="Accesibilidad">Aa</button>
+  `;
+  document.body.appendChild(wrap);
+
+  const fab = wrap.querySelector("#a11y-fab");
+  const panel = wrap.querySelector("#a11y-panel");
+  const dyslexiaToggle = wrap.querySelector("#a11y-dyslexia-toggle");
+  const sizeBtns = wrap.querySelectorAll(".a11y-size-btn");
+
+  dyslexiaToggle.checked = a11yPrefs.dyslexia;
+  sizeBtns.forEach((btn) => btn.classList.toggle("active", btn.dataset.size === a11yPrefs.fontSize));
+
+  fab.addEventListener("click", (e) => {
+    e.stopPropagation();
+    panel.classList.toggle("show");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!wrap.contains(e.target)) panel.classList.remove("show");
+  });
+
+  dyslexiaToggle.addEventListener("change", () => {
+    a11yPrefs.dyslexia = dyslexiaToggle.checked;
+    if (a11yPrefs.dyslexia) ensureDyslexiaFontLoaded();
+    applyA11yPrefs(a11yPrefs);
+    saveA11yPrefs(a11yPrefs);
+  });
+
+  sizeBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      a11yPrefs.fontSize = btn.dataset.size;
+      sizeBtns.forEach((b) => b.classList.toggle("active", b === btn));
+      applyA11yPrefs(a11yPrefs);
+      saveA11yPrefs(a11yPrefs);
+    });
+  });
 }
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initLayout);
+  document.addEventListener("DOMContentLoaded", buildA11yWidget);
 } else {
   initLayout();
+  buildA11yWidget();
 }

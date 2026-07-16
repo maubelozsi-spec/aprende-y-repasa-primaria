@@ -133,6 +133,7 @@ function initGame() {
 
     if (isCorrect) scoreOk++;
     else scoreKo++;
+    AppProgress.record("angulos", isCorrect);
     els.scoreOk.textContent = scoreOk;
     els.scoreKo.textContent = scoreKo;
 

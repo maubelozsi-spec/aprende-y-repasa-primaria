@@ -17,6 +17,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let curso = "5";
   let tipoId = TIPOS_TEXTO_LECTURA[0].id;
   let currentResult = null;
+  let speechSupported = "speechSynthesis" in window;
+  let currentUtterance = null;
+
+  function stopSpeech() {
+    if (speechSupported) window.speechSynthesis.cancel();
+    currentUtterance = null;
+  }
 
   TIPOS_TEXTO_LECTURA.forEach((tipo, i) => {
     const btn = document.createElement("button");
@@ -40,7 +47,65 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  function buildSpeechControls(texto) {
+    const wrap = document.createElement("div");
+    wrap.className = "lectgen-speech-row";
+
+    const playBtn = document.createElement("button");
+    playBtn.type = "button";
+    playBtn.className = "btn btn-secondary";
+    playBtn.textContent = "Escuchar el texto";
+
+    const stopBtn = document.createElement("button");
+    stopBtn.type = "button";
+    stopBtn.className = "btn btn-secondary";
+    stopBtn.textContent = "Detener";
+    stopBtn.disabled = true;
+
+    function setIdleState() {
+      playBtn.textContent = "Escuchar el texto";
+      stopBtn.disabled = true;
+    }
+
+    playBtn.addEventListener("click", () => {
+      const synth = window.speechSynthesis;
+
+      if (synth.speaking && !synth.paused) {
+        synth.pause();
+        playBtn.textContent = "Reanudar";
+        return;
+      }
+      if (synth.paused) {
+        synth.resume();
+        playBtn.textContent = "Pausar";
+        return;
+      }
+
+      stopSpeech();
+      const textoPlano = texto.titulo + ". " + texto.cuerpo.replace(/\n+/g, " ");
+      const utterance = new SpeechSynthesisUtterance(textoPlano);
+      utterance.lang = "es-ES";
+      utterance.rate = 0.95;
+      utterance.onend = setIdleState;
+      utterance.onerror = setIdleState;
+      currentUtterance = utterance;
+      synth.speak(utterance);
+      playBtn.textContent = "Pausar";
+      stopBtn.disabled = false;
+    });
+
+    stopBtn.addEventListener("click", () => {
+      stopSpeech();
+      setIdleState();
+    });
+
+    wrap.appendChild(playBtn);
+    wrap.appendChild(stopBtn);
+    return wrap;
+  }
+
   function renderPreview(texto) {
+    stopSpeech();
     previewEl.innerHTML = "";
 
     const tipoLabel = (TIPOS_TEXTO_LECTURA.find((t) => t.id === texto.tipoId) || {}).label || "";
@@ -53,6 +118,10 @@ document.addEventListener("DOMContentLoaded", () => {
     title.className = "lectgen-title";
     title.textContent = texto.titulo;
     previewEl.appendChild(title);
+
+    if (speechSupported) {
+      previewEl.appendChild(buildSpeechControls(texto));
+    }
 
     const bodyWrap = document.createElement("div");
     bodyWrap.className = "lectgen-body";

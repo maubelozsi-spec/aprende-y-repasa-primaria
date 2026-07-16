@@ -92,6 +92,7 @@ function initPracticaCM() {
 
     if (isCorrect) {
       scoreOk++;
+      AppProgress.record("calculo-mental", true);
       els.scoreOk.textContent = scoreOk;
       els.input.classList.add("correct");
       els.input.disabled = true;
@@ -103,6 +104,7 @@ function initPracticaCM() {
 
     if (attempts >= 2) {
       scoreKo++;
+      AppProgress.record("calculo-mental", false);
       els.scoreKo.textContent = scoreKo;
       els.input.classList.remove("incorrect");
       els.input.classList.add("correct");

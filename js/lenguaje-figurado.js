@@ -144,6 +144,7 @@ function initGame() {
 
     if (isCorrect) scoreOk++;
     else scoreKo++;
+    AppProgress.record("lenguaje-figurado", isCorrect);
     els.scoreOk.textContent = scoreOk;
     els.scoreKo.textContent = scoreKo;
 
