@@ -67,6 +67,7 @@ const NAV = [
         label: "Herramientas",
         items: [
           { id: "generador-dictados", label: "Generador de dictados", href: "lengua/generador-dictados.html", available: true },
+          { id: "lectura-comprension", label: "Lectura comprensiva", href: "lengua/lectura-comprension.html", available: true },
         ],
       },
     ],

@@ -1823,6 +1823,57 @@ table.rules-table tr:last-child td {
   color: var(--text-soft);
 }
 
+/* ---------- Generador de lectura comprensiva ---------- */
+
+.lectgen-card {
+  max-width: 760px;
+}
+
+.lectgen-tipo-row {
+  justify-content: flex-start;
+}
+
+.lectgen-preview {
+  margin-top: 22px;
+  text-align: left;
+  padding: 22px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.lectgen-tipo-tag {
+  color: var(--text-soft);
+  font-size: 13px;
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.lectgen-title {
+  color: var(--color-indigo);
+  margin: 0 0 14px;
+}
+
+.lectgen-body p {
+  margin-bottom: 14px;
+  line-height: 1.7;
+}
+
+.lectgen-section-bar {
+  background: #595959;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  margin: 20px 0 12px;
+  font-size: 14px;
+}
+
+.lectgen-question {
+  font-weight: 700;
+  margin: 10px 0 4px;
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lectura comprensiva · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "lectura-comprension";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>Lectura comprensiva</h1>
+        <p class="content-subtitle">Elige un tipo de texto y genera una lectura con preguntas de comprensión, opinión personal y reflexión. Visualízala en pantalla o descárgala en Word con su hoja de soluciones.</p>
+      </header>
+
+      <div class="game-card generator-card lectgen-card">
+
+        <div class="generator-field">
+          <label>Tipo de texto</label>
+          <div class="choice-row lectgen-tipo-row" id="lectgen-tipo-picker"></div>
+        </div>
+
+        <div class="generator-field">
+          <label>Curso</label>
+          <div class="choice-row" id="lectgen-curso-picker">
+            <button class="btn btn-secondary active" data-curso="5">5º de Primaria</button>
+            <button class="btn btn-secondary" data-curso="6">6º de Primaria</button>
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <button class="btn btn-primary" id="lectgen-generate-btn">Generar lectura</button>
+        </div>
+
+        <div id="lectgen-status" class="feedback-box"></div>
+
+        <div id="lectgen-preview-wrap" style="display:none;">
+          <div class="lectgen-preview" id="lectgen-preview"></div>
+          <div class="actions-row">
+            <button class="btn btn-secondary" id="lectgen-download-btn">Descargar en Word (ficha + soluciones)</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/docx-writer.js"></script>
+<script src="../js/lectura-generator.js"></script>
+<script src="../js/generador-lectura-ui.js"></script>
+</body>
+</html>
