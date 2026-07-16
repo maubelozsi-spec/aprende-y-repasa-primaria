@@ -1544,6 +1544,133 @@ table.rules-table tr:last-child td {
   margin: 0 0 10px;
 }
 
+/* ---------- Generador de dictados ---------- */
+
+.dictado-select-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.dictado-select-row .btn {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.dictado-rules-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dictado-rule-toggle {
+  --rule-color: var(--color-indigo);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.dictado-rule-toggle:hover {
+  border-color: var(--rule-color);
+}
+
+.dictado-rule-toggle.active {
+  border-color: var(--rule-color);
+  color: var(--rule-color);
+}
+
+.dictado-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--rule-color);
+  flex-shrink: 0;
+}
+
+.dictado-story {
+  text-align: left;
+  margin-top: 22px;
+}
+
+.dictado-story:empty {
+  display: none;
+}
+
+.dictado-title {
+  margin: 0 0 16px;
+  color: var(--color-indigo);
+}
+
+.dictado-sentence {
+  margin: 0 0 14px;
+  font-size: 16px;
+  line-height: 1.9;
+}
+
+.dictado-word {
+  color: var(--rule-color);
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 2px dotted var(--rule-color);
+  padding-bottom: 1px;
+}
+
+.dictado-word:hover,
+.dictado-word:focus {
+  filter: brightness(0.8);
+  outline: none;
+}
+
+.dictado-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 6px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border-strong);
+}
+
+.dictado-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.dictado-popover {
+  position: absolute;
+  z-index: 100;
+  max-width: 280px;
+  background: var(--surface);
+  border: 2px solid var(--color-indigo);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+.dictado-popover-title {
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.dictado-popover-body {
+  color: var(--text);
+  line-height: 1.5;
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {

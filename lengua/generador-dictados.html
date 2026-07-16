@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de dictados · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "generador-dictados";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua</p>
+        <h1>Generador de dictados</h1>
+        <p class="content-subtitle">Elige una o varias reglas ortográficas y cuántas frases quieres, y se creará una historia para dictar. Después, revela la corrección: cada palabra clave se colorea según su regla y, al pulsarla, explica el motivo.</p>
+      </header>
+
+      <div class="game-card generator-card">
+
+        <div class="generator-field">
+          <label>Reglas ortográficas</label>
+          <div class="dictado-select-row">
+            <button type="button" class="btn btn-secondary" id="dict-select-all">Seleccionar todas</button>
+            <button type="button" class="btn btn-secondary" id="dict-select-none">Ninguna</button>
+          </div>
+          <div class="dictado-rules-grid" id="dict-rules"></div>
+        </div>
+
+        <div class="generator-field">
+          <label for="dict-count">Número de frases (3-20)</label>
+          <input type="number" id="dict-count" class="number-input" min="3" max="20" value="8">
+        </div>
+
+        <div class="actions-row">
+          <button class="btn btn-primary" id="dict-generate-btn">Generar dictado</button>
+        </div>
+
+        <div id="dict-status" class="feedback-box"></div>
+
+        <div id="dict-story" class="dictado-story"></div>
+        <div id="dict-legend" class="dictado-legend" style="display:none;"></div>
+
+        <div class="actions-row">
+          <button class="btn btn-secondary" id="dict-toggle-colors" disabled>Mostrar corrección</button>
+          <button class="btn btn-secondary" id="dict-copy-btn" disabled>Copiar texto</button>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/dictado-generator.js"></script>
+<script src="../js/generador-dictados-ui.js"></script>
+</body>
+</html>
