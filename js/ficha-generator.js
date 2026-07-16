@@ -1208,17 +1208,30 @@ const TOPICS = [
 
 // ---------------- Construcción del documento ----------------
 
-function labeledBox(label, extraLines, spacingAfter, shading) {
-  const runs = [{ text: label + " ", bold: true, color: "0f766e" }];
+function sectionBar(label) {
+  return {
+    runs: [{ text: label, bold: true, color: "FFFFFF", size: 18 }],
+    shading: "595959",
+    spacingBefore: 40,
+    spacingAfter: 0,
+  };
+}
+
+function blankBox(extraLines, spacingAfter) {
+  const runs = [];
   for (let i = 0; i < extraLines; i++) runs.push({ break: true });
   runs.push({ text: " " });
-  return { runs, border: true, shading: shading ?? "FAFAFA", spacingAfter };
+  return { runs, border: true, shading: "D9D9D9", spacingAfter };
+}
+
+function filledBox(runs, spacingAfter) {
+  return { runs, border: true, shading: "D9D9D9", spacingAfter };
 }
 
 function buildHeaderParagraphs(topic, curso, fecha) {
   return [
-    { runs: [{ text: "Aprende y Repasa", bold: true, size: 18, color: "666d80" }], spacingAfter: 30 },
-    { runs: [{ text: "Ficha de matemáticas", bold: true, size: 32, color: "0f766e" }], spacingAfter: 100 },
+    { runs: [{ text: "Aprende y Repasa", bold: true, size: 18, color: "595959" }], spacingAfter: 30 },
+    { runs: [{ text: "Ficha de matemáticas", bold: true, size: 32 }], spacingAfter: 100 },
     {
       runs: [
         { text: "Área: ", bold: true }, { text: "Matemáticas      " },
@@ -1240,37 +1253,27 @@ function buildProblemParagraphs(problem, index, showSolutions) {
   const paragraphs = [];
   const startsNewPage = index > 0 && index % 5 === 0;
   paragraphs.push({
-    runs: [{ text: `Problema ${index + 1}`, bold: true, size: 22, color: "4338ca" }],
+    runs: [{ text: `Problema ${index + 1}`, bold: true, size: 22 }],
     spacingBefore: startsNewPage ? 0 : 90,
     spacingAfter: 30,
     pageBreakBefore: startsNewPage,
   });
   paragraphs.push({ runs: [{ text: problem.enunciado }], spacingAfter: 40 });
 
-  if (showSolutions) {
-    paragraphs.push({
-      runs: [{ text: "Datos: ", bold: true, color: "0f766e" }, { text: problem.datos.join("   ·   ") }],
-      border: true,
-      shading: "FAFAFA",
-      spacingAfter: 50,
-    });
-    paragraphs.push({
-      runs: [{ text: "Operación: ", bold: true, color: "0f766e" }, { text: problem.operacion }],
-      border: true,
-      shading: "F0FDFA",
-      spacingAfter: 50,
-    });
-    paragraphs.push({
-      runs: [{ text: "Solución: ", bold: true, color: "0f766e" }, { text: problem.solucion, bold: true, color: "0f766e" }],
-      border: true,
-      shading: "ECFDF5",
-      spacingAfter: 140,
-    });
-  } else {
-    paragraphs.push(labeledBox("Datos:", 1, 50));
-    paragraphs.push(labeledBox("Operación:", 0, 50, "F0FDFA"));
-    paragraphs.push(labeledBox("Solución:", 0, 140, "ECFDF5"));
-  }
+  paragraphs.push(sectionBar("Datos"));
+  paragraphs.push(
+    showSolutions ? filledBox([{ text: problem.datos.join("   ·   ") }], 30) : blankBox(1, 30)
+  );
+
+  paragraphs.push(sectionBar("Operación"));
+  paragraphs.push(
+    showSolutions ? filledBox([{ text: problem.operacion }], 30) : blankBox(0, 30)
+  );
+
+  paragraphs.push(sectionBar("Solución"));
+  paragraphs.push(
+    showSolutions ? filledBox([{ text: problem.solucion, bold: true }], 140) : blankBox(0, 140)
+  );
 
   return paragraphs;
 }
@@ -1280,12 +1283,12 @@ function buildFichaDocument({ topic, curso, fecha, problems, showSolutions }) {
   paragraphs.push(...buildHeaderParagraphs(topic, curso, fecha));
 
   if (showSolutions) {
-    paragraphs.push({ runs: [{ text: "Hoja de soluciones", bold: true, size: 24, color: "be123c" }], spacingAfter: 140 });
+    paragraphs.push({ runs: [{ text: "Hoja de soluciones", bold: true, size: 24 }], spacingAfter: 140 });
   } else {
     paragraphs.push({
       runs: [{ text: topic.resumen }],
       border: true,
-      shading: "EEF2FF",
+      shading: "D9D9D9",
       spacingAfter: 140,
     });
   }
