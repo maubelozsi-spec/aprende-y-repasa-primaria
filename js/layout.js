@@ -39,6 +39,7 @@ const NAV = [
       { id: "lenguas-espana", label: "Las lenguas de España", href: "lengua/lenguas-espana.html", available: true },
       { id: "prestamos-tabu-eufemismos", label: "Préstamos, palabras tabú y eufemismos", href: "lengua/prestamos-tabu-eufemismos.html", available: true },
       { id: "generador-dictados", label: "Generador de dictados", href: "lengua/generador-dictados.html", available: true },
+      { id: "errores-comunes", label: "Errores ortográficos comunes", href: "lengua/errores-comunes.html", available: true },
     ],
   },
   {
