@@ -4,6 +4,10 @@
 // Cada página define antes de cargar este script:
 //   window.BASE_PATH    -> "" en la raíz, "../" dentro de una subcarpeta
 //   window.CURRENT_PAGE -> id de la página activa (ver NAV más abajo)
+//
+// Cada asignatura se organiza en "groups" (subcategorías temáticas)
+// para que, con tantos contenidos, sea más fácil localizar uno en
+// concreto en vez de tener que recorrer una lista larga y plana.
 // ============================================================
 
 const NAV = [
@@ -12,34 +16,59 @@ const NAV = [
     label: "Lengua",
     href: "lengua/index.html",
     color: "indigo",
-    children: [
-      { id: "ortografia", label: "Acentuación", href: "lengua/ortografia.html", available: true },
-      { id: "sintactico", label: "Análisis sintáctico", href: "lengua/sintactico.html", available: true },
-      { id: "morfologico", label: "Análisis morfológico", href: "lengua/morfologico.html", available: true },
-      { id: "sinonimos-antonimos", label: "Sinónimos y antónimos", href: "lengua/sinonimos-antonimos.html", available: true },
-      { id: "sustantivo-pronombre", label: "El sustantivo y el pronombre", href: "lengua/sustantivo-pronombre.html", available: true },
-      { id: "adjetivo", label: "El adjetivo", href: "lengua/adjetivo.html", available: true },
-      { id: "determinantes", label: "Los determinantes", href: "lengua/determinantes.html", available: true },
-      { id: "verbo", label: "El verbo", href: "lengua/verbo.html", available: true },
-      { id: "adverbio-preposicion-conjuncion", label: "Adverbio, preposición y conjunción", href: "lengua/adverbio-preposicion-conjuncion.html", available: true },
-      { id: "formacion-palabras", label: "Formación de palabras", href: "lengua/formacion-palabras.html", available: true },
-      { id: "comunicacion-textos", label: "Comunicación y tipos de texto", href: "lengua/comunicacion-textos.html", available: true },
-      { id: "texto-teatral", label: "El texto teatral", href: "lengua/texto-teatral.html", available: true },
-      { id: "narrativa", label: "Narrativa", href: "lengua/narrativa.html", available: true },
-      { id: "poesia", label: "Poesía y recursos literarios", href: "lengua/poesia.html", available: true },
-      { id: "tipos-texto-6", label: "Textos científicos, históricos, descriptivos y discontinuos", href: "lengua/tipos-texto-6.html", available: true },
-      { id: "dialogo-debate-argumentativo", label: "El diálogo, el debate y el texto argumentativo", href: "lengua/dialogo-debate-argumentativo.html", available: true },
-      { id: "sintagmas", label: "Los sintagmas", href: "lengua/sintagmas.html", available: true },
-      { id: "lenguaje-figurado", label: "Lenguaje literal y figurado", href: "lengua/lenguaje-figurado.html", available: true },
-      { id: "ortografia-hgjxs", label: "Ortografía: la h, g/j y x/s", href: "lengua/ortografia-hgjxs.html", available: true },
-      { id: "tilde-diacritica", label: "Tilde diacrítica", href: "lengua/tilde-diacritica.html", available: true },
-      { id: "loismo-laismo-leismo", label: "Loísmo, laísmo y leísmo", href: "lengua/loismo-laismo-leismo.html", available: true },
-      { id: "signos-puntuacion", label: "Los signos de puntuación", href: "lengua/signos-puntuacion.html", available: true },
-      { id: "siglas-abreviaturas", label: "Siglas y abreviaturas", href: "lengua/siglas-abreviaturas.html", available: true },
-      { id: "lenguas-espana", label: "Las lenguas de España", href: "lengua/lenguas-espana.html", available: true },
-      { id: "prestamos-tabu-eufemismos", label: "Préstamos, palabras tabú y eufemismos", href: "lengua/prestamos-tabu-eufemismos.html", available: true },
-      { id: "generador-dictados", label: "Generador de dictados", href: "lengua/generador-dictados.html", available: true },
-      { id: "errores-comunes", label: "Errores ortográficos comunes", href: "lengua/errores-comunes.html", available: true },
+    groups: [
+      {
+        label: "Ortografía y acentuación",
+        items: [
+          { id: "ortografia", label: "Acentuación", href: "lengua/ortografia.html", available: true },
+          { id: "ortografia-hgjxs", label: "Ortografía: la h, g/j y x/s", href: "lengua/ortografia-hgjxs.html", available: true },
+          { id: "tilde-diacritica", label: "Tilde diacrítica", href: "lengua/tilde-diacritica.html", available: true },
+          { id: "loismo-laismo-leismo", label: "Loísmo, laísmo y leísmo", href: "lengua/loismo-laismo-leismo.html", available: true },
+          { id: "signos-puntuacion", label: "Los signos de puntuación", href: "lengua/signos-puntuacion.html", available: true },
+          { id: "siglas-abreviaturas", label: "Siglas y abreviaturas", href: "lengua/siglas-abreviaturas.html", available: true },
+          { id: "errores-comunes", label: "Errores ortográficos comunes", href: "lengua/errores-comunes.html", available: true },
+        ],
+      },
+      {
+        label: "Gramática",
+        items: [
+          { id: "morfologico", label: "Análisis morfológico", href: "lengua/morfologico.html", available: true },
+          { id: "sintactico", label: "Análisis sintáctico", href: "lengua/sintactico.html", available: true },
+          { id: "sintagmas", label: "Los sintagmas", href: "lengua/sintagmas.html", available: true },
+          { id: "sustantivo-pronombre", label: "El sustantivo y el pronombre", href: "lengua/sustantivo-pronombre.html", available: true },
+          { id: "adjetivo", label: "El adjetivo", href: "lengua/adjetivo.html", available: true },
+          { id: "determinantes", label: "Los determinantes", href: "lengua/determinantes.html", available: true },
+          { id: "verbo", label: "El verbo", href: "lengua/verbo.html", available: true },
+          { id: "adverbio-preposicion-conjuncion", label: "Adverbio, preposición y conjunción", href: "lengua/adverbio-preposicion-conjuncion.html", available: true },
+          { id: "formacion-palabras", label: "Formación de palabras", href: "lengua/formacion-palabras.html", available: true },
+        ],
+      },
+      {
+        label: "Vocabulario y lengua",
+        items: [
+          { id: "sinonimos-antonimos", label: "Sinónimos y antónimos", href: "lengua/sinonimos-antonimos.html", available: true },
+          { id: "lenguaje-figurado", label: "Lenguaje literal y figurado", href: "lengua/lenguaje-figurado.html", available: true },
+          { id: "prestamos-tabu-eufemismos", label: "Préstamos, palabras tabú y eufemismos", href: "lengua/prestamos-tabu-eufemismos.html", available: true },
+          { id: "lenguas-espana", label: "Las lenguas de España", href: "lengua/lenguas-espana.html", available: true },
+        ],
+      },
+      {
+        label: "Textos y literatura",
+        items: [
+          { id: "comunicacion-textos", label: "Comunicación y tipos de texto", href: "lengua/comunicacion-textos.html", available: true },
+          { id: "tipos-texto-6", label: "Textos científicos, históricos, descriptivos y discontinuos", href: "lengua/tipos-texto-6.html", available: true },
+          { id: "dialogo-debate-argumentativo", label: "El diálogo, el debate y el texto argumentativo", href: "lengua/dialogo-debate-argumentativo.html", available: true },
+          { id: "texto-teatral", label: "El texto teatral", href: "lengua/texto-teatral.html", available: true },
+          { id: "narrativa", label: "Narrativa", href: "lengua/narrativa.html", available: true },
+          { id: "poesia", label: "Poesía y recursos literarios", href: "lengua/poesia.html", available: true },
+        ],
+      },
+      {
+        label: "Herramientas",
+        items: [
+          { id: "generador-dictados", label: "Generador de dictados", href: "lengua/generador-dictados.html", available: true },
+        ],
+      },
     ],
   },
   {
@@ -47,36 +76,66 @@ const NAV = [
     label: "Matemáticas",
     href: "matematicas/index.html",
     color: "teal",
-    children: [
-      { id: "sumas", label: "Sumas", href: "matematicas/sumas.html", available: true },
-      { id: "restas", label: "Restas", href: "matematicas/restas.html", available: true },
-      { id: "tablas", label: "Tablas de multiplicar", href: "matematicas/tablas.html", available: true },
-      { id: "multiplicaciones", label: "Multiplicaciones", href: "matematicas/multiplicaciones.html", available: true },
-      { id: "divisiones", label: "Divisiones", href: "matematicas/divisiones.html", available: true },
-      { id: "numeros-grandes", label: "Números grandes y aproximación", href: "matematicas/numeros-grandes.html", available: true },
-      { id: "operaciones-combinadas", label: "Operaciones combinadas", href: "matematicas/operaciones-combinadas.html", available: true },
-      { id: "propiedades-operaciones", label: "Propiedades de las operaciones", href: "matematicas/propiedades-operaciones.html", available: true },
-      { id: "numeros-romanos", label: "Números romanos", href: "matematicas/numeros-romanos.html", available: true },
-      { id: "potencias", label: "Las potencias", href: "matematicas/potencias.html", available: true },
-      { id: "numeros-enteros", label: "Números enteros", href: "matematicas/numeros-enteros.html", available: true },
-      { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", href: "matematicas/multiplos-divisores.html", available: true },
-      { id: "angulos", label: "Ángulos", href: "matematicas/angulos.html", available: true },
-      { id: "coordenadas", label: "Coordenadas, simetrías, traslaciones y giros", href: "matematicas/coordenadas.html", available: true },
-      { id: "fracciones", label: "Fracciones y número mixto", href: "matematicas/fracciones.html", available: true },
-      { id: "operaciones-fracciones", label: "Operaciones con fracciones", href: "matematicas/operaciones-fracciones.html", available: true },
-      { id: "decimales", label: "Números decimales", href: "matematicas/decimales.html", available: true },
-      { id: "decimales-md", label: "Multiplicación y división de decimales", href: "matematicas/decimales-md.html", available: true },
-      { id: "porcentajes", label: "Porcentajes", href: "matematicas/porcentajes.html", available: true },
-      { id: "medidas", label: "Medidas: longitud, capacidad, masa y superficie", href: "matematicas/medidas.html", available: true },
-      { id: "areas", label: "Área de figuras planas y polígonos", href: "matematicas/areas.html", available: true },
-      { id: "circunferencia", label: "Circunferencia y círculo", href: "matematicas/circunferencia.html", available: true },
-      { id: "cuerpos-geometricos", label: "Cuerpos geométricos y su desarrollo", href: "matematicas/cuerpos-geometricos.html", available: true },
-      { id: "tiempo", label: "El tiempo", href: "matematicas/tiempo.html", available: true },
-      { id: "probabilidad", label: "Sucesos y probabilidad", href: "matematicas/probabilidad.html", available: true },
-      { id: "proporcionalidad", label: "Proporcionalidad y escalas", href: "matematicas/proporcionalidad.html", available: true },
-      { id: "estadistica", label: "Estadística: diagramas de barras, moda y media", href: "matematicas/estadistica.html", available: true },
-      { id: "generador-fichas", label: "Generador de fichas de problemas", href: "matematicas/generador-fichas.html", available: true },
-      { id: "generador-operaciones", label: "Generador de operaciones básicas", href: "matematicas/generador-operaciones.html", available: true },
+    groups: [
+      {
+        label: "Números y operaciones básicas",
+        items: [
+          { id: "sumas", label: "Sumas", href: "matematicas/sumas.html", available: true },
+          { id: "restas", label: "Restas", href: "matematicas/restas.html", available: true },
+          { id: "tablas", label: "Tablas de multiplicar", href: "matematicas/tablas.html", available: true },
+          { id: "multiplicaciones", label: "Multiplicaciones", href: "matematicas/multiplicaciones.html", available: true },
+          { id: "divisiones", label: "Divisiones", href: "matematicas/divisiones.html", available: true },
+          { id: "numeros-grandes", label: "Números grandes y aproximación", href: "matematicas/numeros-grandes.html", available: true },
+          { id: "operaciones-combinadas", label: "Operaciones combinadas", href: "matematicas/operaciones-combinadas.html", available: true },
+          { id: "propiedades-operaciones", label: "Propiedades de las operaciones", href: "matematicas/propiedades-operaciones.html", available: true },
+          { id: "numeros-romanos", label: "Números romanos", href: "matematicas/numeros-romanos.html", available: true },
+        ],
+      },
+      {
+        label: "Números especiales",
+        items: [
+          { id: "potencias", label: "Las potencias", href: "matematicas/potencias.html", available: true },
+          { id: "numeros-enteros", label: "Números enteros", href: "matematicas/numeros-enteros.html", available: true },
+          { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", href: "matematicas/multiplos-divisores.html", available: true },
+        ],
+      },
+      {
+        label: "Fracciones, decimales y porcentajes",
+        items: [
+          { id: "fracciones", label: "Fracciones y número mixto", href: "matematicas/fracciones.html", available: true },
+          { id: "operaciones-fracciones", label: "Operaciones con fracciones", href: "matematicas/operaciones-fracciones.html", available: true },
+          { id: "decimales", label: "Números decimales", href: "matematicas/decimales.html", available: true },
+          { id: "decimales-md", label: "Multiplicación y división de decimales", href: "matematicas/decimales-md.html", available: true },
+          { id: "porcentajes", label: "Porcentajes", href: "matematicas/porcentajes.html", available: true },
+        ],
+      },
+      {
+        label: "Geometría y medidas",
+        items: [
+          { id: "angulos", label: "Ángulos", href: "matematicas/angulos.html", available: true },
+          { id: "coordenadas", label: "Coordenadas, simetrías, traslaciones y giros", href: "matematicas/coordenadas.html", available: true },
+          { id: "areas", label: "Área de figuras planas y polígonos", href: "matematicas/areas.html", available: true },
+          { id: "circunferencia", label: "Circunferencia y círculo", href: "matematicas/circunferencia.html", available: true },
+          { id: "cuerpos-geometricos", label: "Cuerpos geométricos y su desarrollo", href: "matematicas/cuerpos-geometricos.html", available: true },
+          { id: "medidas", label: "Medidas: longitud, capacidad, masa y superficie", href: "matematicas/medidas.html", available: true },
+          { id: "tiempo", label: "El tiempo", href: "matematicas/tiempo.html", available: true },
+        ],
+      },
+      {
+        label: "Proporcionalidad y estadística",
+        items: [
+          { id: "proporcionalidad", label: "Proporcionalidad y escalas", href: "matematicas/proporcionalidad.html", available: true },
+          { id: "estadistica", label: "Estadística: diagramas de barras, moda y media", href: "matematicas/estadistica.html", available: true },
+          { id: "probabilidad", label: "Sucesos y probabilidad", href: "matematicas/probabilidad.html", available: true },
+        ],
+      },
+      {
+        label: "Herramientas",
+        items: [
+          { id: "generador-fichas", label: "Generador de fichas de problemas", href: "matematicas/generador-fichas.html", available: true },
+          { id: "generador-operaciones", label: "Generador de operaciones básicas", href: "matematicas/generador-operaciones.html", available: true },
+        ],
+      },
     ],
   },
 ];
@@ -95,23 +154,28 @@ function buildSidebar(base, current) {
   NAV.forEach((section) => {
     html += `<div class="nav-section" style="--section-color: var(--color-${section.color}); --section-tint: var(--color-${section.color}-tint);">`;
     html += `<a href="${base}${section.href}" class="nav-section-label">${section.label}</a>`;
+    html += `<div class="nav-section-body">`;
 
-    if (section.children.length) {
-      html += `<ul class="nav-children">`;
-      section.children.forEach((child) => {
-        if (child.available) {
-          const activeClass = child.id === current ? " active" : "";
-          html += `<li><a href="${base}${child.href}" class="${activeClass.trim()}">${child.label}</a></li>`;
-        } else {
-          html += `<li><span class="nav-item-disabled"><span>${child.label}</span><span class="nav-item-tag">Pronto</span></span></li>`;
-        }
+    if (section.groups && section.groups.length) {
+      section.groups.forEach((group) => {
+        html += `<div class="nav-group">`;
+        if (group.label) html += `<span class="nav-group-label">${group.label}</span>`;
+        html += `<ul class="nav-children">`;
+        group.items.forEach((child) => {
+          if (child.available) {
+            const activeClass = child.id === current ? " active" : "";
+            html += `<li><a href="${base}${child.href}" class="${activeClass.trim()}">${child.label}</a></li>`;
+          } else {
+            html += `<li><span class="nav-item-disabled"><span>${child.label}</span><span class="nav-item-tag">Pronto</span></span></li>`;
+          }
+        });
+        html += `</ul></div>`;
       });
-      html += `</ul>`;
     } else {
       html += `<ul class="nav-children"><li><span class="nav-item-disabled"><span>Sin contenidos todavía</span><span class="nav-item-tag">Pronto</span></span></li></ul>`;
     }
 
-    html += `</div>`;
+    html += `</div></div>`;
   });
 
   html += `</nav>`;
@@ -145,6 +209,9 @@ function initLayout() {
       });
     });
   }
+
+  const activeLink = sidebar ? sidebar.querySelector(".nav-children a.active") : null;
+  if (activeLink) activeLink.scrollIntoView({ block: "center" });
 }
 
 if (document.readyState === "loading") {
