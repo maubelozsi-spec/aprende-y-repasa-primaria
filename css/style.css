@@ -1874,6 +1874,16 @@ table.rules-table tr:last-child td {
   margin: 10px 0 4px;
 }
 
+.cm-preview-list {
+  margin: 0 0 12px;
+  padding-left: 22px;
+}
+
+.cm-preview-list li {
+  margin-bottom: 4px;
+  font-size: 14.5px;
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {

@@ -90,6 +90,7 @@ const NAV = [
           { id: "operaciones-combinadas", label: "Operaciones combinadas", href: "matematicas/operaciones-combinadas.html", available: true },
           { id: "propiedades-operaciones", label: "Propiedades de las operaciones", href: "matematicas/propiedades-operaciones.html", available: true },
           { id: "numeros-romanos", label: "Números romanos", href: "matematicas/numeros-romanos.html", available: true },
+          { id: "calculo-mental", label: "Cálculo mental", href: "matematicas/calculo-mental.html", available: true },
         ],
       },
       {
