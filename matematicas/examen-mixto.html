@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de exámenes mixtos · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "examen-mixto";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Matemáticas</p>
+        <h1>Generador de exámenes mixtos</h1>
+        <p class="content-subtitle">Marca varios contenidos, elige cuántas preguntas de cada uno quieres y descarga un examen combinado junto con su hoja de soluciones en Word.</p>
+      </header>
+
+      <div class="game-card generator-card">
+
+        <div class="generator-field">
+          <label>Curso</label>
+          <div class="choice-row" id="exm-curso-picker">
+            <button class="btn btn-secondary active" data-curso="5">5º de Primaria</button>
+            <button class="btn btn-secondary" data-curso="6">6º de Primaria</button>
+          </div>
+        </div>
+
+        <div class="generator-field">
+          <label>Contenidos a incluir</label>
+          <div id="exm-topic-list" class="exm-topic-list"></div>
+        </div>
+
+        <p class="generator-resumen" id="exm-resumen">Elige al menos un contenido y cuántas preguntas quieres de cada uno.</p>
+
+        <div class="actions-row">
+          <button class="btn btn-primary" id="exm-generate-btn">Generar examen y soluciones (Word)</button>
+        </div>
+
+        <div id="exm-status" class="feedback-box"></div>
+      </div>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/docx-writer.js"></script>
+<script src="../js/ficha-generator.js"></script>
+<script src="../js/examen-generator.js"></script>
+<script src="../js/examen-mixto-ui.js"></script>
+</body>
+</html>

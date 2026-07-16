@@ -136,6 +136,7 @@ const NAV = [
         items: [
           { id: "generador-fichas", label: "Generador de fichas de problemas", href: "matematicas/generador-fichas.html", available: true },
           { id: "generador-operaciones", label: "Generador de operaciones básicas", href: "matematicas/generador-operaciones.html", available: true },
+          { id: "examen-mixto", label: "Generador de exámenes mixtos", href: "matematicas/examen-mixto.html", available: true },
         ],
       },
     ],
