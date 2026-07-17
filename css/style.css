@@ -2103,6 +2103,13 @@ table.rules-table tr:last-child td {
   margin: 10px 0 4px;
 }
 
+.lectgen-pause {
+  font-style: italic;
+  color: #0369a1;
+  text-align: center;
+  margin: 10px 0 !important;
+}
+
 .cm-preview-list {
   margin: 0 0 12px;
   padding-left: 22px;

@@ -5,6 +5,48 @@
 // pulsar sobre cada palabra marcada).
 // ============================================================
 
+const DICTADO_EASY_RULES = ["h", "gj", "bv", "yll", "cz", "xs", "mayus"];
+const DICTADO_ADVANCED_RULES = ["td", "agudas", "llanas", "esdrujulas", "diptongo", "hiato"];
+
+const DICTADO_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo reglas de letras y mayúsculas",
+    text: "Para el alumnado con adaptación curricular significativa se restringe a las reglas más concretas (h, g/j, b/v, y/ll, c/z, x/s y mayúsculas), con un dictado más corto.",
+    example: "Se desactivan las reglas de acentuación (agudas, llanas, esdrújulas, diptongo, hiato, tilde diacrítica).",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo dictado, texto más legible",
+    text: "Se mantienen las mismas reglas y frases, pero el texto de la historia se muestra con una tipografía más legible.",
+    example: "Mismo dictado, con un formato más cómodo de leer en pantalla.",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Dictados más cortos",
+    text: "Se sugiere un número menor de frases por defecto, para mantener sesiones de dictado más breves y evitar la pérdida de atención.",
+    example: "El número de frases se ajusta a 5 al elegir esta adaptación (se puede cambiar).",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo reglas de letras y mayúsculas",
+    text: "Igual que en ACS, se restringe a las reglas más concretas y se acorta el dictado.",
+    example: "Se desactivan las reglas de acentuación, igual que en ACS.",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Solo reglas de acentuación",
+    text: "Se practica directamente con las reglas más abstractas: agudas, llanas, esdrújulas, diptongo, hiato y tilde diacrítica.",
+    example: "Se activan por defecto las reglas de acentuación en vez de las reglas de letras.",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Dictados más cortos",
+    text: "Se sugiere un número menor de frases por defecto, para reducir la cantidad de escritura a mano necesaria.",
+    example: "El número de frases se ajusta a 5 al elegir esta adaptación (se puede cambiar).",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   const rulesContainer = document.getElementById("dict-rules");
   const selectAllBtn = document.getElementById("dict-select-all");
@@ -21,6 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
   let showColors = false;
   let popoverEl = null;
 
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, DICTADO_DIFFICULTY_EXPLANATIONS);
+    applyDifficultyUI();
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), DICTADO_DIFFICULTY_EXPLANATIONS);
+
   DICTADO_RULES.forEach((rule, i) => {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -33,12 +81,43 @@ document.addEventListener("DOMContentLoaded", () => {
     label.textContent = rule.label;
     btn.appendChild(swatch);
     btn.appendChild(label);
-    btn.addEventListener("click", () => btn.classList.toggle("active"));
+    btn.addEventListener("click", () => {
+      if (btn.disabled) return;
+      btn.classList.toggle("active");
+    });
     rulesContainer.appendChild(btn);
   });
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    const allBtns = [...rulesContainer.querySelectorAll(".dictado-rule-toggle")];
+
+    allBtns.forEach((b) => {
+      b.disabled = easyOnly && DICTADO_ADVANCED_RULES.includes(b.dataset.rule);
+      if (b.disabled) b.classList.remove("active");
+    });
+
+    if (easyOnly && !allBtns.some((b) => b.classList.contains("active"))) {
+      allBtns.forEach((b) => b.classList.toggle("active", DICTADO_EASY_RULES.slice(0, 2).includes(b.dataset.rule)));
+    }
+
+    if (diff.is("altas")) {
+      allBtns.forEach((b) => b.classList.toggle("active", DICTADO_ADVANCED_RULES.includes(b.dataset.rule)));
+    }
+
+    if (diff.is("tdah") || diff.is("disgrafia")) {
+      countInput.value = 5;
+    }
+
+    storyEl.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  applyDifficultyUI();
+
   selectAllBtn.addEventListener("click", () => {
-    rulesContainer.querySelectorAll(".dictado-rule-toggle").forEach((b) => b.classList.add("active"));
+    rulesContainer.querySelectorAll(".dictado-rule-toggle").forEach((b) => {
+      if (!b.disabled) b.classList.add("active");
+    });
   });
   selectNoneBtn.addEventListener("click", () => {
     rulesContainer.querySelectorAll(".dictado-rule-toggle").forEach((b) => b.classList.remove("active"));

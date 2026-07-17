@@ -5,6 +5,45 @@
 // hoja de soluciones.
 // ============================================================
 
+const LECTGEN_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Texto más corto y menos preguntas",
+    text: "Para el alumnado con adaptación curricular significativa se muestran solo los dos primeros párrafos del texto y las dos primeras preguntas de comprensión, sin opinión ni reflexión adicionales.",
+    example: "Se acorta el texto y se reduce a 2 preguntas de comprensión.",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo texto, más legible y más lento al escuchar",
+    text: "Se mantiene el mismo texto y las mismas preguntas, con una tipografía más legible en pantalla y en el documento, y una velocidad de lectura en voz alta más pausada.",
+    example: "Mismo texto, con más espacio entre líneas y voz más lenta al pulsar «Escuchar el texto».",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Pausas cada dos párrafos",
+    text: "Se mantiene el mismo texto, pero se marca una pausa visual cada dos párrafos, tanto en pantalla como en el documento, para ayudar a mantener la atención.",
+    example: "«· Pausa · Respira un momento antes de seguir ·» entre bloques de párrafos.",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Texto más corto, menos preguntas y más tiempo",
+    text: "Igual que en ACS, se acorta el texto a los dos primeros párrafos y se reduce a 2 preguntas, añadiendo un recordatorio para tomarse el tiempo necesario en la opinión y la reflexión.",
+    example: "Texto y preguntas reducidos, con «Tómate tu tiempo» en las preguntas abiertas.",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Una pregunta de profundización más",
+    text: "Se mantiene el texto completo y se añade una cuarta pregunta de comprensión que pide resumir el texto con las propias palabras del alumno.",
+    example: "«Resume el texto con tus propias palabras en 3 o 4 líneas.»",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Menos líneas para escribir",
+    text: "En el documento para imprimir (no en las soluciones), la opinión y la reflexión llevan una sola línea en blanco en vez de tres, para reducir la cantidad de escritura a mano.",
+    example: "1 línea en blanco para responder en vez de 3.",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   const tipoPicker = document.getElementById("lectgen-tipo-picker");
   const cursoBtns = document.querySelectorAll("#lectgen-curso-picker [data-curso]");
@@ -19,6 +58,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentResult = null;
   let speechSupported = "speechSynthesis" in window;
   let currentUtterance = null;
+
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, LECTGEN_DIFFICULTY_EXPLANATIONS);
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), LECTGEN_DIFFICULTY_EXPLANATIONS);
 
   function stopSpeech() {
     if (speechSupported) window.speechSynthesis.cancel();
@@ -85,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const textoPlano = texto.titulo + ". " + texto.cuerpo.replace(/\n+/g, " ");
       const utterance = new SpeechSynthesisUtterance(textoPlano);
       utterance.lang = "es-ES";
-      utterance.rate = 0.95;
+      utterance.rate = diff.is("dislexia") ? 0.8 : 0.95;
       utterance.onend = setIdleState;
       utterance.onerror = setIdleState;
       currentUtterance = utterance;
@@ -107,6 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderPreview(texto) {
     stopSpeech();
     previewEl.innerHTML = "";
+    previewEl.classList.toggle("difficulty-readable", diff.is("dislexia"));
 
     const tipoLabel = (TIPOS_TEXTO_LECTURA.find((t) => t.id === texto.tipoId) || {}).label || "";
     const tag = document.createElement("p");
@@ -125,7 +170,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const bodyWrap = document.createElement("div");
     bodyWrap.className = "lectgen-body";
-    texto.cuerpo.split("\n\n").forEach((paragraph) => {
+    texto.cuerpo.split("\n\n").forEach((paragraph, i) => {
+      if (diff.is("tdah") && i > 0 && i % 2 === 0) {
+        const pause = document.createElement("p");
+        pause.className = "lectgen-pause";
+        pause.textContent = "· Pausa · Respira un momento antes de seguir ·";
+        bodyWrap.appendChild(pause);
+      }
       const p = document.createElement("p");
       p.textContent = paragraph;
       bodyWrap.appendChild(p);
@@ -161,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
     statusEl.innerHTML = "";
 
     try {
-      currentResult = generarLecturaYSoluciones(tipoId, curso);
+      currentResult = generarLecturaYSoluciones(tipoId, curso, diff.get());
       renderPreview(currentResult.texto);
       previewWrap.style.display = "";
 

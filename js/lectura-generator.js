@@ -327,11 +327,32 @@ function randomIntLectura(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function generarLectura(tipoId) {
+const LECTURA_DISCALCULIA_SCAFFOLD = " Tómate tu tiempo.";
+
+function generarLectura(tipoId, dificultad) {
   const pool = TEXTOS_LECTURA[tipoId];
   if (!pool) throw new Error("Tipo de texto no reconocido: " + tipoId);
-  const texto = pool[randomIntLectura(0, pool.length - 1)];
-  return Object.assign({ tipoId }, texto);
+  const original = pool[randomIntLectura(0, pool.length - 1)];
+  const texto = Object.assign({ tipoId }, original, { preguntas: original.preguntas.map((p) => Object.assign({}, p)) });
+
+  const easyOnly = dificultad === "acs" || dificultad === "discalculia";
+  if (easyOnly) {
+    texto.cuerpo = texto.cuerpo.split("\n\n").slice(0, 2).join("\n\n");
+    texto.preguntas = texto.preguntas.slice(0, 2);
+    if (dificultad === "discalculia") {
+      texto.opinion += LECTURA_DISCALCULIA_SCAFFOLD;
+      texto.reflexion += LECTURA_DISCALCULIA_SCAFFOLD;
+    }
+  } else if (dificultad === "altas") {
+    texto.preguntas = texto.preguntas.concat([
+      {
+        pregunta: "Resume el texto con tus propias palabras en 3 o 4 líneas.",
+        respuesta: "Respuesta libre. Valora que el resumen recoja las ideas principales del texto de forma ordenada.",
+      },
+    ]);
+  }
+
+  return texto;
 }
 
 function todayEsLectura() {
@@ -410,13 +431,38 @@ function answerFilledLectura(text) {
   return { runs: [{ text, italic: true, color: "595959" }], spacingAfter: 120 };
 }
 
-function buildLecturaDocument({ curso, fecha, texto, showSolutions }) {
+function pauseDividerLectura() {
+  return {
+    runs: [{ text: "· Pausa · Respira un momento antes de seguir ·", italic: true, color: "0369A1" }],
+    spacingBefore: 60,
+    spacingAfter: 120,
+  };
+}
+
+function applyDislexiaStylingLectura(blocks) {
+  return blocks.map((b) => {
+    if (b.table) return b;
+    return {
+      ...b,
+      spacingBefore: b.spacingBefore !== undefined ? Math.round(b.spacingBefore * 1.3) : b.spacingBefore,
+      spacingAfter: b.spacingAfter !== undefined ? Math.round(b.spacingAfter * 1.3) : b.spacingAfter,
+      runs: b.runs.map((r) => (r.break ? r : { ...r, size: (r.size || 22) + 6 })),
+    };
+  });
+}
+
+function buildLecturaDocument({ curso, fecha, texto, dificultad, showSolutions }) {
   const blocks = [];
   const tipoLabel = (TIPOS_TEXTO_LECTURA.find((t) => t.id === texto.tipoId) || {}).label || "";
   blocks.push(...buildLecturaHeaderBlocks(curso, tipoLabel, fecha));
 
+  const isTdah = dificultad === "tdah";
+  const isDisgrafia = dificultad === "disgrafia";
+  const answerLines = isDisgrafia ? 1 : 3;
+
   blocks.push(sectionBarLectura(`Texto: ${texto.titulo}`));
-  texto.cuerpo.split("\n\n").forEach((paragraph) => {
+  texto.cuerpo.split("\n\n").forEach((paragraph, i) => {
+    if (isTdah && i > 0 && i % 2 === 0) blocks.push(pauseDividerLectura());
     blocks.push(bodyParaLectura(paragraph));
   });
 
@@ -435,7 +481,7 @@ function buildLecturaDocument({ curso, fecha, texto, showSolutions }) {
   if (showSolutions) {
     blocks.push(answerFilledLectura("Respuesta libre. Valora que esté bien argumentada y relacionada con el texto."));
   } else {
-    for (let i = 0; i < 3; i++) blocks.push({ runs: [{ text: "_".repeat(70) }], spacingAfter: 200 });
+    for (let i = 0; i < answerLines; i++) blocks.push({ runs: [{ text: "_".repeat(70) }], spacingAfter: 200 });
   }
 
   blocks.push(sectionBarLectura("Reflexión"));
@@ -443,20 +489,20 @@ function buildLecturaDocument({ curso, fecha, texto, showSolutions }) {
   if (showSolutions) {
     blocks.push(answerFilledLectura("Respuesta libre. Valora la conexión personal con el texto."));
   } else {
-    for (let i = 0; i < 3; i++) blocks.push({ runs: [{ text: "_".repeat(70) }], spacingAfter: 200 });
+    for (let i = 0; i < answerLines; i++) blocks.push({ runs: [{ text: "_".repeat(70) }], spacingAfter: 200 });
   }
 
   blocks.push({ runs: [{ text: " " }] });
-  return blocks;
+  return dificultad === "dislexia" ? applyDislexiaStylingLectura(blocks) : blocks;
 }
 
 // ---------------- API pública ----------------
 
-function generarLecturaYSoluciones(tipoId, curso) {
-  const texto = generarLectura(tipoId);
+function generarLecturaYSoluciones(tipoId, curso, dificultad = "none") {
+  const texto = generarLectura(tipoId, dificultad);
   const fecha = todayEsLectura();
-  const fichaBlocks = buildLecturaDocument({ curso, fecha, texto, showSolutions: false });
-  const solucionesBlocks = buildLecturaDocument({ curso, fecha, texto, showSolutions: true });
+  const fichaBlocks = buildLecturaDocument({ curso, fecha, texto, dificultad, showSolutions: false });
+  const solucionesBlocks = buildLecturaDocument({ curso, fecha, texto, dificultad, showSolutions: true });
   const fichaBlob = createDocxBlob(fichaBlocks);
   const solucionesBlob = createDocxBlob(solucionesBlocks);
   return { texto, fichaBlob, solucionesBlob };
