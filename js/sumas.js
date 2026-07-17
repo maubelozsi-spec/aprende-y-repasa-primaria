@@ -108,13 +108,60 @@ function fillFinalCarry(view, problem) {
   }
 }
 
+const SUMAS_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Sumar sin llevar (nivel simplificado)",
+    text: "Se empieza sumando números de dos cifras que <strong>no necesitan llevada</strong>: se suma cada columna por separado y el resultado nunca pasa de 9.",
+    example: "34 + 25 → unidades: 4 + 5 = 9 · decenas: 3 + 2 = 5 → 59",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene la misma dificultad, con instrucciones más cortas, más espacio entre líneas y una tipografía pensada para facilitar la lectura.",
+    example: "Sumar en columna: unidades con unidades, decenas con decenas.",
+  },
+  tdah: {
+    badge: "TDAH",
+    title: "Sumas más cortas, un paso a la vez",
+    text: "Se practica siempre con números de <strong>2 cifras</strong> (menos columnas, rondas más rápidas) para mantener mejor la atención, con la misma dificultad de llevadas.",
+    example: "47 + 38 → solo dos columnas que resolver.",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Sumas sin llevar, con apoyo extra",
+    text: "Igual que en ACS, se usan sumas de dos cifras sin llevada, y además se recuerda en cada paso qué columna toca: primero las unidades, después las decenas.",
+    example: "34 + 25 → primero unidades (4+5=9), después decenas (3+2=5) → 59",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Sumas de 4 cifras, el nivel más exigente",
+    text: "Se practica siempre con números de <strong>4 cifras</strong>, con varias llevadas encadenadas, para un mayor reto.",
+    example: "3.487 + 2.695 → varias llevadas seguidas.",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Se responde pulsando, no escribiendo a mano",
+    text: "En el método escrito ya se responde pulsando los dígitos, sin necesidad de escribir; en el cálculo mental, la respuesta se elige entre varias opciones en lugar de teclearla.",
+    example: "Elige la cifra correcta tocando un botón.",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   initMethodPicker();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, SUMAS_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), SUMAS_DIFFICULTY_EXPLANATIONS);
+
   if (document.getElementById("demo-addend-a")) initDemo();
-  if (document.getElementById("game-addend-a")) initGame();
+  if (document.getElementById("game-addend-a")) initGame(diff, (fn) => restartCallbacks.push(fn));
   if (document.getElementById("mental-demo-line1")) initMentalDemo();
-  if (document.getElementById("mental-game-equation")) initMentalGame();
+  if (document.getElementById("mental-game-equation")) initMentalGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -169,6 +216,18 @@ function randomPairSameLength(length) {
   const min = Math.pow(10, length - 1);
   const max = Math.pow(10, length) - 1;
   return { a: randomInt(min, max), b: randomInt(min, max) };
+}
+
+function randomPairNoCarry(length) {
+  const digitsA = [];
+  const digitsB = [];
+  for (let i = 0; i < length; i++) {
+    const da = i === 0 ? randomInt(1, 9) : randomInt(0, 9);
+    const db = randomInt(0, 9 - da);
+    digitsA.push(da);
+    digitsB.push(db);
+  }
+  return { a: Number(digitsA.join("")), b: Number(digitsB.join("")) };
 }
 
 // ---------------- Demo (Teoría · método escrito) ----------------
@@ -251,9 +310,10 @@ function initDemo() {
 
 // ---------------- Juego (Práctica · método escrito) ----------------
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const view = createArithView("game");
   const els = {
+    card: document.getElementById("practica-escrita"),
     lengthBtns: document.querySelectorAll("#length-picker-w [data-len]"),
     instruction: document.getElementById("game-instruction"),
     digitButtons: document.getElementById("digit-buttons"),
@@ -268,6 +328,18 @@ function initGame() {
   let scoreKo = 0;
   let currentLength = 2;
   let problem, stepIndex, attempts, roundHasError;
+
+  function applyDifficultyUI() {
+    const forcedLength = diff.is("acs") || diff.is("discalculia") ? 2 : diff.is("altas") ? 4 : null;
+    els.lengthBtns.forEach((b) => (b.disabled = forcedLength !== null));
+    els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startProblem();
+  });
+  applyDifficultyUI();
 
   function setProgress(pct) {
     els.progressFill.style.width = pct + "%";
@@ -285,7 +357,16 @@ function initGame() {
   }
 
   function startProblem() {
-    const { a, b } = randomPairSameLength(currentLength);
+    let a, b;
+    if (diff.is("acs") || diff.is("discalculia")) {
+      ({ a, b } = randomPairNoCarry(2));
+    } else if (diff.is("altas")) {
+      ({ a, b } = randomPairSameLength(4));
+    } else if (diff.is("tdah")) {
+      ({ a, b } = randomPairSameLength(2));
+    } else {
+      ({ a, b } = randomPairSameLength(currentLength));
+    }
     problem = computeAdditionSteps(a, b);
     stepIndex = 0;
     attempts = 0;
@@ -304,7 +385,13 @@ function initGame() {
     const step = problem.steps[stepIndex];
     const pv = Math.pow(10, problem.n - 1 - step.position);
     const carryText = step.carryIn > 0 ? " + 1 que llevamos" : "";
-    els.instruction.innerHTML = `Columna de las ${placeValueLabel(pv)}: ¿cuánto es ${step.digitA} + ${step.digitB}${carryText}? (escribe solo la cifra de las unidades del resultado)`;
+    if (diff.is("dislexia")) {
+      els.instruction.innerHTML = `Columna de las ${placeValueLabel(pv)}: ${step.digitA} + ${step.digitB}${carryText} = ?`;
+    } else if (diff.is("discalculia")) {
+      els.instruction.innerHTML = `Empieza por las ${placeValueLabel(pv)}: ¿cuánto es ${step.digitA} + ${step.digitB}${carryText}?`;
+    } else {
+      els.instruction.innerHTML = `Columna de las ${placeValueLabel(pv)}: ¿cuánto es ${step.digitA} + ${step.digitB}${carryText}? (escribe solo la cifra de las unidades del resultado)`;
+    }
     renderDigitButtons();
   }
 
@@ -468,13 +555,40 @@ function initMentalDemo() {
 
 // ---------------- Juego (Práctica · cálculo mental) ----------------
 
-function initMentalGame() {
+function numericDistractors(correct) {
+  const candidates = new Set([correct + 1, correct - 1, correct + 10, correct - 10, correct + 2, correct - 2]);
+  candidates.delete(correct);
+  const pool = [...candidates].filter((v) => v >= 0);
+  const distractors = [];
+  while (distractors.length < 3 && pool.length) {
+    const idx = randomInt(0, pool.length - 1);
+    distractors.push(pool.splice(idx, 1)[0]);
+  }
+  while (distractors.length < 3) {
+    distractors.push(correct + distractors.length + 3);
+  }
+  return distractors;
+}
+
+function shuffleArray(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function initMentalGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-mental"),
     lengthBtns: document.querySelectorAll("#length-picker-m [data-len]"),
     equation: document.getElementById("mental-game-equation"),
     instruction: document.getElementById("mental-game-instruction"),
+    inputsRow: document.getElementById("mental-inputs-row"),
     input: document.getElementById("mental-answer-input"),
     checkBtn: document.getElementById("mental-check-btn"),
+    choices: document.getElementById("mental-answer-choices"),
     feedback: document.getElementById("feedback-m"),
     nextBtn: document.getElementById("next-problem-m"),
     scoreOk: document.getElementById("score-ok-m"),
@@ -487,12 +601,33 @@ function initMentalGame() {
   let currentLength = 2;
   let data, stage, attempts, roundHasError, totalStages;
 
+  function applyDifficultyUI() {
+    const forcedLength = diff.is("acs") || diff.is("discalculia") ? 2 : diff.is("altas") ? 4 : null;
+    els.lengthBtns.forEach((b) => (b.disabled = forcedLength !== null));
+    els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startProblem();
+  });
+  applyDifficultyUI();
+
   function setProgress(pct) {
     els.progressFill.style.width = pct + "%";
   }
 
   function startProblem() {
-    const { a, b } = randomPairSameLength(currentLength);
+    let a, b;
+    if (diff.is("acs") || diff.is("discalculia")) {
+      ({ a, b } = randomPairNoCarry(2));
+    } else if (diff.is("altas")) {
+      ({ a, b } = randomPairSameLength(4));
+    } else if (diff.is("tdah")) {
+      ({ a, b } = randomPairSameLength(2));
+    } else {
+      ({ a, b } = randomPairSameLength(currentLength));
+    }
     data = computeAdditionMental(a, b);
     totalStages = data.n + 1;
     stage = 0;
@@ -503,8 +638,6 @@ function initMentalGame() {
     els.nextBtn.style.display = "none";
     els.feedback.classList.remove("show", "ok", "ko");
     els.feedback.innerHTML = "";
-    els.input.style.display = "";
-    els.checkBtn.style.display = "";
 
     const decompText = data.parts.map((p) => `(${p.partA}+${p.partB})`).join(" + ");
     els.equation.innerHTML = `${data.a} + ${data.b} = ${decompText}`;
@@ -513,16 +646,72 @@ function initMentalGame() {
   }
 
   function askStage() {
-    els.input.value = "";
-    els.input.classList.remove("correct", "incorrect");
-    els.input.disabled = false;
+    if (diff.is("disgrafia")) {
+      els.inputsRow.style.display = "none";
+      els.choices.style.display = "";
+    } else {
+      els.inputsRow.style.display = "";
+      els.choices.style.display = "none";
+      els.input.value = "";
+      els.input.classList.remove("correct", "incorrect");
+      els.input.disabled = false;
+    }
 
     if (stage < data.n) {
       const p = data.parts[stage];
-      els.instruction.innerHTML = `¿Cuánto es <strong>${p.partA} + ${p.partB}</strong>? (${p.label})`;
+      els.instruction.innerHTML = diff.is("discalculia")
+        ? `Suma las ${p.label}: <strong>${p.partA} + ${p.partB}</strong>`
+        : `¿Cuánto es <strong>${p.partA} + ${p.partB}</strong>? (${p.label})`;
     } else {
       const sumText = data.parts.map((p) => p.subtotal).join(" + ");
       els.instruction.innerHTML = `¿Cuánto es <strong>${sumText}</strong>?`;
+    }
+
+    if (diff.is("disgrafia")) renderChoiceButtons();
+  }
+
+  function renderChoiceButtons() {
+    const expected = expectedAnswer();
+    const options = shuffleArray([expected, ...numericDistractors(expected)]);
+    els.choices.innerHTML = "";
+    options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.className = "syllable-chip";
+      btn.textContent = opt;
+      btn.addEventListener("click", () => chooseAnswerButton(opt, btn));
+      els.choices.appendChild(btn);
+    });
+  }
+
+  function chooseAnswerButton(chosen, btn) {
+    const expected = expectedAnswer();
+    const isCorrect = chosen === expected;
+    attempts++;
+
+    const allBtns = els.choices.querySelectorAll(".syllable-chip");
+    allBtns.forEach((b) => (b.disabled = true));
+
+    if (isCorrect) {
+      btn.classList.add("correct");
+      setTimeout(advanceStage, 600);
+      return;
+    }
+
+    btn.classList.add("incorrect");
+
+    if (attempts >= 2) {
+      roundHasError = true;
+      allBtns.forEach((b) => {
+        if (Number(b.textContent) === expected) b.classList.add("correct");
+      });
+      setTimeout(advanceStage, 900);
+    } else {
+      setTimeout(() => {
+        allBtns.forEach((b) => {
+          b.disabled = false;
+          b.classList.remove("incorrect");
+        });
+      }, 700);
     }
   }
 
@@ -584,8 +773,8 @@ function initMentalGame() {
     els.scoreKo.textContent = scoreKo;
 
     els.instruction.textContent = "";
-    els.input.style.display = "none";
-    els.checkBtn.style.display = "none";
+    els.inputsRow.style.display = "none";
+    els.choices.style.display = "none";
 
     const titleText = allCorrect ? "Correcto en todos los pasos" : "Casi, revisa los pasos marcados";
 

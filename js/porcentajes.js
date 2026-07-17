@@ -38,6 +38,20 @@ const AUMENTODISMINUCION_ENTRIES = [
   { display: "Disminuir 40 un 25%", correct: "30", options: ["30", "35", "10", "50"] },
 ];
 
+const ACS_ENTRIES = [
+  { display: "50% de 20", correct: "10", options: ["10", "20", "2", "40"] },
+  { display: "10% de 50", correct: "5", options: ["5", "50", "1", "15"] },
+  { display: "50% de 8", correct: "4", options: ["4", "8", "2", "16"] },
+  { display: "10% de 30", correct: "3", options: ["3", "30", "1", "13"] },
+  { display: "50% de 100", correct: "50", options: ["50", "100", "10", "25"] },
+];
+
+const ACS_GROUP = {
+  pool: ACS_ENTRIES,
+  field: "correct",
+  question: () => "Calcula el resultado:",
+};
+
 const MODE_GROUPS = {
   relacion: {
     pool: RELACION_ENTRIES,
@@ -70,9 +84,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const PORCENTAJES_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo el 50% y el 10% (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo calcular el 50% (dividir entre 2) y el 10% (dividir entre 10) de números sencillos.",
+    example: "50% de 20 → 20 ÷ 2 = 10",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo nivel de porcentajes, pero con una tipografía más legible para leer las preguntas.",
+    example: "20% de 50 = 10 → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Decimal ↔ Porcentaje» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo el 50% y el 10% y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo calcular el 50% y el 10% de números sencillos, dando más tiempo para pensar.",
+    example: "10% de 50 → 50 ÷ 10 = 5",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Aumentos y disminuciones porcentuales",
+    text: "Se practica directamente con el contenido más avanzado: calcular <strong>aumentos y disminuciones</strong> de un porcentaje.",
+    example: "Aumentar 200 un 15% → 230",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "20% de 50 = ? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, PORCENTAJES_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), PORCENTAJES_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -94,8 +155,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-porcentajes"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -113,7 +175,38 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "aumentodisminucion";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "aumentodisminucion"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "relacion";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "relacion"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry.display === lastDisplay);
+      lastDisplay = entry.display;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -128,7 +221,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -184,5 +278,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

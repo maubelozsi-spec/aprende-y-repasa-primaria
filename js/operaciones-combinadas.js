@@ -33,6 +33,20 @@ const PRIMER_PASO_ENTRIES = [
   { display: "6 × (8 − 5) + 1", correct: "8 − 5", options: ["8 − 5", "6 × 8", "6 × 5", "5 + 1"] },
 ];
 
+const ACS_ENTRIES = [
+  { display: "2 + 3 × 2", correct: "3 × 2", options: ["3 × 2", "2 + 3", "2 × 2", "3 + 2"] },
+  { display: "4 + 2 × 3", correct: "2 × 3", options: ["2 × 3", "4 + 2", "4 × 3", "4 + 3"] },
+  { display: "5 + 1 × 4", correct: "1 × 4", options: ["1 × 4", "5 + 1", "5 × 4", "5 + 4"] },
+  { display: "3 + 4 × 2", correct: "4 × 2", options: ["4 × 2", "3 + 4", "3 × 2", "3 + 2"] },
+];
+
+const ACS_GROUP = {
+  pool: ACS_ENTRIES,
+  field: "correct",
+  question: () => "¿Qué operación se resuelve primero?",
+  connector: "→ se resuelve primero:",
+};
+
 const MODE_GROUPS = {
   sinparentesis: {
     pool: SIN_PARENTESIS_ENTRIES,
@@ -63,9 +77,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const OPCOMBINADAS_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo dos operaciones, sin paréntesis (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se empieza reconociendo solo qué operación se hace primero, con números pequeños y sin paréntesis.",
+    example: "2 + 3 × 2 → primero se resuelve 3 × 2 = 6, después 2 + 6 = 8",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo nivel de operaciones, pero con una tipografía más legible para leer las expresiones numéricas.",
+    example: "5 + 3 × 2 → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Sin paréntesis» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo dos operaciones y ayuda extra",
+    text: "Igual que en ACS, se practica reconociendo solo qué operación se hace primero, con números pequeños y sin paréntesis, dando más tiempo para pensar.",
+    example: "4 + 2 × 3 → primero se resuelve 2 × 3 = 6, después 4 + 6 = 10",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Siempre con paréntesis",
+    text: "Se practica directamente con el nivel más exigente: expresiones <strong>con paréntesis</strong>, que cambian el orden normal de las operaciones.",
+    example: "(20 − 4) × 3 = 48",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "5 + 3 × 2 = ? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, OPCOMBINADAS_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), OPCOMBINADAS_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -87,8 +148,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-opcombinadas"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -106,7 +168,38 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "conparentesis";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "conparentesis"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "sinparentesis";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "sinparentesis"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry.display === lastDisplay);
+      lastDisplay = entry.display;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -121,7 +214,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo y hazlo paso a paso." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -178,5 +272,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

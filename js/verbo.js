@@ -169,9 +169,70 @@ function shuffle(arr) {
   return copy;
 }
 
+function conjugarDistractors(verbo, tense, personIndex, correct) {
+  const candidates = [];
+  PERSONS.forEach((_, pIdx) => {
+    if (pIdx === personIndex) return;
+    candidates.push(conjugate(verbo.infinitivo, verbo.terminacion, tense.key, pIdx));
+  });
+  TENSES.forEach((t) => {
+    if (t.key === tense.key) return;
+    candidates.push(conjugate(verbo.infinitivo, verbo.terminacion, t.key, personIndex));
+  });
+  const unique = [...new Set(candidates)].filter((c) => c !== correct);
+  return shuffle(unique).slice(0, 3);
+}
+
+const VERBO_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo tipo de forma verbal",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo distinguir infinitivo, gerundio, participio y forma personal, sin conjugaciones ni conjugar verbos.",
+    example: "«cantando» → Gerundio",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo contenido, pero con una tipografía más legible para leer las palabras y frases.",
+    example: "«comido» → Participio → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo «Mezcla», para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Tipo de forma verbal» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo tipo de forma verbal y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo distinguir infinitivo, gerundio, participio y forma personal, dando más tiempo para pensar cada respuesta.",
+    example: "«vivimos» → Forma personal",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Predicativo o copulativo",
+    text: "Se practica directamente con el contenido más abstracto de 6º: distinguir si el verbo de una oración es predicativo o copulativo.",
+    example: "«El cielo está nublado.» → Copulativo",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Conjugar verbos también se responde eligiendo",
+    text: "En el modo «Conjugar verbos», en vez de escribir la forma verbal se elige entre varias opciones, para no depender de la escritura.",
+    example: "Conjuga «cantar» en presente (yo) → elige entre canto / cantas / cantaba / cantaré",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, VERBO_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), VERBO_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -193,8 +254,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-verbo"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -215,6 +277,32 @@ function initGame() {
   let mode = "formas";
   let current;
   let lastWord = "";
+
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (easyOnly) {
+      mode = "formas";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "formas"));
+    } else if (diff.is("altas")) {
+      mode = "predicativocopulativo";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "predicativocopulativo"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "formas";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "formas"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
 
   function pickConjugarQuestion() {
     const verbo = CONJUGAR_VERBOS[Math.floor(Math.random() * CONJUGAR_VERBOS.length)];
@@ -246,11 +334,29 @@ function initGame() {
     els.nextBtn.style.display = "none";
 
     if (current.kind === "conjugar") {
+      els.wordDisplay.innerHTML = `Conjuga <strong>${current.verbo.infinitivo}</strong> en ${current.tense.label} (${current.person.label})`;
+
+      if (diff.is("disgrafia")) {
+        els.conjugarRow.style.display = "none";
+        els.answerButtons.style.display = "";
+        els.instructions.textContent = "Elige la forma verbal correcta:" + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
+
+        const options = shuffle([current.correct, ...conjugarDistractors(current.verbo, current.tense, current.person && PERSONS.indexOf(current.person), current.correct)]);
+        els.answerButtons.innerHTML = "";
+        options.forEach((opt) => {
+          const btn = document.createElement("button");
+          btn.className = "syllable-chip";
+          btn.textContent = opt;
+          btn.addEventListener("click", () => chooseConjugarChoice(opt, btn));
+          els.answerButtons.appendChild(btn);
+        });
+        return;
+      }
+
       els.answerButtons.style.display = "none";
       els.answerButtons.innerHTML = "";
       els.conjugarRow.style.display = "";
-      els.instructions.textContent = "Escribe la forma verbal correcta:";
-      els.wordDisplay.innerHTML = `Conjuga <strong>${current.verbo.infinitivo}</strong> en ${current.tense.label} (${current.person.label})`;
+      els.instructions.textContent = "Escribe la forma verbal correcta:" + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
       els.conjugarInput.value = "";
       els.conjugarInput.disabled = false;
       els.conjugarInput.classList.remove("correct", "incorrect");
@@ -260,7 +366,7 @@ function initGame() {
 
     els.answerButtons.style.display = "";
     els.conjugarRow.style.display = "none";
-    els.instructions.textContent = "Responde:";
+    els.instructions.textContent = "Responde:" + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
     els.wordDisplay.textContent = current.group.question(current.entry);
 
     const correct = current.entry[current.group.field];
@@ -295,6 +401,29 @@ function initGame() {
 
     els.conjugarInput.disabled = true;
     els.conjugarInput.classList.add(isCorrect ? "correct" : "incorrect");
+
+    const titleText = isCorrect ? "Correcto" : "No era esa";
+    els.feedback.classList.add("show", isCorrect ? "ok" : "ko");
+    els.feedback.innerHTML = `<p class="feedback-title">${titleText}</p><p>${current.verbo.infinitivo} (${current.tense.label}, ${current.person.label}) → <strong>${current.correct}</strong>.</p>`;
+
+    els.nextBtn.style.display = "";
+  }
+
+  function chooseConjugarChoice(chosen, btn) {
+    const isCorrect = chosen === current.correct;
+
+    if (isCorrect) scoreOk++;
+    else scoreKo++;
+    AppProgress.record("verbo", isCorrect);
+    els.scoreOk.textContent = scoreOk;
+    els.scoreKo.textContent = scoreKo;
+
+    const allBtns = els.answerButtons.querySelectorAll(".syllable-chip");
+    allBtns.forEach((b) => {
+      b.disabled = true;
+      if (b.textContent === current.correct) b.classList.add("correct");
+      else if (b === btn && !isCorrect) b.classList.add("incorrect");
+    });
 
     const titleText = isCorrect ? "Correcto" : "No era esa";
     els.feedback.classList.add("show", isCorrect ? "ok" : "ko");
@@ -344,5 +473,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

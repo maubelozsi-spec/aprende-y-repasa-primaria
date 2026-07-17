@@ -209,13 +209,84 @@ function appendWorkStep(view, step) {
   view.workarea.appendChild(block);
 }
 
+const DIVISIONES_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Divisiones exactas con divisor pequeño (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se empieza con divisiones <strong>exactas</strong> (sin resto) con un divisor de una sola cifra entre 2 y 5.",
+    example: "18 ÷ 3 = 6 (sin resto, divisor de una cifra)",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene la misma dificultad de división, pero las instrucciones son más cortas y se usa una tipografía más legible.",
+    example: "¿Cuántas veces cabe el 4 en 8? → pregunta directa, sin rodeos",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Divisiones más cortas, menos pasos",
+    text: "Se practica siempre con divisor de <strong>una cifra</strong>, para que la división tenga menos pasos de tanteo y sea más fácil mantener la atención hasta el final.",
+    example: "812 ÷ 4 → solo 3 pasos de tanteo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Divisiones exactas con divisor pequeño y ayuda extra",
+    text: "Igual que en ACS, se practica con divisiones <strong>exactas</strong> y divisor de una cifra (entre 2 y 5), dando más tiempo y pistas para tantear cada cifra del cociente.",
+    example: "20 ÷ 4 = 5 (sin resto, divisor de una cifra)",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Divisiones con divisor de 3 cifras",
+    text: "Se practica directamente con el nivel más avanzado: divisor de <strong>3 cifras</strong>, con tanteos que a veces se pasan y hay que corregir.",
+    example: "92568 ÷ 134 = 690 (tanteo con divisor de 3 cifras)",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Responde eligiendo, sin escribir",
+    text: "En el cálculo mental, en vez de escribir el número, se elige la respuesta entre varias opciones con un solo clic.",
+    example: "¿Cuánto es 800 ÷ 4? → elige entre 200, 190, 210, 180",
+  },
+};
+
+function numericDistractors(correct) {
+  const candidates = new Set([correct + 1, correct - 1, correct + 10, correct - 10, correct + 2, correct - 2]);
+  candidates.delete(correct);
+  const pool = [...candidates].filter((v) => v >= 0);
+  const distractors = [];
+  while (distractors.length < 3 && pool.length) {
+    const idx = randomInt(0, pool.length - 1);
+    distractors.push(pool.splice(idx, 1)[0]);
+  }
+  while (distractors.length < 3) {
+    distractors.push(correct + distractors.length + 3);
+  }
+  return distractors;
+}
+
+function shuffleArray(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   initMethodPicker();
   if (document.getElementById("demo-dividend")) initDemo();
-  if (document.getElementById("game-dividend")) initGame();
   if (document.getElementById("mental-demo-line1")) initMentalDemo();
-  if (document.getElementById("mental-game-equation")) initMentalGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, DIVISIONES_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), DIVISIONES_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("game-dividend")) initGame(diff, (fn) => restartCallbacks.push(fn));
+  if (document.getElementById("mental-game-equation")) initMentalGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -381,6 +452,18 @@ function generateDivisionProblem(length) {
   return computeDivisionSteps(dividend, divisor);
 }
 
+function randomDivisionPairACS() {
+  const divisor = randomInt(2, 5);
+  const quotient = randomInt(2, 9);
+  return { dividend: divisor * quotient, divisor };
+}
+
+function randomDivisionPairACSMental() {
+  const divisor = randomInt(2, 5);
+  const quotient = randomInt(11, 19);
+  return { dividend: divisor * quotient, divisor };
+}
+
 function generateMentalProblem(length) {
   let data;
   let attempts = 0;
@@ -394,9 +477,10 @@ function generateMentalProblem(length) {
 
 // ---------------- Juego (Práctica · método escrito) ----------------
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const view = createDivisionView("game");
   const els = {
+    card: document.getElementById("practica-escrita"),
     lengthBtns: document.querySelectorAll("#length-picker-w [data-len]"),
     instruction: document.getElementById("game-instruction"),
     digitButtons: document.getElementById("digit-buttons"),
@@ -411,6 +495,21 @@ function initGame() {
   let scoreKo = 0;
   let currentLength = 1;
   let problem, stepIndex, attempts, roundHasError;
+
+  function applyDifficultyUI() {
+    const forced = diff.is("altas") ? 3 : diff.is("acs") || diff.is("discalculia") || diff.is("tdah") ? 1 : null;
+    els.lengthBtns.forEach((b) => (b.disabled = forced !== null && Number(b.dataset.len) !== forced));
+    if (forced !== null) {
+      currentLength = forced;
+      els.lengthBtns.forEach((b) => b.classList.toggle("active", Number(b.dataset.len) === forced));
+    }
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startProblem();
+  });
 
   function setProgress(pct) {
     els.progressFill.style.width = pct + "%";
@@ -428,7 +527,16 @@ function initGame() {
   }
 
   function startProblem() {
-    problem = generateDivisionProblem(currentLength);
+    if (diff.is("acs") || diff.is("discalculia")) {
+      const pair = randomDivisionPairACS();
+      problem = computeDivisionSteps(pair.dividend, pair.divisor);
+    } else if (diff.is("altas")) {
+      problem = generateDivisionProblem(3);
+    } else if (diff.is("tdah")) {
+      problem = generateDivisionProblem(1);
+    } else {
+      problem = generateDivisionProblem(currentLength);
+    }
     stepIndex = 0;
     attempts = 0;
     roundHasError = false;
@@ -448,7 +556,14 @@ function initGame() {
     const bring = isFirst
       ? `Tomamos las primeras cifras: <strong>${step.broughtDigits}</strong>.`
       : `Bajamos la siguiente cifra (<strong>${step.broughtDigits}</strong>) y formamos el <strong>${step.workingNumber}</strong>.`;
-    els.instruction.innerHTML = `${bring} ¿Cuántas veces cabe el ${problem.divisor} en ${step.workingNumber}?`;
+    const question = `¿Cuántas veces cabe el ${problem.divisor} en ${step.workingNumber}?`;
+    if (diff.is("dislexia")) {
+      els.instruction.innerHTML = question;
+    } else if (diff.is("discalculia")) {
+      els.instruction.innerHTML = `${bring} Piensa poco a poco cuántas veces cabe el ${problem.divisor} en ${step.workingNumber}, probando de uno en uno si hace falta.`;
+    } else {
+      els.instruction.innerHTML = `${bring} ${question}`;
+    }
     renderDigitButtons();
   }
 
@@ -540,6 +655,7 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startProblem);
 
+  applyDifficultyUI();
   startProblem();
 }
 
@@ -622,11 +738,14 @@ function initMentalDemo() {
 
 // ---------------- Juego (Práctica · cálculo mental) ----------------
 
-function initMentalGame() {
+function initMentalGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-mental"),
     lengthBtns: document.querySelectorAll("#length-picker-m [data-len]"),
     equation: document.getElementById("mental-game-equation"),
     instruction: document.getElementById("mental-game-instruction"),
+    inputsRow: document.getElementById("mental-inputs-row"),
+    choices: document.getElementById("mental-answer-choices"),
     input: document.getElementById("mental-answer-input"),
     checkBtn: document.getElementById("mental-check-btn"),
     feedback: document.getElementById("feedback-m"),
@@ -641,12 +760,36 @@ function initMentalGame() {
   let currentLength = 1;
   let data, stage, attempts, roundHasError;
 
+  function applyDifficultyUI() {
+    const forced = diff.is("altas") ? 3 : diff.is("acs") || diff.is("discalculia") || diff.is("tdah") ? 1 : null;
+    els.lengthBtns.forEach((b) => (b.disabled = forced !== null && Number(b.dataset.len) !== forced));
+    if (forced !== null) {
+      currentLength = forced;
+      els.lengthBtns.forEach((b) => b.classList.toggle("active", Number(b.dataset.len) === forced));
+    }
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startProblem();
+  });
+
   function setProgress(pct) {
     els.progressFill.style.width = pct + "%";
   }
 
   function startProblem() {
-    data = generateMentalProblem(currentLength);
+    if (diff.is("acs") || diff.is("discalculia")) {
+      const pair = randomDivisionPairACSMental();
+      data = computeMentalDecomposition(pair.dividend, pair.divisor);
+    } else if (diff.is("altas")) {
+      data = generateMentalProblem(3);
+    } else if (diff.is("tdah")) {
+      data = generateMentalProblem(1);
+    } else {
+      data = generateMentalProblem(currentLength);
+    }
     stage = 0;
     attempts = 0;
     roundHasError = false;
@@ -655,8 +798,6 @@ function initMentalGame() {
     els.nextBtn.style.display = "none";
     els.feedback.classList.remove("show", "ok", "ko");
     els.feedback.innerHTML = "";
-    els.input.style.display = "";
-    els.checkBtn.style.display = "";
 
     els.equation.innerHTML = `${data.dividend} ÷ ${data.divisor} = (<span class="fact">${data.part1Dividend}</span> + <span class="fact">${data.part2Dividend}</span>) ÷ ${data.divisor}`;
 
@@ -664,9 +805,16 @@ function initMentalGame() {
   }
 
   function askStage() {
-    els.input.value = "";
-    els.input.classList.remove("correct", "incorrect");
-    els.input.disabled = false;
+    if (diff.is("disgrafia")) {
+      els.inputsRow.style.display = "none";
+      els.choices.style.display = "";
+    } else {
+      els.inputsRow.style.display = "";
+      els.choices.style.display = "none";
+      els.input.value = "";
+      els.input.classList.remove("correct", "incorrect");
+      els.input.disabled = false;
+    }
 
     if (stage === 0) {
       els.instruction.innerHTML = `¿Cuánto es <strong>${data.part1Dividend} ÷ ${data.divisor}</strong>?`;
@@ -674,6 +822,53 @@ function initMentalGame() {
       els.instruction.innerHTML = `¿Cuánto es <strong>${data.part2Dividend} ÷ ${data.divisor}</strong>?`;
     } else {
       els.instruction.innerHTML = `¿Cuánto es <strong>${data.part1Q} + ${data.part2Q}</strong>?`;
+    }
+
+    if (diff.is("disgrafia")) renderChoiceButtons();
+  }
+
+  function renderChoiceButtons() {
+    const expected = expectedAnswer();
+    const options = shuffleArray([expected, ...numericDistractors(expected)]);
+    els.choices.innerHTML = "";
+    options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.className = "syllable-chip";
+      btn.textContent = opt;
+      btn.addEventListener("click", () => chooseAnswerButton(opt, btn));
+      els.choices.appendChild(btn);
+    });
+  }
+
+  function chooseAnswerButton(chosen, btn) {
+    const expected = expectedAnswer();
+    const isCorrect = chosen === expected;
+    attempts++;
+
+    const allBtns = els.choices.querySelectorAll(".syllable-chip");
+    allBtns.forEach((b) => (b.disabled = true));
+
+    if (isCorrect) {
+      btn.classList.add("correct");
+      setTimeout(advanceStage, 600);
+      return;
+    }
+
+    btn.classList.add("incorrect");
+
+    if (attempts >= 2) {
+      roundHasError = true;
+      allBtns.forEach((b) => {
+        if (Number(b.textContent) === expected) b.classList.add("correct");
+      });
+      setTimeout(advanceStage, 900);
+    } else {
+      setTimeout(() => {
+        allBtns.forEach((b) => {
+          b.disabled = false;
+          b.classList.remove("incorrect");
+        });
+      }, 700);
     }
   }
 
@@ -736,8 +931,8 @@ function initMentalGame() {
     els.scoreKo.textContent = scoreKo;
 
     els.instruction.textContent = "";
-    els.input.style.display = "none";
-    els.checkBtn.style.display = "none";
+    els.inputsRow.style.display = "none";
+    els.choices.style.display = "none";
 
     const titleText = allCorrect ? "Correcto en todos los pasos" : "Casi, revisa los pasos marcados";
     const resultLine = data.remainder
@@ -770,5 +965,6 @@ function initMentalGame() {
 
   els.nextBtn.addEventListener("click", startProblem);
 
+  applyDifficultyUI();
   startProblem();
 }

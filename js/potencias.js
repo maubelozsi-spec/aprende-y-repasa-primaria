@@ -28,6 +28,20 @@ const DESCOMPONER_ENTRIES = [
   { display: "7²", correct: "7×7", options: ["7×7", "7×2", "2×2", "7+7"] },
 ];
 
+const ACS_ENTRIES = [
+  { display: "2²", correct: "4", options: ["4", "2", "6", "8"] },
+  { display: "3²", correct: "9", options: ["9", "6", "12", "3"] },
+  { display: "4²", correct: "16", options: ["16", "8", "12", "4"] },
+  { display: "5²", correct: "25", options: ["25", "10", "20", "5"] },
+];
+
+const ACS_GROUP = {
+  pool: ACS_ENTRIES,
+  field: "correct",
+  question: () => "Calcula el cuadrado de este número:",
+  connector: "=",
+};
+
 const MODE_GROUPS = {
   calcular: {
     pool: CALCULAR_ENTRIES,
@@ -52,9 +66,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const POTENCIAS_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo el cuadrado de números pequeños (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo elevar al cuadrado números del 2 al 5, viéndolo como una multiplicación del número por sí mismo.",
+    example: "3² = 3 × 3 = 9",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantienen las mismas potencias, pero con una tipografía más legible para leer la base y el exponente.",
+    example: "4³ = 64 → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Calcular la potencia» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo el cuadrado de números pequeños y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo elevar al cuadrado números del 2 al 5, dando más tiempo para pensar cada respuesta.",
+    example: "4² = 4 × 4 = 16",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Todo mezclado",
+    text: "Se practica directamente en modo <strong>«Mezcla»</strong>, combinando el cálculo del valor y la descomposición en multiplicación.",
+    example: "2⁵ = 2×2×2×2×2 = 32",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "3² = ? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, POTENCIAS_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), POTENCIAS_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -76,8 +137,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-potencias"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -95,7 +157,38 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "mezcla";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "mezcla"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "calcular";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "calcular"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry.display === lastDisplay);
+      lastDisplay = entry.display;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -110,7 +203,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -167,5 +261,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

@@ -27,6 +27,19 @@ const AREA_ENTRIES = [
   { display: "Círculo de radio 3 cm", correct: "28,26", options: ["28,26", "18,84", "9,42", "56,52"] },
 ];
 
+const ACS_ENTRIES = [
+  { display: "Radio 5 cm → ¿diámetro?", correct: "10", options: ["10", "5", "15", "20"] },
+  { display: "Diámetro 12 cm → ¿radio?", correct: "6", options: ["6", "24", "12", "3"] },
+  { display: "Radio 8 cm → ¿diámetro?", correct: "16", options: ["16", "8", "4", "24"] },
+  { display: "Diámetro 20 cm → ¿radio?", correct: "10", options: ["10", "40", "20", "5"] },
+];
+
+const ACS_GROUP = {
+  pool: ACS_ENTRIES,
+  field: "correct",
+  question: () => "Calcula:",
+};
+
 const MODE_GROUPS = {
   radiodiametro: {
     pool: RADIODIAMETRO_ENTRIES,
@@ -54,9 +67,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const CIRCUNFERENCIA_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo radio y diámetro (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo la relación entre el radio y el diámetro, sin calcular longitudes ni áreas con π.",
+    example: "Radio 5 cm → diámetro = 5 × 2 = 10 cm",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo nivel de contenido, pero con una tipografía más legible para leer las preguntas.",
+    example: "Radio 5 cm → diámetro = 10 cm → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Radio y diámetro» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo radio y diámetro y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo la relación entre radio y diámetro, dando más tiempo para pensar cada respuesta.",
+    example: "Diámetro 12 cm → radio = 12 ÷ 2 = 6 cm",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Área del círculo",
+    text: "Se practica directamente con el cálculo más exigente: el <strong>área del círculo</strong> usando π.",
+    example: "Círculo de radio 5 cm → Área = 3,14 × 5 × 5 = 78,5 cm²",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "Radio 5 cm → ¿diámetro? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, CIRCUNFERENCIA_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), CIRCUNFERENCIA_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -78,8 +138,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-circunferencia"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -97,7 +158,38 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "area";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "area"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "radiodiametro";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "radiodiametro"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry.display === lastDisplay);
+      lastDisplay = entry.display;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -112,7 +204,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -169,5 +262,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

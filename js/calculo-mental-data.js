@@ -159,6 +159,64 @@ function truco_porcentajesMentales() {
   return { enunciado: `El ${pct}% de ${n}`, pista, respuesta: (n * pct) / 100 };
 }
 
+// ---------------- Versiones ACS (números más pequeños, Bloque 1) ----------------
+
+function truco_compensacionSumaACS() {
+  const a = cmRandomInt(10, 40);
+  const bTens = cmRandomInt(1, 3) * 10;
+  const bUnit = cmPick([7, 8, 9]);
+  const b = bTens + bUnit;
+  const roundedB = bTens + 10;
+  const diff = roundedB - b;
+  return {
+    enunciado: `${a} + ${b}`,
+    pista: `Redondea ${b} a ${roundedB} y resta ${diff} al final.`,
+    respuesta: a + b,
+  };
+}
+
+function truco_compensacionRestaACS() {
+  const bTens = cmRandomInt(1, 3) * 10;
+  const bUnit = cmPick([7, 8, 9]);
+  const b = bTens + bUnit;
+  const a = b + cmRandomInt(10, 30);
+  const roundedB = bTens + 10;
+  const diff = roundedB - b;
+  return {
+    enunciado: `${a} - ${b}`,
+    pista: `Resta ${roundedB} (redondeando) y luego suma ${diff}.`,
+    respuesta: a - b,
+  };
+}
+
+function truco_descomposicionSumaRestaACS() {
+  const op = cmPick(["+", "-"]);
+  if (op === "+") {
+    const a = cmRandomInt(10, 50);
+    const b = cmRandomInt(10, 50);
+    return { enunciado: `${a} + ${b}`, pista: "Suma decenas y unidades por separado y luego júntalas.", respuesta: a + b };
+  }
+  const b = cmRandomInt(10, 40);
+  const a = b + cmRandomInt(5, 40);
+  return { enunciado: `${a} - ${b}`, pista: "Resta decenas y unidades por separado.", respuesta: a - b };
+}
+
+function truco_complementoCienACS() {
+  const a = cmRandomInt(1, 99);
+  return {
+    enunciado: `100 - ${a}`,
+    pista: `Busca el complemento: ¿cuánto le falta a ${a} para llegar a 100?`,
+    respuesta: 100 - a,
+  };
+}
+
+const TRUCOS_CALCULO_MENTAL_ACS = [
+  { id: "compensacion-suma", bloque: 1, label: "Compensación en la suma", generar: truco_compensacionSumaACS },
+  { id: "compensacion-resta", bloque: 1, label: "Compensación en la resta", generar: truco_compensacionRestaACS },
+  { id: "descomposicion-suma-resta", bloque: 1, label: "Descomposición en sumas y restas", generar: truco_descomposicionSumaRestaACS },
+  { id: "complemento-cien", bloque: 1, label: "Complemento a 100", generar: truco_complementoCienACS },
+];
+
 // ---------------- Registro de trucos y bloques ----------------
 
 const TRUCOS_CALCULO_MENTAL = [

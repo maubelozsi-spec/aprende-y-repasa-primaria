@@ -59,9 +59,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const TEATRAL_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo diálogo o acotación (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo distinguir diálogo de acotación, sin actos, escenas ni estructura.",
+    example: "«(Entra corriendo y mira hacia la puerta.)» → acotación",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo contenido, pero con una tipografía más legible para leer los fragmentos.",
+    example: "«¡No puedo creer que hayas venido!» → diálogo → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Diálogo o acotación» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo diálogo o acotación y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo distinguir diálogo de acotación, dando más tiempo para pensar cada respuesta.",
+    example: "«(Se oye un trueno a lo lejos.)» → acotación",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Acto o escena",
+    text: "Se practica directamente con el contenido más abstracto: distinguir <strong>acto</strong> de <strong>escena</strong> a partir de definiciones, sin ejemplos directos.",
+    example: "«Cambia cuando entra o sale un personaje del escenario» → escena",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Es diálogo o acotación? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, TEATRAL_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), TEATRAL_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -83,8 +130,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-teatral"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -102,6 +150,32 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (easyOnly) {
+      mode = "dialogoacotacion";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "dialogoacotacion"));
+    } else if (diff.is("altas")) {
+      mode = "actoescena";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "actoescena"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "dialogoacotacion";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "dialogoacotacion"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
@@ -116,7 +190,8 @@ function initGame() {
   function startRound() {
     current = pickQuestion();
 
-    els.instructions.textContent = current.group.question();
+    els.instructions.textContent =
+      current.group.question() + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
     els.wordDisplay.textContent = current.entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -178,5 +253,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

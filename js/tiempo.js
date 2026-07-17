@@ -58,6 +58,20 @@ const SUMARRESTAR_ENTRIES = [
   { display: "4h 10min − 1h 30min", correct: "2h 40min", options: ["2h 40min", "3h 20min", "2h 20min", "3h 40min"] },
 ];
 
+const ACS_ENTRIES = [
+  { hour: 3, minute: 0, correct: "3:00", options: ["3:00", "9:00", "3:30", "12:00"] },
+  { hour: 6, minute: 30, correct: "6:30", options: ["6:30", "12:30", "6:00", "7:30"] },
+  { hour: 9, minute: 0, correct: "9:00", options: ["9:00", "3:00", "9:30", "12:00"] },
+  { hour: 12, minute: 30, correct: "12:30", options: ["12:30", "6:30", "12:00", "1:30"] },
+];
+
+const ACS_GROUP = {
+  pool: ACS_ENTRIES,
+  field: "correct",
+  question: () => "¿Qué hora marca el reloj?",
+  display: "clock",
+};
+
 const MODE_GROUPS = {
   leerreloj: {
     pool: LEERRELOJ_ENTRIES,
@@ -88,10 +102,57 @@ function shuffle(arr) {
   return copy;
 }
 
+const TIEMPO_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo horas en punto y y media (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo leer relojes marcando horas en punto o y media, sin conversiones ni sumas y restas.",
+    example: "La aguja larga en el 12 y la corta en el 3 → 3:00",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo nivel de contenido, pero con una tipografía más legible para leer las horas.",
+    example: "9:15 → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Leer el reloj» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo horas en punto y y media y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo leer relojes en horas en punto o y media, dando más tiempo para pensar cada respuesta.",
+    example: "La aguja larga en el 6 y la corta entre el 12 y el 1 → 12:30",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Sumar y restar tiempo",
+    text: "Se practica directamente con el cálculo más exigente: <strong>sumar y restar horas y minutos</strong>, con llevadas.",
+    example: "5h 15min − 2h 40min = 2h 35min",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Qué hora marca el reloj? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   renderTeoriaExample();
-  if (document.getElementById("game-clock")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, TIEMPO_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), TIEMPO_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("game-clock")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function renderTeoriaExample() {
@@ -118,8 +179,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-tiempo"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     gameClock: document.getElementById("game-clock"),
@@ -138,7 +200,38 @@ function initGame() {
   let current;
   let lastEntry = null;
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "sumarrestar";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "sumarrestar"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "leerreloj";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "leerreloj"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry === lastEntry);
+      lastEntry = entry;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -153,7 +246,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.feedback.classList.remove("show", "ok", "ko");
     els.feedback.innerHTML = "";
     els.nextBtn.style.display = "none";
@@ -217,5 +311,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

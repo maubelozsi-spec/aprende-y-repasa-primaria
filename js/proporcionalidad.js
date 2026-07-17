@@ -30,6 +30,19 @@ const ESCALAS_ENTRIES = [
   { display: "Escala 1:10, medida real 80 cm → ¿medida en el plano?", correct: "8 cm", options: ["8 cm", "80 cm", "800 cm", "0,8 cm"] },
 ];
 
+const ACS_ENTRIES = [
+  { display: "2 lápices cuestan 4€. ¿Cuánto cuestan 4 lápices?", correct: "8", options: ["8", "6", "4", "10"] },
+  { display: "3 kg de naranjas cuestan 6€. ¿Cuánto cuestan 6 kg?", correct: "12", options: ["12", "9", "6", "15"] },
+  { display: "1 entrada cuesta 5€. ¿Cuánto cuestan 3 entradas?", correct: "15", options: ["15", "10", "5", "20"] },
+  { display: "2 cuadernos cuestan 6€. ¿Cuánto cuestan 4 cuadernos?", correct: "12", options: ["12", "8", "6", "10"] },
+];
+
+const ACS_GROUP = {
+  pool: ACS_ENTRIES,
+  field: "correct",
+  question: () => "Resuelve con la regla de tres:",
+};
+
 const MODE_GROUPS = {
   esproporcional: {
     pool: ESPROPORCIONAL_ENTRIES,
@@ -58,9 +71,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const PROPORCIONALIDAD_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo relaciones sencillas del doble y el triple (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja la regla de tres con relaciones fáciles de ver, como el doble o el triple, sin escalas ni casos no proporcionales.",
+    example: "2 lápices cuestan 4€ → 4 lápices (el doble) cuestan 8€ (el doble)",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo nivel de contenido, pero con una tipografía más legible para leer los enunciados.",
+    example: "3 lápices cuestan 6€ → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «¿Es proporcional?» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo doble y triple y ayuda extra",
+    text: "Igual que en ACS, se trabaja la regla de tres con relaciones fáciles como el doble o el triple, dando más tiempo para pensar.",
+    example: "3 kg de naranjas cuestan 6€ → 6 kg cuestan 12€ (el doble)",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Escalas",
+    text: "Se practica directamente con el contenido más avanzado: calcular medidas reales o en el plano usando una <strong>escala</strong>.",
+    example: "Escala 1:200, medida en el plano 5 cm → medida real 1.000 cm",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Es proporcional? → elige Sí o No",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, PROPORCIONALIDAD_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), PROPORCIONALIDAD_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -82,8 +142,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-proporcionalidad"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -101,7 +162,38 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "escalas";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "escalas"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "esproporcional";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "esproporcional"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry.display === lastDisplay);
+      lastDisplay = entry.display;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -116,7 +208,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -173,5 +266,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

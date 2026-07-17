@@ -18,6 +18,62 @@ const ANGULO_ENTRIES = [
 
 const TIPOS = ["Agudo", "Recto", "Obtuso", "Llano", "Completo"];
 
+const ACS_ENTRIES = [
+  { degrees: 45, tipo: "Agudo" },
+  { degrees: 90, tipo: "Recto" },
+  { degrees: 135, tipo: "Obtuso" },
+];
+
+const ACS_TIPOS = ["Agudo", "Recto", "Obtuso"];
+
+const ANGULO_ENTRIES_ALTAS = [
+  { degrees: 80, tipo: "Agudo" },
+  { degrees: 85, tipo: "Agudo" },
+  { degrees: 95, tipo: "Obtuso" },
+  { degrees: 100, tipo: "Obtuso" },
+  { degrees: 170, tipo: "Obtuso" },
+  { degrees: 175, tipo: "Obtuso" },
+];
+
+const ANGULOS_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo agudo, recto y obtuso (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo con los tres tipos de ángulo más fáciles de distinguir a simple vista.",
+    example: "Agudo: muy cerrado · Recto: como la esquina de un folio · Obtuso: más abierto que una esquina",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantienen los mismos tipos de ángulo, pero con una tipografía más legible para leer la pregunta y las opciones.",
+    example: "45° → Agudo → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Menos opciones para elegir",
+    text: "Se practica solo con los tres tipos más frecuentes (agudo, recto y obtuso), con menos opciones entre las que elegir, para hacer cada ronda más corta y rápida.",
+    example: "Elige entre solo 3 opciones: Agudo, Recto u Obtuso",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo agudo, recto y obtuso y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo con agudo, recto y obtuso, dando más tiempo para pensar cada respuesta.",
+    example: "90° → Recto (como la esquina de un folio)",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Ángulos muy cercanos a 90° y a 180°",
+    text: "Se practica con ángulos que están muy cerca del límite entre un tipo y otro, para exigir una distinción más fina.",
+    example: "95° → Obtuso (aunque se parece mucho a un ángulo recto)",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Qué tipo de ángulo es? → elige entre las opciones",
+  },
+};
+
 function angleSVG(degrees) {
   const cx = 110;
   const cy = 120;
@@ -51,7 +107,15 @@ function angleSVG(degrees) {
 
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("angle-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, ANGULOS_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), ANGULOS_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("angle-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -73,8 +137,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-angulos"),
     angleDisplay: document.getElementById("angle-display"),
     answerButtons: document.getElementById("answer-buttons"),
     feedback: document.getElementById("feedback"),
@@ -88,10 +153,21 @@ function initGame() {
   let current;
   let lastDegrees = null;
 
+  function applyDifficultyUI() {
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickEntry() {
+    const easySimple = diff.is("acs") || diff.is("discalculia") || diff.is("tdah");
+    const pool = easySimple ? ACS_ENTRIES : diff.is("altas") ? ANGULO_ENTRIES_ALTAS : ANGULO_ENTRIES;
     let entry;
     do {
-      entry = ANGULO_ENTRIES[Math.floor(Math.random() * ANGULO_ENTRIES.length)];
+      entry = pool[Math.floor(Math.random() * pool.length)];
     } while (entry.degrees === lastDegrees);
     lastDegrees = entry.degrees;
     return entry;
@@ -115,7 +191,8 @@ function initGame() {
     els.feedback.innerHTML = "";
     els.nextBtn.style.display = "none";
 
-    const options = shuffle(TIPOS.slice());
+    const easySimple = diff.is("acs") || diff.is("discalculia") || diff.is("tdah");
+    const options = shuffle((easySimple ? ACS_TIPOS : TIPOS).slice());
 
     els.answerButtons.innerHTML = "";
     options.forEach((opt) => {
@@ -154,5 +231,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

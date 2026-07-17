@@ -154,6 +154,34 @@ function genSumas(curso) {
   return pick([sumasDosDias, sumasComparativa, sumasTresSumandos])(curso);
 }
 
+function genSumasACS() {
+  const a = randomInt(10, 40);
+  const b = randomInt(10, 40);
+  const esc = pick(ESCENARIOS_SUMAS);
+  const total = a + b;
+  return {
+    enunciado: `En ${esc.lugar} ${esc.verbo} ${a} ${esc.objeto} el lunes y ${b} ${esc.objeto} el martes. ¿${cuantosFor(esc.objeto)} ${esc.objeto} ${esc.verbo} entre los dos días?`,
+    datos: [`Lunes: ${a}`, `Martes: ${b}`],
+    operacion: `${a} + ${b} = ${total}`,
+    solucion: `${total}. Entre los dos días ${esc.verbo} ${total} ${esc.objeto}.`,
+  };
+}
+
+function genSumasAltas() {
+  const a = randomInt(1000, 9000);
+  const b = randomInt(1000, 9000);
+  const c = randomInt(1000, 9000);
+  const d = randomInt(1000, 9000);
+  const esc = pick(ESCENARIOS_SUMAS);
+  const total = a + b + c + d;
+  return {
+    enunciado: `En ${esc.lugar} ${esc.verbo} ${a} ${esc.objeto} el lunes, ${b} el martes, ${c} el miércoles y ${d} el jueves. ¿${cuantosFor(esc.objeto)} ${esc.objeto} ${esc.verbo} en total entre los cuatro días?`,
+    datos: [`Lunes: ${a}`, `Martes: ${b}`, `Miércoles: ${c}`, `Jueves: ${d}`],
+    operacion: `${a} + ${b} + ${c} + ${d} = ${total}`,
+    solucion: `${total}. En total ${esc.verbo} ${total} ${esc.objeto}.`,
+  };
+}
+
 const ESCENARIOS_RESTAS = [
   { contenedor: "Un depósito de agua", objeto: "litros", verbo: "usado" },
   { contenedor: "Una hucha", objeto: "euros", verbo: "gastado" },
@@ -215,6 +243,33 @@ function restasTrayecto(curso) {
 
 function genRestas(curso) {
   return pick([restasContenedor, restasComparativa, restasTrayecto])(curso);
+}
+
+function genRestasACS() {
+  const a = randomInt(30, 60);
+  const b = randomInt(10, a - 1);
+  const esc = pick(ESCENARIOS_RESTAS);
+  const resultado = a - b;
+  return {
+    enunciado: `${esc.contenedor} tenía ${a} ${esc.objeto} y se han ${esc.verbo} ${b}. ¿${cuantosFor(esc.objeto)} ${esc.objeto} quedan?`,
+    datos: [`Cantidad inicial: ${a}`, `Cantidad ${esc.verbo}: ${b}`],
+    operacion: `${a} - ${b} = ${resultado}`,
+    solucion: `${resultado}. Quedan ${resultado} ${esc.objeto}.`,
+  };
+}
+
+function genRestasAltas() {
+  const total = randomInt(5000, 9000);
+  const resta1 = randomInt(1000, 3000);
+  const resta2 = randomInt(500, 2000);
+  const esc = pick(ESCENARIOS_RESTAS);
+  const resultado = total - resta1 - resta2;
+  return {
+    enunciado: `${esc.contenedor} tenía ${total} ${esc.objeto}. Primero se han ${esc.verbo} ${resta1} y después ${resta2} más. ¿${cuantosFor(esc.objeto)} ${esc.objeto} quedan?`,
+    datos: [`Cantidad inicial: ${total}`, `Primero ${esc.verbo}: ${resta1}`, `Después ${esc.verbo}: ${resta2}`],
+    operacion: `${total} − ${resta1} − ${resta2} = ${resultado}`,
+    solucion: `${resultado}. Quedan ${resultado} ${esc.objeto}.`,
+  };
 }
 
 const ESCENARIOS_MULTIPLICACIONES = [
@@ -279,6 +334,32 @@ function genMultiplicaciones(curso) {
   return pick([multiplicacionesContenedor, multiplicacionesRitmo, multiplicacionesFilas])(curso);
 }
 
+function genMultiplicacionesACS() {
+  const a = randomInt(3, 9);
+  const b = randomInt(10, 30);
+  const esc = pick(ESCENARIOS_MULTIPLICACIONES);
+  const total = a * b;
+  return {
+    enunciado: `Cada ${esc.contenedorSing} tiene ${b} ${esc.objeto} y hay ${a} ${esc.contenedorPlur}. ¿${cuantosFor(esc.objeto)} ${esc.objeto} hay en total?`,
+    datos: [`${esc.objeto} por ${esc.contenedorSing}: ${b}`, `Número de ${esc.contenedorPlur}: ${a}`],
+    operacion: `${b} × ${a} = ${total}`,
+    solucion: `${total}. Hay ${total} ${esc.objeto} en total.`,
+  };
+}
+
+function genMultiplicacionesAltas() {
+  const a = randomInt(120, 980);
+  const b = randomInt(23, 89);
+  const esc = pick(ESCENARIOS_MULTIPLICACIONES);
+  const total = a * b;
+  return {
+    enunciado: `Cada ${esc.contenedorSing} tiene ${a} ${esc.objeto} y hay ${b} ${esc.contenedorPlur}. ¿${cuantosFor(esc.objeto)} ${esc.objeto} hay en total?`,
+    datos: [`${esc.objeto} por ${esc.contenedorSing}: ${a}`, `Número de ${esc.contenedorPlur}: ${b}`],
+    operacion: `${a} × ${b} = ${total}`,
+    solucion: `${total}. Hay ${total} ${esc.objeto} en total.`,
+  };
+}
+
 function divisionesReparto(curso) {
   const divisor = curso === "6" ? randomInt(12, 45) : randomInt(2, 9);
   const cociente = randomInt(15, 80);
@@ -332,6 +413,33 @@ function divisionesTramos(curso) {
 
 function genDivisiones(curso) {
   return pick([divisionesReparto, divisionesCajasNecesarias, divisionesTramos])(curso);
+}
+
+function genDivisionesACS() {
+  const divisor = randomInt(2, 5);
+  const cociente = randomInt(2, 9);
+  const dividendo = cociente * divisor;
+  const objeto = pick(["canicas", "cromos", "caramelos", "globos"]);
+  return {
+    enunciado: `Se reparten ${dividendo} ${objeto} entre ${divisor} niños a partes iguales. ¿${cuantosFor(objeto)} ${objeto} le tocan a cada uno?`,
+    datos: [`Total de ${objeto}: ${dividendo}`, `Número de niños: ${divisor}`],
+    operacion: `${dividendo} ÷ ${divisor} = ${cociente}`,
+    solucion: `A cada uno le tocan ${cociente} ${objeto} (reparto exacto).`,
+  };
+}
+
+function genDivisionesAltas() {
+  const divisor = randomInt(23, 89);
+  const cociente = randomInt(100, 300);
+  const resto = randomInt(1, divisor - 1);
+  const dividendo = cociente * divisor + resto;
+  const objeto = pick(["canicas", "cromos", "caramelos", "globos"]);
+  return {
+    enunciado: `Se reparten ${dividendo} ${objeto} entre ${divisor} niños a partes iguales. ¿${cuantosFor(objeto)} ${objeto} le tocan a cada uno y ${cuantosFor(objeto).toLowerCase()} sobran?`,
+    datos: [`Total de ${objeto}: ${dividendo}`, `Número de niños: ${divisor}`],
+    operacion: `${dividendo} ÷ ${divisor} = ${cociente} y sobran ${resto}`,
+    solucion: `A cada uno le tocan ${cociente} ${objeto} y sobran ${resto}.`,
+  };
 }
 
 function operacionesCombinadasCompra(curso) {
@@ -408,6 +516,42 @@ function genOperacionesCombinadas(curso) {
   return pick([operacionesCombinadasCompra, operacionesCombinadasExpresion, operacionesCombinadasTrabajo])(curso);
 }
 
+function genOperacionesCombinadasACS() {
+  const precio = randomInt(2, 5);
+  const cantidad = randomInt(2, 4);
+  const extra = randomInt(1, 5);
+  const nombre = pick(NOMBRES);
+  const objeto = pick(["caramelos", "cromos", "lápices", "canicas"]);
+  const total = cantidad * precio + extra;
+  return {
+    enunciado: `${nombre} compra ${cantidad} bolsas de ${objeto} a ${precio} € cada una y además paga ${extra} € de propina. ¿Cuánto gasta en total?`,
+    datos: [`${cantidad} bolsas a ${precio} € cada una`, `Propina: ${extra} €`],
+    operacion: `${cantidad} × ${precio} + ${extra} = ${total}`,
+    solucion: `${total}. Gasta ${total} € en total.`,
+  };
+}
+
+function genOperacionesCombinadasAltas() {
+  const a = randomInt(4, 12);
+  const b = randomInt(4, 12);
+  const c = randomInt(3, 9);
+  const paso1 = a + b;
+  const paso2 = paso1 * c;
+  const divisores = [2, 3, 4, 5, 6, 7].filter((x) => paso2 % x === 0);
+  const d = divisores.length ? pick(divisores) : 1;
+  const paso3 = paso2 / d;
+  const e = randomInt(5, 30);
+  const paso4 = paso3 - e;
+  const f = randomInt(2, 9);
+  const resultado = paso4 * f;
+  return {
+    enunciado: `Calcula: ((${a} + ${b}) × ${c} ÷ ${d} − ${e}) × ${f}`,
+    datos: [`Expresión: ((${a} + ${b}) × ${c} ÷ ${d} − ${e}) × ${f}`],
+    operacion: `Paréntesis interno: ${a} + ${b} = ${paso1}. × ${c} = ${paso2}. ÷ ${d} = ${paso3}. − ${e} = ${paso4}. × ${f} = ${resultado}`,
+    solucion: `${resultado}. El resultado es ${resultado}.`,
+  };
+}
+
 function numerosRomanosAFormato(curso) {
   const max = curso === "6" ? 3999 : 500;
   const min = curso === "6" ? 500 : 11;
@@ -449,6 +593,29 @@ function numerosRomanosOperacion(curso) {
 
 function genNumerosRomanos(curso) {
   return pick([numerosRomanosAFormato, numerosRomanosDesdeFormato, numerosRomanosOperacion])(curso);
+}
+
+function genNumerosRomanosACS() {
+  const n = randomInt(1, 20);
+  const roman = toRoman(n);
+  return {
+    enunciado: `Escribe en números romanos el número ${n}.`,
+    datos: [`Número: ${n}`],
+    operacion: `${n} se escribe combinando las letras I, V y X`,
+    solucion: `${roman}. El número ${n} en números romanos es ${roman}.`,
+  };
+}
+
+function genNumerosRomanosAltas() {
+  const a = randomInt(500, 3500);
+  const b = randomInt(100, a - 50);
+  const resultado = a - b;
+  return {
+    enunciado: `Calcula ${toRoman(a)} − ${toRoman(b)} y escribe el resultado en números romanos.`,
+    datos: [`${toRoman(a)} = ${a}`, `${toRoman(b)} = ${b}`],
+    operacion: `${a} − ${b} = ${resultado} → ${toRoman(resultado)}`,
+    solucion: `${toRoman(resultado)}. El resultado es ${toRoman(resultado)} (${resultado}).`,
+  };
 }
 
 function potenciasCalcular(curso) {
@@ -509,6 +676,31 @@ function genPotencias(curso) {
   return pick([potenciasCalcular, potenciasComparar, potenciasDiez])(curso);
 }
 
+function genPotenciasACS() {
+  const base = randomInt(2, 5);
+  const valor = base * base;
+  return {
+    enunciado: `Calcula la potencia ${base}².`,
+    datos: [`Base: ${base}`, `Exponente: 2`],
+    operacion: `${base}² = ${base} × ${base} = ${valor}`,
+    solucion: `${valor}. ${base} elevado a 2 es ${valor}.`,
+  };
+}
+
+function genPotenciasAltas() {
+  const base = randomInt(6, 15);
+  const exp = pick([3, 4]);
+  const valor = Math.pow(base, exp);
+  const signo = SUPERINDICES[exp];
+  const factores = Array(exp).fill(base).join(" × ");
+  return {
+    enunciado: `Calcula la potencia ${base}${signo}.`,
+    datos: [`Base: ${base}`, `Exponente: ${exp}`],
+    operacion: `${base}${signo} = ${factores} = ${valor}`,
+    solucion: `${valor}. ${base} elevado a ${exp} es ${valor}.`,
+  };
+}
+
 function enterosTemperatura(curso) {
   const inicial = randomInt(-5, 15);
   const rango = curso === "6" ? 20 : 10;
@@ -553,6 +745,30 @@ function genNumerosEnteros(curso) {
   return pick([enterosTemperatura, enterosBanco, enterosAltitud])(curso);
 }
 
+function genNumerosEnterosACS() {
+  const positivo = randomInt(1, 8);
+  const negativo = randomInt(1, 8);
+  return {
+    enunciado: `Un termómetro marca ${positivo}°C y otro marca −${negativo}°C. ¿Cuál de las dos temperaturas es mayor?`,
+    datos: [`Termómetro A: ${positivo}°C`, `Termómetro B: −${negativo}°C`],
+    operacion: `${positivo} es positivo y −${negativo} es negativo`,
+    solucion: `${positivo}°C es la temperatura mayor (todo número positivo es mayor que cualquier negativo).`,
+  };
+}
+
+function genNumerosEnterosAltas() {
+  const inicial = randomInt(-100, 100);
+  const cambio1 = randomInt(-80, 80) || 5;
+  const cambio2 = randomInt(-80, 80) || -5;
+  const resultado = inicial + cambio1 + cambio2;
+  return {
+    enunciado: `Un submarino está a ${inicial} m respecto al nivel del mar. Primero ${cambio1 >= 0 ? "sube" : "baja"} ${Math.abs(cambio1)} m y después ${cambio2 >= 0 ? "sube" : "baja"} ${Math.abs(cambio2)} m más. ¿A qué altura respecto al nivel del mar queda?`,
+    datos: [`Posición inicial: ${inicial} m`, `Primer cambio: ${cambio1 >= 0 ? "+" : "−"}${Math.abs(cambio1)} m`, `Segundo cambio: ${cambio2 >= 0 ? "+" : "−"}${Math.abs(cambio2)} m`],
+    operacion: `${inicial} ${cambio1 >= 0 ? "+" : "−"} ${Math.abs(cambio1)} ${cambio2 >= 0 ? "+" : "−"} ${Math.abs(cambio2)} = ${resultado}`,
+    solucion: `${resultado} m. Queda a ${resultado} m respecto al nivel del mar.`,
+  };
+}
+
 function multiplosDivisoresLista(curso) {
   const n = curso === "6" ? randomInt(6, 15) : randomInt(3, 12);
   const multiplos = Array.from({ length: 5 }, (_, i) => n * (i + 1));
@@ -590,6 +806,30 @@ function multiplosDivisoresMCD(curso) {
 
 function genMultiplosDivisores(curso) {
   return pick([multiplosDivisoresLista, multiplosDivisoresMCM, multiplosDivisoresMCD])(curso);
+}
+
+function genMultiplosDivisoresACS() {
+  const n = pick([2, 5, 10]);
+  const multiplos = Array.from({ length: 5 }, (_, i) => n * (i + 1));
+  return {
+    enunciado: `Escribe los 5 primeros múltiplos de ${n} (sin contar el 0).`,
+    datos: [`Número: ${n}`],
+    operacion: `${n} × 1, ${n} × 2, ${n} × 3, ${n} × 4, ${n} × 5`,
+    solucion: `${multiplos.join(", ")}.`,
+  };
+}
+
+function genMultiplosDivisoresAltas() {
+  const a = randomInt(6, 15);
+  const b = randomInt(6, 15);
+  const c = randomInt(6, 15);
+  const resultado = lcm(lcm(a, b), c);
+  return {
+    enunciado: `Tres autobuses salen juntos de la estación a las 8:00h. El primero repite su recorrido cada ${a} minutos, el segundo cada ${b} minutos y el tercero cada ${c} minutos. ¿Dentro de cuántos minutos volverán a coincidir los tres a la vez?`,
+    datos: [`Autobús 1: cada ${a} min`, `Autobús 2: cada ${b} min`, `Autobús 3: cada ${c} min`],
+    operacion: `m.c.m.(${a}, ${b}, ${c}) = ${resultado}`,
+    solucion: `${resultado} minutos. Volverán a coincidir los tres dentro de ${resultado} minutos.`,
+  };
 }
 
 function fraccionesTartaResto(curso) {
@@ -634,6 +874,35 @@ function fraccionesDeGrupo(curso) {
 
 function genFracciones(curso) {
   return pick([fraccionesTartaResto, fraccionesEquivalente, fraccionesDeGrupo])(curso);
+}
+
+function genFraccionesACS() {
+  const den = pick([2, 3, 4]);
+  const comidos = randomInt(1, den - 1);
+  const quedan = den - comidos;
+  return {
+    enunciado: `Una tarta se divide en ${den} trozos iguales. Se han comido ${comidos} trozo${comidos === 1 ? "" : "s"}. ¿Qué fracción de la tarta queda?`,
+    datos: [`Trozos totales: ${den}`, `Trozos comidos: ${comidos}`],
+    operacion: `${den}/${den} − ${comidos}/${den} = ${quedan}/${den}`,
+    solucion: `${quedan}/${den}. Queda ${quedan}/${den} de la tarta.`,
+  };
+}
+
+function genFraccionesAltas() {
+  const den1 = randomInt(3, 6);
+  const num1 = randomInt(1, den1 - 1);
+  const den2 = randomInt(3, 6);
+  const num2 = randomInt(1, den2 - 1);
+  const k = randomInt(2, 6);
+  const total = den1 * den2 * k;
+  const parteUno = (total / den1) * num1;
+  const parteDos = (parteUno / den2) * num2;
+  return {
+    enunciado: `En un huerto de ${total} plantas, ${num1}/${den1} son tomateras. De esas tomateras, ${num2}/${den2} ya tienen fruto. ¿Cuántas tomateras tienen fruto?`,
+    datos: [`Total de plantas: ${total}`, `Fracción de tomateras: ${num1}/${den1}`, `Fracción con fruto: ${num2}/${den2}`],
+    operacion: `${total} ÷ ${den1} × ${num1} = ${parteUno} tomateras. ${parteUno} ÷ ${den2} × ${num2} = ${parteDos}`,
+    solucion: `${parteDos}. Hay ${parteDos} tomateras con fruto.`,
+  };
 }
 
 function operacionesFraccionesSuma(curso) {
@@ -719,6 +988,38 @@ function genOperacionesFracciones(curso) {
   return pick([operacionesFraccionesSuma, operacionesFraccionesResta, operacionesFraccionesMultiplicacion])(curso);
 }
 
+function genOperacionesFraccionesACS() {
+  const den = pick([2, 4]);
+  const multiplo = randomInt(2, 6);
+  const total = den * multiplo;
+  const resultado = total / den;
+  const objeto = pick(["caramelos", "cromos", "canicas", "galletas"]);
+  return {
+    enunciado: `Tengo ${total} ${objeto} y regalo 1/${den}. ¿${cuantosFor(objeto)} ${objeto} regalo?`,
+    datos: [`Total: ${total} ${objeto}`, `Fracción: 1/${den}`],
+    operacion: `${total} ÷ ${den} = ${resultado}`,
+    solucion: `${resultado}. Regalo ${resultado} ${objeto}.`,
+  };
+}
+
+function genOperacionesFraccionesAltas() {
+  const den1 = randomInt(2, 8);
+  const num1 = randomInt(1, den1 - 1);
+  const den2 = randomInt(2, 8);
+  const num2 = randomInt(1, den2 - 1);
+  const productoNum = num1 * den2;
+  const productoDen = den1 * num2;
+  const g = gcd(productoNum, productoDen);
+  const numSimpl = productoNum / g;
+  const denSimpl = productoDen / g;
+  return {
+    enunciado: `Calcula: ${num1}/${den1} ÷ ${num2}/${den2}`,
+    datos: [`Fracción 1: ${num1}/${den1}`, `Fracción 2: ${num2}/${den2}`],
+    operacion: `${num1}/${den1} ÷ ${num2}/${den2} = ${num1}/${den1} × ${den2}/${num2} = ${productoNum}/${productoDen}${g > 1 ? ` = ${numSimpl}/${denSimpl} (simplificando entre ${g})` : ""}`,
+    solucion: g > 1 ? `${numSimpl}/${denSimpl}. El resultado es ${numSimpl}/${denSimpl}.` : `${productoNum}/${productoDen}. El resultado es ${productoNum}/${productoDen}.`,
+  };
+}
+
 function decimalesRedondeo(curso) {
   const entero = randomInt(1, curso === "6" ? 99 : 20);
   const milesimas = randomInt(0, 999);
@@ -767,6 +1068,30 @@ function genDecimales(curso) {
   return pick([decimalesRedondeo, decimalesComparar, decimalesFraccion])(curso);
 }
 
+function genDecimalesACS() {
+  const numerador = randomInt(1, 9);
+  const decimal = numerador / 10;
+  return {
+    enunciado: `Escribe en forma decimal la fracción ${numerador}/10.`,
+    datos: [`Fracción: ${numerador}/10`],
+    operacion: `${numerador} ÷ 10 = ${fmtEs(decimal, 1)}`,
+    solucion: `${fmtEs(decimal, 1)}. La fracción ${numerador}/10 es ${fmtEs(decimal, 1)}.`,
+  };
+}
+
+function genDecimalesAltas() {
+  const entero = randomInt(1, 99);
+  const decimalPart = randomInt(0, 9999);
+  const numero = entero + decimalPart / 10000;
+  const redondeado = Math.round(numero * 1000) / 1000;
+  return {
+    enunciado: `Redondea el número ${fmtEs(numero, 4)} a las milésimas.`,
+    datos: [`Número: ${fmtEs(numero, 4)}`],
+    operacion: `Miramos la cifra siguiente a las milésimas: si es 5 o más, redondeamos hacia arriba.`,
+    solucion: `${fmtEs(redondeado, 3)}. El número redondeado es ${fmtEs(redondeado, 3)}.`,
+  };
+}
+
 function decimalesMDMultiplicar(curso) {
   const precio = roundMoney(randomInt(105, curso === "6" ? 995 : 495) / 100);
   const cantidad = randomInt(2, curso === "6" ? 9 : 6);
@@ -806,6 +1131,30 @@ function decimalesMDReparto(curso) {
 
 function genDecimalesMD(curso) {
   return pick([decimalesMDMultiplicar, decimalesMDDividirPrecio, decimalesMDReparto])(curso);
+}
+
+function genDecimalesMDACS() {
+  const precio = pick([1.5, 2.5, 0.5, 1.1, 3.2]);
+  const cantidad = randomInt(2, 3);
+  const total = roundMoney(precio * cantidad);
+  return {
+    enunciado: `Un kilo de naranjas cuesta ${fmtEs(precio)} €. ¿Cuánto cuestan ${cantidad} kilos?`,
+    datos: [`Precio por kilo: ${fmtEs(precio)} €`, `Cantidad: ${cantidad} kg`],
+    operacion: `${fmtEs(precio)} × ${cantidad} = ${fmtEs(total)}`,
+    solucion: `${fmtEs(total)} €. Cuestan ${fmtEs(total)} €.`,
+  };
+}
+
+function genDecimalesMDAltas() {
+  const precio = roundMoney(randomInt(15, 60) / 10);
+  const cantidad = randomInt(3, 12);
+  const total = roundMoney(precio * cantidad);
+  return {
+    enunciado: `Se han gastado ${fmtEs(total)} € en comprar bolsas de chuches a ${fmtEs(precio)} € cada una. ¿Cuántas bolsas se han comprado?`,
+    datos: [`Gasto total: ${fmtEs(total)} €`, `Precio por bolsa: ${fmtEs(precio)} €`],
+    operacion: `${fmtEs(total)} ÷ ${fmtEs(precio)} = ${cantidad}`,
+    solucion: `${cantidad}. Se han comprado ${cantidad} bolsas.`,
+  };
 }
 
 function porcentajesDirecto(curso) {
@@ -849,6 +1198,34 @@ function porcentajesInverso(curso) {
 
 function genPorcentajes(curso) {
   return pick([porcentajesDirecto, porcentajesDescuentoRecargo, porcentajesInverso])(curso);
+}
+
+function genPorcentajesACS() {
+  const pct = pick([10, 50]);
+  const cantidad = pct === 10 ? randomInt(2, 10) * 10 : randomInt(2, 20) * 2;
+  const resultado = (cantidad * pct) / 100;
+  return {
+    enunciado: `Calcula el ${pct}% de ${cantidad}.`,
+    datos: [`Cantidad: ${cantidad}`, `Porcentaje: ${pct}%`],
+    operacion: pct === 10 ? `${cantidad} ÷ 10 = ${resultado}` : `${cantidad} ÷ 2 = ${resultado}`,
+    solucion: `${resultado}. El ${pct}% de ${cantidad} es ${resultado}.`,
+  };
+}
+
+function genPorcentajesAltas() {
+  const precio = roundMoney(randomInt(1000, 9900) / 100);
+  const pct1 = pick([10, 15, 20, 25, 30]);
+  const pct2 = pick([5, 10, 15, 21]);
+  const cambio1 = roundMoney((precio * pct1) / 100);
+  const tras1 = roundMoney(precio - cambio1);
+  const cambio2 = roundMoney((tras1 * pct2) / 100);
+  const final = roundMoney(tras1 + cambio2);
+  return {
+    enunciado: `Un artículo cuesta ${fmtEs(precio)} €. Primero tiene un descuento del ${pct1}% y después se le aplica un ${pct2}% de IVA sobre el nuevo precio. ¿Cuánto cuesta finalmente?`,
+    datos: [`Precio inicial: ${fmtEs(precio)} €`, `Descuento: ${pct1}%`, `IVA: ${pct2}%`],
+    operacion: `${pct1}% de ${fmtEs(precio)} = ${fmtEs(cambio1)}. ${fmtEs(precio)} − ${fmtEs(cambio1)} = ${fmtEs(tras1)}. ${pct2}% de ${fmtEs(tras1)} = ${fmtEs(cambio2)}. ${fmtEs(tras1)} + ${fmtEs(cambio2)} = ${fmtEs(final)}`,
+    solucion: `${fmtEs(final)} €. Cuesta finalmente ${fmtEs(final)} €.`,
+  };
 }
 
 function problemasMixtosCompraGrupo(curso) {
@@ -982,6 +1359,29 @@ function genMedidas(curso) {
   return pick([medidasConversion, medidasSumaMixta, medidasComparar])(curso);
 }
 
+function genMedidasACS() {
+  const km = randomInt(2, 9);
+  return {
+    enunciado: `Un coche recorre ${km} km. ¿Cuántos metros son?`,
+    datos: [`Distancia: ${km} km`],
+    operacion: `${km} × 1000 = ${km * 1000}`,
+    solucion: `${km * 1000} m. Son ${km * 1000} metros.`,
+  };
+}
+
+function genMedidasAltas() {
+  const km = randomInt(1, 8);
+  const m = randomInt(1, 999);
+  const totalM = km * 1000 + m;
+  const totalCm = totalM * 100;
+  return {
+    enunciado: `Un ciclista recorre ${km} km y ${m} m en una etapa. ¿Cuántos cm ha recorrido en total?`,
+    datos: [`${km} km`, `${m} m`, `1 km = 1000 m`, `1 m = 100 cm`],
+    operacion: `${km} × 1000 = ${km * 1000} m. ${km * 1000} + ${m} = ${totalM} m. ${totalM} × 100 = ${totalCm} cm`,
+    solucion: `${totalCm} cm. Ha recorrido ${totalCm} cm en total.`,
+  };
+}
+
 function areasRectangulo(curso) {
   const base = randomInt(4, curso === "6" ? 25 : 15);
   const altura = randomInt(3, curso === "6" ? 20 : 12);
@@ -1022,6 +1422,44 @@ function areasTriangulo(curso) {
 function genAreas(curso) {
   const variantes = curso === "6" ? [areasRectangulo, areasCuadrado, areasTriangulo] : [areasRectangulo, areasCuadrado];
   return pick(variantes)(curso);
+}
+
+function genAreasACS() {
+  if (Math.random() < 0.5) {
+    const lado = randomInt(3, 6);
+    const area = lado * lado;
+    return {
+      enunciado: `Una parcela cuadrada tiene ${lado} m de lado. ¿Cuál es su área?`,
+      datos: [`Lado: ${lado} m`],
+      operacion: `${lado} × ${lado} = ${area}`,
+      solucion: `${area} m². El área es ${area} m².`,
+    };
+  }
+  const base = randomInt(4, 7);
+  const altura = randomInt(2, 4);
+  const area = base * altura;
+  return {
+    enunciado: `Un terreno rectangular mide ${base} m de largo y ${altura} m de ancho. ¿Cuál es su área?`,
+    datos: [`Largo: ${base} m`, `Ancho: ${altura} m`],
+    operacion: `${base} × ${altura} = ${area}`,
+    solucion: `${area} m². El área es ${area} m².`,
+  };
+}
+
+function genAreasAltas() {
+  const baseGrande = randomInt(15, 30);
+  const alturaGrande = randomInt(10, 20);
+  const baseChica = randomInt(3, Math.floor(baseGrande / 2));
+  const alturaChica = randomInt(3, Math.floor(alturaGrande / 2));
+  const areaGrande = baseGrande * alturaGrande;
+  const areaChica = baseChica * alturaChica;
+  const areaTotal = areaGrande - areaChica;
+  return {
+    enunciado: `Un terreno rectangular mide ${baseGrande} m de largo y ${alturaGrande} m de ancho, pero le falta una esquina rectangular de ${baseChica} m por ${alturaChica} m (no forma parte del terreno). ¿Cuál es el área real del terreno?`,
+    datos: [`Rectángulo grande: ${baseGrande} × ${alturaGrande}`, `Esquina que falta: ${baseChica} × ${alturaChica}`],
+    operacion: `${baseGrande} × ${alturaGrande} = ${areaGrande}. ${baseChica} × ${alturaChica} = ${areaChica}. ${areaGrande} − ${areaChica} = ${areaTotal}`,
+    solucion: `${areaTotal} m². El área real del terreno es ${areaTotal} m².`,
+  };
 }
 
 function circunferenciaLongitud(curso) {
@@ -1066,6 +1504,38 @@ function genCircunferencia(curso) {
   return pick(variantes)(curso);
 }
 
+function genCircunferenciaACS() {
+  const radio = randomInt(2, 10);
+  const diametro = radio * 2;
+  if (Math.random() < 0.5) {
+    return {
+      enunciado: `Una rueda circular tiene un radio de ${radio} cm. ¿Cuál es su diámetro?`,
+      datos: [`Radio: ${radio} cm`],
+      operacion: `${radio} × 2 = ${diametro}`,
+      solucion: `${diametro} cm. El diámetro mide ${diametro} cm.`,
+    };
+  }
+  return {
+    enunciado: `Una rueda circular tiene un diámetro de ${diametro} cm. ¿Cuál es su radio?`,
+    datos: [`Diámetro: ${diametro} cm`],
+    operacion: `${diametro} ÷ 2 = ${radio}`,
+    solucion: `${radio} cm. El radio mide ${radio} cm.`,
+  };
+}
+
+function genCircunferenciaAltas() {
+  const radio = randomInt(10, 30);
+  const PI = 3.14;
+  const longitud = roundMoney(2 * PI * radio);
+  const area = roundMoney(PI * radio * radio);
+  return {
+    enunciado: `Una piscina circular tiene un radio de ${radio} m. Calcula la longitud de su circunferencia y el área del círculo (usa π ≈ 3,14).`,
+    datos: [`Radio: ${radio} m`, `π ≈ 3,14`],
+    operacion: `Longitud: 2 × 3,14 × ${radio} = ${fmtEs(longitud)}. Área: 3,14 × ${radio}² = 3,14 × ${radio * radio} = ${fmtEs(area)}`,
+    solucion: `Longitud = ${fmtEs(longitud)} m, Área = ${fmtEs(area)} m².`,
+  };
+}
+
 function proporcionalidadPrecio(curso) {
   const a = randomInt(2, 6);
   const precioUnidad = curso === "6" ? roundMoney(randomInt(105, 995) / 100) : randomInt(2, 9);
@@ -1108,6 +1578,36 @@ function proporcionalidadVelocidad(curso) {
 
 function genProporcionalidad(curso) {
   return pick([proporcionalidadPrecio, proporcionalidadEscala, proporcionalidadVelocidad])(curso);
+}
+
+function genProporcionalidadACS() {
+  const a = randomInt(2, 4);
+  const precioUnidad = randomInt(2, 5);
+  const totalA = a * precioUnidad;
+  const b = a * 2;
+  const totalB = b * precioUnidad;
+  const objeto = pick(["cuadernos", "bolígrafos", "libretas"]);
+  return {
+    enunciado: `Si ${a} ${objeto} cuestan ${totalA} €, ¿cuánto cuestan ${b} ${objeto} (el doble)?`,
+    datos: [`${a} ${objeto} → ${totalA} €`, `${b} ${objeto} → ?`],
+    operacion: `El doble de ${a} es ${b}, así que el precio también se duplica: ${totalA} × 2 = ${totalB}`,
+    solucion: `${totalB} €. Cuestan ${totalB} €.`,
+  };
+}
+
+function genProporcionalidadAltas() {
+  const obreros1 = randomInt(2, 6);
+  const obreros2 = randomInt(obreros1 + 2, obreros1 + 10);
+  const k = randomInt(2, 8);
+  const trabajoTotal = obreros1 * obreros2 * k;
+  const dias1 = trabajoTotal / obreros1;
+  const dias2 = trabajoTotal / obreros2;
+  return {
+    enunciado: `${obreros1} obreros tardan ${dias1} días en construir un muro. Si se contratan ${obreros2} obreros (trabajando todos al mismo ritmo), ¿cuántos días tardarán en construir un muro igual?`,
+    datos: [`${obreros1} obreros → ${dias1} días`, `${obreros2} obreros → ?`],
+    operacion: `Trabajo total: ${obreros1} × ${dias1} = ${trabajoTotal} (obreros × días). ${trabajoTotal} ÷ ${obreros2} = ${dias2}`,
+    solucion: `${dias2} días. Tardarán ${dias2} días.`,
+  };
 }
 
 const ESCENARIOS_ESTADISTICA = [
@@ -1181,29 +1681,55 @@ function genEstadistica(curso) {
   return pick([estadisticaMediaMediana, estadisticaRango, estadisticaModa])(curso);
 }
 
+function genEstadisticaACS() {
+  return estadisticaModa("5");
+}
+
+function genEstadisticaAltas() {
+  const n = 7;
+  const valores = Array.from({ length: n }, () => randomInt(1, 12));
+  const suma = valores.reduce((acc, v) => acc + v, 0);
+  const media = fmtTrim(suma / n);
+  const ordenados = [...valores].sort((a, b) => a - b);
+  const mediana = String(ordenados[(n - 1) / 2]);
+  const maximo = Math.max(...valores);
+  const minimo = Math.min(...valores);
+  const rango = maximo - minimo;
+  const counts = {};
+  valores.forEach((v) => (counts[v] = (counts[v] || 0) + 1));
+  const moda = Object.keys(counts).reduce((a, b) => (counts[a] >= counts[b] ? a : b));
+  const escenario = pick(ESCENARIOS_ESTADISTICA);
+  return {
+    enunciado: `Estos son los ${escenario.contexto} ${n} ${escenario.marco}: ${valores.join(", ")}. Calcula la media, la mediana, la moda y el rango.`,
+    datos: [`Valores: ${valores.join(", ")}`],
+    operacion: `Media: (${valores.join(" + ")}) ÷ ${n} = ${media}. Mediana: ordenamos (${ordenados.join(", ")}) y tomamos el central. Moda: el valor que más se repite. Rango: ${maximo} − ${minimo} = ${rango}`,
+    solucion: `Media = ${media}, Mediana = ${mediana}, Moda = ${moda}, Rango = ${rango}.`,
+  };
+}
+
 // ---------------- Registro de temas ----------------
 
 const TOPICS = [
-  { id: "sumas", label: "Sumas", category: "Operaciones básicas", generate: genSumas, resumen: "Sumar es juntar cantidades para saber cuántas hay en total." },
-  { id: "restas", label: "Restas", category: "Operaciones básicas", generate: genRestas, resumen: "Restar es quitar una cantidad de otra para saber cuánto queda o la diferencia entre ellas." },
-  { id: "multiplicaciones", label: "Multiplicaciones", category: "Operaciones básicas", generate: genMultiplicaciones, resumen: "Multiplicar es sumar un mismo número varias veces de forma rápida." },
-  { id: "divisiones", label: "Divisiones", category: "Operaciones básicas", generate: genDivisiones, resumen: "Dividir es repartir una cantidad en partes iguales." },
-  { id: "operaciones-combinadas", label: "Operaciones combinadas", category: "Operaciones básicas", generate: genOperacionesCombinadas, resumen: "Cuando hay varias operaciones juntas, primero se resuelven los paréntesis, luego multiplicaciones y divisiones, y por último sumas y restas." },
-  { id: "numeros-romanos", label: "Números romanos", category: "Operaciones básicas", generate: genNumerosRomanos, resumen: "Los números romanos se escriben combinando las letras I, V, X, L, C, D y M según reglas de suma y resta." },
-  { id: "potencias", label: "Las potencias", category: "Operaciones básicas", generate: genPotencias, resumen: "Una potencia es una multiplicación de un mismo número (la base) tantas veces como indica el exponente." },
-  { id: "numeros-enteros", label: "Números enteros", category: "Operaciones básicas", generate: genNumerosEnteros, resumen: "Los números enteros incluyen los positivos, los negativos y el cero. Sirven para representar cambios en dos sentidos, como subir o bajar." },
-  { id: "multiplos-divisores", label: "Múltiplos, divisores y m.c.m.", category: "Operaciones básicas", generate: genMultiplosDivisores, resumen: "Los múltiplos de un número se obtienen multiplicándolo por 1, 2, 3... El m.c.m. es el menor múltiplo común de dos números." },
-  { id: "fracciones", label: "Fracciones", category: "Fracciones y decimales", generate: genFracciones, resumen: "Una fracción representa las partes que se toman de un todo dividido en partes iguales." },
-  { id: "operaciones-fracciones", label: "Operaciones con fracciones", category: "Fracciones y decimales", generate: genOperacionesFracciones, resumen: "Para sumar o restar fracciones con distinto denominador, primero hay que buscar un denominador común." },
-  { id: "decimales", label: "Números decimales (redondeo)", category: "Fracciones y decimales", generate: genDecimales, resumen: "Los números decimales tienen una parte entera y una parte decimal separadas por una coma. Redondear es aproximar a un número más sencillo." },
-  { id: "decimales-md", label: "Multiplicación y división de decimales", category: "Fracciones y decimales", generate: genDecimalesMD, resumen: "Al multiplicar o dividir decimales se opera igual que con números enteros, teniendo cuidado con la coma decimal." },
-  { id: "porcentajes", label: "Porcentajes", category: "Fracciones y decimales", generate: genPorcentajes, resumen: "Un porcentaje indica una parte de cada 100. Calcular el X% de una cantidad es multiplicarla por X y dividir entre 100." },
+  { id: "sumas", label: "Sumas", category: "Operaciones básicas", generate: genSumas, generateACS: genSumasACS, generateAltas: genSumasAltas, resumen: "Sumar es juntar cantidades para saber cuántas hay en total." },
+  { id: "restas", label: "Restas", category: "Operaciones básicas", generate: genRestas, generateACS: genRestasACS, generateAltas: genRestasAltas, resumen: "Restar es quitar una cantidad de otra para saber cuánto queda o la diferencia entre ellas." },
+  { id: "multiplicaciones", label: "Multiplicaciones", category: "Operaciones básicas", generate: genMultiplicaciones, generateACS: genMultiplicacionesACS, generateAltas: genMultiplicacionesAltas, resumen: "Multiplicar es sumar un mismo número varias veces de forma rápida." },
+  { id: "divisiones", label: "Divisiones", category: "Operaciones básicas", generate: genDivisiones, generateACS: genDivisionesACS, generateAltas: genDivisionesAltas, resumen: "Dividir es repartir una cantidad en partes iguales." },
+  { id: "operaciones-combinadas", label: "Operaciones combinadas", category: "Operaciones básicas", generate: genOperacionesCombinadas, generateACS: genOperacionesCombinadasACS, generateAltas: genOperacionesCombinadasAltas, resumen: "Cuando hay varias operaciones juntas, primero se resuelven los paréntesis, luego multiplicaciones y divisiones, y por último sumas y restas." },
+  { id: "numeros-romanos", label: "Números romanos", category: "Operaciones básicas", generate: genNumerosRomanos, generateACS: genNumerosRomanosACS, generateAltas: genNumerosRomanosAltas, resumen: "Los números romanos se escriben combinando las letras I, V, X, L, C, D y M según reglas de suma y resta." },
+  { id: "potencias", label: "Las potencias", category: "Operaciones básicas", generate: genPotencias, generateACS: genPotenciasACS, generateAltas: genPotenciasAltas, resumen: "Una potencia es una multiplicación de un mismo número (la base) tantas veces como indica el exponente." },
+  { id: "numeros-enteros", label: "Números enteros", category: "Operaciones básicas", generate: genNumerosEnteros, generateACS: genNumerosEnterosACS, generateAltas: genNumerosEnterosAltas, resumen: "Los números enteros incluyen los positivos, los negativos y el cero. Sirven para representar cambios en dos sentidos, como subir o bajar." },
+  { id: "multiplos-divisores", label: "Múltiplos, divisores y m.c.m.", category: "Operaciones básicas", generate: genMultiplosDivisores, generateACS: genMultiplosDivisoresACS, generateAltas: genMultiplosDivisoresAltas, resumen: "Los múltiplos de un número se obtienen multiplicándolo por 1, 2, 3... El m.c.m. es el menor múltiplo común de dos números." },
+  { id: "fracciones", label: "Fracciones", category: "Fracciones y decimales", generate: genFracciones, generateACS: genFraccionesACS, generateAltas: genFraccionesAltas, resumen: "Una fracción representa las partes que se toman de un todo dividido en partes iguales." },
+  { id: "operaciones-fracciones", label: "Operaciones con fracciones", category: "Fracciones y decimales", generate: genOperacionesFracciones, generateACS: genOperacionesFraccionesACS, generateAltas: genOperacionesFraccionesAltas, resumen: "Para sumar o restar fracciones con distinto denominador, primero hay que buscar un denominador común." },
+  { id: "decimales", label: "Números decimales (redondeo)", category: "Fracciones y decimales", generate: genDecimales, generateACS: genDecimalesACS, generateAltas: genDecimalesAltas, resumen: "Los números decimales tienen una parte entera y una parte decimal separadas por una coma. Redondear es aproximar a un número más sencillo." },
+  { id: "decimales-md", label: "Multiplicación y división de decimales", category: "Fracciones y decimales", generate: genDecimalesMD, generateACS: genDecimalesMDACS, generateAltas: genDecimalesMDAltas, resumen: "Al multiplicar o dividir decimales se opera igual que con números enteros, teniendo cuidado con la coma decimal." },
+  { id: "porcentajes", label: "Porcentajes", category: "Fracciones y decimales", generate: genPorcentajes, generateACS: genPorcentajesACS, generateAltas: genPorcentajesAltas, resumen: "Un porcentaje indica una parte de cada 100. Calcular el X% de una cantidad es multiplicarla por X y dividir entre 100." },
   { id: "problemas-mixtos", label: "Problemas mixtos (varios pasos)", category: "Problemas mixtos", generate: genProblemasMixtos, resumen: "Algunos problemas necesitan encadenar varias operaciones seguidas para llegar a la solución final." },
-  { id: "medidas", label: "Medidas y conversiones", category: "Geometría y medidas", generate: genMedidas, resumen: "Para cambiar de una unidad de medida a otra, se multiplica o se divide según la equivalencia entre ellas." },
-  { id: "areas", label: "Áreas y perímetros", category: "Geometría y medidas", generate: genAreas, resumen: "El área mide la superficie de una figura: en un rectángulo es base × altura, y en un triángulo es (base × altura) ÷ 2." },
-  { id: "circunferencia", label: "Circunferencia y círculo", category: "Geometría y medidas", generate: genCircunferencia, resumen: "La circunferencia es el contorno de un círculo. Su longitud es 2 × π × radio, y el área del círculo es π × radio²." },
-  { id: "proporcionalidad", label: "Proporcionalidad (regla de tres)", category: "Geometría y medidas", generate: genProporcionalidad, resumen: "En una relación de proporcionalidad, si conocemos el precio de una unidad podemos calcular el de cualquier cantidad." },
-  { id: "estadistica", label: "Estadística (media y mediana)", category: "Geometría y medidas", generate: genEstadistica, resumen: "La media es la suma de todos los valores dividida entre el número de valores. La mediana es el valor central al ordenarlos." },
+  { id: "medidas", label: "Medidas y conversiones", category: "Geometría y medidas", generate: genMedidas, generateACS: genMedidasACS, generateAltas: genMedidasAltas, resumen: "Para cambiar de una unidad de medida a otra, se multiplica o se divide según la equivalencia entre ellas." },
+  { id: "areas", label: "Áreas y perímetros", category: "Geometría y medidas", generate: genAreas, generateACS: genAreasACS, generateAltas: genAreasAltas, resumen: "El área mide la superficie de una figura: en un rectángulo es base × altura, y en un triángulo es (base × altura) ÷ 2." },
+  { id: "circunferencia", label: "Circunferencia y círculo", category: "Geometría y medidas", generate: genCircunferencia, generateACS: genCircunferenciaACS, generateAltas: genCircunferenciaAltas, resumen: "La circunferencia es el contorno de un círculo. Su longitud es 2 × π × radio, y el área del círculo es π × radio²." },
+  { id: "proporcionalidad", label: "Proporcionalidad (regla de tres)", category: "Geometría y medidas", generate: genProporcionalidad, generateACS: genProporcionalidadACS, generateAltas: genProporcionalidadAltas, resumen: "En una relación de proporcionalidad, si conocemos el precio de una unidad podemos calcular el de cualquier cantidad." },
+  { id: "estadistica", label: "Estadística (media y mediana)", category: "Geometría y medidas", generate: genEstadistica, generateACS: genEstadisticaACS, generateAltas: genEstadisticaAltas, resumen: "La media es la suma de todos los valores dividida entre el número de valores. La mediana es el valor central al ordenarlos." },
 ];
 
 // ---------------- Construcción del documento ----------------
@@ -1249,9 +1775,10 @@ function buildHeaderParagraphs(topic, curso, fecha) {
   ];
 }
 
-function buildProblemParagraphs(problem, index, showSolutions) {
+function buildProblemParagraphs(problem, index, showSolutions, dificultad) {
   const paragraphs = [];
-  const startsNewPage = index > 0 && index % 5 === 0;
+  const pageBreakEvery = dificultad === "tdah" ? 1 : 5;
+  const startsNewPage = index > 0 && index % pageBreakEvery === 0;
   paragraphs.push({
     runs: [{ text: `Problema ${index + 1}`, bold: true, size: 22 }],
     spacingBefore: startsNewPage ? 0 : 90,
@@ -1260,14 +1787,16 @@ function buildProblemParagraphs(problem, index, showSolutions) {
   });
   paragraphs.push({ runs: [{ text: problem.enunciado }], spacingAfter: 40 });
 
+  const prefillWorkings = dificultad === "disgrafia" && !showSolutions;
+
   paragraphs.push(sectionBar("Datos"));
   paragraphs.push(
-    showSolutions ? filledBox([{ text: problem.datos.join("   ·   ") }], 30) : blankBox(1, 30)
+    showSolutions || prefillWorkings ? filledBox([{ text: problem.datos.join("   ·   ") }], 30) : blankBox(1, 30)
   );
 
   paragraphs.push(sectionBar("Operación"));
   paragraphs.push(
-    showSolutions ? filledBox([{ text: problem.operacion }], 30) : blankBox(0, 30)
+    showSolutions || prefillWorkings ? filledBox([{ text: problem.operacion }], 30) : blankBox(0, 30)
   );
 
   paragraphs.push(sectionBar("Solución"));
@@ -1278,7 +1807,25 @@ function buildProblemParagraphs(problem, index, showSolutions) {
   return paragraphs;
 }
 
-function buildFichaDocument({ topic, curso, fecha, problems, showSolutions }) {
+const DIFFICULTY_FICHA_NOTES = {
+  acs: "Adaptación curricular significativa: mismo contenido con un nivel de dificultad equivalente a dos cursos por debajo.",
+  discalculia: "Discalculia: mismo nivel de dificultad que la ACS, pensado para dar más tiempo y reducir la carga numérica.",
+  altas: "Altas capacidades: problemas con números más grandes o con un paso adicional para un reto mayor.",
+  dislexia: "Dislexia: mismo contenido, con letra más grande y más espacio entre líneas para facilitar la lectura.",
+  tdah: "TDAH: cada problema se presenta en su propia página, para trabajar de uno en uno sin saturar la vista.",
+  disgrafia: "Disgrafía: los apartados de Datos y Operación ya vienen resueltos; solo hay que completar la Solución.",
+};
+
+function applyDislexiaStyling(paragraphs) {
+  return paragraphs.map((p) => ({
+    ...p,
+    spacingBefore: p.spacingBefore !== undefined ? Math.round(p.spacingBefore * 1.3) : p.spacingBefore,
+    spacingAfter: p.spacingAfter !== undefined ? Math.round(p.spacingAfter * 1.3) : p.spacingAfter,
+    runs: p.runs.map((r) => (r.break ? r : { ...r, size: (r.size || 22) + 6 })),
+  }));
+}
+
+function buildFichaDocument({ topic, curso, fecha, problems, dificultad, showSolutions }) {
   const paragraphs = [];
   paragraphs.push(...buildHeaderParagraphs(topic, curso, fecha));
 
@@ -1289,15 +1836,23 @@ function buildFichaDocument({ topic, curso, fecha, problems, showSolutions }) {
       runs: [{ text: topic.resumen }],
       border: true,
       shading: "D9D9D9",
+      spacingAfter: 100,
+    });
+  }
+
+  const note = DIFFICULTY_FICHA_NOTES[dificultad];
+  if (note) {
+    paragraphs.push({
+      runs: [{ text: note, italic: true, color: "0369A1" }],
       spacingAfter: 140,
     });
   }
 
   problems.forEach((p, i) => {
-    paragraphs.push(...buildProblemParagraphs(p, i, showSolutions));
+    paragraphs.push(...buildProblemParagraphs(p, i, showSolutions, dificultad));
   });
 
-  return paragraphs;
+  return dificultad === "dislexia" ? applyDislexiaStyling(paragraphs) : paragraphs;
 }
 
 // ---------------- API pública ----------------
@@ -1311,20 +1866,42 @@ function getTopicsByCategory() {
   return byCategory;
 }
 
-function generarFichaYSoluciones(topicId, curso, count) {
+const DISCALCULIA_SCAFFOLD = " Tómate tu tiempo.";
+
+function generarProblemas(topic, curso, count, dificultad) {
+  if (dificultad === "acs" || dificultad === "discalculia") {
+    if (!topic.generateACS) return generarProblemas(topic, curso, count, "none");
+    const problems = [];
+    for (let i = 0; i < count; i++) {
+      const p = topic.generateACS();
+      problems.push(dificultad === "discalculia" ? { ...p, enunciado: p.enunciado + DISCALCULIA_SCAFFOLD } : p);
+    }
+    return problems;
+  }
+  if (dificultad === "altas" && topic.generateAltas) {
+    const problems = [];
+    for (let i = 0; i < count; i++) problems.push(topic.generateAltas(curso));
+    return problems;
+  }
+  const problems = [];
+  for (let i = 0; i < count; i++) problems.push(topic.generate(curso));
+  return problems;
+}
+
+function generarFichaYSoluciones(topicId, curso, count, dificultad = "none") {
   const topic = TOPICS.find((t) => t.id === topicId);
   if (!topic) throw new Error("Tema no encontrado: " + topicId);
 
-  const problems = [];
-  for (let i = 0; i < count; i++) problems.push(topic.generate(curso));
+  const problems = generarProblemas(topic, curso, count, dificultad);
 
   const fecha = todayEs();
-  const fichaParagraphs = buildFichaDocument({ topic, curso, fecha, problems, showSolutions: false });
-  const solucionesParagraphs = buildFichaDocument({ topic, curso, fecha, problems, showSolutions: true });
+  const fichaParagraphs = buildFichaDocument({ topic, curso, fecha, problems, dificultad, showSolutions: false });
+  const solucionesParagraphs = buildFichaDocument({ topic, curso, fecha, problems, dificultad, showSolutions: true });
 
   const fichaBlob = createDocxBlob(fichaParagraphs);
   const solucionesBlob = createDocxBlob(solucionesParagraphs);
 
-  downloadBlob(fichaBlob, `ficha_matematicas_${topicId}_${curso}.docx`);
-  setTimeout(() => downloadBlob(solucionesBlob, `soluciones_matematicas_${topicId}_${curso}.docx`), 400);
+  const sufijo = dificultad && dificultad !== "none" ? `_${dificultad}` : "";
+  downloadBlob(fichaBlob, `ficha_matematicas_${topicId}_${curso}${sufijo}.docx`);
+  setTimeout(() => downloadBlob(solucionesBlob, `soluciones_matematicas_${topicId}_${curso}${sufijo}.docx`), 400);
 }

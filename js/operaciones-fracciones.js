@@ -83,6 +83,20 @@ const COMODIVISION_ENTRIES = [
   { display: "9/5 = ?", correct: "9 ÷ 5", options: ["9 ÷ 5", "5 ÷ 9", "9 × 5", "5 + 9"] },
 ];
 
+const ACS_ENTRIES = [
+  { display: "1/2 de 10", correct: "5", options: ["5", "10", "2", "20"] },
+  { display: "1/2 de 8", correct: "4", options: ["4", "8", "2", "16"] },
+  { display: "1/4 de 8", correct: "2", options: ["2", "4", "8", "1"] },
+  { display: "1/2 de 6", correct: "3", options: ["3", "6", "2", "12"] },
+  { display: "1/4 de 12", correct: "3", options: ["3", "4", "6", "12"] },
+];
+
+const ACS_GROUP = {
+  pool: ACS_ENTRIES,
+  field: "correct",
+  question: () => "Calcula:",
+};
+
 const MODE_GROUPS = {
   fracciondenum: {
     pool: FRACCIONDE_ENTRIES,
@@ -130,10 +144,57 @@ function shuffle(arr) {
   return copy;
 }
 
+const OPFRACCIONES_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo la mitad y el cuarto de un número (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo calcular 1/2 o 1/4 de números pequeños que se dividen de forma exacta.",
+    example: "1/2 de 10 → 10 ÷ 2 = 5",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo nivel de operaciones, pero con una tipografía más legible para leer las fracciones.",
+    example: "2/7 + 3/7 = 5/7 → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Fracción de un número» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo la mitad y el cuarto de un número y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo calcular 1/2 o 1/4 de números pequeños, dando más tiempo para pensar cada respuesta.",
+    example: "1/4 de 8 → 8 ÷ 4 = 2",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Dividir fracciones",
+    text: "Se practica directamente con el contenido más avanzado: <strong>dividir fracciones</strong> (multiplicar por la segunda invertida).",
+    example: "1/2 ÷ 1/3 = 1/2 × 3/1 = 3/2",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "3/4 de 20 = ? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   renderTeoriaExamples();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, OPFRACCIONES_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), OPFRACCIONES_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function renderTeoriaExamples() {
@@ -171,8 +232,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-opfracciones"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -190,7 +252,38 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "dividir";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "dividir"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "fracciondenum";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "fracciondenum"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry.display === lastDisplay);
+      lastDisplay = entry.display;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -205,7 +298,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -261,5 +355,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

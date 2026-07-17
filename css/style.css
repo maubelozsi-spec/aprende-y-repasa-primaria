@@ -21,6 +21,10 @@
   --color-amber-tint: #fdf0dc;
   --color-plum: #7e22ce;
   --color-plum-tint: #f3e8fd;
+  --color-sky: #0369a1;
+  --color-sky-tint: #e0f2fe;
+  --color-rose: #be185d;
+  --color-rose-tint: #fce7f3;
 
   --color-success: #15803d;
   --color-success-tint: #e6f6ec;
@@ -638,6 +642,119 @@ main.content {
 
 .tip-box strong {
   color: var(--color-amber);
+}
+
+/* ---------- Selector unificado de dificultades ---------- */
+/* Cada tipo de dificultad tiene su propio color: se aplica añadiendo
+   la clase .type-XXX al .difficulty-box / .difficulty-selector. */
+
+.difficulty-box,
+.difficulty-selector {
+  --diff-color: var(--color-sky);
+  --diff-tint: var(--color-sky-tint);
+  --diff-border: #bce3f9;
+}
+
+.difficulty-box.type-dislexia,   .difficulty-selector.type-dislexia   { --diff-color: var(--color-teal);  --diff-tint: var(--color-teal-tint);  --diff-border: #b8e6de; }
+.difficulty-box.type-tdah,       .difficulty-selector.type-tdah       { --diff-color: var(--color-amber); --diff-tint: var(--color-amber-tint); --diff-border: #f0dcb4; }
+.difficulty-box.type-discalculia,.difficulty-selector.type-discalculia{ --diff-color: var(--color-plum);  --diff-tint: var(--color-plum-tint);  --diff-border: #e3caf7; }
+.difficulty-box.type-altas,      .difficulty-selector.type-altas      { --diff-color: var(--color-success); --diff-tint: var(--color-success-tint); --diff-border: #b8e4c8; }
+.difficulty-box.type-disgrafia,  .difficulty-selector.type-disgrafia  { --diff-color: var(--color-rose);  --diff-tint: var(--color-rose-tint);  --diff-border: #f4bcd8; }
+
+.difficulty-box {
+  background: var(--diff-tint);
+  border: 1px solid var(--diff-border);
+  border-left: 4px solid var(--diff-color);
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
+  margin: 28px 0 12px;
+  display: none;
+}
+
+.difficulty-box.show {
+  display: block;
+}
+
+.difficulty-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--diff-color);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.difficulty-box h3 {
+  margin: 0 0 8px;
+  color: var(--diff-color);
+  font-size: 17px;
+}
+
+.difficulty-box p {
+  margin: 0 0 10px;
+}
+
+.difficulty-box p:last-child {
+  margin-bottom: 0;
+}
+
+.difficulty-box .difficulty-example {
+  background: var(--surface);
+  border: 1px solid var(--diff-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-weight: 600;
+}
+
+.difficulty-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--diff-tint);
+  border: 1px solid var(--diff-border);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  margin-bottom: 18px;
+}
+
+.difficulty-selector label {
+  font-weight: 700;
+  color: var(--diff-color);
+}
+
+.difficulty-selector select {
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 7px 10px;
+  border: 2px solid var(--diff-border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  background: var(--surface);
+}
+
+.difficulty-selector select:focus {
+  outline: none;
+  border-color: var(--diff-color);
+}
+
+.difficulty-selector .difficulty-hint {
+  color: var(--text-soft);
+  font-weight: 400;
+  font-size: 13px;
+}
+
+/* Dislexia: presentación más legible dentro del contenido adaptado */
+.difficulty-readable {
+  font-family: "Lexend", var(--font);
+  letter-spacing: 0.01em;
+  line-height: 1.7;
 }
 
 .ficha-download {

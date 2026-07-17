@@ -45,6 +45,12 @@
       </div>
 
 
+      <div class="difficulty-selector" id="difficulty-wrap">
+        <label for="difficulty-select">Adaptación:</label>
+        <select id="difficulty-select"></select>
+        <span class="difficulty-hint">Adapta la explicación, el juego y la ficha</span>
+      </div>
+
       <div class="choice-row method-picker" id="method-picker">
         <button class="btn btn-secondary active" data-method="escrita">Método de la división</button>
         <button class="btn btn-secondary" data-method="mental">Cálculo mental</button>
@@ -197,6 +203,8 @@
             <button class="btn btn-primary" id="go-to-practice-mental">Ir a practicar</button>
           </p>
         </div>
+
+        <div class="difficulty-box" id="difficulty-box"></div>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -278,10 +286,11 @@
           </div>
 
           <p class="instructions" id="mental-game-instruction"></p>
-          <div class="mental-inputs-row">
+          <div class="mental-inputs-row" id="mental-inputs-row">
             <input type="number" class="number-input" id="mental-answer-input">
             <button class="btn btn-primary" id="mental-check-btn">Comprobar</button>
           </div>
+          <div class="syllable-row" id="mental-answer-choices" style="display:none;"></div>
 
           <div id="feedback-m" class="feedback-box"></div>
 

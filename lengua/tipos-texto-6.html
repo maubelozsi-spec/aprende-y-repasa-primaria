@@ -45,6 +45,12 @@
       </div>
 
 
+      <div class="difficulty-selector" id="difficulty-wrap">
+        <label for="difficulty-select">Adaptación:</label>
+        <select id="difficulty-select"></select>
+        <span class="difficulty-hint">Adapta la explicación, el juego y la ficha</span>
+      </div>
+
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
@@ -94,11 +100,13 @@
         <p style="text-align:center; margin-top:32px;">
           <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
         </p>
+
+        <div class="difficulty-box" id="difficulty-box"></div>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
       <section id="tab-practica" class="tab-panel">
-        <div class="game-card">
+        <div class="game-card" id="practica-tipostexto6">
 
           <div class="game-score">
             <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>

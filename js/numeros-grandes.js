@@ -60,6 +60,26 @@ const VALOR_MILLONES_ENTRIES = [
   { number: "804395210", idx: 5 },
 ].map((e) => ({ ...e, tipo: POSITIONS_MILLONES[e.idx] }));
 
+const VALOR_ENTRIES_ACS = [
+  { number: "348", idx: 0 },
+  { number: "348", idx: 1 },
+  { number: "348", idx: 2 },
+  { number: "512", idx: 0 },
+  { number: "512", idx: 1 },
+  { number: "512", idx: 2 },
+  { number: "706", idx: 0 },
+  { number: "706", idx: 1 },
+  { number: "706", idx: 2 },
+].map((e) => ({ ...e, tipo: ["Centena", "Decena", "Unidad"][e.idx] }));
+
+const ACS_GROUP = {
+  pool: VALOR_ENTRIES_ACS,
+  field: "tipo",
+  question: () => "¿Qué valor tiene la cifra remarcada?",
+  options: ["Centena", "Decena", "Unidad"],
+  display: "tiles",
+};
+
 const MODE_GROUPS = {
   valorposicional: {
     pool: VALOR_ENTRIES,
@@ -100,9 +120,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const NUMGRANDES_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Números de 3 cifras (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se empieza con números más pequeños, de <strong>3 cifras</strong>, reconociendo solo centena, decena y unidad.",
+    example: "348 → 3 centenas, 4 decenas, 8 unidades",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo nivel de números, pero con una tipografía más legible para leer las cifras y las preguntas.",
+    example: "348.256 → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente entre valor posicional, comparar y aproximar, y así mantener mejor la atención.",
+    example: "Solo preguntas de «Valor posicional» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Números de 3 cifras y ayuda extra",
+    text: "Igual que en ACS, se practica con números de <strong>3 cifras</strong>, dando más tiempo para pensar cada respuesta.",
+    example: "512 → 5 centenas, 1 decena, 2 unidades",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Valor posicional con números de millones",
+    text: "Se practica directamente con el contenido más avanzado: <strong>valor posicional en números de millones</strong> (hasta la centena de millón).",
+    example: "348.256.719 → el 3 es centena de millón",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Qué valor tiene la cifra remarcada? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, NUMGRANDES_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), NUMGRANDES_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -124,8 +191,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-numeros-grandes"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     tilesDisplay: document.getElementById("tiles-display"),
@@ -144,11 +212,36 @@ function initGame() {
   let current;
   let lastKey = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "millones";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "millones"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "valorposicional";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "valorposicional"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function entryKey(entry) {
     return JSON.stringify(entry);
   }
 
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia"))
+      return { entry: ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)], group: ACS_GROUP };
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -163,7 +256,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo y repasa cada cifra." : "");
     els.feedback.classList.remove("show", "ok", "ko");
     els.feedback.innerHTML = "";
     els.nextBtn.style.display = "none";
@@ -244,5 +338,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

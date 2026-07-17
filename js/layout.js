@@ -316,6 +316,76 @@ const AppProgress = {
 };
 
 // ============================================================
+// Selector unificado de dificultades: reutilizable en las páginas
+// de práctica y en la ficha. Cada juego define su propia lógica de
+// adaptación por tipo; esta función solo rellena el <select>,
+// aplica el color del tipo elegido y expone el valor actual.
+// ============================================================
+
+const DIFFICULTY_TYPES = [
+  { id: "none", label: "Sin adaptación" },
+  { id: "acs", label: "ACS · 2 cursos de retraso" },
+  { id: "dislexia", label: "Dislexia" },
+  { id: "tdah", label: "TDAH" },
+  { id: "discalculia", label: "Discalculia" },
+  { id: "altas", label: "Altas capacidades" },
+  { id: "disgrafia", label: "Disgrafía" },
+];
+
+function initDifficultySelector(selectId, onChange) {
+  const select = document.getElementById(selectId);
+  if (!select) return { get: () => "none", is: () => false };
+
+  if (!select.options.length) {
+    DIFFICULTY_TYPES.forEach((t) => {
+      const opt = document.createElement("option");
+      opt.value = t.id;
+      opt.textContent = t.label;
+      select.appendChild(opt);
+    });
+  }
+
+  const wrap = select.closest(".difficulty-selector");
+
+  function applyColorClass() {
+    if (!wrap) return;
+    DIFFICULTY_TYPES.forEach((t) => wrap.classList.remove("type-" + t.id));
+    wrap.classList.add("type-" + select.value);
+  }
+
+  select.addEventListener("change", () => {
+    if (select.value === "dislexia") ensureDyslexiaFontLoaded();
+    applyColorClass();
+    onChange(select.value);
+  });
+
+  applyColorClass();
+
+  return {
+    get: () => select.value,
+    is: (type) => select.value === type,
+  };
+}
+
+function renderDifficultyBox(boxId, value, explanations) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  DIFFICULTY_TYPES.forEach((t) => box.classList.remove("type-" + t.id));
+  const info = explanations[value];
+  if (!info) {
+    box.classList.remove("show");
+    return;
+  }
+  box.classList.add("type-" + value, "show");
+  box.innerHTML = `
+    <span class="difficulty-badge">${info.badge}</span>
+    <h3>${info.title}</h3>
+    <p>${info.text}</p>
+    <div class="difficulty-example">${info.example}</div>
+  `;
+}
+
+// ============================================================
 // Accesibilidad: fuente de lectura fácil y tamaño del texto,
 // disponibles en todas las páginas mediante un botón flotante.
 // Las preferencias se guardan en localStorage.

@@ -120,6 +120,20 @@ const GIRO_ENTRIES = [
   { degrees: 180, A: [-2, -5], B: [2, 5], correct: "Sí" },
 ];
 
+const ACS_ENTRIES = [
+  { x: 3, y: 5, correct: "(3, 5)", options: ["(3, 5)", "(5, 3)", "(3, 4)", "(2, 5)"] },
+  { x: 2, y: 4, correct: "(2, 4)", options: ["(2, 4)", "(4, 2)", "(2, 3)", "(1, 4)"] },
+  { x: 5, y: 2, correct: "(5, 2)", options: ["(5, 2)", "(2, 5)", "(5, 1)", "(4, 2)"] },
+  { x: 4, y: 1, correct: "(4, 1)", options: ["(4, 1)", "(1, 4)", "(4, 2)", "(3, 1)"] },
+];
+
+const ACS_GROUP = {
+  pool: ACS_ENTRIES,
+  field: "correct",
+  question: () => "¿Cuáles son las coordenadas del punto marcado?",
+  render: (entry) => gridSVG([{ x: entry.x, y: entry.y, label: "P", color: "var(--color-indigo)" }]),
+};
+
 const MODE_GROUPS = {
   coordenadas: {
     pool: COORDENADAS_ENTRIES,
@@ -180,10 +194,57 @@ function shuffle(arr) {
   return copy;
 }
 
+const COORDENADAS_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo coordenadas positivas (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo leer las coordenadas de puntos con números positivos, sin simetrías, traslaciones ni giros.",
+    example: "Un punto 3 a la derecha y 5 hacia arriba → (3, 5)",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo nivel de contenido, pero con una tipografía más legible para leer las coordenadas.",
+    example: "(3, 5) → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Coordenadas» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo coordenadas positivas y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo con coordenadas de puntos positivos, dando más tiempo para pensar cada respuesta.",
+    example: "Un punto 2 a la derecha y 4 hacia arriba → (2, 4)",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Figuras semejantes y escala",
+    text: "Se practica directamente con el contenido más avanzado: calcular la <strong>escala</strong> entre dos figuras semejantes.",
+    example: "Un rectángulo de 2×3 ampliado a 4×6 → escala ×2",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Cuáles son las coordenadas del punto? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   renderTeoriaExamples();
-  if (document.getElementById("game-grid")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, COORDENADAS_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), COORDENADAS_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("game-grid")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function renderTeoriaExamples() {
@@ -237,8 +298,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-coordenadas"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     gameGrid: document.getElementById("game-grid"),
@@ -256,7 +318,38 @@ function initGame() {
   let current;
   let lastEntry = null;
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "semejanza";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "semejanza"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "coordenadas";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "coordenadas"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry === lastEntry);
+      lastEntry = entry;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -271,7 +364,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = typeof group.question === "function" ? group.question(entry) : group.question;
+    const baseQuestion = typeof group.question === "function" ? group.question(entry) : group.question;
+    els.instructions.textContent = baseQuestion + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.gameGrid.innerHTML = group.render(entry);
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -328,5 +422,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

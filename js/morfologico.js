@@ -122,10 +122,57 @@ function explanationFor(entry) {
   }
 }
 
+const MORFOLOGICO_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo sustantivo, adjetivo y verbo",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo con las tres categorías más concretas: sustantivo, adjetivo y verbo, ocultando el resto de botones.",
+    example: "«El <u>perro</u> pequeño corre.» → sustantivo",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo contenido, pero con una tipografía más legible para leer las frases.",
+    example: "«El perro <u>pequeño</u> corre.» → adjetivo → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Ya se presenta una palabra cada vez",
+    text: "Esta actividad ya muestra una sola frase y una sola pregunta cada vez, sin mezclar bloques de contenido, así que no hace falta ningún ajuste adicional.",
+    example: "Una palabra subrayada → una pregunta → siguiente palabra",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo sustantivo, adjetivo y verbo y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo con sustantivo, adjetivo y verbo, dando más tiempo para pensar cada respuesta.",
+    example: "«Mi hermana mayor <u>estudia</u> mucho.» → verbo",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Las 8 categorías completas",
+    text: "Se practica con las 8 categorías gramaticales completas, incluyendo determinante, pronombre, adverbio, preposición y conjunción, sin ninguna restricción.",
+    example: "«Nosotros compramos pan <u>y</u> leche.» → conjunción",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la categoría correcta.",
+    example: "¿Qué categoría gramatical es? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, MORFOLOGICO_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), MORFOLOGICO_DIFFICULTY_EXPLANATIONS);
+
   if (document.getElementById("sentence-display")) {
-    initGame();
+    initGame(diff, (fn) => restartCallbacks.push(fn));
   }
 });
 
@@ -148,9 +195,13 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+const MORFOLOGICO_EASY_CATEGORIES = ["sustantivo", "adjetivo", "verbo"];
+
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-morfologico"),
     sentenceDisplay: document.getElementById("sentence-display"),
+    instructions: document.getElementById("instructions"),
     catButtons: document.querySelectorAll("#category-buttons [data-cat]"),
     feedback: document.getElementById("feedback"),
     nextBtn: document.getElementById("next-word"),
@@ -160,16 +211,37 @@ function initGame() {
 
   let scoreOk = 0;
   let scoreKo = 0;
-  let lastIndex = -1;
+  let lastEntry = null;
   let current;
 
+  function pool() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      return ENTRIES.filter((e) => MORFOLOGICO_EASY_CATEGORIES.includes(e.category));
+    }
+    return ENTRIES;
+  }
+
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.catButtons.forEach((b) => {
+      b.style.display = easyOnly && !MORFOLOGICO_EASY_CATEGORIES.includes(b.dataset.cat) ? "none" : "";
+    });
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickEntry() {
-    let idx;
+    const source = pool();
+    let entry;
     do {
-      idx = Math.floor(Math.random() * ENTRIES.length);
-    } while (ENTRIES.length > 1 && idx === lastIndex);
-    lastIndex = idx;
-    return ENTRIES[idx];
+      entry = source[Math.floor(Math.random() * source.length)];
+    } while (source.length > 1 && entry === lastEntry);
+    lastEntry = entry;
+    return entry;
   }
 
   function startRound() {
@@ -177,6 +249,8 @@ function initGame() {
 
     els.sentenceDisplay.innerHTML =
       current.words.map((w, i) => (i === current.target ? `<span class="target-word">${w}</span>` : w)).join(" ") + ".";
+
+    els.instructions.textContent = "¿Qué categoría gramatical es la palabra subrayada?" + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
 
     els.catButtons.forEach((b) => {
       b.disabled = false;
@@ -217,5 +291,6 @@ function initGame() {
   els.catButtons.forEach((btn) => btn.addEventListener("click", () => chooseCategory(btn.dataset.cat, btn)));
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

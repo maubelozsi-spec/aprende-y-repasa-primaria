@@ -64,6 +64,22 @@ const MCM_ENTRIES = [
   { display: "m.c.m. de 4 y 10", correct: "20", options: ["20", "40", "14", "10"] },
 ];
 
+const ACS_ENTRIES = [
+  { display: "¿Es 20 múltiplo de 2?", correct: "Sí" },
+  { display: "¿Es 15 múltiplo de 2?", correct: "No" },
+  { display: "¿Es 25 múltiplo de 5?", correct: "Sí" },
+  { display: "¿Es 22 múltiplo de 5?", correct: "No" },
+  { display: "¿Es 30 múltiplo de 10?", correct: "Sí" },
+  { display: "¿Es 34 múltiplo de 10?", correct: "No" },
+];
+
+const ACS_GROUP = {
+  pool: ACS_ENTRIES,
+  field: "correct",
+  question: () => "Responde Sí o No:",
+  options: ["Sí", "No"],
+};
+
 const MODE_GROUPS = {
   multiplos: {
     pool: MULTIPLOS_ENTRIES,
@@ -112,9 +128,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const MULTDIV_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo múltiplos de 2, 5 y 10 (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo si un número es múltiplo de 2, 5 o 10, usando los trucos más sencillos (acabar en cifra par, en 0 o en 5).",
+    example: "20 → múltiplo de 2, de 5 y de 10 · 22 → múltiplo de 2, pero no de 5 ni de 10",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo nivel de contenido, pero con una tipografía más legible para leer las preguntas.",
+    example: "¿Es 42 múltiplo de 6? → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Múltiplos» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo múltiplos de 2, 5 y 10 y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo con múltiplos de 2, 5 y 10, dando más tiempo para pensar cada respuesta.",
+    example: "30 → múltiplo de 2, de 5 y de 10",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Mínimo común múltiplo (m.c.m.)",
+    text: "Se practica directamente con el contenido más avanzado: calcular el <strong>mínimo común múltiplo</strong> de dos números.",
+    example: "m.c.m. de 6 y 8 = 24",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Es 42 múltiplo de 6? → elige Sí o No",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, MULTDIV_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), MULTDIV_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -136,8 +199,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-multiplos"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -155,7 +219,38 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "mcm";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "mcm"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "multiplos";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "multiplos"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry.display === lastDisplay);
+      lastDisplay = entry.display;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -170,7 +265,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -227,5 +323,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

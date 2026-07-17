@@ -103,14 +103,85 @@ function showBorrowMark(view, position) {
   }
 }
 
+const RESTAS_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Restar sin pedir prestado (nivel simplificado)",
+    text: "Se empieza restando números de dos cifras en los que <strong>no hace falta pedir prestado</strong>: la cifra de arriba siempre es mayor o igual que la de abajo.",
+    example: "58 − 23 → unidades: 8 − 3 = 5 · decenas: 5 − 2 = 3 → 35",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene la misma dificultad, con instrucciones más cortas y una tipografía pensada para facilitar la lectura.",
+    example: "Restar en columna: unidades con unidades, decenas con decenas.",
+  },
+  tdah: {
+    badge: "TDAH",
+    title: "Restas más cortas, un paso a la vez",
+    text: "Se practica siempre con números de <strong>2 cifras</strong> (menos columnas, rondas más rápidas), con la misma dificultad de préstamos.",
+    example: "83 − 47 → solo dos columnas que resolver.",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Restas sin pedir prestado, con apoyo extra",
+    text: "Igual que en ACS, restas de dos cifras sin préstamo, recordando en cada paso qué columna toca: primero las unidades, después las decenas.",
+    example: "58 − 23 → primero unidades (8−3=5), después decenas (5−2=3) → 35",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Restas de 4 cifras, el nivel más exigente",
+    text: "Se practica siempre con números de <strong>4 cifras</strong>, con varios préstamos encadenados, para un mayor reto.",
+    example: "6.182 − 3.487 → varios préstamos seguidos.",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Se responde pulsando, no escribiendo a mano",
+    text: "En el método escrito ya se responde pulsando los dígitos; en el cálculo mental, la respuesta se elige entre varias opciones en lugar de teclearla.",
+    example: "Elige la cifra correcta tocando un botón.",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   initMethodPicker();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, RESTAS_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), RESTAS_DIFFICULTY_EXPLANATIONS);
+
   if (document.getElementById("demo-addend-a")) initDemo();
-  if (document.getElementById("game-addend-a")) initGame();
+  if (document.getElementById("game-addend-a")) initGame(diff, (fn) => restartCallbacks.push(fn));
   if (document.getElementById("mental-demo-equation")) initMentalDemo();
-  if (document.getElementById("mental-game-equation")) initMentalGame();
+  if (document.getElementById("mental-game-equation")) initMentalGame(diff, (fn) => restartCallbacks.push(fn));
 });
+
+function numericDistractors(correct) {
+  const candidates = new Set([correct + 1, correct - 1, correct + 10, correct - 10, correct + 2, correct - 2]);
+  candidates.delete(correct);
+  const pool = [...candidates].filter((v) => v >= 0);
+  const distractors = [];
+  while (distractors.length < 3 && pool.length) {
+    const idx = randomInt(0, pool.length - 1);
+    distractors.push(pool.splice(idx, 1)[0]);
+  }
+  while (distractors.length < 3) {
+    distractors.push(correct + distractors.length + 3);
+  }
+  return distractors;
+}
+
+function shuffleArray(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
 
 function initTabs() {
   const tabBtns = document.querySelectorAll(".tab-btn");
@@ -171,6 +242,18 @@ function randomOrderedPairSameLength(length) {
     b = tmp;
   }
   return { minuend: a, subtrahend: b };
+}
+
+function randomOrderedPairNoBorrow(length) {
+  const digitsA = [];
+  const digitsB = [];
+  for (let i = 0; i < length; i++) {
+    const da = i === 0 ? randomInt(1, 9) : randomInt(0, 9);
+    const db = randomInt(0, da);
+    digitsA.push(da);
+    digitsB.push(db);
+  }
+  return { minuend: Number(digitsA.join("")), subtrahend: Number(digitsB.join("")) };
 }
 
 // ---------------- Demo (Teoría · método escrito) ----------------
@@ -251,9 +334,10 @@ function initDemo() {
 
 // ---------------- Juego (Práctica · método escrito) ----------------
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const view = createArithView("game");
   const els = {
+    card: document.getElementById("practica-escrita"),
     lengthBtns: document.querySelectorAll("#length-picker-w [data-len]"),
     instruction: document.getElementById("game-instruction"),
     digitButtons: document.getElementById("digit-buttons"),
@@ -268,6 +352,18 @@ function initGame() {
   let scoreKo = 0;
   let currentLength = 2;
   let problem, stepIndex, attempts, roundHasError;
+
+  function applyDifficultyUI() {
+    const forcedLength = diff.is("acs") || diff.is("discalculia") ? 2 : diff.is("altas") ? 4 : null;
+    els.lengthBtns.forEach((b) => (b.disabled = forcedLength !== null));
+    els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startProblem();
+  });
+  applyDifficultyUI();
 
   function setProgress(pct) {
     els.progressFill.style.width = pct + "%";
@@ -285,7 +381,16 @@ function initGame() {
   }
 
   function startProblem() {
-    const { minuend, subtrahend } = randomOrderedPairSameLength(currentLength);
+    let minuend, subtrahend;
+    if (diff.is("acs") || diff.is("discalculia")) {
+      ({ minuend, subtrahend } = randomOrderedPairNoBorrow(2));
+    } else if (diff.is("altas")) {
+      ({ minuend, subtrahend } = randomOrderedPairSameLength(4));
+    } else if (diff.is("tdah")) {
+      ({ minuend, subtrahend } = randomOrderedPairSameLength(2));
+    } else {
+      ({ minuend, subtrahend } = randomOrderedPairSameLength(currentLength));
+    }
     problem = computeSubtractionSteps(minuend, subtrahend);
     stepIndex = 0;
     attempts = 0;
@@ -306,7 +411,13 @@ function initGame() {
     const borrowText = step.borrowed
       ? ` (pedimos prestada 1 decena, así que ${step.originalDigit} se convierte en ${step.adjustedDigit})`
       : "";
-    els.instruction.innerHTML = `Columna de las ${placeValueLabel(pv)}${borrowText}: ¿cuánto es ${step.adjustedDigit} − ${step.subtrahendDigit}?`;
+    if (diff.is("dislexia")) {
+      els.instruction.innerHTML = `Columna de las ${placeValueLabel(pv)}: ${step.adjustedDigit} − ${step.subtrahendDigit} = ?`;
+    } else if (diff.is("discalculia")) {
+      els.instruction.innerHTML = `Empieza por las ${placeValueLabel(pv)}${borrowText}: ¿cuánto es ${step.adjustedDigit} − ${step.subtrahendDigit}?`;
+    } else {
+      els.instruction.innerHTML = `Columna de las ${placeValueLabel(pv)}${borrowText}: ¿cuánto es ${step.adjustedDigit} − ${step.subtrahendDigit}?`;
+    }
     renderDigitButtons();
   }
 
@@ -469,13 +580,16 @@ function initMentalDemo() {
 
 // ---------------- Juego (Práctica · cálculo mental) ----------------
 
-function initMentalGame() {
+function initMentalGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-mental"),
     lengthBtns: document.querySelectorAll("#length-picker-m [data-len]"),
     equation: document.getElementById("mental-game-equation"),
     instruction: document.getElementById("mental-game-instruction"),
+    inputsRow: document.getElementById("mental-inputs-row"),
     input: document.getElementById("mental-answer-input"),
     checkBtn: document.getElementById("mental-check-btn"),
+    choices: document.getElementById("mental-answer-choices"),
     feedback: document.getElementById("feedback-m"),
     nextBtn: document.getElementById("next-problem-m"),
     scoreOk: document.getElementById("score-ok-m"),
@@ -488,12 +602,33 @@ function initMentalGame() {
   let currentLength = 2;
   let data, stage, attempts, roundHasError;
 
+  function applyDifficultyUI() {
+    const forcedLength = diff.is("acs") || diff.is("discalculia") ? 2 : diff.is("altas") ? 4 : null;
+    els.lengthBtns.forEach((b) => (b.disabled = forcedLength !== null));
+    els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startProblem();
+  });
+  applyDifficultyUI();
+
   function setProgress(pct) {
     els.progressFill.style.width = pct + "%";
   }
 
   function startProblem() {
-    const { minuend, subtrahend } = randomOrderedPairSameLength(currentLength);
+    let minuend, subtrahend;
+    if (diff.is("acs") || diff.is("discalculia")) {
+      ({ minuend, subtrahend } = randomOrderedPairNoBorrow(2));
+    } else if (diff.is("altas")) {
+      ({ minuend, subtrahend } = randomOrderedPairSameLength(4));
+    } else if (diff.is("tdah")) {
+      ({ minuend, subtrahend } = randomOrderedPairSameLength(2));
+    } else {
+      ({ minuend, subtrahend } = randomOrderedPairSameLength(currentLength));
+    }
     data = computeSubtractionMental(minuend, subtrahend);
     stage = 0;
     attempts = 0;
@@ -503,8 +638,6 @@ function initMentalGame() {
     els.nextBtn.style.display = "none";
     els.feedback.classList.remove("show", "ok", "ko");
     els.feedback.innerHTML = "";
-    els.input.style.display = "";
-    els.checkBtn.style.display = "";
 
     const chainText = data.parts.map((p) => `− ${p.chunk}`).join(" ");
     els.equation.innerHTML = `${data.minuend} − ${data.subtrahend} = ${data.minuend} ${chainText}`;
@@ -513,12 +646,68 @@ function initMentalGame() {
   }
 
   function askStage() {
-    els.input.value = "";
-    els.input.classList.remove("correct", "incorrect");
-    els.input.disabled = false;
+    if (diff.is("disgrafia")) {
+      els.inputsRow.style.display = "none";
+      els.choices.style.display = "";
+    } else {
+      els.inputsRow.style.display = "";
+      els.choices.style.display = "none";
+      els.input.value = "";
+      els.input.classList.remove("correct", "incorrect");
+      els.input.disabled = false;
+    }
 
     const p = data.parts[stage];
-    els.instruction.innerHTML = `¿Cuánto es <strong>${p.before} − ${p.chunk}</strong>? (${p.label})`;
+    els.instruction.innerHTML = diff.is("discalculia")
+      ? `Resta las ${p.label}: <strong>${p.before} − ${p.chunk}</strong>`
+      : `¿Cuánto es <strong>${p.before} − ${p.chunk}</strong>? (${p.label})`;
+
+    if (diff.is("disgrafia")) renderChoiceButtons();
+  }
+
+  function renderChoiceButtons() {
+    const expected = data.parts[stage].after;
+    const options = shuffleArray([expected, ...numericDistractors(expected)]);
+    els.choices.innerHTML = "";
+    options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.className = "syllable-chip";
+      btn.textContent = opt;
+      btn.addEventListener("click", () => chooseAnswerButton(opt, btn));
+      els.choices.appendChild(btn);
+    });
+  }
+
+  function chooseAnswerButton(chosen, btn) {
+    const expected = data.parts[stage].after;
+    const isCorrect = chosen === expected;
+    attempts++;
+
+    const allBtns = els.choices.querySelectorAll(".syllable-chip");
+    allBtns.forEach((b) => (b.disabled = true));
+
+    if (isCorrect) {
+      btn.classList.add("correct");
+      setTimeout(advanceStage, 600);
+      return;
+    }
+
+    btn.classList.add("incorrect");
+
+    if (attempts >= 2) {
+      roundHasError = true;
+      allBtns.forEach((b) => {
+        if (Number(b.textContent) === expected) b.classList.add("correct");
+      });
+      setTimeout(advanceStage, 900);
+    } else {
+      setTimeout(() => {
+        allBtns.forEach((b) => {
+          b.disabled = false;
+          b.classList.remove("incorrect");
+        });
+      }, 700);
+    }
   }
 
   function checkAnswer() {
@@ -574,8 +763,8 @@ function initMentalGame() {
     els.scoreKo.textContent = scoreKo;
 
     els.instruction.textContent = "";
-    els.input.style.display = "none";
-    els.checkBtn.style.display = "none";
+    els.inputsRow.style.display = "none";
+    els.choices.style.display = "none";
 
     const titleText = allCorrect ? "Correcto en todos los pasos" : "Casi, revisa los pasos marcados";
 

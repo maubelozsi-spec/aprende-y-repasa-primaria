@@ -96,9 +96,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const FORMACION_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo prefijo o sufijo (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo distinguir si una palabra tiene un prefijo o un sufijo, sin los demás conceptos.",
+    example: "«deshacer» → prefijo",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo contenido, pero con una tipografía más legible para leer las palabras.",
+    example: "«panadero» → sufijo → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Prefijo o sufijo» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo prefijo o sufijo y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo distinguir prefijo de sufijo, dando más tiempo para pensar cada respuesta.",
+    example: "«infeliz» → prefijo",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Tipo de morfema",
+    text: "Se practica directamente con el contenido más avanzado: distinguir morfemas <strong>flexivos</strong> de <strong>derivativos</strong>.",
+    example: "«En \"deshacer\", el morfema des- crea una palabra nueva.» → derivativo",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Prefijo o sufijo? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, FORMACION_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), FORMACION_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -120,8 +167,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-formacion"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -139,6 +187,32 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (easyOnly) {
+      mode = "prefijosufijo";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "prefijosufijo"));
+    } else if (diff.is("altas")) {
+      mode = "morfemas";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "morfemas"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "prefijosufijo";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "prefijosufijo"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
@@ -153,7 +227,8 @@ function initGame() {
   function startRound() {
     current = pickQuestion();
 
-    els.instructions.textContent = current.group.question();
+    els.instructions.textContent =
+      current.group.question() + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
     els.wordDisplay.textContent = current.entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -215,5 +290,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

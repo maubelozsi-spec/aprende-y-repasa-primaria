@@ -95,17 +95,71 @@ const WORDS = [
 
 function computeType(len, stress) {
   if (len === 1) return "monosilaba";
-  const diff = (len - 1) - stress;
-  if (diff === 0) return "aguda";
-  if (diff === 1) return "llana";
-  if (diff === 2) return "esdrujula";
+  const diffLen = (len - 1) - stress;
+  if (diffLen === 0) return "aguda";
+  if (diffLen === 1) return "llana";
+  if (diffLen === 2) return "esdrujula";
   return "sobresdrujula";
 }
 
+const EASY_WORDS = WORDS.filter(
+  (w) => !["triptongo", "hiato_acentual"].includes(w.vowelGroup) && computeType(w.syllables.length, w.stress) !== "sobresdrujula"
+);
+const ALTAS_WORDS = WORDS.filter(
+  (w) => ["triptongo", "hiato_acentual"].includes(w.vowelGroup) || computeType(w.syllables.length, w.stress) === "sobresdrujula"
+);
+
+const ORTOGRAFIA_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Palabras más sencillas y sin el paso 4",
+    text: "Para el alumnado con adaptación curricular significativa se usan solo palabras agudas, llanas y esdrújulas sencillas (sin triptongos, sobresdrújulas ni hiatos acentuales), y se practican los 3 primeros pasos: sílabas, sílaba tónica y tilde. El paso de diptongo/hiato/triptongo se omite.",
+    example: "«ár·bol» → llana, con tilde, sin pasar al paso 4",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo contenido y los mismos 4 pasos, pero con una tipografía más legible.",
+    example: "«ca·mi·ón» → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Ya se practica un paso cada vez",
+    text: "Esta actividad ya presenta un solo paso a la vez (sílabas, tónica, tilde, vocales), con una barra de progreso, sin mezclar bloques de contenido, así que no hace falta ningún ajuste adicional.",
+    example: "Paso 1 de 4 → paso 2 de 4 → paso 3 de 4 → paso 4 de 4",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Palabras más sencillas, sin el paso 4 y ayuda extra",
+    text: "Igual que en ACS, se usan palabras más sencillas y se omite el paso de diptongo/hiato/triptongo, dando más tiempo para pensar cada paso.",
+    example: "«me·sa» → llana, sin tilde, sin pasar al paso 4",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Solo los casos más difíciles",
+    text: "Se practica únicamente con sobresdrújulas, triptongos e hiatos acentuales: los casos más avanzados y con más excepciones a la regla general.",
+    example: "«ra·íz» → aguda que lleva tilde por hiato acentual, aunque acabe en consonante distinta de N o S",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde pulsando, sin escribir",
+    text: "Este juego ya funciona pulsando huecos entre letras y botones de opción, así que no hace falta ningún cambio: no requiere escribir nada.",
+    example: "Pulsa entre las letras para separar en sílabas → sin necesidad de escribir",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, ORTOGRAFIA_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), ORTOGRAFIA_DIFFICULTY_EXPLANATIONS);
+
   if (document.getElementById("word-display")) {
-    initGame();
+    initGame(diff, (fn) => restartCallbacks.push(fn));
   }
 });
 
@@ -128,8 +182,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-ortografia"),
     wordDisplay: document.getElementById("word-display"),
     stepSyllables: document.getElementById("step-syllables"),
     stepStress: document.getElementById("step-stress"),
@@ -145,20 +200,46 @@ function initGame() {
     scoreOk: document.getElementById("score-ok"),
     scoreKo: document.getElementById("score-ko"),
     progressFill: document.getElementById("progress-fill"),
+    instructionEls: document.querySelectorAll(".instructions"),
   };
+
+  const originalInstructions = [...els.instructionEls].map((el) => el.textContent);
 
   let scoreOk = 0;
   let scoreKo = 0;
-  let lastIndex = -1;
-  let current, dividers, syllableAttempts, roundOk;
+  let lastWord = null;
+  let current, dividers, syllableAttempts, roundOk, skippedVowelGroup;
+
+  function isEasyOnly() {
+    return diff.is("acs") || diff.is("discalculia");
+  }
+
+  function currentPool() {
+    if (isEasyOnly()) return EASY_WORDS;
+    if (diff.is("altas")) return ALTAS_WORDS;
+    return WORDS;
+  }
+
+  function applyDifficultyUI() {
+    els.instructionEls.forEach((el, i) => {
+      el.textContent = originalInstructions[i] + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
+    });
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
 
   function pickWord() {
-    let idx;
+    const source = currentPool();
+    let word;
     do {
-      idx = Math.floor(Math.random() * WORDS.length);
-    } while (WORDS.length > 1 && idx === lastIndex);
-    lastIndex = idx;
-    return WORDS[idx];
+      word = source[Math.floor(Math.random() * source.length)];
+    } while (source.length > 1 && word === lastWord);
+    lastWord = word;
+    return word;
   }
 
   function correctDividerSet() {
@@ -215,6 +296,7 @@ function initGame() {
     dividers = new Array(current.plain.length - 1).fill(false);
     syllableAttempts = 0;
     roundOk = { syll: null, stress: null, tilde: null, vg: null };
+    skippedVowelGroup = false;
 
     els.stepSyllables.style.display = "";
     els.stepStress.style.display = "none";
@@ -308,7 +390,12 @@ function initGame() {
     correctBtn.classList.add("correct");
     if (!isCorrect) chosenBtn.classList.add("incorrect");
 
-    setTimeout(goToVowelGroup, 1000);
+    if (isEasyOnly()) {
+      skippedVowelGroup = true;
+      setTimeout(showFinalFeedback, 1000);
+    } else {
+      setTimeout(goToVowelGroup, 1000);
+    }
   }
 
   function goToVowelGroup() {
@@ -337,10 +424,11 @@ function initGame() {
 
   function showFinalFeedback() {
     setProgress(100);
+    els.stepTilde.style.display = "none";
     els.stepVowelgroup.style.display = "none";
 
     const type = computeType(current.syllables.length, current.stress);
-    const allCorrect = roundOk.syll && roundOk.stress && roundOk.tilde && roundOk.vg;
+    const allCorrect = roundOk.syll && roundOk.stress && roundOk.tilde && (skippedVowelGroup || roundOk.vg);
 
     if (allCorrect) scoreOk++;
     else scoreKo++;
@@ -382,7 +470,7 @@ function initGame() {
       .map((s, i) => (i === current.stress ? `<u>${s.toUpperCase()}</u>` : s.toUpperCase()))
       .join(" - ");
 
-    const titleText = allCorrect ? "Correcto en los 4 pasos" : "Revisemos esta palabra";
+    const titleText = allCorrect ? (skippedVowelGroup ? "Correcto en los 3 pasos" : "Correcto en los 4 pasos") : "Revisemos esta palabra";
 
     els.feedback.classList.add("show", allCorrect ? "ok" : "ko");
     els.feedback.innerHTML = `
@@ -402,5 +490,6 @@ function initGame() {
   els.vgButtons.forEach((btn) => btn.addEventListener("click", () => chooseVowelGroup(btn.dataset.vg, btn)));
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

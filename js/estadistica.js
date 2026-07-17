@@ -81,6 +81,13 @@ const FRECUENCIAS_ENTRIES = [
   { display: "Datos: 8, 9, 9, 9, 10, 10. ¿Frecuencia del 10?", correct: "2", options: ["2", "3", "1", "6"] },
 ];
 
+const ACS_GROUP = {
+  pool: MODA_ENTRIES,
+  field: "correct",
+  question: () => "¿Cuál es la moda de estos datos (el que más se repite)?",
+  display: "text",
+};
+
 const MODE_GROUPS = {
   leerbarras: {
     pool: LEERBARRAS_ENTRIES,
@@ -128,10 +135,57 @@ function shuffle(arr) {
   return copy;
 }
 
+const ESTADISTICA_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo la moda (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo encontrar el valor que más se repite en una lista de datos.",
+    example: "3, 5, 3, 7, 3, 8 → el 3 se repite más veces → la moda es 3",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo nivel de contenido, pero con una tipografía más legible para leer los datos.",
+    example: "4, 6, 8 → media 6 → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Leer el diagrama» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo la moda y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo encontrar el valor que más se repite, dando más tiempo para pensar cada respuesta.",
+    example: "2, 4, 4, 6, 8, 4 → la moda es 4",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "La mediana",
+    text: "Se practica directamente con el cálculo más exigente: ordenar los datos y encontrar la <strong>mediana</strong>.",
+    example: "3, 5, 7, 8, 9 → mediana = 7",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Cuál es la moda? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   renderTeoriaExample();
-  if (document.getElementById("game-chart")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, ESTADISTICA_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), ESTADISTICA_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("game-chart")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function renderTeoriaExample() {
@@ -158,8 +212,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-estadistica"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     gameChart: document.getElementById("game-chart"),
@@ -178,7 +233,38 @@ function initGame() {
   let current;
   let lastEntry = null;
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "mediana";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "mediana"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "leerbarras";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "leerbarras"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry === lastEntry);
+      lastEntry = entry;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -193,7 +279,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.display === "chart" ? entry.question : group.question();
+    const baseQuestion = group.display === "chart" ? entry.question : group.question();
+    els.instructions.textContent = baseQuestion + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.feedback.classList.remove("show", "ok", "ko");
     els.feedback.innerHTML = "";
     els.nextBtn.style.display = "none";
@@ -257,5 +344,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

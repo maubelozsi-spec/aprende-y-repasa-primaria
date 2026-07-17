@@ -33,6 +33,21 @@ const DISTRIBUTIVA_ENTRIES = [
   { display: "8 × (2 + 6)", correct: "64", options: ["64", "16", "48", "56"] },
 ];
 
+const ACS_ENTRIES = [
+  { display: "3 + 5 = 5 + 3", correct: "Sí, es lo mismo", options: ["Sí, es lo mismo", "No, es distinto"] },
+  { display: "2 × 4 = 4 × 2", correct: "Sí, es lo mismo", options: ["Sí, es lo mismo", "No, es distinto"] },
+  { display: "6 + 1 = 1 + 6", correct: "Sí, es lo mismo", options: ["Sí, es lo mismo", "No, es distinto"] },
+  { display: "9 − 2 y 2 − 9", correct: "No, es distinto", options: ["Sí, es lo mismo", "No, es distinto"] },
+  { display: "8 ÷ 2 y 2 ÷ 8", correct: "No, es distinto", options: ["Sí, es lo mismo", "No, es distinto"] },
+];
+
+const ACS_GROUP = {
+  pool: ACS_ENTRIES,
+  field: "correct",
+  question: () => "¿Se puede cambiar el orden sin que cambie el resultado?",
+  connector: "→",
+};
+
 const MODE_GROUPS = {
   identificar: {
     pool: IDENTIFICAR_ENTRIES,
@@ -63,9 +78,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const PROPIEDADES_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo la propiedad conmutativa (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo la idea de que <strong>en la suma y la multiplicación se puede cambiar el orden</strong> sin que cambie el resultado, y que en la resta y la división no.",
+    example: "3 + 5 = 5 + 3 (sí se puede cambiar el orden) · 9 − 2 ≠ 2 − 9 (no se puede)",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantienen las mismas propiedades, pero con una tipografía más legible para leer las igualdades.",
+    example: "4 + 7 = 7 + 4 → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Identificar la propiedad» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo la propiedad conmutativa y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo la propiedad conmutativa (se puede cambiar el orden en la suma y la multiplicación), dando más tiempo para pensar cada respuesta.",
+    example: "6 + 1 = 1 + 6 (sí se puede cambiar el orden)",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Aplicar la propiedad distributiva",
+    text: "Se practica directamente con el nivel más exigente: <strong>calcular aplicando la propiedad distributiva</strong>.",
+    example: "6 × (5 + 1) = 6×5 + 6×1 = 36",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Qué propiedad se muestra? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, PROPIEDADES_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), PROPIEDADES_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -87,8 +149,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-propiedades"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -106,7 +169,38 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "distributiva";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "distributiva"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "identificar";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "identificar"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry.display === lastDisplay);
+      lastDisplay = entry.display;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -121,7 +215,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -178,5 +273,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

@@ -67,14 +67,85 @@ function makePartialRow(value) {
   return row;
 }
 
+const MULT_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Multiplicar por una sola cifra (nivel simplificado)",
+    text: "Se empieza multiplicando un número pequeño de dos cifras por un solo dígito, sin productos parciales que sumar.",
+    example: "23 × 3 = 69 (un único paso, sin descomponer el multiplicador)",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene la misma dificultad, con instrucciones más cortas y una tipografía pensada para facilitar la lectura.",
+    example: "236 × 4 → un producto parcial por cada cifra del multiplicador.",
+  },
+  tdah: {
+    badge: "TDAH",
+    title: "Multiplicar por una sola cifra, menos pasos",
+    text: "Se practica siempre con un multiplicador de <strong>1 cifra</strong> (un único paso) para mantener mejor la atención.",
+    example: "236 × 4 → un solo producto que calcular.",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Multiplicar por una cifra, con apoyo extra",
+    text: "Igual que en ACS, se multiplica un número pequeño por un solo dígito, recordando en cada paso qué se está multiplicando.",
+    example: "23 × 3 → multiplicamos 23 por 3, una sola vez.",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Multiplicador de 3 cifras, el nivel más exigente",
+    text: "Se practica siempre con un multiplicador de <strong>3 cifras</strong>, con varios productos parciales que sumar.",
+    example: "482 × 137 → tres productos parciales que sumar.",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Se responde eligiendo, no escribiendo a mano",
+    text: "La respuesta de cada paso se elige entre varias opciones en lugar de teclearla.",
+    example: "Elige el resultado correcto tocando un botón.",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   initMethodPicker();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, MULT_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), MULT_DIFFICULTY_EXPLANATIONS);
+
   if (document.getElementById("demo-multiplicand")) initDemo();
-  if (document.getElementById("game-multiplicand")) initGame();
+  if (document.getElementById("game-multiplicand")) initGame(diff, (fn) => restartCallbacks.push(fn));
   if (document.getElementById("mental-demo-line1")) initMentalDemo();
-  if (document.getElementById("mental-game-equation")) initMentalGame();
+  if (document.getElementById("mental-game-equation")) initMentalGame(diff, (fn) => restartCallbacks.push(fn));
 });
+
+function numericDistractors(correct) {
+  const candidates = new Set([correct + 1, correct - 1, correct + 10, correct - 10, correct + 2, correct - 2]);
+  candidates.delete(correct);
+  const pool = [...candidates].filter((v) => v >= 0);
+  const distractors = [];
+  while (distractors.length < 3 && pool.length) {
+    const idx = randomInt(0, pool.length - 1);
+    distractors.push(pool.splice(idx, 1)[0]);
+  }
+  while (distractors.length < 3) {
+    distractors.push(correct + distractors.length + 3);
+  }
+  return distractors;
+}
+
+function shuffleArray(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
 
 function initTabs() {
   const tabBtns = document.querySelectorAll(".tab-btn");
@@ -132,6 +203,10 @@ function randomMultiplier(length) {
 
 function randomMultiplicand() {
   return randomInt(100, 9999);
+}
+
+function randomMultiplicandACS() {
+  return randomInt(10, 30);
 }
 
 // ---------------- Demo (Teoría · método escrito) ----------------
@@ -217,7 +292,7 @@ function initDemo() {
 
 // ---------------- Juego (Práctica · método escrito) ----------------
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const mcEl = document.getElementById("game-multiplicand");
   const mrEl = document.getElementById("game-multiplier");
   const partialsEl = document.getElementById("game-partials");
@@ -225,10 +300,13 @@ function initGame() {
   const resultEl = document.getElementById("game-result");
 
   const els = {
+    card: document.getElementById("practica-escrita"),
     lengthBtns: document.querySelectorAll("#length-picker-w [data-len]"),
     instruction: document.getElementById("game-instruction"),
+    inputsRow: document.getElementById("game-inputs-row"),
     input: document.getElementById("game-answer-input"),
     checkBtn: document.getElementById("game-check-btn"),
+    choices: document.getElementById("game-answer-choices"),
     feedback: document.getElementById("feedback-w"),
     nextBtn: document.getElementById("next-problem-w"),
     scoreOk: document.getElementById("score-ok-w"),
@@ -241,12 +319,31 @@ function initGame() {
   let currentLength = 1;
   let problem, stage, attempts, roundHasError, totalStages;
 
+  function applyDifficultyUI() {
+    const forced = diff.is("acs") || diff.is("discalculia") || diff.is("tdah") ? 1 : diff.is("altas") ? 3 : null;
+    els.lengthBtns.forEach((b) => (b.disabled = forced !== null));
+    if (forced !== null) {
+      currentLength = forced;
+      els.lengthBtns.forEach((b) => b.classList.toggle("active", Number(b.dataset.len) === forced));
+    }
+    els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startProblem();
+  });
+  applyDifficultyUI();
+
   function setProgress(pct) {
     els.progressFill.style.width = pct + "%";
   }
 
   function startProblem() {
-    problem = computeMultiplicationSteps(randomMultiplicand(), randomMultiplier(currentLength));
+    problem =
+      diff.is("acs") || diff.is("discalculia")
+        ? computeMultiplicationSteps(randomMultiplicandACS(), randomInt(2, 9))
+        : computeMultiplicationSteps(randomMultiplicand(), randomMultiplier(currentLength));
     totalStages = problem.partials.length + (problem.partials.length > 1 ? 1 : 0);
     stage = 0;
     attempts = 0;
@@ -262,16 +359,21 @@ function initGame() {
     els.nextBtn.style.display = "none";
     els.feedback.classList.remove("show", "ok", "ko");
     els.feedback.innerHTML = "";
-    els.input.style.display = "";
-    els.checkBtn.style.display = "";
 
     askStage();
   }
 
   function askStage() {
-    els.input.value = "";
-    els.input.classList.remove("correct", "incorrect");
-    els.input.disabled = false;
+    if (diff.is("disgrafia")) {
+      els.inputsRow.style.display = "none";
+      els.choices.style.display = "";
+    } else {
+      els.inputsRow.style.display = "";
+      els.choices.style.display = "none";
+      els.input.value = "";
+      els.input.classList.remove("correct", "incorrect");
+      els.input.disabled = false;
+    }
 
     if (stage < problem.partials.length) {
       const p = problem.partials[stage];
@@ -279,6 +381,53 @@ function initGame() {
     } else {
       const sumText = problem.partials.map((p) => p.partialValue).join(" + ");
       els.instruction.innerHTML = `¿Cuánto es <strong>${sumText}</strong>?`;
+    }
+
+    if (diff.is("disgrafia")) renderChoiceButtons();
+  }
+
+  function renderChoiceButtons() {
+    const expected = expectedAnswer();
+    const options = shuffleArray([expected, ...numericDistractors(expected)]);
+    els.choices.innerHTML = "";
+    options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.className = "syllable-chip";
+      btn.textContent = opt;
+      btn.addEventListener("click", () => chooseAnswerButton(opt, btn));
+      els.choices.appendChild(btn);
+    });
+  }
+
+  function chooseAnswerButton(chosen, btn) {
+    const expected = expectedAnswer();
+    const isCorrect = chosen === expected;
+    attempts++;
+
+    const allBtns = els.choices.querySelectorAll(".syllable-chip");
+    allBtns.forEach((b) => (b.disabled = true));
+
+    if (isCorrect) {
+      btn.classList.add("correct");
+      setTimeout(advanceStage, 600);
+      return;
+    }
+
+    btn.classList.add("incorrect");
+
+    if (attempts >= 2) {
+      roundHasError = true;
+      allBtns.forEach((b) => {
+        if (Number(b.textContent) === expected) b.classList.add("correct");
+      });
+      setTimeout(advanceStage, 900);
+    } else {
+      setTimeout(() => {
+        allBtns.forEach((b) => {
+          b.disabled = false;
+          b.classList.remove("incorrect");
+        });
+      }, 700);
     }
   }
 
@@ -352,8 +501,8 @@ function initGame() {
     els.scoreKo.textContent = scoreKo;
 
     els.instruction.textContent = "";
-    els.input.style.display = "none";
-    els.checkBtn.style.display = "none";
+    els.inputsRow.style.display = "none";
+    els.choices.style.display = "none";
 
     const titleText = allCorrect ? "Correcto en todos los pasos" : "Casi, revisa los pasos marcados";
 
@@ -470,13 +619,16 @@ function initMentalDemo() {
 
 // ---------------- Juego (Práctica · cálculo mental) ----------------
 
-function initMentalGame() {
+function initMentalGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-mental"),
     lengthBtns: document.querySelectorAll("#length-picker-m [data-len]"),
     equation: document.getElementById("mental-game-equation"),
     instruction: document.getElementById("mental-game-instruction"),
+    inputsRow: document.getElementById("mental-inputs-row"),
     input: document.getElementById("mental-answer-input"),
     checkBtn: document.getElementById("mental-check-btn"),
+    choices: document.getElementById("mental-answer-choices"),
     feedback: document.getElementById("feedback-m"),
     nextBtn: document.getElementById("next-problem-m"),
     scoreOk: document.getElementById("score-ok-m"),
@@ -489,12 +641,31 @@ function initMentalGame() {
   let currentLength = 2;
   let data, stage, attempts, roundHasError, totalStages;
 
+  function applyDifficultyUI() {
+    const forced = diff.is("acs") || diff.is("discalculia") || diff.is("tdah") ? 1 : diff.is("altas") ? 3 : null;
+    els.lengthBtns.forEach((b) => (b.disabled = forced !== null));
+    if (forced !== null) {
+      currentLength = forced;
+      els.lengthBtns.forEach((b) => b.classList.toggle("active", Number(b.dataset.len) === forced));
+    }
+    els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startProblem();
+  });
+  applyDifficultyUI();
+
   function setProgress(pct) {
     els.progressFill.style.width = pct + "%";
   }
 
   function startProblem() {
-    data = computeMultiplicationMental(randomMultiplicand(), randomMultiplier(currentLength));
+    data =
+      diff.is("acs") || diff.is("discalculia")
+        ? computeMultiplicationMental(randomMultiplicandACS(), randomInt(2, 9))
+        : computeMultiplicationMental(randomMultiplicand(), randomMultiplier(currentLength));
     totalStages = data.trivial ? 1 : 3;
     stage = 0;
     attempts = 0;
@@ -504,8 +675,6 @@ function initMentalGame() {
     els.nextBtn.style.display = "none";
     els.feedback.classList.remove("show", "ok", "ko");
     els.feedback.innerHTML = "";
-    els.input.style.display = "";
-    els.checkBtn.style.display = "";
 
     els.equation.innerHTML = data.trivial
       ? `${data.multiplicand} × ${data.multiplier}`
@@ -515,9 +684,16 @@ function initMentalGame() {
   }
 
   function askStage() {
-    els.input.value = "";
-    els.input.classList.remove("correct", "incorrect");
-    els.input.disabled = false;
+    if (diff.is("disgrafia")) {
+      els.inputsRow.style.display = "none";
+      els.choices.style.display = "";
+    } else {
+      els.inputsRow.style.display = "";
+      els.choices.style.display = "none";
+      els.input.value = "";
+      els.input.classList.remove("correct", "incorrect");
+      els.input.disabled = false;
+    }
 
     if (data.trivial) {
       els.instruction.innerHTML = `¿Cuánto es <strong>${data.multiplicand} × ${data.multiplier}</strong>?`;
@@ -527,6 +703,53 @@ function initMentalGame() {
       els.instruction.innerHTML = `¿Cuánto es <strong>${data.multiplicand} × ${data.part2M}</strong>?`;
     } else {
       els.instruction.innerHTML = `¿Cuánto es <strong>${data.part1Value} + ${data.part2Value}</strong>?`;
+    }
+
+    if (diff.is("disgrafia")) renderChoiceButtons();
+  }
+
+  function renderChoiceButtons() {
+    const expected = expectedAnswer();
+    const options = shuffleArray([expected, ...numericDistractors(expected)]);
+    els.choices.innerHTML = "";
+    options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.className = "syllable-chip";
+      btn.textContent = opt;
+      btn.addEventListener("click", () => chooseAnswerButton(opt, btn));
+      els.choices.appendChild(btn);
+    });
+  }
+
+  function chooseAnswerButton(chosen, btn) {
+    const expected = expectedAnswer();
+    const isCorrect = chosen === expected;
+    attempts++;
+
+    const allBtns = els.choices.querySelectorAll(".syllable-chip");
+    allBtns.forEach((b) => (b.disabled = true));
+
+    if (isCorrect) {
+      btn.classList.add("correct");
+      setTimeout(advanceStage, 600);
+      return;
+    }
+
+    btn.classList.add("incorrect");
+
+    if (attempts >= 2) {
+      roundHasError = true;
+      allBtns.forEach((b) => {
+        if (Number(b.textContent) === expected) b.classList.add("correct");
+      });
+      setTimeout(advanceStage, 900);
+    } else {
+      setTimeout(() => {
+        allBtns.forEach((b) => {
+          b.disabled = false;
+          b.classList.remove("incorrect");
+        });
+      }, 700);
     }
   }
 
@@ -590,8 +813,8 @@ function initMentalGame() {
     els.scoreKo.textContent = scoreKo;
 
     els.instruction.textContent = "";
-    els.input.style.display = "none";
-    els.checkBtn.style.display = "none";
+    els.inputsRow.style.display = "none";
+    els.choices.style.display = "none";
 
     const titleText = allCorrect ? "Correcto en todos los pasos" : "Casi, revisa los pasos marcados";
 

@@ -31,6 +31,18 @@ const DESARROLLO_ENTRIES = [
   { display: "Esfera", correct: "No tiene desarrollo plano", options: ["No tiene desarrollo plano", "2 círculos y 1 rectángulo", "6 cuadrados en forma de cruz", "1 círculo y 1 sector circular"] },
 ];
 
+const ACS_ENTRIES = [
+  { display: "Tiene 6 caras cuadradas iguales, como un dado.", correct: "Cubo", options: ["Cubo", "Esfera", "Cilindro"] },
+  { display: "Todos sus puntos están a la misma distancia del centro, como una pelota.", correct: "Esfera", options: ["Esfera", "Cubo", "Cilindro"] },
+  { display: "Tiene dos bases circulares iguales, como una lata.", correct: "Cilindro", options: ["Cilindro", "Cubo", "Esfera"] },
+];
+
+const ACS_GROUP = {
+  pool: ACS_ENTRIES,
+  field: "correct",
+  question: () => "¿Qué cuerpo geométrico es?",
+};
+
 const MODE_GROUPS = {
   identificar: {
     pool: IDENTIFICAR_ENTRIES,
@@ -58,9 +70,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const CUERPOS_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo cubo, esfera y cilindro (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo reconocer los tres cuerpos más fáciles de identificar por su parecido con objetos cotidianos.",
+    example: "Cubo (dado) · Esfera (pelota) · Cilindro (lata)",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantienen los mismos cuerpos geométricos, pero con una tipografía más legible para leer las descripciones.",
+    example: "Tiene 6 caras cuadradas iguales → Cubo → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Identificar el cuerpo» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo cubo, esfera y cilindro y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo con cubo, esfera y cilindro, dando más tiempo para pensar cada respuesta.",
+    example: "Tiene dos bases circulares iguales, como una lata → Cilindro",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Su desarrollo en el plano",
+    text: "Se practica directamente con el contenido más abstracto: reconocer el <strong>desarrollo plano</strong> de cada cuerpo geométrico.",
+    example: "Cubo → 6 cuadrados en forma de cruz",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Qué cuerpo geométrico es? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, CUERPOS_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), CUERPOS_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -82,8 +141,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-cuerpos"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -101,7 +161,38 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "desarrollo";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "desarrollo"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "identificar";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "identificar"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry.display === lastDisplay);
+      lastDisplay = entry.display;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -116,7 +207,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -172,5 +264,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

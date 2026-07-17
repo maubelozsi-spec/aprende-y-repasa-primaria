@@ -43,9 +43,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const SIGNOSPUNTUACION_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo identificar el signo (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo reconocer qué signo aparece en la frase, sin tener que elegir cuál usar.",
+    example: "«No sé si ir o quedarme...» → puntos suspensivos",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo contenido, pero con una tipografía más legible para distinguir bien los signos.",
+    example: "«Mi madre dijo: \"Vuelve pronto.\"» → comillas → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Identificar el signo» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo identificar el signo y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo reconocer el signo que aparece en la frase, dando más tiempo para pensar cada respuesta.",
+    example: "«—¿Vienes al parque? —preguntó Ana.» → raya",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Elegir el signo correcto",
+    text: "Se practica directamente con el contenido más exigente: decidir qué signo hay que <strong>usar</strong> en un hueco, según la regla.",
+    example: "Cristóbal Colón ___1451-1506___ descubrió América. → ()",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Qué signo destaca? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, SIGNOSPUNTUACION_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), SIGNOSPUNTUACION_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -67,8 +114,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-signospuntuacion"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -86,6 +134,32 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (easyOnly) {
+      mode = "identificar";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "identificar"));
+    } else if (diff.is("altas")) {
+      mode = "completar";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "completar"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "identificar";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "identificar"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
@@ -101,7 +175,7 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent = group.question() + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -158,5 +232,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

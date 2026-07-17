@@ -31,6 +31,13 @@ const CALCULAR_ENTRIES = [
   { display: "Dado de 6 caras. Probabilidad de sacar un número par.", correct: "3/6", options: ["3/6", "1/6", "2/6", "4/6"] },
 ];
 
+const ACS_GROUP = {
+  pool: TIPO_ENTRIES,
+  field: "correct",
+  question: () => "¿Es un suceso seguro, posible o imposible?",
+  options: ["Seguro", "Posible", "Imposible"],
+};
+
 const MODE_GROUPS = {
   tipo: {
     pool: TIPO_ENTRIES,
@@ -60,9 +67,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const PROBABILIDAD_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo seguro, posible e imposible (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo distinguir si un suceso es seguro, posible o imposible, sin comparar ni calcular probabilidades.",
+    example: "Al lanzar un dado, sacar un 8 → imposible",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo nivel de contenido, pero con una tipografía más legible para leer los enunciados.",
+    example: "Al lanzar una moneda, sacar cara → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Seguro, posible o imposible» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo seguro, posible e imposible y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo distinguir sucesos seguros, posibles e imposibles, dando más tiempo para pensar cada respuesta.",
+    example: "Mañana lloverá → posible",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Calcular la probabilidad",
+    text: "Se practica directamente con el cálculo más exigente: expresar la <strong>probabilidad</strong> como fracción de casos favorables entre casos totales.",
+    example: "Bolsa con 3 rojas y 2 azules → probabilidad de roja = 3/5",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Es seguro, posible o imposible? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, PROBABILIDAD_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), PROBABILIDAD_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -84,8 +138,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-probabilidad"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -103,7 +158,38 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (diff.is("altas")) {
+      mode = "calcular";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "calcular"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "tipo";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "tipo"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
+    if (diff.is("acs") || diff.is("discalculia")) {
+      let entry;
+      do {
+        entry = ACS_GROUP.pool[Math.floor(Math.random() * ACS_GROUP.pool.length)];
+      } while (ACS_GROUP.pool.length > 1 && entry.display === lastDisplay);
+      lastDisplay = entry.display;
+      return { entry, group: ACS_GROUP };
+    }
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
     let entry;
@@ -118,7 +204,8 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent =
+      group.question() + (diff.is("discalculia") ? " Tómate tu tiempo para pensarlo." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -174,5 +261,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

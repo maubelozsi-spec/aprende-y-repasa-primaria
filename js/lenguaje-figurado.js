@@ -59,9 +59,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const LENGFIGURADO_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo literal o figurado (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo distinguir el lenguaje literal del figurado, sin frases hechas ni homonimia.",
+    example: "«Está lloviendo a cántaros» → figurado",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo contenido, pero con una tipografía más legible para leer las frases.",
+    example: "«Llueve mucho hoy» → literal → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de tipo de pregunta y mantener mejor la atención.",
+    example: "Solo preguntas de «Literal o figurado» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo literal o figurado y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo distinguir literal de figurado, dando más tiempo para pensar cada respuesta.",
+    example: "«El avión vuela sobre las nubes» → literal",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Homófonas u homógrafas",
+    text: "Se practica directamente con el contenido más exigente: distinguir palabras <strong>homófonas</strong> de <strong>homógrafas</strong>.",
+    example: "«vino (bebida) / vino (del verbo venir)» → homógrafas",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Es literal o figurado? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, LENGFIGURADO_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), LENGFIGURADO_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -83,8 +130,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-lengfigurado"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -102,6 +150,32 @@ function initGame() {
   let current;
   let lastDisplay = "";
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (easyOnly) {
+      mode = "literalfigurado";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "literalfigurado"));
+    } else if (diff.is("altas")) {
+      mode = "homonimia";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "homonimia"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "literalfigurado";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "literalfigurado"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
@@ -117,7 +191,7 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question();
+    els.instructions.textContent = group.question() + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
     els.wordDisplay.textContent = entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -174,5 +248,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }

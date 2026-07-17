@@ -56,9 +56,56 @@ function shuffle(arr) {
   return copy;
 }
 
+const ORTOHGJXS_DIFFICULTY_EXPLANATIONS = {
+  acs: {
+    badge: "ACS · 2 cursos de retraso",
+    title: "Solo palabras con h (nivel simplificado)",
+    text: "Para el alumnado con adaptación curricular significativa se trabaja solo la ortografía de la h, sin g/j ni x/s.",
+    example: "¿Cuál está bien escrita? → hospital",
+  },
+  dislexia: {
+    badge: "Dislexia",
+    title: "Mismo nivel, lectura más cómoda",
+    text: "Se mantiene el mismo contenido, pero con una tipografía más legible para comparar bien las opciones parecidas.",
+    example: "¿Cuál está bien escrita? → huevo → misma actividad, más fácil de leer",
+  },
+  tdah: {
+    badge: "TDAH · Dificultades de atención",
+    title: "Un solo tipo de pregunta cada vez",
+    text: "Se practica sin el modo <strong>«Mezcla»</strong>, para no ir cambiando constantemente de regla ortográfica y mantener mejor la atención.",
+    example: "Solo preguntas de «Palabras con h» hasta que cambies de modo tú mismo",
+  },
+  discalculia: {
+    badge: "Discalculia",
+    title: "Solo palabras con h y ayuda extra",
+    text: "Igual que en ACS, se trabaja solo la ortografía de la h, dando más tiempo para pensar cada respuesta.",
+    example: "¿Cuál está bien escrita? → hielo",
+  },
+  altas: {
+    badge: "Altas capacidades",
+    title: "Palabras con x/s",
+    text: "Se practica directamente con la regla más sutil de distinguir: la ortografía de <strong>x</strong> y <strong>s</strong>.",
+    example: "¿Cuál está bien escrita? → extraordinario",
+  },
+  disgrafia: {
+    badge: "Disgrafía",
+    title: "Ya se responde eligiendo, sin escribir",
+    text: "Este juego ya funciona con botones de opción múltiple, así que no hace falta ningún cambio: solo hay que pulsar la respuesta correcta.",
+    example: "¿Cuál está bien escrita? → elige entre las opciones",
+  },
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  if (document.getElementById("word-display")) initGame();
+
+  const restartCallbacks = [];
+  const diff = initDifficultySelector("difficulty-select", (value) => {
+    renderDifficultyBox("difficulty-box", value, ORTOHGJXS_DIFFICULTY_EXPLANATIONS);
+    restartCallbacks.forEach((fn) => fn());
+  });
+  renderDifficultyBox("difficulty-box", diff.get(), ORTOHGJXS_DIFFICULTY_EXPLANATIONS);
+
+  if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
 
 function initTabs() {
@@ -80,8 +127,9 @@ function initTabs() {
   if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
 }
 
-function initGame() {
+function initGame(diff, registerRestart) {
   const els = {
+    card: document.getElementById("practica-ortohgjxs"),
     modeBtns: document.querySelectorAll("#mode-picker [data-mode]"),
     instructions: document.getElementById("instructions"),
     wordDisplay: document.getElementById("word-display"),
@@ -99,6 +147,32 @@ function initGame() {
   let current;
   let lastEntry = null;
 
+  function applyDifficultyUI() {
+    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    els.modeBtns.forEach((b) => (b.disabled = easyOnly));
+
+    const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
+    if (mezclaBtn) mezclaBtn.disabled = easyOnly || diff.is("tdah");
+
+    if (easyOnly) {
+      mode = "h";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "h"));
+    } else if (diff.is("altas")) {
+      mode = "xs";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "xs"));
+    } else if (diff.is("tdah") && mode === "mezcla") {
+      mode = "h";
+      els.modeBtns.forEach((b) => b.classList.toggle("active", b.dataset.mode === "h"));
+    }
+
+    if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
+  }
+
+  registerRestart(() => {
+    applyDifficultyUI();
+    startRound();
+  });
+
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
     const group = MODE_GROUPS[groupKey];
@@ -114,7 +188,7 @@ function initGame() {
     current = pickQuestion();
     const { entry, group } = current;
 
-    els.instructions.textContent = group.question(entry);
+    els.instructions.textContent = group.question(entry) + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
     els.wordDisplay.textContent = "";
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -171,5 +245,6 @@ function initGame() {
 
   els.nextBtn.addEventListener("click", startRound);
 
+  applyDifficultyUI();
   startRound();
 }
