@@ -240,3 +240,15 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("sintagmas", {
+  label: "Los sintagmas",
+  resumen: "Un sintagma es un grupo de palabras que funciona como una unidad y tiene una palabra principal: el núcleo.",
+  easyMode: "nucleo",
+  altasMode: "clasificar",
+  defaultMode: "clasificar",
+  pools: {
+    clasificar: { pool: CLASIFICAR_ENTRIES, field: "correct", question: () => "¿Qué tipo de sintagma es?", displayField: "display", perEntryOptions: true },
+    nucleo: { pool: NUCLEO_ENTRIES, field: "correct", question: () => "¿Cuál es el núcleo de este sintagma?", displayField: "display", perEntryOptions: true },
+  },
+});

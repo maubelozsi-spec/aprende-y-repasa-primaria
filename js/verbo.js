@@ -476,3 +476,16 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("verbo", {
+  label: "El verbo",
+  resumen: "El verbo expresa una acción, un estado o un proceso, y se conjuga según la persona, el número, el tiempo y el modo.",
+  easyMode: "formas",
+  altasMode: "predicativocopulativo",
+  pools: {
+    formas: { pool: FORMAS_ENTRIES, field: "forma", question: (e) => `¿Qué tipo de forma verbal es "${e.word}"?`, selfContained: true, options: ["Infinitivo", "Gerundio", "Participio", "Forma personal"] },
+    conjugacion: { pool: CONJUGACION_ENTRIES, field: "conjugacion", question: (e) => `¿A qué conjugación pertenece "${e.word}"?`, selfContained: true, options: ["1ª conjugación", "2ª conjugación", "3ª conjugación"] },
+    persona: { pool: PERSONA_ENTRIES, field: "label", question: (e) => `¿Persona y número de "${e.word}"?`, selfContained: true, options: PERSONA_OPTIONS },
+    predicativocopulativo: { pool: PREDICATIVOCOPULATIVO_ENTRIES, field: "tipo", question: (e) => `El verbo de "${e.word}" es...`, selfContained: true, options: ["Copulativo", "Predicativo"] },
+  },
+});

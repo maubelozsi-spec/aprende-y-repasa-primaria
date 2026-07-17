@@ -299,3 +299,40 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+const SUSTPRON_FICHA_POOL_CLASES = [];
+NOUNS.forEach((e) => { ["tipo", "cantidad", "concrecion"].forEach((t) => { if (QUESTION_TYPES[t].applicable(e)) SUSTPRON_FICHA_POOL_CLASES.push({ entry: e, typeKey: t }); }); });
+const SUSTPRON_FICHA_POOL_GENERONUMERO = [];
+NOUNS.forEach((e) => { ["genero", "numero"].forEach((t) => { if (QUESTION_TYPES[t].applicable(e)) SUSTPRON_FICHA_POOL_GENERONUMERO.push({ entry: e, typeKey: t }); }); });
+const SUSTPRON_FICHA_POOL_PRONOMBRES = PRONOUNS.map((e) => ({ entry: e, typeKey: "pronombre" }));
+
+registerLenguaFicha("sustantivo-pronombre", {
+  label: "El sustantivo y el pronombre",
+  resumen: "El sustantivo nombra personas, animales, cosas o ideas; el pronombre lo sustituye para no repetirlo.",
+  easyMode: "generonumero",
+  altasMode: "pronombres",
+  defaultMode: "clases",
+  pools: {
+    clases: {
+      pool: SUSTPRON_FICHA_POOL_CLASES,
+      question: (w) => QUESTION_TYPES[w.typeKey].prompt(w.entry),
+      selfContained: true,
+      answerFn: (w) => QUESTION_TYPES[w.typeKey].correct(w.entry),
+      optionsFn: (w) => lenguaShuffle(QUESTION_TYPES[w.typeKey].options.slice()),
+    },
+    generonumero: {
+      pool: SUSTPRON_FICHA_POOL_GENERONUMERO,
+      question: (w) => QUESTION_TYPES[w.typeKey].prompt(w.entry),
+      selfContained: true,
+      answerFn: (w) => QUESTION_TYPES[w.typeKey].correct(w.entry),
+      optionsFn: (w) => lenguaShuffle(QUESTION_TYPES[w.typeKey].options.slice()),
+    },
+    pronombres: {
+      pool: SUSTPRON_FICHA_POOL_PRONOMBRES,
+      question: (w) => QUESTION_TYPES[w.typeKey].prompt(w.entry),
+      selfContained: true,
+      answerFn: (w) => QUESTION_TYPES[w.typeKey].correct(w.entry),
+      optionsFn: (w) => lenguaShuffle(QUESTION_TYPES[w.typeKey].options.slice()).slice(0, 4),
+    },
+  },
+});

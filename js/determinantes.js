@@ -252,3 +252,14 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("determinantes", {
+  label: "Los determinantes",
+  resumen: "El determinante va delante del sustantivo y lo concreta: puede ser artículo, demostrativo, posesivo, numeral o indefinido.",
+  easyMode: "articulo",
+  altasMode: "tipo",
+  pools: {
+    tipo: { pool: TIPO_ENTRIES, field: "tipo", question: (e) => `¿Qué tipo de determinante es "${e.word}"?`, selfContained: true, options: ["Artículo", "Demostrativo", "Posesivo", "Numeral", "Indefinido"] },
+    articulo: { pool: ARTICULO_ENTRIES, field: "clase", question: (e) => `¿"${e.word}" es un artículo determinado o indeterminado?`, selfContained: true, options: ["Determinado", "Indeterminado"] },
+  },
+});

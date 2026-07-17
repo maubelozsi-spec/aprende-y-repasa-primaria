@@ -252,3 +252,16 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("tipos-texto-6", {
+  label: "Textos científicos, históricos, descriptivos y discontinuos",
+  resumen: "En 6º se estudian nuevos tipos de texto: el científico, el histórico, la descripción y los textos discontinuos.",
+  easyMode: "continuodiscontinuo",
+  altasMode: "descripcion",
+  defaultMode: "identificar",
+  pools: {
+    identificar: { pool: IDENTIFICAR_ENTRIES, field: "correct", question: () => "¿Qué tipo de texto es?", displayField: "display", perEntryOptions: true },
+    descripcion: { pool: DESCRIPCION_ENTRIES, field: "correct", question: () => "¿Qué tipo de descripción es?", displayField: "display", perEntryOptions: true },
+    continuodiscontinuo: { pool: CONTINUODISCONTINUO_ENTRIES, field: "correct", question: () => "¿Es un texto continuo o discontinuo?", displayField: "display", perEntryOptions: true },
+  },
+});

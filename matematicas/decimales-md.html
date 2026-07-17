@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -39,13 +39,11 @@
         </div>
           <div class="ficha-download-group">
             <span class="grade-tag">5º</span>
-            <a class="btn btn-secondary" href="../fichas/matematicas/ficha_matematicas_decimales-md_5.docx" download>Ficha (Word)</a>
-            <a class="btn btn-soluciones" href="../fichas/matematicas/soluciones_matematicas_decimales-md_5.docx" download>Soluciones</a>
+            <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="5">Descargar ficha y soluciones (Word)</button>
           </div>
           <div class="ficha-download-group">
             <span class="grade-tag">6º</span>
-            <a class="btn btn-secondary" href="../fichas/matematicas/ficha_matematicas_decimales-md_6.docx" download>Ficha (Word)</a>
-            <a class="btn btn-soluciones" href="../fichas/matematicas/soluciones_matematicas_decimales-md_6.docx" download>Soluciones</a>
+            <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="6">Descargar ficha y soluciones (Word)</button>
           </div>
       </div>
 
@@ -147,6 +145,9 @@
 </div>
 
 <script src="../js/layout.js"></script>
+<script src="../js/docx-writer.js"></script>
+<script src="../js/ficha-generator.js"></script>
+<script src="../js/ficha-download.js"></script>
 <script src="../js/decimales-md.js"></script>
 </body>
 </html>

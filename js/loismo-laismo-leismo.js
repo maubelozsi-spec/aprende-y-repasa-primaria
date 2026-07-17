@@ -238,3 +238,14 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("loismo-laismo-leismo", {
+  label: "Loísmo, laísmo y leísmo",
+  resumen: "El loísmo, el laísmo y el leísmo son usos incorrectos de los pronombres lo, la y le en lugar del que corresponde.",
+  easyMode: "completar",
+  altasMode: "identificarerror",
+  pools: {
+    completar: { pool: COMPLETAR_ENTRIES, field: "correct", question: () => "Completa correctamente el hueco:", displayField: "display", perEntryOptions: true },
+    identificarerror: { pool: IDENTIFICARERROR_ENTRIES, field: "correct", question: () => "¿Qué tipo de error tiene esta oración (o está correcta)?", displayField: "display", perEntryOptions: true },
+  },
+});

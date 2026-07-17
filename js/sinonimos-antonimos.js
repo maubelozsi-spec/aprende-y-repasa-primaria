@@ -234,3 +234,18 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+const SINANT_FICHA_SINONIMOS = ENTRIES.filter((e) => e.type === "sinonimo");
+const SINANT_FICHA_ANTONIMOS = ENTRIES.filter((e) => e.type === "antonimo");
+
+registerLenguaFicha("sinonimos-antonimos", {
+  label: "Sinónimos y antónimos",
+  resumen: "Los sinónimos son palabras que significan lo mismo; los antónimos son palabras que significan lo contrario.",
+  easyMode: "antonimo",
+  altasMode: "sinonimo",
+  defaultMode: "sinonimo",
+  pools: {
+    sinonimo: { pool: SINANT_FICHA_SINONIMOS, field: "correct", question: () => "Elige el sinónimo (la palabra que significa lo mismo):", displayField: "word", perEntryOptions: true },
+    antonimo: { pool: SINANT_FICHA_ANTONIMOS, field: "correct", question: () => "Elige el antónimo (la palabra que significa lo contrario):", displayField: "word", perEntryOptions: true },
+  },
+});

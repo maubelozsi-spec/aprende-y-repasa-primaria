@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -39,13 +39,11 @@
         </div>
           <div class="ficha-download-group">
             <span class="grade-tag">5º</span>
-            <a class="btn btn-secondary" href="../fichas/lengua/ficha_lengua_verbo_5.docx" download>Ficha (Word)</a>
-            <a class="btn btn-soluciones" href="../fichas/lengua/soluciones_lengua_verbo_5.docx" download>Soluciones</a>
+            <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="5">Descargar ficha y soluciones (Word)</button>
           </div>
           <div class="ficha-download-group">
             <span class="grade-tag">6º</span>
-            <a class="btn btn-secondary" href="../fichas/lengua/ficha_lengua_verbo_6.docx" download>Ficha (Word)</a>
-            <a class="btn btn-soluciones" href="../fichas/lengua/soluciones_lengua_verbo_6.docx" download>Soluciones</a>
+            <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="6">Descargar ficha y soluciones (Word)</button>
           </div>
       </div>
 
@@ -225,6 +223,9 @@
 </div>
 
 <script src="../js/layout.js"></script>
+<script src="../js/docx-writer.js"></script>
+<script src="../js/lengua-ficha-generator.js"></script>
+<script src="../js/ficha-download.js"></script>
 <script src="../js/verbo.js"></script>
 </body>
 </html>

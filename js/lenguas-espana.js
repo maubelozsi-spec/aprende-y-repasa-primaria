@@ -232,3 +232,14 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("lenguas-espana", {
+  label: "Las lenguas de España",
+  resumen: "En España conviven varias lenguas oficiales, además de distintas variedades y acentos del español.",
+  easyMode: "lenguas",
+  altasMode: "variedades",
+  pools: {
+    lenguas: { pool: LENGUAS_ENTRIES, field: "correct", question: () => "Responde:", displayField: "display", perEntryOptions: true },
+    variedades: { pool: VARIEDADES_ENTRIES, field: "correct", question: () => "¿Qué variedad del español es?", displayField: "display", perEntryOptions: true },
+  },
+});

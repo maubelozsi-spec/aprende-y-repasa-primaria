@@ -275,3 +275,17 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("narrativa", {
+  label: "La narrativa",
+  resumen: "Los textos narrativos (cuentos, novelas, leyendas) cuentan hechos protagonizados por unos personajes en un espacio y un tiempo.",
+  easyMode: "narrador",
+  altasMode: "subgenero",
+  defaultMode: "genero",
+  pools: {
+    genero: { pool: GENERO_ENTRIES, field: "tipo", question: () => "¿Es un cuento, una novela o una leyenda?", displayField: "display", options: ["Cuento", "Novela", "Leyenda"] },
+    narrador: { pool: NARRADOR_ENTRIES, field: "tipo", question: () => "¿Está contado en 1ª o en 3ª persona?", displayField: "display", options: ["1ª persona", "3ª persona"] },
+    elementos: { pool: ELEMENTOS_ENTRIES, field: "tipo", question: () => "¿A qué parte de la narración corresponde esto?", displayField: "display", options: ["Narrador", "Personaje principal", "Personaje secundario", "Espacio", "Tiempo"] },
+    subgenero: { pool: SUBGENERO_ENTRIES, field: "tipo", question: () => "¿A qué subgénero de novela pertenece?", displayField: "display", options: ["Aventuras", "Misterio o policíaca", "Ciencia ficción", "Fantástica", "Histórica"] },
+  },
+});

@@ -293,3 +293,16 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("formacion-palabras", {
+  label: "Formación de palabras",
+  resumen: "Las palabras se pueden formar añadiendo prefijos o sufijos, y se relacionan por familia de palabras o campo semántico.",
+  easyMode: "prefijosufijo",
+  altasMode: "morfemas",
+  pools: {
+    prefijosufijo: { pool: PREFIJO_SUFIJO_ENTRIES, field: "tipo", question: () => "¿Esta palabra está formada con un prefijo o un sufijo?", displayField: "display", options: ["Prefijo", "Sufijo"] },
+    familiacampo: { pool: FAMILIA_CAMPO_ENTRIES, field: "tipo", question: () => "¿Estas dos palabras son de la misma familia de palabras o del mismo campo semántico?", displayField: "display", options: ["Familia de palabras", "Campo semántico", "Ninguna de las dos"] },
+    polisemiahomofonia: { pool: POLISEMIA_HOMOFONIA_ENTRIES, field: "tipo", question: () => "¿Es un caso de polisemia o de homofonía?", displayField: "display", options: ["Polisemia", "Homofonía"] },
+    morfemas: { pool: MORFEMAS_ENTRIES, field: "tipo", question: () => "¿Es un morfema flexivo o derivativo?", displayField: "display", options: ["Flexivo", "Derivativo"] },
+  },
+});

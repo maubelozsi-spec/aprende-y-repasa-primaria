@@ -643,3 +643,16 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("sintactico", {
+  label: "Análisis sintáctico",
+  resumen: "Toda oración tiene sujeto y predicado; el predicado puede ser nominal o verbal, y puede llevar distintos complementos.",
+  easyMode: "elipsis",
+  altasMode: "atributo",
+  pools: {
+    tipo: { pool: TIPO_ORACION_ENTRIES, field: "tipo", question: () => "¿Qué tipo de oración es esta?", displayField: "sentence", options: ["Enunciativa", "Interrogativa", "Exclamativa", "Imperativa", "Desiderativa", "Dubitativa"] },
+    voz: { pool: VOZ_ENTRIES, field: "voz", question: () => "¿Esta oración está en voz activa o pasiva?", displayField: "sentence", options: ["Activa", "Pasiva"] },
+    elipsis: { pool: ELIPSIS_ENTRIES, field: "omitidoLabel", question: () => "¿Tiene el sujeto omitido (elíptico) esta oración?", displayField: "sentence", options: ["Sí", "No"] },
+    atributo: { pool: ATRIBUTO_ENTRIES, field: "correct", question: () => "¿Cuál es el atributo de esta oración?", displayField: "sentence", perEntryOptions: true },
+  },
+});

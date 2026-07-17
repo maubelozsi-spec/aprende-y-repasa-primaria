@@ -244,3 +244,14 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("tilde-diacritica", {
+  label: "Tilde diacrítica",
+  resumen: "La tilde diacrítica sirve para distinguir palabras que se escriben igual pero cumplen una función distinta.",
+  easyMode: "diacritica",
+  altasMode: "exclamativa",
+  pools: {
+    diacritica: { pool: DIACRITICA_ENTRIES, field: "correct", question: () => "Elige la palabra correcta para completar la frase:", displayField: "display", perEntryOptions: true },
+    exclamativa: { pool: EXCLAMATIVA_ENTRIES, field: "correct", question: () => "Elige la forma correcta (¿lleva tilde o no?):", displayField: "display", perEntryOptions: true },
+  },
+});

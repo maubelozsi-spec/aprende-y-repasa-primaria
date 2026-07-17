@@ -266,3 +266,15 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("comunicacion-textos", {
+  label: "La comunicación y los textos",
+  resumen: "En todo acto de comunicación intervienen un emisor, un receptor, un mensaje, un canal, un código y un contexto.",
+  easyMode: "verbalnoverbal",
+  altasMode: "tipotexto",
+  pools: {
+    elementos: { pool: ELEMENTOS_ENTRIES, field: "tipo", question: () => "¿A qué elemento de la comunicación corresponde esto?", displayField: "display", options: ["Emisor", "Receptor", "Mensaje", "Canal", "Código", "Contexto"] },
+    verbalnoverbal: { pool: VERBAL_NOVERBAL_ENTRIES, field: "tipo", question: () => "¿Es lenguaje verbal o no verbal?", displayField: "display", options: ["Verbal", "No verbal"] },
+    tipotexto: { pool: TIPO_TEXTO_ENTRIES, field: "tipo", question: () => "¿Qué tipo de texto es este?", displayField: "display", options: ["Predictivo", "Argumentativo", "Expositivo", "Instructivo", "Noticia", "Reportaje"] },
+  },
+});

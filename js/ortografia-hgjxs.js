@@ -248,3 +248,15 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("ortografia-hgjxs", {
+  label: "Ortografía de la h, g/j y x/s",
+  resumen: "Algunas letras se confunden fácilmente al escribir: la h, la g y la j, y la x y la s.",
+  easyMode: "h",
+  altasMode: "xs",
+  pools: {
+    h: { pool: H_ENTRIES, field: "correct", question: (entry) => entry.display, selfContained: true, perEntryOptions: true },
+    gj: { pool: GJ_ENTRIES, field: "correct", question: (entry) => entry.display, selfContained: true, perEntryOptions: true },
+    xs: { pool: XS_ENTRIES, field: "correct", question: (entry) => entry.display, selfContained: true, perEntryOptions: true },
+  },
+});

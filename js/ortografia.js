@@ -493,3 +493,44 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+function ortografiaFichaType(entry) {
+  const len = entry.syllables.length;
+  if (len === 1) return "monosílaba";
+  const diff = (len - 1) - entry.stress;
+  if (diff === 0) return "aguda";
+  if (diff === 1) return "llana";
+  if (diff === 2) return "esdrújula";
+  return "sobresdrújula";
+}
+
+const ORTOGRAFIA_VOWEL_TILDES = { a: "á", e: "é", i: "í", o: "ó", u: "ú" };
+
+function ortografiaFichaOptions(entry) {
+  if (entry.accented !== entry.plain) return lenguaShuffle([entry.accented, entry.plain]);
+  const wrongAccented = entry.plain.replace(/[aeiou](?!.*[aeiou])/i, (m) => ORTOGRAFIA_VOWEL_TILDES[m] || m);
+  return lenguaShuffle([entry.accented, wrongAccented]);
+}
+
+registerLenguaFicha("ortografia", {
+  label: "Acentuación",
+  resumen: "Toda palabra tiene una sílaba tónica; según dónde caiga y en qué letra termine la palabra, llevará tilde o no.",
+  easyMode: "facil",
+  altasMode: "dificil",
+  pools: {
+    facil: {
+      pool: EASY_WORDS,
+      question: (e) => `Separa en sílabas la palabra «${e.plain}», di si es aguda, llana o esdrújula, y escribe su forma correcta (con o sin tilde).`,
+      selfContained: true,
+      answerFn: (e) => `${e.syllables.join("-")} (${ortografiaFichaType(e)}) → ${e.accented}`,
+      optionsFn: (e) => ortografiaFichaOptions(e),
+    },
+    dificil: {
+      pool: ALTAS_WORDS,
+      question: (e) => `Separa en sílabas la palabra «${e.plain}», clasifícala (aguda, llana, esdrújula o sobresdrújula) y di si tiene diptongo, hiato o triptongo.`,
+      selfContained: true,
+      answerFn: (e) => `${e.syllables.join("-")} (${ortografiaFichaType(e)}) → ${e.accented}. Grupo vocálico: ${e.vowelGroup === "ninguno" ? "ninguno" : e.vowelGroup}.`,
+      optionsFn: (e) => ortografiaFichaOptions(e),
+    },
+  },
+});

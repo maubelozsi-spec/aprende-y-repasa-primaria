@@ -288,3 +288,21 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("errores-comunes", {
+  label: "Errores comunes",
+  resumen: "Hay palabras que se confunden fácilmente al escribir, como porque/por qué, haber/a ver o sino/si no.",
+  easyMode: "hay",
+  altasMode: "porque",
+  defaultMode: "porque",
+  pools: {
+    porque: { pool: PORQUE_ENTRIES, field: "correct", question: () => "Elige la forma correcta:", displayField: "display", perEntryOptions: true },
+    aver: { pool: AVER_ENTRIES, field: "correct", question: () => "Elige la forma correcta:", displayField: "display", perEntryOptions: true },
+    hay: { pool: HAY_ENTRIES, field: "correct", question: () => "Elige la forma correcta:", displayField: "display", perEntryOptions: true },
+    sino: { pool: SINO_ENTRIES, field: "correct", question: () => "Elige la forma correcta:", displayField: "display", perEntryOptions: true },
+    tambien: { pool: TAMBIEN_ENTRIES, field: "correct", question: () => "Elige la forma correcta:", displayField: "display", perEntryOptions: true },
+    aun: { pool: AUN_ENTRIES, field: "correct", question: () => "Elige la forma correcta:", displayField: "display", perEntryOptions: true },
+    halla: { pool: HALLA_ENTRIES, field: "correct", question: () => "Elige la forma correcta:", displayField: "display", perEntryOptions: true },
+    yeo: { pool: YEO_ENTRIES, field: "correct", question: () => "Elige la conjunción correcta:", displayField: "display", perEntryOptions: true },
+  },
+});

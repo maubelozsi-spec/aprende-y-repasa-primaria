@@ -251,3 +251,15 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("lenguaje-figurado", {
+  label: "Lenguaje literal y figurado",
+  resumen: "El lenguaje literal dice lo que significan las palabras; el figurado usa las palabras con un sentido distinto del habitual.",
+  easyMode: "literalfigurado",
+  altasMode: "homonimia",
+  pools: {
+    literalfigurado: { pool: LITERALFIGURADO_ENTRIES, field: "correct", question: () => "¿Es lenguaje literal o figurado?", displayField: "display", perEntryOptions: true },
+    frasehecha: { pool: FRASEHECHA_ENTRIES, field: "correct", question: () => "¿Qué significa esta frase hecha?", displayField: "display", perEntryOptions: true },
+    homonimia: { pool: HOMONIMIA_ENTRIES, field: "correct", question: () => "¿Son homófonas u homógrafas?", displayField: "display", perEntryOptions: true },
+  },
+});

@@ -239,3 +239,14 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("siglas-abreviaturas", {
+  label: "Siglas y abreviaturas",
+  resumen: "Las siglas se forman con las iniciales de varias palabras; las abreviaturas acortan una palabra manteniendo alguna letra clave.",
+  easyMode: "siglaoabrev",
+  altasMode: "significado",
+  pools: {
+    siglaoabrev: { pool: SIGLAOABREV_ENTRIES, field: "correct", question: () => "¿Es una sigla o una abreviatura?", displayField: "display", perEntryOptions: true },
+    significado: { pool: SIGNIFICADO_ENTRIES, field: "correct", question: () => "¿Qué significa?", displayField: "display", perEntryOptions: true },
+  },
+});

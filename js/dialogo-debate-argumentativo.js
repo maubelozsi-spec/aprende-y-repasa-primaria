@@ -246,3 +246,15 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("dialogo-debate-argumentativo", {
+  label: "El diálogo, el debate y el texto argumentativo",
+  resumen: "El debate tiene un moderador y varios participantes; el texto argumentativo defiende una tesis con argumentos y una conclusión.",
+  easyMode: "identificar",
+  altasMode: "partesargumentativo",
+  pools: {
+    elementos: { pool: ELEMENTOS_ENTRIES, field: "correct", question: () => "¿A qué elemento del debate corresponde?", displayField: "display", perEntryOptions: true },
+    partesargumentativo: { pool: PARTESARGUMENTATIVO_ENTRIES, field: "correct", question: () => "¿Es la tesis, un argumento o la conclusión?", displayField: "display", perEntryOptions: true },
+    identificar: { pool: IDENTIFICAR_ENTRIES, field: "correct", question: () => "¿Es un diálogo, un debate o un texto argumentativo?", displayField: "display", perEntryOptions: true },
+  },
+});

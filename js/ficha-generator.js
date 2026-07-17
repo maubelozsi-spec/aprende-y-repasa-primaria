@@ -1707,10 +1707,554 @@ function genEstadisticaAltas() {
   };
 }
 
+function angulosComplementario() {
+  const a = randomInt(10, 80);
+  const b = 90 - a;
+  return {
+    enunciado: `Dos ángulos son complementarios (suman 90°). Uno de ellos mide ${a}°. ¿Cuánto mide el otro?`,
+    datos: [`Ángulo 1: ${a}°`, `Suma total: 90°`],
+    operacion: `90 − ${a} = ${b}`,
+    solucion: `${b}°. El otro ángulo mide ${b}°.`,
+  };
+}
+
+function angulosSuplementario() {
+  const a = randomInt(20, 160);
+  const b = 180 - a;
+  return {
+    enunciado: `Dos ángulos son suplementarios (suman 180°). Uno de ellos mide ${a}°. ¿Cuánto mide el otro?`,
+    datos: [`Ángulo 1: ${a}°`, `Suma total: 180°`],
+    operacion: `180 − ${a} = ${b}`,
+    solucion: `${b}°. El otro ángulo mide ${b}°.`,
+  };
+}
+
+function angulosClasificar() {
+  const angulo = pick([30, 45, 60, 90, 120, 135, 150, 180]);
+  let tipo;
+  if (angulo < 90) tipo = "Agudo";
+  else if (angulo === 90) tipo = "Recto";
+  else if (angulo < 180) tipo = "Obtuso";
+  else tipo = "Llano";
+  return {
+    enunciado: `Clasifica un ángulo que mide ${angulo}°: ¿es agudo, recto, obtuso o llano?`,
+    datos: [`Ángulo: ${angulo}°`],
+    operacion: `Comparamos ${angulo}° con 90° y 180°.`,
+    solucion: `${tipo}. Es un ángulo ${tipo.toLowerCase()}.`,
+  };
+}
+
+function genAngulos() {
+  return pick([angulosComplementario, angulosSuplementario, angulosClasificar])();
+}
+
+function genAngulosACS() {
+  return angulosClasificar();
+}
+
+function genAngulosAltas() {
+  const comp = randomInt(10, 70);
+  const otro = 90 - comp;
+  const tipo = otro < 90 ? "agudo" : otro === 90 ? "recto" : "obtuso";
+  return {
+    enunciado: `Un ángulo mide ${comp}°. Calcula su complementario y di qué tipo de ángulo es.`,
+    datos: [`Ángulo: ${comp}°`],
+    operacion: `90 − ${comp} = ${otro}. Comparamos ${otro}° con 90° y 180°.`,
+    solucion: `${otro}°, un ángulo ${tipo}.`,
+  };
+}
+
+function coordenadasTraslacion() {
+  const x = randomInt(-8, 8);
+  const y = randomInt(-8, 8);
+  const dx = randomInt(-5, 5) || 2;
+  const dy = randomInt(-5, 5) || -3;
+  const nx = x + dx;
+  const ny = y + dy;
+  return {
+    enunciado: `Un punto A(${x}, ${y}) se traslada según el vector (${dx >= 0 ? "+" : ""}${dx}, ${dy >= 0 ? "+" : ""}${dy}). ¿Cuáles son las coordenadas del punto B?`,
+    datos: [`Punto A: (${x}, ${y})`, `Vector: (${dx}, ${dy})`],
+    operacion: `(${x} ${dx >= 0 ? "+" : ""}${dx}, ${y} ${dy >= 0 ? "+" : ""}${dy}) = (${nx}, ${ny})`,
+    solucion: `(${nx}, ${ny}). El punto B tiene coordenadas (${nx}, ${ny}).`,
+  };
+}
+
+function coordenadasSimetria() {
+  const x = randomInt(1, 9);
+  const y = randomInt(1, 9);
+  const eje = pick(["X", "Y"]);
+  const simX = eje === "X" ? x : -x;
+  const simY = eje === "X" ? -y : y;
+  return {
+    enunciado: `Un punto A(${x}, ${y}) se refleja respecto al eje ${eje}. ¿Cuáles son las coordenadas de su simétrico?`,
+    datos: [`Punto A: (${x}, ${y})`, `Eje de simetría: ${eje}`],
+    operacion: eje === "X" ? `(x, y) → (x, −y) = (${simX}, ${simY})` : `(x, y) → (−x, y) = (${simX}, ${simY})`,
+    solucion: `(${simX}, ${simY}).`,
+  };
+}
+
+function coordenadasEscala(curso) {
+  const base = randomInt(2, 6);
+  const altura = randomInt(2, 6);
+  const escala = curso === "6" ? randomInt(2, 4) : 2;
+  const nuevaBase = base * escala;
+  const nuevaAltura = altura * escala;
+  return {
+    enunciado: `Un rectángulo de ${base} × ${altura} cm se amplía a escala ×${escala}. ¿Cuáles son sus nuevas dimensiones?`,
+    datos: [`Rectángulo original: ${base} × ${altura} cm`, `Escala: ×${escala}`],
+    operacion: `${base} × ${escala} = ${nuevaBase}. ${altura} × ${escala} = ${nuevaAltura}`,
+    solucion: `${nuevaBase} × ${nuevaAltura} cm.`,
+  };
+}
+
+function genCoordenadas(curso) {
+  const variantes = curso === "6" ? [coordenadasTraslacion, coordenadasSimetria, coordenadasEscala] : [coordenadasTraslacion, coordenadasSimetria];
+  return pick(variantes)(curso);
+}
+
+function genCoordenadasACS() {
+  const x = randomInt(1, 6);
+  const y = randomInt(1, 6);
+  return {
+    enunciado: `¿Cuáles son las coordenadas del punto A, que está ${x} pasos a la derecha y ${y} pasos hacia arriba del origen?`,
+    datos: [`Pasos a la derecha: ${x}`, `Pasos hacia arriba: ${y}`],
+    operacion: `El punto A tiene de coordenada x = ${x} e y = ${y}`,
+    solucion: `(${x}, ${y}).`,
+  };
+}
+
+function genCoordenadasAltas() {
+  const x = randomInt(1, 6);
+  const y = randomInt(1, 6);
+  const dx = randomInt(1, 4);
+  const dy = randomInt(1, 4);
+  const tx = x + dx;
+  const ty = y + dy;
+  const simX = -tx;
+  const simY = ty;
+  return {
+    enunciado: `Un punto A(${x}, ${y}) se traslada según el vector (+${dx}, +${dy}) para obtener el punto B. Después, B se refleja respecto al eje Y para obtener el punto C. ¿Cuáles son las coordenadas de C?`,
+    datos: [`Punto A: (${x}, ${y})`, `Vector: (+${dx}, +${dy})`],
+    operacion: `B = (${x}+${dx}, ${y}+${dy}) = (${tx}, ${ty}). C = (−${tx}, ${ty}) = (${simX}, ${simY})`,
+    solucion: `(${simX}, ${simY}).`,
+  };
+}
+
+const CUERPOS_POLIEDROS = [
+  { nombre: "cubo", caras: 6, aristas: 12, vertices: 8 },
+  { nombre: "prisma triangular", caras: 5, aristas: 9, vertices: 6 },
+  { nombre: "pirámide cuadrangular", caras: 5, aristas: 8, vertices: 5 },
+];
+
+const CUERPOS_OBJETOS = [
+  { desc: "un dado", nombre: "Cubo" },
+  { desc: "una pelota", nombre: "Esfera" },
+  { desc: "una lata de refresco", nombre: "Cilindro" },
+  { desc: "un cucurucho de helado", nombre: "Cono" },
+];
+
+function cuerposEuler() {
+  const cuerpo = pick(CUERPOS_POLIEDROS);
+  return {
+    enunciado: `Un poliedro (${cuerpo.nombre}) tiene ${cuerpo.caras} caras y ${cuerpo.aristas} aristas. Según la fórmula de Euler (Caras + Vértices = Aristas + 2), ¿cuántos vértices tiene?`,
+    datos: [`Caras: ${cuerpo.caras}`, `Aristas: ${cuerpo.aristas}`],
+    operacion: `${cuerpo.caras} + V = ${cuerpo.aristas} + 2 → V = ${cuerpo.aristas + 2 - cuerpo.caras}`,
+    solucion: `${cuerpo.vertices} vértices.`,
+  };
+}
+
+function cuerposIdentificar() {
+  const obj = pick(CUERPOS_OBJETOS);
+  return {
+    enunciado: `¿Qué cuerpo geométrico recuerda la forma de ${obj.desc}?`,
+    datos: [`Objeto: ${obj.desc}`],
+    operacion: `Comparamos su forma con los cuerpos geométricos conocidos.`,
+    solucion: `${obj.nombre}.`,
+  };
+}
+
+function cuerposCaracteristicas() {
+  const cuerpo = pick(CUERPOS_POLIEDROS);
+  return {
+    enunciado: `¿Cuántas caras, aristas y vértices tiene un ${cuerpo.nombre}?`,
+    datos: [`Cuerpo: ${cuerpo.nombre}`],
+    operacion: `Contamos sus caras planas, sus aristas y sus vértices.`,
+    solucion: `${cuerpo.caras} caras, ${cuerpo.aristas} aristas y ${cuerpo.vertices} vértices.`,
+  };
+}
+
+function genCuerposGeometricos() {
+  return pick([cuerposEuler, cuerposIdentificar, cuerposCaracteristicas])();
+}
+
+function genCuerposGeometricosACS() {
+  return cuerposIdentificar();
+}
+
+function genCuerposGeometricosAltas() {
+  return cuerposEuler();
+}
+
+function numerosGrandesRedondeo(curso) {
+  const n = curso === "6" ? randomInt(1000000, 9999999) : randomInt(100000, 999999);
+  const factor = curso === "6" ? 1000000 : 10000;
+  const unidadNombre = curso === "6" ? "millón" : "decena de millar";
+  const redondeado = Math.round(n / factor) * factor;
+  const contexto = curso === "6" ? `Una empresa factura ${n} €` : `Un estadio tiene ${n} espectadores`;
+  return {
+    enunciado: `${contexto}. Aproxima esa cifra a la ${unidadNombre} más cercana.`,
+    datos: [`Número: ${n}`],
+    operacion: `Miramos la cifra siguiente a la ${unidadNombre}: si es 5 o más, redondeamos hacia arriba.`,
+    solucion: `${redondeado}. El número redondeado es ${redondeado}.`,
+  };
+}
+
+function numerosGrandesValorPosicional(curso) {
+  const n = curso === "6" ? randomInt(100000000, 999999999) : randomInt(100000, 999999);
+  const posiciones =
+    curso === "6"
+      ? ["unidad", "decena", "centena", "unidad de millar", "decena de millar", "centena de millar", "unidad de millón", "decena de millón", "centena de millón"]
+      : ["unidad", "decena", "centena", "unidad de millar", "decena de millar", "centena de millar"];
+  const digitos = String(n).split("").reverse();
+  const idx = randomInt(0, posiciones.length - 1);
+  return {
+    enunciado: `En el número ${n}, ¿qué cifra ocupa la posición de las ${posiciones[idx]}?`,
+    datos: [`Número: ${n}`],
+    operacion: `Contamos las posiciones desde la derecha (unidades, decenas, centenas...).`,
+    solucion: `${digitos[idx]}. La cifra de las ${posiciones[idx]} es ${digitos[idx]}.`,
+  };
+}
+
+function numerosGrandesComparar(curso) {
+  const max = curso === "6" ? 999999999 : 999999;
+  const min = curso === "6" ? 100000000 : 100000;
+  const a = randomInt(min, max);
+  let b = randomInt(min, max);
+  while (b === a) b = randomInt(min, max);
+  const mayor = Math.max(a, b);
+  const menor = Math.min(a, b);
+  return {
+    enunciado: `¿Cuál de estos dos números es mayor: ${a} o ${b}?`,
+    datos: [`Número 1: ${a}`, `Número 2: ${b}`],
+    operacion: `Comparamos cifra a cifra empezando por la izquierda.`,
+    solucion: `${mayor}. ${mayor} es mayor que ${menor}.`,
+  };
+}
+
+function genNumerosGrandes(curso) {
+  return pick([numerosGrandesRedondeo, numerosGrandesValorPosicional, numerosGrandesComparar])(curso);
+}
+
+function genNumerosGrandesACS() {
+  const n = randomInt(100, 999);
+  const posiciones = ["unidad", "decena", "centena"];
+  const digitos = String(n).split("").reverse();
+  const idx = randomInt(0, 2);
+  return {
+    enunciado: `En el número ${n}, ¿qué cifra ocupa la posición de las ${posiciones[idx]}?`,
+    datos: [`Número: ${n}`],
+    operacion: `Contamos las posiciones desde la derecha.`,
+    solucion: `${digitos[idx]}.`,
+  };
+}
+
+function genNumerosGrandesAltas() {
+  const n = randomInt(100000000, 999999999);
+  const redondeado = Math.round(n / 1000000) * 1000000;
+  return {
+    enunciado: `Una empresa factura ${n} €. Redondea esa cifra al millón más cercano.`,
+    datos: [`Número: ${n}`],
+    operacion: `Miramos la cifra de las centenas de millar: si es 5 o más, redondeamos hacia arriba.`,
+    solucion: `${redondeado} €.`,
+  };
+}
+
+function probabilidadCalcular() {
+  const rojas = randomInt(2, 6);
+  const azules = randomInt(2, 6);
+  const total = rojas + azules;
+  const g = gcd(rojas, total);
+  const numSimpl = rojas / g;
+  const denSimpl = total / g;
+  return {
+    enunciado: `Una bolsa tiene ${rojas} bolas rojas y ${azules} bolas azules. ¿Cuál es la probabilidad de sacar una bola roja?`,
+    datos: [`Bolas rojas: ${rojas}`, `Bolas azules: ${azules}`, `Total: ${total}`],
+    operacion: `Casos favorables ÷ casos totales = ${rojas}/${total}${g > 1 ? ` = ${numSimpl}/${denSimpl}` : ""}`,
+    solucion: g > 1 ? `${numSimpl}/${denSimpl}.` : `${rojas}/${total}.`,
+  };
+}
+
+const PROBABILIDAD_SUCESOS = [
+  { texto: "Al lanzar un dado normal, sacar un número menor que 7", tipo: "Seguro" },
+  { texto: "Al lanzar un dado normal, sacar un 8", tipo: "Imposible" },
+  { texto: "Al lanzar una moneda, que salga cara", tipo: "Posible" },
+  { texto: "Al sacar una carta de la baraja, que sea una figura", tipo: "Posible" },
+  { texto: "Mañana el sol saldrá por el este", tipo: "Seguro" },
+  { texto: "Al lanzar un dado, sacar un número negativo", tipo: "Imposible" },
+];
+
+function probabilidadClasificar() {
+  const s = pick(PROBABILIDAD_SUCESOS);
+  return {
+    enunciado: `Clasifica este suceso como seguro, posible o imposible: "${s.texto}".`,
+    datos: [`Suceso: ${s.texto}`],
+    operacion: `Pensamos si el suceso ocurre siempre, a veces o nunca.`,
+    solucion: `${s.tipo}.`,
+  };
+}
+
+function probabilidadComparar() {
+  const bolsaARojas = randomInt(3, 6);
+  const bolsaAAzules = randomInt(1, 3);
+  const bolsaBRojas = randomInt(1, 3);
+  const bolsaBAzules = randomInt(3, 6);
+  const totalA = bolsaARojas + bolsaAAzules;
+  const totalB = bolsaBRojas + bolsaBAzules;
+  const mayor = bolsaARojas / totalA > bolsaBRojas / totalB ? "A" : "B";
+  return {
+    enunciado: `Bolsa A: ${bolsaARojas} bolas rojas y ${bolsaAAzules} azules. Bolsa B: ${bolsaBRojas} bolas rojas y ${bolsaBAzules} azules. ¿En cuál bolsa es más probable sacar una bola roja?`,
+    datos: [`Bolsa A: ${bolsaARojas} rojas de ${totalA}`, `Bolsa B: ${bolsaBRojas} rojas de ${totalB}`],
+    operacion: `Bolsa A: ${bolsaARojas}/${totalA}. Bolsa B: ${bolsaBRojas}/${totalB}.`,
+    solucion: `Bolsa ${mayor}.`,
+  };
+}
+
+function genProbabilidad() {
+  return pick([probabilidadCalcular, probabilidadClasificar, probabilidadComparar])();
+}
+
+function genProbabilidadACS() {
+  return probabilidadClasificar();
+}
+
+function genProbabilidadAltas() {
+  return probabilidadComparar();
+}
+
+function propiedadesDistributiva() {
+  const a = randomInt(3, 8);
+  const b = randomInt(3, 9);
+  const c = randomInt(3, 9);
+  const total = a * (b + c);
+  const objeto = pick(["asientos", "sillas", "mesas"]);
+  return {
+    enunciado: `Un cine tiene ${a} filas de ${b} ${objeto} y otras ${a} filas de ${c} ${objeto}. Usa la propiedad distributiva para calcular el total de ${objeto}.`,
+    datos: [`Filas: ${a}`, `${objeto} por fila: ${b} y ${c}`],
+    operacion: `${a} × (${b} + ${c}) = ${a} × ${b + c} = ${total}`,
+    solucion: `${total}. Hay ${total} ${objeto} en total.`,
+  };
+}
+
+function propiedadesConmutativa() {
+  const a = randomInt(3, 9);
+  const b = randomInt(3, 9);
+  return {
+    enunciado: `¿Da igual comprar ${a} cajas de ${b} kg cada una, que ${b} cajas de ${a} kg cada una? Explica usando la propiedad conmutativa.`,
+    datos: [`${a} × ${b}`, `${b} × ${a}`],
+    operacion: `${a} × ${b} = ${a * b}. ${b} × ${a} = ${a * b}`,
+    solucion: `Sí, da igual: ${a} × ${b} = ${b} × ${a} = ${a * b} kg (propiedad conmutativa).`,
+  };
+}
+
+function propiedadesDosOperaciones() {
+  const a = randomInt(3, 6);
+  const b = randomInt(3, 7);
+  const c = randomInt(3, 7);
+  const extra = randomInt(2, 10);
+  const total = a * (b + c) - extra;
+  const objeto = pick(["cromos", "canicas", "caramelos"]);
+  return {
+    enunciado: `Un grupo de amigos compra ${a} paquetes de ${b} ${objeto} y otros ${a} paquetes de ${c} ${objeto}. Después regalan ${extra} ${objeto}. ¿Cuántos ${objeto} les quedan?`,
+    datos: [`Paquetes: ${a}`, `${objeto} por paquete: ${b} y ${c}`, `Regalados: ${extra}`],
+    operacion: `${a} × (${b} + ${c}) = ${a * (b + c)}. ${a * (b + c)} − ${extra} = ${total}`,
+    solucion: `${total}. Les quedan ${total} ${objeto}.`,
+  };
+}
+
+function genPropiedadesOperaciones() {
+  return pick([propiedadesDistributiva, propiedadesConmutativa, propiedadesDosOperaciones])();
+}
+
+function genPropiedadesOperacionesACS() {
+  const a = randomInt(2, 5);
+  const b = randomInt(2, 5);
+  return {
+    enunciado: `¿Da igual sumar ${a} + ${b} que ${b} + ${a}? Comprueba el resultado.`,
+    datos: [`${a} + ${b}`, `${b} + ${a}`],
+    operacion: `${a} + ${b} = ${a + b}. ${b} + ${a} = ${a + b}`,
+    solucion: `Sí, da igual: las dos sumas dan ${a + b} (propiedad conmutativa).`,
+  };
+}
+
+function genPropiedadesOperacionesAltas() {
+  return propiedadesDosOperaciones();
+}
+
+function tablasContenedor() {
+  const factor = randomInt(2, 9);
+  const cajas = randomInt(2, 9);
+  const total = factor * cajas;
+  const objeto = pick(["manzanas", "cromos", "canicas", "caramelos"]);
+  return {
+    enunciado: `Cada caja tiene ${factor} ${objeto}. ¿Cuántas ${objeto} hay en ${cajas} cajas?`,
+    datos: [`${objeto} por caja: ${factor}`, `Cajas: ${cajas}`],
+    operacion: `${factor} × ${cajas} = ${total}`,
+    solucion: `${total}. Hay ${total} ${objeto} en total.`,
+  };
+}
+
+function tablasViajes() {
+  const viajes = randomInt(2, 9);
+  const pasajeros = randomInt(2, 9);
+  const total = viajes * pasajeros;
+  return {
+    enunciado: `Un autobús hace ${viajes} viajes al día llevando ${pasajeros} pasajeros cada vez. ¿Cuántos pasajeros transporta en total?`,
+    datos: [`Viajes: ${viajes}`, `Pasajeros por viaje: ${pasajeros}`],
+    operacion: `${viajes} × ${pasajeros} = ${total}`,
+    solucion: `${total}. Transporta ${total} pasajeros en total.`,
+  };
+}
+
+function tablasAmigos() {
+  const amigos = randomInt(2, 9);
+  const cromos = randomInt(2, 9);
+  const total = amigos * cromos;
+  return {
+    enunciado: `${amigos} amigos tienen ${cromos} cromos cada uno. ¿Cuántos cromos tienen entre todos?`,
+    datos: [`Amigos: ${amigos}`, `Cromos por amigo: ${cromos}`],
+    operacion: `${amigos} × ${cromos} = ${total}`,
+    solucion: `${total}. Tienen ${total} cromos entre todos.`,
+  };
+}
+
+function genTablas() {
+  return pick([tablasContenedor, tablasViajes, tablasAmigos])();
+}
+
+function genTablasACS() {
+  const factor = pick([2, 5, 10]);
+  const veces = randomInt(2, 6);
+  const total = factor * veces;
+  return {
+    enunciado: `Cada caja tiene ${factor} caramelos. ¿Cuántos caramelos hay en ${veces} cajas?`,
+    datos: [`Caramelos por caja: ${factor}`, `Cajas: ${veces}`],
+    operacion: `${factor} × ${veces} = ${total}`,
+    solucion: `${total}. Hay ${total} caramelos en total.`,
+  };
+}
+
+function genTablasAltas() {
+  const factor = randomInt(6, 9);
+  const cajas = randomInt(6, 9);
+  const vendidos = randomInt(5, 20);
+  const total = factor * cajas - vendidos;
+  return {
+    enunciado: `Una tienda tiene ${cajas} cajas con ${factor} camisetas cada una. Vende ${vendidos} camisetas. ¿Cuántas camisetas quedan?`,
+    datos: [`Cajas: ${cajas}`, `Camisetas por caja: ${factor}`, `Vendidas: ${vendidos}`],
+    operacion: `${cajas} × ${factor} = ${cajas * factor}. ${cajas * factor} − ${vendidos} = ${total}`,
+    solucion: `${total}. Quedan ${total} camisetas.`,
+  };
+}
+
+function fmtHM(hh, mm) {
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+}
+
+function tiempoSumar() {
+  const h = randomInt(1, 20);
+  const m = randomInt(0, 59);
+  const durH = randomInt(0, 3);
+  const durM = randomInt(5, 59);
+  let totalM = m + durM;
+  let totalH = h + durH + Math.floor(totalM / 60);
+  totalM = totalM % 60;
+  totalH = totalH % 24;
+  return {
+    enunciado: `Una película empieza a las ${fmtHM(h, m)} y dura ${durH}h ${durM}min. ¿A qué hora termina?`,
+    datos: [`Hora de inicio: ${fmtHM(h, m)}`, `Duración: ${durH}h ${durM}min`],
+    operacion: `${fmtHM(h, m)} + ${durH}h ${durM}min = ${fmtHM(totalH, totalM)}`,
+    solucion: `${fmtHM(totalH, totalM)}. Termina a las ${fmtHM(totalH, totalM)}.`,
+  };
+}
+
+function tiempoRestar() {
+  const h1 = randomInt(6, 12);
+  const m1 = randomInt(0, 59);
+  const durH = randomInt(1, 4);
+  const durM = randomInt(0, 59);
+  let totalM = m1 + durM;
+  let totalH = h1 + durH + Math.floor(totalM / 60);
+  totalM = totalM % 60;
+  return {
+    enunciado: `Un tren sale a las ${fmtHM(h1, m1)} y llega a las ${fmtHM(totalH, totalM)}. ¿Cuánto dura el viaje?`,
+    datos: [`Salida: ${fmtHM(h1, m1)}`, `Llegada: ${fmtHM(totalH, totalM)}`],
+    operacion: `${fmtHM(totalH, totalM)} − ${fmtHM(h1, m1)} = ${durH}h ${durM}min`,
+    solucion: `${durH}h ${durM}min. El viaje dura ${durH} horas y ${durM} minutos.`,
+  };
+}
+
+function tiempoFaltan() {
+  const h = randomInt(1, 11);
+  const m = randomInt(1, 59);
+  const minutosFaltan = 60 - m;
+  return {
+    enunciado: `Si son las ${h}:${String(m).padStart(2, "0")}, ¿cuántos minutos faltan para las ${h + 1}:00?`,
+    datos: [`Hora actual: ${h}:${String(m).padStart(2, "0")}`],
+    operacion: `60 − ${m} = ${minutosFaltan}`,
+    solucion: `${minutosFaltan} minutos.`,
+  };
+}
+
+function genTiempo() {
+  return pick([tiempoSumar, tiempoRestar, tiempoFaltan])();
+}
+
+function genTiempoACS() {
+  const h = randomInt(1, 11);
+  if (Math.random() < 0.5) {
+    const siguiente = h + 1 > 12 ? h + 1 - 12 : h + 1;
+    return {
+      enunciado: `El reloj marca las ${h} y media. ¿Qué hora en punto es la más cercana que vendrá después?`,
+      datos: [`Hora: ${h}:30`],
+      operacion: `Después de las ${h} y media viene la hora en punto siguiente.`,
+      solucion: `Las ${siguiente}:00.`,
+    };
+  }
+  return {
+    enunciado: `El reloj marca las ${h} en punto. ¿Cuántas horas faltan para las 12 en punto?`,
+    datos: [`Hora: ${h}:00`],
+    operacion: `12 − ${h} = ${12 - h}`,
+    solucion: `${12 - h} horas.`,
+  };
+}
+
+function genTiempoAltas() {
+  const h1 = randomInt(1, 5);
+  const m1 = randomInt(10, 50);
+  const durH = randomInt(1, 2);
+  const durM = randomInt(10, 50);
+  let sumM = m1 + durM;
+  let sumH = h1 + durH + Math.floor(sumM / 60);
+  sumM = sumM % 60;
+  const esperaM = randomInt(5, 40);
+  let finalM = sumM + esperaM;
+  let finalH = sumH + Math.floor(finalM / 60);
+  finalM = finalM % 60;
+  return {
+    enunciado: `Un autobús sale a las ${fmtHM(h1, m1)}. Primero tarda ${durH}h ${durM}min en llegar a una ciudad, y allí espera ${esperaM} minutos antes de continuar. ¿A qué hora sale de esa ciudad?`,
+    datos: [`Salida: ${fmtHM(h1, m1)}`, `Duración del viaje: ${durH}h ${durM}min`, `Espera: ${esperaM} min`],
+    operacion: `${fmtHM(h1, m1)} + ${durH}h ${durM}min = ${fmtHM(sumH, sumM)}. ${fmtHM(sumH, sumM)} + ${esperaM}min = ${fmtHM(finalH, finalM)}`,
+    solucion: `${fmtHM(finalH, finalM)}.`,
+  };
+}
+
 // ---------------- Registro de temas ----------------
 
 const TOPICS = [
   { id: "sumas", label: "Sumas", category: "Operaciones básicas", generate: genSumas, generateACS: genSumasACS, generateAltas: genSumasAltas, resumen: "Sumar es juntar cantidades para saber cuántas hay en total." },
+  { id: "tablas", label: "Tablas de multiplicar", category: "Operaciones básicas", generate: genTablas, generateACS: genTablasACS, generateAltas: genTablasAltas, resumen: "La tabla de un número es el resultado de multiplicarlo por 1, 2, 3... hasta 10." },
+  { id: "numeros-grandes", label: "Números grandes", category: "Operaciones básicas", generate: genNumerosGrandes, generateACS: genNumerosGrandesACS, generateAltas: genNumerosGrandesAltas, resumen: "En un número, cada cifra vale más o menos según la posición que ocupa: su valor posicional." },
+  { id: "propiedades-operaciones", label: "Propiedades de las operaciones", category: "Operaciones básicas", generate: genPropiedadesOperaciones, generateACS: genPropiedadesOperacionesACS, generateAltas: genPropiedadesOperacionesAltas, resumen: "Las propiedades de las operaciones permiten reordenar o agrupar números para calcular más fácilmente, sin cambiar el resultado." },
   { id: "restas", label: "Restas", category: "Operaciones básicas", generate: genRestas, generateACS: genRestasACS, generateAltas: genRestasAltas, resumen: "Restar es quitar una cantidad de otra para saber cuánto queda o la diferencia entre ellas." },
   { id: "multiplicaciones", label: "Multiplicaciones", category: "Operaciones básicas", generate: genMultiplicaciones, generateACS: genMultiplicacionesACS, generateAltas: genMultiplicacionesAltas, resumen: "Multiplicar es sumar un mismo número varias veces de forma rápida." },
   { id: "divisiones", label: "Divisiones", category: "Operaciones básicas", generate: genDivisiones, generateACS: genDivisionesACS, generateAltas: genDivisionesAltas, resumen: "Dividir es repartir una cantidad en partes iguales." },
@@ -1730,6 +2274,11 @@ const TOPICS = [
   { id: "circunferencia", label: "Circunferencia y círculo", category: "Geometría y medidas", generate: genCircunferencia, generateACS: genCircunferenciaACS, generateAltas: genCircunferenciaAltas, resumen: "La circunferencia es el contorno de un círculo. Su longitud es 2 × π × radio, y el área del círculo es π × radio²." },
   { id: "proporcionalidad", label: "Proporcionalidad (regla de tres)", category: "Geometría y medidas", generate: genProporcionalidad, generateACS: genProporcionalidadACS, generateAltas: genProporcionalidadAltas, resumen: "En una relación de proporcionalidad, si conocemos el precio de una unidad podemos calcular el de cualquier cantidad." },
   { id: "estadistica", label: "Estadística (media y mediana)", category: "Geometría y medidas", generate: genEstadistica, generateACS: genEstadisticaACS, generateAltas: genEstadisticaAltas, resumen: "La media es la suma de todos los valores dividida entre el número de valores. La mediana es el valor central al ordenarlos." },
+  { id: "angulos", label: "Ángulos", category: "Geometría y medidas", generate: genAngulos, generateACS: genAngulosACS, generateAltas: genAngulosAltas, resumen: "Un ángulo es el espacio que forman dos semirrectas que salen de un mismo punto, y se mide en grados." },
+  { id: "coordenadas", label: "Coordenadas", category: "Geometría y medidas", generate: genCoordenadas, generateACS: genCoordenadasACS, generateAltas: genCoordenadasAltas, resumen: "Cada punto del plano se localiza con dos coordenadas (x, y) que indican cuánto se mueve en horizontal y en vertical." },
+  { id: "cuerpos-geometricos", label: "Cuerpos geométricos", category: "Geometría y medidas", generate: genCuerposGeometricos, generateACS: genCuerposGeometricosACS, generateAltas: genCuerposGeometricosAltas, resumen: "Los cuerpos geométricos son figuras de tres dimensiones: los poliedros tienen caras planas y los cuerpos redondos tienen alguna superficie curva." },
+  { id: "tiempo", label: "El tiempo", category: "Geometría y medidas", generate: genTiempo, generateACS: genTiempoACS, generateAltas: genTiempoAltas, resumen: "El tiempo se mide en horas, minutos y segundos: 1 día tiene 24 horas, 1 hora 60 minutos y 1 minuto 60 segundos." },
+  { id: "probabilidad", label: "Probabilidad", category: "Geometría y medidas", generate: genProbabilidad, generateACS: genProbabilidadACS, generateAltas: genProbabilidadAltas, resumen: "La probabilidad de un suceso se calcula dividiendo los casos favorables entre los casos totales." },
 ];
 
 // ---------------- Construcción del documento ----------------

@@ -233,3 +233,14 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("adjetivo", {
+  label: "El adjetivo",
+  resumen: "El adjetivo acompaña al sustantivo y expresa una cualidad, concordando en género y número.",
+  easyMode: "clases",
+  altasMode: "grados",
+  pools: {
+    clases: { pool: CLASES_ENTRIES, field: "clase", question: (e) => `¿"${e.word}" es un adjetivo calificativo o gentilicio?`, selfContained: true, options: ["Calificativo", "Gentilicio"] },
+    grados: { pool: GRADO_ENTRIES, field: "grado", question: (e) => `«${e.phrase}» → ¿en qué grado está el adjetivo?`, selfContained: true, options: ["Positivo", "Comparativo", "Superlativo"] },
+  },
+});

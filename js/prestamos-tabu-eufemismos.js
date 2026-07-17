@@ -235,3 +235,14 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("prestamos-tabu-eufemismos", {
+  label: "Préstamos, palabras tabú y eufemismos",
+  resumen: "Los préstamos son palabras tomadas de otros idiomas; los eufemismos sustituyen palabras tabú por otras más suaves.",
+  easyMode: "origen",
+  altasMode: "eufemismo",
+  pools: {
+    origen: { pool: ORIGEN_ENTRIES, field: "correct", question: () => "¿De qué idioma viene esta palabra prestada?", displayField: "display", perEntryOptions: true },
+    eufemismo: { pool: EUFEMISMO_ENTRIES, field: "correct", question: () => "¿Cuál es el eufemismo correcto para esta palabra tabú?", displayField: "display", perEntryOptions: true },
+  },
+});

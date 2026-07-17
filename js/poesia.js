@@ -261,3 +261,15 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("poesia", {
+  label: "La poesía",
+  resumen: "Los poemas se organizan en versos y estrofas, riman de forma consonante o asonante, y usan recursos literarios y formas como el haiku o el refrán.",
+  easyMode: "haikurefran",
+  altasMode: "versoestrofa",
+  pools: {
+    versoestrofa: { pool: VERSO_ESTROFA_ENTRIES, field: "tipo", question: () => "¿Verso, estrofa, rima consonante o rima asonante?", displayField: "display", options: ["Verso", "Estrofa", "Rima consonante", "Rima asonante"] },
+    recursos: { pool: RECURSOS_ENTRIES, field: "tipo", question: () => "¿Qué recurso literario se usa en esta frase?", displayField: "display", options: ["Metáfora", "Personificación", "Hipérbole"] },
+    haikurefran: { pool: HAIKU_REFRAN_ENTRIES, field: "tipo", question: () => "¿Es un haiku o un refrán?", displayField: "display", options: ["Haiku", "Refrán"] },
+  },
+});

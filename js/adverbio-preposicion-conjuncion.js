@@ -269,3 +269,14 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("adverbio-preposicion-conjuncion", {
+  label: "Adverbio, preposición y conjunción",
+  resumen: "El adverbio, la preposición y la conjunción son palabras invariables que no cambian de género ni número.",
+  easyMode: "categoria",
+  altasMode: "tipoadverbio",
+  pools: {
+    categoria: { pool: CATEGORIA_ENTRIES, field: "categoria", question: (e) => `¿"${e.word}" es un adverbio, una preposición o una conjunción?`, selfContained: true, options: ["Adverbio", "Preposición", "Conjunción"] },
+    tipoadverbio: { pool: TIPO_ADVERBIO_ENTRIES, field: "tipo", question: (e) => `¿Qué tipo de adverbio es "${e.word}"?`, selfContained: true, options: ["Lugar", "Tiempo", "Modo", "Cantidad", "Afirmación", "Negación", "Duda"] },
+  },
+});

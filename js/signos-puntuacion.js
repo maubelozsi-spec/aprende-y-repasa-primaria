@@ -235,3 +235,14 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("signos-puntuacion", {
+  label: "Los signos de puntuación",
+  resumen: "Los signos de puntuación organizan el texto y ayudan a entenderlo mejor: coma, punto, punto y coma, dos puntos y muchos más.",
+  easyMode: "identificar",
+  altasMode: "completar",
+  pools: {
+    identificar: { pool: IDENTIFICAR_ENTRIES, field: "correct", question: () => "¿Qué signo de puntuación destaca en esta frase?", displayField: "display", perEntryOptions: true },
+    completar: { pool: COMPLETAR_ENTRIES, field: "correct", question: () => "¿Qué signo hay que usar aquí?", displayField: "display", perEntryOptions: true },
+  },
+});

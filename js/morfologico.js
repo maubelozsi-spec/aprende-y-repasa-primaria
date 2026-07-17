@@ -294,3 +294,28 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+const MORFOLOGICO_FICHA_EASY_POOL = ENTRIES.filter((e) => MORFOLOGICO_EASY_CATEGORIES.includes(e.category));
+
+registerLenguaFicha("morfologico", {
+  label: "Análisis morfológico",
+  resumen: "Analizar morfológicamente una palabra es decir a qué categoría gramatical pertenece dentro de una oración.",
+  easyMode: "facil",
+  altasMode: "completo",
+  pools: {
+    facil: {
+      pool: MORFOLOGICO_FICHA_EASY_POOL,
+      field: "category",
+      question: (e) => `¿Qué categoría gramatical es la palabra "${e.words[e.target]}"?`,
+      selfContained: true,
+      options: ["sustantivo", "adjetivo", "verbo"],
+    },
+    completo: {
+      pool: ENTRIES,
+      field: "category",
+      question: (e) => `¿Qué categoría gramatical es la palabra "${e.words[e.target]}"?`,
+      selfContained: true,
+      options: ["sustantivo", "adjetivo", "determinante", "pronombre", "verbo", "adverbio", "preposicion", "conjuncion"],
+    },
+  },
+});

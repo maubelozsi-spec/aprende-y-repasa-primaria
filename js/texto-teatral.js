@@ -256,3 +256,15 @@ function initGame(diff, registerRestart) {
   applyDifficultyUI();
   startRound();
 }
+
+registerLenguaFicha("texto-teatral", {
+  label: "El texto teatral",
+  resumen: "El texto teatral combina el diálogo de los personajes con las acotaciones del autor, y se organiza en actos y escenas.",
+  easyMode: "dialogoacotacion",
+  altasMode: "actoescena",
+  pools: {
+    dialogoacotacion: { pool: DIALOGO_ACOTACION_ENTRIES, field: "tipo", question: () => "¿Es un diálogo o una acotación?", displayField: "display", options: ["Diálogo", "Acotación"] },
+    actoescena: { pool: ACTO_ESCENA_ENTRIES, field: "tipo", question: () => "¿Esto describe un acto o una escena?", displayField: "display", options: ["Acto", "Escena"] },
+    estructura: { pool: ESTRUCTURA_ENTRIES, field: "tipo", question: () => "¿A qué parte de la estructura corresponde esto?", displayField: "display", options: ["Planteamiento", "Nudo", "Desenlace"] },
+  },
+});
