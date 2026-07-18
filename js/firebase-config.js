@@ -18,10 +18,11 @@
 // ============================================================
 
 window.FIREBASE_CONFIG = {
-  apiKey: "TODO_PEGA_AQUI_TU_API_KEY",
-  authDomain: "TODO_TU_PROYECTO.firebaseapp.com",
-  projectId: "TODO_TU_PROYECTO",
-  storageBucket: "TODO_TU_PROYECTO.appspot.com",
-  messagingSenderId: "TODO_000000000000",
-  appId: "TODO:web:0000000000000000000000",
+  apiKey: "AIzaSyDxkzYG90wxhhFoPDFwiS6fGvxocFe-L88",
+  authDomain: "aprende-y-repasa-cc321.firebaseapp.com",
+  projectId: "aprende-y-repasa-cc321",
+  storageBucket: "aprende-y-repasa-cc321.firebasestorage.app",
+  messagingSenderId: "523916990805",
+  appId: "1:523916990805:web:2acde66d67f5e53262b7dc",
+  measurementId: "G-3LC0C1HWQG",
 };
