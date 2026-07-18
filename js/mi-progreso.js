@@ -95,6 +95,44 @@ function renderProgressSections(data) {
   });
 }
 
+function renderGamification() {
+  const el = document.getElementById("gamification-panel");
+  if (!el || !window.Gamification) return;
+  const streak = window.Gamification.getStreak();
+  const badges = window.Gamification.getBadges();
+
+  const streakHtml = `
+    <div class="game-stat streak">
+      <span class="game-stat-value">${streak.currentStreak || 0}</span>
+      <span class="game-stat-label">Días seguidos practicando</span>
+    </div>
+    <div class="game-stat">
+      <span class="game-stat-value">${streak.longestStreak || 0}</span>
+      <span class="game-stat-label">Mejor racha</span>
+    </div>
+  `;
+
+  const badgesHtml = badges
+    .map(
+      (b) => `
+    <div class="badge-chip${b.earned ? " earned" : ""}">
+      <span class="badge-chip-icon">${b.icon}</span>
+      <div class="badge-chip-text">
+        <strong>${b.label}</strong>
+        <span>${b.desc}</span>
+      </div>
+    </div>
+  `
+    )
+    .join("");
+
+  el.innerHTML = `
+    <h2>Rachas y medallas</h2>
+    <div class="gamification-summary">${streakHtml}</div>
+    <div class="badge-grid">${badgesHtml}</div>
+  `;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   function render() {
     const data = AppProgress.getAll();
@@ -103,12 +141,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   render();
+  renderGamification();
+  document.addEventListener("ar:gamification-ready", renderGamification, { once: true });
 
   const resetBtn = document.getElementById("progress-reset-btn");
   resetBtn.addEventListener("click", () => {
     if (window.confirm("¿Seguro que quieres borrar todo tu progreso guardado en este dispositivo? Esta acción no se puede deshacer.")) {
       AppProgress.reset();
+      AppReview.reset();
+      if (window.Gamification) window.Gamification.reset();
       render();
+      renderGamification();
     }
   });
 });

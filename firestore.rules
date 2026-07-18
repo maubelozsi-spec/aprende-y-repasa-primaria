@@ -1,0 +1,76 @@
+rules_version = '2';
+
+// ============================================================
+// Reglas de seguridad de Firestore para el sistema de docente/
+// alumno. Pega este contenido en la consola de Firebase:
+// Firestore Database → Reglas → sustituir todo → Publicar.
+//
+// Nivel de seguridad: "razonable para un aula no adversarial", no
+// de nivel bancario. Los docentes tienen cuentas reales (correo +
+// contraseña); los alumnos solo tienen una clave de 6+ caracteres
+// (son menores, sin más datos). Cualquier sesión (incluida una
+// anónima) puede LEER un documento concreto de "students" para
+// poder validar una clave tecleada, pero nadie salvo el docente
+// dueño puede LISTAR la colección completa (no se puede "explorar"
+// el listado de alumnos sin ser su docente).
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwnerTeacher(teacherId) {
+      return signedIn() && request.auth.uid == teacherId;
+    }
+
+    match /teachers/{teacherId} {
+      allow read, write: if isOwnerTeacher(teacherId);
+    }
+
+    match /classes/{classId} {
+      allow get: if signedIn();
+      allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    match /students/{code} {
+      allow get: if signedIn();
+      allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow update: if isOwnerTeacher(resource.data.teacherId)
+                    || (signedIn()
+                        && (!("authUid" in resource.data) || resource.data.authUid == null
+                            || resource.data.authUid == request.auth.uid)
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(["authUid", "lastLoginAt"]));
+      allow delete: if isOwnerTeacher(resource.data.teacherId);
+
+      match /logins/{loginId} {
+        allow create: if signedIn()
+                       && get(/databases/$(database)/documents/students/$(code)).data.authUid == request.auth.uid;
+        allow read: if isOwnerTeacher(get(/databases/$(database)/documents/students/$(code)).data.teacherId);
+      }
+
+      match /dailyStats/{statId} {
+        allow read, write: if signedIn()
+                       && get(/databases/$(database)/documents/students/$(code)).data.authUid == request.auth.uid;
+        allow read: if isOwnerTeacher(get(/databases/$(database)/documents/students/$(code)).data.teacherId);
+      }
+
+      match /reviewQueue/{itemId} {
+        allow read, write: if signedIn()
+                       && get(/databases/$(database)/documents/students/$(code)).data.authUid == request.auth.uid;
+      }
+
+      match /gamification/{doc} {
+        allow read, write: if signedIn()
+                       && get(/databases/$(database)/documents/students/$(code)).data.authUid == request.auth.uid;
+        allow read: if isOwnerTeacher(get(/databases/$(database)/documents/students/$(code)).data.teacherId);
+      }
+    }
+  }
+}

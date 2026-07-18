@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceso docente · Aprende y Repasa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "docente-login";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Zona docente</p>
+        <h1>Acceso docente</h1>
+        <p class="content-subtitle">Cada docente tiene su propia cuenta y sus propias clases: nadie más ve tus alumnos ni tú los de otros docentes.</p>
+      </header>
+
+      <div class="game-card generator-card auth-card">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="login">Iniciar sesión</button>
+          <button class="tab-btn" data-tab="signup">Crear cuenta</button>
+        </div>
+
+        <section id="tab-login" class="tab-panel active">
+          <form id="login-form">
+            <div class="generator-field">
+              <label for="login-email">Correo electrónico</label>
+              <input type="email" id="login-email" class="generator-select" required autocomplete="username">
+            </div>
+            <div class="generator-field">
+              <label for="login-password">Contraseña</label>
+              <input type="password" id="login-password" class="generator-select" required autocomplete="current-password">
+            </div>
+            <p class="auth-error" id="login-error"></p>
+            <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+          </form>
+        </section>
+
+        <section id="tab-signup" class="tab-panel">
+          <form id="signup-form">
+            <div class="generator-field">
+              <label for="signup-name">Tu nombre (lo verán tus alumnos como "profesor/a")</label>
+              <input type="text" id="signup-name" class="generator-select" required autocomplete="name">
+            </div>
+            <div class="generator-field">
+              <label for="signup-email">Correo electrónico</label>
+              <input type="email" id="signup-email" class="generator-select" required autocomplete="username">
+            </div>
+            <div class="generator-field">
+              <label for="signup-password">Contraseña (mínimo 6 caracteres)</label>
+              <input type="password" id="signup-password" class="generator-select" required minlength="6" autocomplete="new-password">
+            </div>
+            <p class="auth-error" id="signup-error"></p>
+            <button type="submit" class="btn btn-primary">Crear cuenta</button>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script type="module" src="../js/firebase-init.js"></script>
+<script type="module" src="../js/auth.js"></script>
+<script type="module" src="../js/docente-login.js"></script>
+</body>
+</html>

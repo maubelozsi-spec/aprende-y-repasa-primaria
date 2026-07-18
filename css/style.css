@@ -2420,3 +2420,272 @@ table.rules-table tr:last-child td {
   .content-header h1 { font-size: 23px; }
   .game-card { padding: 24px 18px; }
 }
+
+/* ---------- Gamificación: racha, medallas y aviso emergente ---------- */
+
+.gamification-summary {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+}
+
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.badge-chip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.badge-chip .badge-chip-icon {
+  font-size: 22px;
+  line-height: 1;
+  filter: grayscale(1);
+  opacity: 0.35;
+}
+
+.badge-chip.earned .badge-chip-icon {
+  filter: none;
+  opacity: 1;
+}
+
+.badge-chip-text strong {
+  display: block;
+  font-size: 13.5px;
+}
+
+.badge-chip-text span {
+  display: block;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.badge-chip:not(.earned) .badge-chip-text strong,
+.badge-chip:not(.earned) .badge-chip-text span {
+  color: var(--text-faint);
+}
+
+.ar-badge-toast-host {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ar-badge-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--color-indigo);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 13.5px;
+  max-width: 280px;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.ar-badge-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ar-badge-toast-icon {
+  font-size: 24px;
+}
+
+/* ---------- Repaso espaciado de fallos ---------- */
+
+.review-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--color-amber);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+
+.review-item-meta {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-bottom: 6px;
+}
+
+.review-item-text {
+  font-size: 14.5px;
+  margin-bottom: 12px;
+}
+
+.review-item-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---------- Acceso: enlaces del panel principal ---------- */
+
+.index-access-links {
+  text-align: center;
+  margin-top: 28px;
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+.index-access-links a {
+  color: var(--color-indigo);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.index-access-links a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Formularios de acceso (docente/alumno) ---------- */
+
+.auth-card {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.auth-error {
+  color: var(--color-error);
+  font-size: 13.5px;
+  min-height: 18px;
+  margin: -8px 0 14px;
+}
+
+/* ---------- Indicador de sesión de alumno en la barra lateral ---------- */
+
+.sidebar-student-badge {
+  margin: 0 16px 14px;
+  padding: 8px 12px;
+  background: var(--color-indigo-tint);
+  color: var(--color-indigo);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sidebar-student-badge a {
+  color: inherit;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+/* ---------- Panel docente ---------- */
+
+.docente-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.docente-column {
+  flex: 1;
+  min-width: 260px;
+}
+
+.docente-column-wide {
+  flex: 2;
+  min-width: 320px;
+}
+
+.docente-inline-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.docente-inline-form input {
+  flex: 1;
+  min-width: 180px;
+}
+
+.class-list,
+.student-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.class-list-item {
+  text-align: left;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+}
+
+.student-row {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+
+.student-row.inactive {
+  opacity: 0.6;
+}
+
+.student-row-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.student-code {
+  font-family: monospace;
+  font-size: 13px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+}
+
+.student-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.student-visibility-panel {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-strong);
+}
+
+/* ---------- Registro de actividad ---------- */
+
+.activity-card {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.activity-login-list {
+  margin: 0 0 14px;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--text-soft);
+}

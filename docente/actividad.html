@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mi progreso · Aprende y Repasa</title>
+<title>Registro de actividad · Aprende y Repasa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="../css/style.css">
 <script>
-  window.BASE_PATH = "";
-  window.CURRENT_PAGE = "mi-progreso";
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "docente-actividad";
 </script>
 </head>
 <body>
@@ -27,21 +27,16 @@
 
     <main class="content">
       <header class="content-header">
-        <p class="eyebrow">Progreso</p>
-        <h1>Mi progreso</h1>
-        <p class="content-subtitle">Aciertos y fallos guardados en este dispositivo cada vez que practicas un contenido. Se guarda solo en este navegador: si cambias de ordenador o borras los datos del sitio, empezará de nuevo.</p>
+        <p class="eyebrow">Zona docente</p>
+        <h1>Registro de actividad</h1>
+        <p class="content-subtitle">Qué alumno ha entrado, cuándo y qué ha practicado en los últimos 14 días.</p>
       </header>
 
-      <div id="progress-summary" class="progress-summary"></div>
-
-      <div id="gamification-panel"></div>
-
-      <div id="progress-sections"></div>
-
       <div class="actions-row">
-        <a href="repaso.html" class="btn btn-primary">Repasar mis fallos</a>
-        <button class="btn btn-secondary" id="progress-reset-btn">Borrar mi progreso</button>
+        <a href="dashboard.html" class="btn btn-secondary">Volver al panel</a>
       </div>
+
+      <div id="activity-list"></div>
     </main>
 
     <footer class="site-footer">
@@ -50,7 +45,10 @@
   </div>
 </div>
 
-<script src="js/layout.js"></script>
-<script src="js/mi-progreso.js"></script>
+<script src="../js/layout.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script type="module" src="../js/firebase-init.js"></script>
+<script type="module" src="../js/auth.js"></script>
+<script type="module" src="../js/docente-actividad.js"></script>
 </body>
 </html>

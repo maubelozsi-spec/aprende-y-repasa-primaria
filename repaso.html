@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mi progreso · Aprende y Repasa</title>
+<title>Repasa tus fallos · Aprende y Repasa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <script>
   window.BASE_PATH = "";
-  window.CURRENT_PAGE = "mi-progreso";
+  window.CURRENT_PAGE = "repaso";
 </script>
 </head>
 <body>
@@ -28,20 +28,12 @@
     <main class="content">
       <header class="content-header">
         <p class="eyebrow">Progreso</p>
-        <h1>Mi progreso</h1>
-        <p class="content-subtitle">Aciertos y fallos guardados en este dispositivo cada vez que practicas un contenido. Se guarda solo en este navegador: si cambias de ordenador o borras los datos del sitio, empezará de nuevo.</p>
+        <h1>Repasa tus fallos</h1>
+        <p class="content-subtitle">Cada vez que fallas una pregunta, se guarda aquí para que la repases más adelante. Al acertar en el repaso, tarda más en volver a aparecer; si vuelves a fallar, vuelve a aparecer pronto.</p>
       </header>
 
-      <div id="progress-summary" class="progress-summary"></div>
+      <div id="review-list"></div>
 
-      <div id="gamification-panel"></div>
-
-      <div id="progress-sections"></div>
-
-      <div class="actions-row">
-        <a href="repaso.html" class="btn btn-primary">Repasar mis fallos</a>
-        <button class="btn btn-secondary" id="progress-reset-btn">Borrar mi progreso</button>
-      </div>
     </main>
 
     <footer class="site-footer">
@@ -51,6 +43,6 @@
 </div>
 
 <script src="js/layout.js"></script>
-<script src="js/mi-progreso.js"></script>
+<script src="js/repaso.js"></script>
 </body>
 </html>

@@ -143,7 +143,17 @@ const NAV = [
   },
 ];
 
+function getStudentSessionCache() {
+  try {
+    const raw = localStorage.getItem("ar_estudiante");
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 function buildSidebar(base, current) {
+  const student = getStudentSessionCache();
   let html = `
     <div class="sidebar-header">
       <a href="${base}index.html" class="sidebar-brand">
@@ -151,7 +161,13 @@ function buildSidebar(base, current) {
         <span class="sidebar-brand-text">Aprende y Repasa<small>5º y 6º de Primaria</small></span>
       </a>
     </div>
-    <a href="${base}mi-progreso.html" class="sidebar-progress-link${current === "mi-progreso" ? " active" : ""}">Mi progreso</a>
+    ${
+      student
+        ? `<div class="sidebar-student-badge">👤 ${student.nickname} · <a href="#" id="sidebar-student-logout">Salir</a></div>`
+        : ""
+    }
+    <a href="${base}mi-progreso.html" class="sidebar-progress-link${current === "mi-progreso" ? " active" : ""}">Mi progreso</a>`;
+  html += `
     <div class="sidebar-search-wrap">
       <input type="search" id="sidebar-search" class="sidebar-search" placeholder="Buscar un contenido..." autocomplete="off">
       <span class="sidebar-search-empty" id="sidebar-search-empty" style="display:none;">Sin resultados</span>
@@ -170,6 +186,7 @@ function buildSidebar(base, current) {
         if (group.label) html += `<span class="nav-group-label">${group.label}</span>`;
         html += `<ul class="nav-children">`;
         group.items.forEach((child) => {
+          if (!window.__navFilter(child.id)) return;
           if (child.available) {
             const activeClass = child.id === current ? " active" : "";
             html += `<li><a href="${base}${child.href}" class="${activeClass.trim()}">${child.label}</a></li>`;
@@ -194,8 +211,41 @@ function initLayout() {
   const base = typeof window.BASE_PATH === "string" ? window.BASE_PATH : "";
   const current = typeof window.CURRENT_PAGE === "string" ? window.CURRENT_PAGE : "";
 
+  if (current && !window.__navFilter(current)) {
+    window.location.replace(base + "index.html");
+    return;
+  }
+
   const sidebarEl = document.getElementById("sidebar");
   if (sidebarEl) sidebarEl.innerHTML = buildSidebar(base, current);
+
+  loadScriptOnce(base + "js/gamification.js");
+  registerServiceWorker(base);
+  ensureManifestLink(base);
+
+  // Firebase (docente/alumno) solo se carga si hay una sesión de
+  // alumno activa en este dispositivo — para el modo anónimo/local
+  // de siempre, la página no pesa ni un byte más de lo que pesa hoy.
+  if (getStudentSessionCache()) {
+    loadScriptOnce(base + "js/firebase-config.js");
+    loadModuleOnce(base + "js/firebase-init.js");
+    loadModuleOnce(base + "js/auth.js");
+    loadModuleOnce(base + "js/cloud-sync.js");
+  }
+
+  const logoutLink = document.getElementById("sidebar-student-logout");
+  if (logoutLink) {
+    logoutLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      try {
+        localStorage.removeItem("ar_estudiante");
+        localStorage.removeItem("ar_visibilidad");
+      } catch (err) {
+        // localStorage no disponible.
+      }
+      window.location.href = base + "index.html";
+    });
+  }
 
   const menuBtn = document.getElementById("menu-toggle");
   const sidebar = document.getElementById("sidebar");
@@ -268,14 +318,45 @@ function initSidebarSearch() {
 }
 
 // ============================================================
+// Visibilidad de contenido controlada por el docente. Sin un
+// perfil de alumno activo (comportamiento por defecto, sin
+// cambios), todo es visible. Con un perfil activo, js/auth.js
+// cachea aquí (tras sincronizar con Firestore) la lista fusionada
+// de temas ocultos para ese alumno (clase + override individual).
+// ============================================================
+
+const VISIBILITY_STORAGE_KEY = "ar_visibilidad";
+
+function getHiddenTopics() {
+  try {
+    const raw = localStorage.getItem(VISIBILITY_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+window.__navFilter = function (topicId) {
+  return getHiddenTopics().indexOf(topicId) === -1;
+};
+
+// ============================================================
 // Seguimiento de progreso: cada juego de práctica llama a
 // AppProgress.record(temaId, esCorrecto) al comprobar una
 // respuesta. Se guarda en localStorage y lo lee la página
 // "Mi progreso" (matematicas/mi-progreso.html y lengua/... se
 // enlazan a la misma página en la raíz: mi-progreso.html).
+//
+// Además, cada llamada dispara un evento "ar:answer" (lo escuchan
+// js/gamification.js y, más adelante, js/cloud-sync.js) y, si la
+// respuesta fue un fallo, guarda una foto de lo que había en
+// pantalla para el repaso espaciado de errores (AppReview).
 // ============================================================
 
 const PROGRESS_STORAGE_KEY = "ar_progreso";
+const REVIEW_STORAGE_KEY = "ar_repaso";
 
 function loadProgressData() {
   try {
@@ -294,6 +375,117 @@ function saveProgressData(data) {
   }
 }
 
+function loadReviewData() {
+  try {
+    const raw = localStorage.getItem(REVIEW_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveReviewData(data) {
+  try {
+    localStorage.setItem(REVIEW_STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    // localStorage no disponible.
+  }
+}
+
+function simpleHash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  return Math.abs(h).toString(36);
+}
+
+// Aproximación deliberadamente ligera: en vez de reconstruir la
+// pregunta exacta (lo que exigiría tocar los ~55 archivos de tema
+// para que pasen sus datos internos), guardamos una foto del texto
+// visible en pantalla en el momento del fallo. Sirve para una lista
+// de repaso legible, no para volver a generar la pregunta idéntica.
+function captureAnswerSnapshot() {
+  const el = document.querySelector(
+    ".sentence-display, .word-display, .division-problem, .instructions, .game-card"
+  );
+  if (!el) return "";
+  return el.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
+}
+
+const AppReview = {
+  recordMiss(topicId, snapshotText) {
+    if (!snapshotText) return;
+    const data = loadReviewData();
+    if (!data[topicId]) data[topicId] = {};
+    const bucket = data[topicId];
+    const key = simpleHash(snapshotText);
+    const now = Date.now();
+    if (bucket[key]) {
+      bucket[key].wrongCount++;
+      bucket[key].lastWrongAt = now;
+      bucket[key].intervalDays = 1;
+      bucket[key].nextReviewAt = now;
+      bucket[key].resolved = false;
+    } else {
+      const keys = Object.keys(bucket);
+      if (keys.length >= 40) {
+        let oldestKey = keys[0];
+        keys.forEach((k) => {
+          if (bucket[k].lastWrongAt < bucket[oldestKey].lastWrongAt) oldestKey = k;
+        });
+        delete bucket[oldestKey];
+      }
+      bucket[key] = {
+        snapshot: snapshotText,
+        wrongCount: 1,
+        lastWrongAt: now,
+        intervalDays: 1,
+        nextReviewAt: now,
+        resolved: false,
+      };
+    }
+    saveReviewData(data);
+  },
+  // Repetición espaciada tipo SM-2 simplificado: acertar dobla el
+  // intervalo (hasta 30 días, momento en que se da por resuelto);
+  // fallar lo resetea a "toca repasar ya".
+  markReviewed(topicId, key, gotItRight) {
+    const data = loadReviewData();
+    const item = data[topicId] && data[topicId][key];
+    if (!item) return;
+    if (gotItRight) {
+      item.intervalDays = Math.min((item.intervalDays || 1) * 2, 30);
+      item.nextReviewAt = Date.now() + item.intervalDays * 24 * 60 * 60 * 1000;
+      if (item.intervalDays >= 30) item.resolved = true;
+    } else {
+      item.wrongCount++;
+      item.intervalDays = 1;
+      item.nextReviewAt = Date.now();
+    }
+    saveReviewData(data);
+  },
+  getDue() {
+    const data = loadReviewData();
+    const now = Date.now();
+    const due = [];
+    Object.keys(data).forEach((topicId) => {
+      Object.keys(data[topicId]).forEach((key) => {
+        const item = data[topicId][key];
+        if (!item.resolved && item.nextReviewAt <= now) {
+          due.push(Object.assign({ topicId: topicId, key: key }, item));
+        }
+      });
+    });
+    due.sort((a, b) => a.lastWrongAt - b.lastWrongAt);
+    return due;
+  },
+  getAll() {
+    return loadReviewData();
+  },
+  reset() {
+    saveReviewData({});
+  },
+};
+
 const AppProgress = {
   record(topicId, isCorrect) {
     const data = loadProgressData();
@@ -302,6 +494,10 @@ const AppProgress = {
     else data[topicId].fallos++;
     data[topicId].ultima = new Date().toISOString();
     saveProgressData(data);
+
+    if (!isCorrect) AppReview.recordMiss(topicId, captureAnswerSnapshot());
+
+    document.dispatchEvent(new CustomEvent("ar:answer", { detail: { topicId: topicId, isCorrect: isCorrect, ts: Date.now() } }));
   },
   getAll() {
     return loadProgressData();
@@ -491,6 +687,50 @@ function buildA11yWidget() {
       applyA11yPrefs(a11yPrefs);
       saveA11yPrefs(a11yPrefs);
     });
+  });
+}
+
+// ============================================================
+// Carga diferida de scripts auxiliares (gamificación) y PWA
+// (manifest + service worker), inyectados desde aquí para no tener
+// que añadir etiquetas <script>/<link> nuevas en cada página HTML.
+// ============================================================
+
+function loadScriptOnce(src) {
+  if (document.querySelector('script[data-ar-inject="' + src + '"]')) return;
+  const s = document.createElement("script");
+  s.src = src;
+  s.async = false;
+  s.dataset.arInject = src;
+  document.head.appendChild(s);
+}
+
+function loadModuleOnce(src) {
+  if (document.querySelector('script[data-ar-inject="' + src + '"]')) return;
+  const s = document.createElement("script");
+  s.type = "module";
+  s.src = src;
+  s.dataset.arInject = src;
+  document.head.appendChild(s);
+}
+
+function ensureManifestLink(base) {
+  if (document.querySelector('link[rel="manifest"]')) return;
+  const link = document.createElement("link");
+  link.rel = "manifest";
+  link.href = base + "manifest.json";
+  document.head.appendChild(link);
+  const themeColor = document.createElement("meta");
+  themeColor.name = "theme-color";
+  themeColor.content = "#4338ca";
+  document.head.appendChild(themeColor);
+}
+
+function registerServiceWorker(base) {
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.register(base + "sw.js").catch(() => {
+    // Si falla (por ejemplo abierto como file://), la app sigue
+    // funcionando igual, simplemente sin caché offline.
   });
 }
 
