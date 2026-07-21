@@ -4,7 +4,7 @@
 // Adaptaciones → Evaluación → Compilación), con botones "Generar" por
 // documento y "Aprobar y continuar" para desbloquear la fase
 // siguiente. Añadir una UDI nueva es escribir un fichero como
-// js/udi-texto-predictivo.js: esta interfaz no necesita cambios.
+// js/udi-l5-t1-bloque1.js: esta interfaz no necesita cambios.
 // ============================================================
 
 const UDI_PHASE_IDS = ["plan", "fichas", "adaptaciones", "evaluacion", "compilacion"];

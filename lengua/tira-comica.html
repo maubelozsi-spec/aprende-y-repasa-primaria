@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La tira cómica · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "tira-comica";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · Reír y pensar</p>
+        <h1>La tira cómica</h1>
+        <p class="content-subtitle">Cómo se construye una tira cómica: sus partes, sus recursos gráficos y por qué es un texto literario.</p>
+      </header>
+      <div class="ficha-download">
+        <div class="ficha-download-icon">📄</div>
+        <div class="ficha-download-text">
+          <strong>Ficha de repaso para imprimir</strong>
+          <span>Descárgala en Word, trabájala en papel y comprueba tus respuestas.</span>
+        </div>
+          <div class="ficha-download-group">
+            <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="5">Descargar ficha y soluciones (Word)</button>
+          </div>
+      </div>
+
+
+      <div class="difficulty-selector" id="difficulty-wrap">
+        <label for="difficulty-select">Adaptación:</label>
+        <select id="difficulty-select"></select>
+        <span class="difficulty-hint">Adapta la explicación, el juego y la ficha</span>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es una tira cómica?</h2>
+        <p>Una tira cómica es un texto literario que cuenta una historia breve en unas pocas viñetas (los recuadros dibujados), combinando dibujo y texto para hacer reír o reflexionar.</p>
+        <div class="rule-box aguda">
+          <h4>Literario o no literario</h4>
+          <p>Un texto literario busca crear belleza o provocar una emoción (un cuento, un poema, una tira cómica). Un texto no literario busca informar o explicar algo de forma práctica (una receta, unas instrucciones, una noticia).</p>
+        </div>
+
+        <h2>Las tres partes de una tira cómica</h2>
+        <table class="rules-table">
+          <tr><th>Parte</th><th>Qué ocurre</th></tr>
+          <tr><td>Presentación</td><td>se presentan los personajes y el lugar donde ocurre la historia</td></tr>
+          <tr><td>Desarrollo</td><td>aparece la situación conflictiva o el problema</td></tr>
+          <tr><td>Final sorprendente</td><td>se resuelve la situación de una forma que hace reír o pensar</td></tr>
+        </table>
+
+        <h2>Los recursos de la tira cómica</h2>
+        <div class="rule-box llana">
+          <h4>Bocadillos o globos</h4>
+          <p>Recuadros con forma de nube donde se escribe lo que dice o piensa un personaje.</p>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>Líneas de movimiento</h4>
+          <p>Trazos que muestran que un personaje u objeto se mueve rápido (por ejemplo, detrás de alguien que corre).</p>
+        </div>
+        <div class="rule-box diptongo">
+          <h4>Onomatopeyas</h4>
+          <p>Palabras que imitan un sonido: <strong>¡bang!, ¡crash!, ¡zzz!, ¡splash!</strong></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+
+        <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card" id="practica-tira">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary" data-mode="literario">¿Literario o no?</button>
+            <button class="btn btn-secondary active" data-mode="elementos">Partes de la tira</button>
+            <button class="btn btn-secondary" data-mode="recursos">Recursos gráficos</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/docx-writer.js"></script>
+<script src="../js/lengua-ficha-generator.js"></script>
+<script src="../js/ficha-download.js"></script>
+<script src="../js/tira-comica.js"></script>
+</body>
+</html>

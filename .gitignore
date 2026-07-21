@@ -1,2 +1,7 @@
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+
+# Material de la editorial SM (con copyright): fuente para redactar los
+# bancos de contenido, no debe subirse al repositorio público.
+Material SM/
+fichas-ejemplo/

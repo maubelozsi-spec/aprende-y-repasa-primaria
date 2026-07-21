@@ -62,6 +62,8 @@ const NAV = [
           { id: "narrativa", label: "Narrativa", href: "lengua/narrativa.html", available: true },
           { id: "poesia", label: "Poesía y recursos literarios", href: "lengua/poesia.html", available: true },
           { id: "texto-predictivo", label: "El texto predictivo", href: "lengua/texto-predictivo.html", available: true },
+          { id: "tipos-enunciado", label: "Tipos de enunciado e interjecciones", href: "lengua/tipos-enunciado.html", available: true },
+          { id: "tira-comica", label: "La tira cómica", href: "lengua/tira-comica.html", available: true },
         ],
       },
       {

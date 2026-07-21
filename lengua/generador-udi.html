@@ -101,9 +101,15 @@
 <script src="../js/udi-doc-builder.js"></script>
 <script src="../js/zip-bundle.js"></script>
 <!-- Temas que registran contenido de ficha (registerLenguaFicha) usados por esta UDI.
-     Si se añade una UDI que use otros temas, hay que cargar aquí sus scripts también. -->
+     Si se añade una UDI que use otros temas, hay que cargar aquí sus scripts también.
+     Aviso: cada tema declara sus propias constantes internas (p. ej. "MODE_GROUPS_xxx");
+     si un tema nuevo reutiliza aquí el nombre genérico "MODE_GROUPS" sin sufijo,
+     chocará con los demás temas cargados en esta misma página. -->
 <script src="../js/texto-predictivo.js"></script>
-<script src="../js/udi-texto-predictivo.js"></script>
+<script src="../js/tipos-enunciado.js"></script>
+<script src="../js/tira-comica.js"></script>
+<script src="../js/sinonimos-antonimos.js"></script>
+<script src="../js/udi-l5-t1-bloque1.js"></script>
 <script src="../js/generador-udi-ui.js"></script>
 <!-- Histórico opcional: si hay sesión docente, guarda un registro de
      cada UDI compilada. Sin login, la página funciona exactamente igual. -->
