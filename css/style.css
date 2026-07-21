@@ -1793,6 +1793,92 @@ table.rules-table tr:last-child td {
   opacity: 0.4;
 }
 
+.exm-topic-row.type-acs { border-left: 3px solid var(--color-sky); padding-left: 8px; }
+.exm-topic-row.type-dislexia { border-left: 3px solid var(--color-teal); padding-left: 8px; }
+.exm-topic-row.type-tdah { border-left: 3px solid var(--color-amber); padding-left: 8px; }
+
+.udi-generated {
+  border-color: var(--color-success) !important;
+  background: var(--color-success-tint) !important;
+  color: var(--color-success) !important;
+}
+
+/* ---------- Generador de Unidad Didáctica: indicador de fases ---------- */
+
+.udi-steps {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 640px;
+  margin: 0 auto 22px;
+}
+
+.udi-step {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 84px;
+  padding: 10px 8px;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.udi-step-index {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--border-strong);
+  color: var(--text-soft);
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.udi-step-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-soft);
+  text-align: center;
+}
+
+.udi-step.active {
+  border-color: var(--color-indigo);
+  background: var(--color-indigo-tint);
+}
+
+.udi-step.active .udi-step-index {
+  background: var(--color-indigo);
+  color: #fff;
+}
+
+.udi-step.active .udi-step-label {
+  color: var(--color-indigo);
+}
+
+.udi-step.done .udi-step-index {
+  background: var(--color-success);
+  color: #fff;
+}
+
+.udi-step.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.udi-phase-panel h2 {
+  margin-top: 0;
+}
+
 /* ---------- Generador de dictados ---------- */
 
 .dictado-select-row {

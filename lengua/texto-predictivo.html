@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El texto predictivo · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "texto-predictivo";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · Un futuro... ¿del pasado?</p>
+        <h1>El texto predictivo</h1>
+        <p class="content-subtitle">Cómo se anuncia algo que va a ocurrir en el futuro: estructura, conectores y cómo comprobar si una fuente es fiable.</p>
+      </header>
+      <div class="ficha-download">
+        <div class="ficha-download-icon">📄</div>
+        <div class="ficha-download-text">
+          <strong>Ficha de repaso para imprimir</strong>
+          <span>Descárgala en Word, trabájala en papel y comprueba tus respuestas.</span>
+        </div>
+          <div class="ficha-download-group">
+            <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="5">Descargar ficha y soluciones (Word)</button>
+          </div>
+      </div>
+
+
+      <div class="difficulty-selector" id="difficulty-wrap">
+        <label for="difficulty-select">Adaptación:</label>
+        <select id="difficulty-select"></select>
+        <span class="difficulty-hint">Adapta la explicación, el juego y la ficha</span>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="practica">Práctica</button>
+      </div>
+
+      <!-- ================= TEORÍA ================= -->
+      <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>¿Qué es un texto predictivo?</h2>
+        <p>Un texto predictivo anuncia algo que va a ocurrir en el futuro. No es un simple deseo ni una fantasía inventada al azar: la predicción se apoya en razones, datos o pistas del presente.</p>
+        <div class="rule-box aguda">
+          <h4>Ejemplo</h4>
+          <p>«Los científicos creen que en 2060 habrá ciudades flotantes en el mar, porque el nivel del agua sigue subiendo.» → es una predicción, porque se apoya en un dato real (la subida del nivel del mar).</p>
+        </div>
+
+        <h2>La estructura del texto predictivo</h2>
+        <table class="rules-table">
+          <tr><th>Parte</th><th>Qué hace</th></tr>
+          <tr><td>Introducción</td><td>plantea la predicción: qué crees que va a pasar</td></tr>
+          <tr><td>Desarrollo</td><td>da las razones que apoyan la predicción, una detrás de otra</td></tr>
+          <tr><td>Conclusión</td><td>resume la predicción y las razones más importantes</td></tr>
+        </table>
+
+        <h2>Conectores para cada parte</h2>
+        <div class="rule-box llana">
+          <h4>Para el desarrollo (ordenar las razones)</h4>
+          <p class="examples">En primer lugar... · Para empezar... · En segundo lugar... · Para continuar... · En tercer lugar... · Por último... · Además... · Por otro lado...</p>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>Para la conclusión (cerrar el texto)</h4>
+          <p class="examples">En definitiva... · En conclusión... · En consecuencia... · Por ello... · Por todo esto... · En resumen...</p>
+        </div>
+
+        <h2>Un texto predictivo completo, de ejemplo</h2>
+        <div class="rule-box diptongo">
+          <p><strong>¿Cómo serán los coles del futuro?</strong></p>
+          <p>Yo creo que dentro de treinta años los colegios serán muy distintos a los de ahora.</p>
+          <p>En primer lugar, las clases tendrán mucha más tecnología: pizarras interactivas, robots ayudantes y libros digitales para todas las asignaturas. En segundo lugar, habrá más huertos y zonas verdes en los patios, porque cada vez se le da más importancia a cuidar el medioambiente. Por último, creo que se aprenderá más trabajando en equipo y menos memorizando de memoria.</p>
+          <p>En definitiva, pienso que los coles del futuro serán más tecnológicos, más verdes y más cooperativos que los de hoy.</p>
+        </div>
+
+        <h2>¿Es fiable esa predicción?</h2>
+        <p>Antes de creerte una predicción (o de contarla tú), conviene comprobar de dónde viene la información:</p>
+        <div class="rule-box hiato">
+          <p class="examples"><strong>¿Quién lo dice?</strong> ¿Es una persona experta en el tema? &nbsp;·&nbsp; <strong>¿Cuándo se dijo?</strong> ¿Es una información reciente? &nbsp;·&nbsp; <strong>¿Coincide con otras fuentes?</strong> ¿Otros medios dicen lo mismo? &nbsp;·&nbsp; <strong>¿Hay pruebas?</strong> ¿Se apoya en datos reales?</p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
+        </p>
+
+        <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= PRÁCTICA ================= -->
+      <section id="tab-practica" class="tab-panel">
+        <div class="game-card" id="practica-predictivo">
+
+          <div class="game-score">
+            <div class="game-stat ok"><span class="game-stat-value" id="score-ok">0</span><span class="game-stat-label">Aciertos</span></div>
+            <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
+          </div>
+
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary" data-mode="prediccion">¿Es una predicción?</button>
+            <button class="btn btn-secondary active" data-mode="partes">Partes del texto</button>
+            <button class="btn btn-secondary" data-mode="conectores">Conectores</button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="sentence-display" id="word-display"></div>
+
+          <div class="syllable-row" id="answer-buttons"></div>
+
+          <div id="feedback" class="feedback-box"></div>
+
+          <div class="actions-row">
+            <button class="btn btn-success" id="next-word" style="display:none;">Siguiente</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/docx-writer.js"></script>
+<script src="../js/lengua-ficha-generator.js"></script>
+<script src="../js/ficha-download.js"></script>
+<script src="../js/texto-predictivo.js"></script>
+</body>
+</html>

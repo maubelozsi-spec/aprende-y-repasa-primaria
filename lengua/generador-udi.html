@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de Unidad Didáctica · Lengua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "generador-udi";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Lengua · Herramientas</p>
+        <h1 id="udi-titulo">Generador de Unidad Didáctica</h1>
+        <p class="content-subtitle" id="udi-resumen">Genera todo el material imprimible de una unidad — fichas, adaptaciones, repaso, examen y reto final — en un único paquete.</p>
+      </header>
+
+      <div class="udi-steps" id="udi-steps"></div>
+
+      <div class="game-card generator-card">
+
+        <section class="udi-phase-panel" data-phase="plan">
+          <h2>Plan de la unidad</h2>
+          <p class="generator-resumen" id="udi-plan-intro"></p>
+          <div id="udi-plan-sesiones"></div>
+          <div class="actions-row">
+            <button class="btn btn-primary" data-approve="plan">Aprobar y continuar</button>
+          </div>
+        </section>
+
+        <section class="udi-phase-panel" data-phase="fichas" style="display:none;">
+          <h2>Fichas por bloque (versión estándar)</h2>
+          <p class="generator-resumen">Genera la ficha y su hoja de soluciones para cada sesión, en la versión que trabaja el resto de la clase.</p>
+          <div class="exm-topic-list" id="udi-fichas-list"></div>
+          <div id="udi-fichas-status" class="feedback-box"></div>
+          <div class="actions-row">
+            <button class="btn btn-primary" data-approve="fichas">Aprobar y continuar</button>
+          </div>
+        </section>
+
+        <section class="udi-phase-panel" data-phase="adaptaciones" style="display:none;">
+          <h2>Adaptaciones</h2>
+          <p class="generator-resumen">Mismas fichas, mismo contenido curricular: una versión por cada perfil de adaptación.</p>
+          <div id="udi-adaptaciones-list"></div>
+          <div id="udi-adaptaciones-status" class="feedback-box"></div>
+          <div class="actions-row">
+            <button class="btn btn-primary" data-approve="adaptaciones">Aprobar y continuar</button>
+          </div>
+        </section>
+
+        <section class="udi-phase-panel" data-phase="evaluacion" style="display:none;">
+          <h2>Evaluación</h2>
+          <p class="generator-resumen">Ficha de repaso, examen (estándar y adaptado), documento de explicación con solucionario, y reto final con rúbrica.</p>
+          <div id="udi-evaluacion-list"></div>
+          <div id="udi-evaluacion-status" class="feedback-box"></div>
+          <div class="actions-row">
+            <button class="btn btn-primary" data-approve="evaluacion">Aprobar y continuar</button>
+          </div>
+        </section>
+
+        <section class="udi-phase-panel" data-phase="compilacion" style="display:none;">
+          <h2>Compilación</h2>
+          <p class="generator-resumen">Genera de nuevo todos los documentos anteriores (estándar + 3 adaptaciones) y los agrupa en un único archivo .zip listo para imprimir por alumno.</p>
+          <div class="actions-row">
+            <button class="btn btn-success" id="udi-compilar-btn">Generar paquete completo (.zip)</button>
+          </div>
+          <div id="udi-compilacion-status" class="feedback-box"></div>
+        </section>
+
+      </div>
+
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/docx-writer.js"></script>
+<script src="../js/lengua-ficha-generator.js"></script>
+<script src="../js/lengua-examen-generator.js"></script>
+<script src="../js/udi-doc-builder.js"></script>
+<script src="../js/zip-bundle.js"></script>
+<!-- Temas que registran contenido de ficha (registerLenguaFicha) usados por esta UDI.
+     Si se añade una UDI que use otros temas, hay que cargar aquí sus scripts también. -->
+<script src="../js/texto-predictivo.js"></script>
+<script src="../js/udi-texto-predictivo.js"></script>
+<script src="../js/generador-udi-ui.js"></script>
+</body>
+</html>

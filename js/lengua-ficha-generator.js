@@ -206,7 +206,7 @@ function buildLenguaFichaDocument({ topic, curso, fecha, problems, dificultad, s
 
 // ---------------- API pública ----------------
 
-function generarFichaYSoluciones(topicId, curso, count, dificultad = "none") {
+function generarFichaYSoluciones(topicId, curso, count, dificultad = "none", options = {}) {
   const topic = LENGUA_FICHA_CONFIG[topicId];
   if (!topic) throw new Error("Tema no encontrado: " + topicId);
 
@@ -220,6 +220,12 @@ function generarFichaYSoluciones(topicId, curso, count, dificultad = "none") {
   const solucionesBlob = createDocxBlob(solucionesParagraphs);
 
   const sufijo = dificultad && dificultad !== "none" ? `_${dificultad}` : "";
-  downloadBlob(fichaBlob, `ficha_lengua_${topicId}_${curso}${sufijo}.docx`);
-  setTimeout(() => downloadBlob(solucionesBlob, `soluciones_lengua_${topicId}_${curso}${sufijo}.docx`), 400);
+  const fichaFile = { blob: fichaBlob, filename: `ficha_lengua_${topicId}_${curso}${sufijo}.docx` };
+  const solucionesFile = { blob: solucionesBlob, filename: `soluciones_lengua_${topicId}_${curso}${sufijo}.docx` };
+
+  if (options.download === false) return { ficha: fichaFile, soluciones: solucionesFile };
+
+  downloadBlob(fichaBlob, fichaFile.filename);
+  setTimeout(() => downloadBlob(solucionesBlob, solucionesFile.filename), 400);
+  return { ficha: fichaFile, soluciones: solucionesFile };
 }

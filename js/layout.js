@@ -61,6 +61,7 @@ const NAV = [
           { id: "texto-teatral", label: "El texto teatral", href: "lengua/texto-teatral.html", available: true },
           { id: "narrativa", label: "Narrativa", href: "lengua/narrativa.html", available: true },
           { id: "poesia", label: "Poesía y recursos literarios", href: "lengua/poesia.html", available: true },
+          { id: "texto-predictivo", label: "El texto predictivo", href: "lengua/texto-predictivo.html", available: true },
         ],
       },
       {
@@ -68,6 +69,7 @@ const NAV = [
         items: [
           { id: "generador-dictados", label: "Generador de dictados", href: "lengua/generador-dictados.html", available: true },
           { id: "lectura-comprension", label: "Lectura comprensiva", href: "lengua/lectura-comprension.html", available: true },
+          { id: "generador-udi", label: "Generador de Unidad Didáctica", href: "lengua/generador-udi.html", available: true },
         ],
       },
     ],
