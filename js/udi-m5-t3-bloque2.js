@@ -1,59 +1,64 @@
 // ============================================================
-// UDI Matemáticas 5º · 3º Trimestre · SDA 2 "Viajando a América":
-// las unidades de medida (longitud, capacidad, masa) y el tiempo.
+// UDI Matemáticas 5º · 3º Trimestre · Tema 8 (SM): "¿Qué compramos? /
+// ¡No lo necesitas! / La compra ... ¿Verde?".
+// Contenido (programación oficial): las operaciones con decimales
+// (multiplicación y división) y el desarrollo plano de los cuerpos
+// geométricos. Producto/reto: lista de la compra saludable con un
+// presupuesto de 7 € y construcción de un objeto con cuerpos
+// geométricos.
 // ============================================================
 
 const UDI_M5_T3_BLOQUE2 = {
   id: "m5-t3-bloque2",
   area: "Matemáticas 5º · T3",
-  titulo: "3º Trimestre · SDA 2 · Viajando a América",
+  titulo: "3º Trimestre · Tema 8 · ¿Qué compramos?",
   curso: "5",
-  bloque: "Matemáticas · Medidas y el tiempo",
-  resumen: "Unidades de longitud, capacidad y masa y sus equivalencias, y medida y cálculo con el tiempo.",
+  bloque: "Matemáticas · Multiplicación y división de decimales + Cuerpos geométricos",
+  resumen: "Multiplicación y división de números decimales, y los cuerpos geométricos y su desarrollo plano.",
   perfilesAdaptacion: ["acs", "dislexia", "tdah"],
   fases: [
     { id: "plan", label: "Plan de la UDI", tipo: "plan", sesiones: [
-      { n: 1, titulo: "Unidades de longitud", descripcion: "Del km al mm y equivalencias.", topicId: "medidas" },
-      { n: 2, titulo: "Capacidad y masa", descripcion: "Litros y gramos; conversiones.", topicId: "medidas" },
-      { n: 3, titulo: "El tiempo: horas, minutos y segundos", descripcion: "Leer y operar con el tiempo.", topicId: "tiempo" },
-      { n: 4, titulo: "Cálculos con el tiempo", descripcion: "Duraciones y husos horarios.", topicId: "tiempo" },
-      { n: 5, titulo: "Reto: planificamos un viaje a América", descripcion: "Producto final de la SDA." },
-      { n: 6, titulo: "Repaso y examen de la SDA", descripcion: "Ficha de repaso y prueba." },
+      { n: 1, titulo: "Multiplicar decimales", descripcion: "Colocar la coma en el producto.", topicId: "decimales-md" },
+      { n: 2, titulo: "Dividir decimales", descripcion: "Dividir con la coma.", topicId: "decimales-md" },
+      { n: 3, titulo: "Los cuerpos geométricos", descripcion: "Prismas, pirámides y cuerpos redondos.", topicId: "cuerpos-geometricos" },
+      { n: 4, titulo: "El desarrollo plano de los cuerpos", descripcion: "Caras, aristas y vértices.", topicId: "cuerpos-geometricos" },
+      { n: 5, titulo: "Reto: la compra saludable y el objeto absurdo", descripcion: "Producto final del tema." },
+      { n: 6, titulo: "Repaso y examen del tema", descripcion: "Ficha de repaso y prueba." },
     ] },
     { id: "fichas", label: "Fichas por bloque", tipo: "fichas", documentos: [
-      { id: "f-medidas", label: "Medidas y conversiones", motor: "mate-ficha", topicId: "medidas", count: 6 },
-      { id: "f-tiempo", label: "El tiempo", motor: "mate-ficha", topicId: "tiempo", count: 6 },
+      { id: "f-decimales-md", label: "Multiplicación y división de decimales", motor: "mate-ficha", topicId: "decimales-md", count: 6 },
+      { id: "f-cuerpos", label: "Cuerpos geométricos", motor: "mate-ficha", topicId: "cuerpos-geometricos", count: 6 },
     ] },
     { id: "adaptaciones", label: "Adaptaciones", tipo: "adaptaciones" },
     { id: "evaluacion", label: "Evaluación", tipo: "evaluacion", documentos: [
-      { id: "repaso", label: "Ficha de repaso (SDA combinada)", motor: "mate-examen", tipo: "repaso",
-        topics: [{ topicId: "medidas", count: 4 }, { topicId: "tiempo", count: 4 }] },
-      { id: "examen", label: "Examen de la SDA (combinado)", motor: "mate-examen", tipo: "examen",
-        topics: [{ topicId: "medidas", count: 5 }, { topicId: "tiempo", count: 5 }] },
-      { id: "explicacion", label: "Explicación y solucionario de la SDA", motor: "udi-doc-builder", builder: "generarDocumentoExplicacion",
-        args: { id: "m5-t3-bloque2", titulo: "Guía: las medidas y el tiempo", subtitulo: "Documento de apoyo de la SDA «Viajando a América».",
+      { id: "repaso", label: "Ficha de repaso (tema combinado)", motor: "mate-examen", tipo: "repaso",
+        topics: [{ topicId: "decimales-md", count: 4 }, { topicId: "cuerpos-geometricos", count: 4 }] },
+      { id: "examen", label: "Examen del tema (combinado)", motor: "mate-examen", tipo: "examen",
+        topics: [{ topicId: "decimales-md", count: 5 }, { topicId: "cuerpos-geometricos", count: 5 }] },
+      { id: "explicacion", label: "Explicación y solucionario del tema", motor: "udi-doc-builder", builder: "generarDocumentoExplicacion",
+        args: { id: "m5-t3-bloque2", titulo: "Guía: operaciones con decimales y cuerpos geométricos", subtitulo: "Documento de apoyo del Tema 8 «¿Qué compramos?».",
           teoria: [
-            { heading: "Unidades de medida", paragraphs: ["Cada unidad es 10 veces mayor que la siguiente: km, hm, dam, m, dm, cm, mm. Para pasar a una unidad menor se multiplica por 10, 100...; a una mayor, se divide. Lo mismo con el litro y el gramo."] },
-            { heading: "El tiempo", paragraphs: ["1 hora = 60 minutos y 1 minuto = 60 segundos. Para calcular duraciones se restan las horas, teniendo en cuenta que el tiempo no va de 10 en 10 sino de 60 en 60."] },
+            { heading: "Multiplicación y división de decimales", paragraphs: ["Para multiplicar decimales se multiplica como con naturales y se colocan en el producto tantas cifras decimales como tengan entre los dos factores. Al dividir se iguala la coma o se añaden ceros."] },
+            { heading: "Los cuerpos geométricos", paragraphs: ["Los cuerpos geométricos tienen caras, aristas y vértices. Los poliedros (prismas y pirámides) tienen caras planas; los cuerpos redondos (esfera, cilindro, cono) tienen superficies curvas. El desarrollo plano es la figura que resulta al 'desplegar' un cuerpo."] },
           ],
-          comoCorregir: [ { tipo: "Fichas", explicacion: "Las fichas piden convertir unidades u operar con el tiempo. La hoja de soluciones da el procedimiento.", ejemplo: "3 km = 3000 m." } ],
-          variantesACS: { titulo: "Guía sencilla: medidas y tiempo", subtitulo: "Versión adaptada (ACS, nivel de 3º).",
-            teoria: [ { heading: "Medidas y tiempo", paragraphs: ["1 metro = 100 centímetros. 1 hora = 60 minutos. Usa la regla y el reloj para verlo."] } ],
-            comoCorregir: [ { tipo: "Fichas", explicacion: "Con metros/centímetros y horas en punto.", ejemplo: "2 m = 200 cm." } ] } } },
-      { id: "reto", label: "Reto final de la SDA + rúbrica", motor: "udi-doc-builder", builder: "generarRetoYRubrica",
-        args: { id: "m5-t3-bloque2", titulo: "Planificamos un viaje a América",
-          consigna: ["Este reto reúne lo trabajado. Vais a planificar un viaje calculando distancias, equipaje y horarios.",
-            "Usaréis lo aprendido: convertiréis unidades de medida y haréis cálculos con el tiempo (duración del vuelo, diferencia horaria)."],
-          pasos: ["Elegid un destino en América y anotad la distancia en km.", "Convertid alguna medida (por ejemplo, el peso permitido de la maleta de kg a g).", "Calculad la duración del vuelo a partir de la hora de salida y de llegada.", "Tened en cuenta la diferencia horaria para saber qué hora será al llegar.", "Presentad vuestro plan de viaje con los cálculos."],
+          comoCorregir: [ { tipo: "Fichas", explicacion: "Las fichas piden multiplicar/dividir decimales y reconocer cuerpos o sus desarrollos. La hoja de soluciones da el procedimiento.", ejemplo: "3,25 × 10 = 32,5. Un cubo tiene 6 caras, 12 aristas y 8 vértices." } ],
+          variantesACS: { titulo: "Guía sencilla: decimales y cuerpos", subtitulo: "Versión adaptada (ACS, nivel de 3º).",
+            teoria: [ { heading: "Decimales y cuerpos", paragraphs: ["Multiplicar por 10 corre la coma un lugar a la derecha. Un cubo tiene 6 caras cuadradas."] } ],
+            comoCorregir: [ { tipo: "Fichas", explicacion: "Con multiplicaciones por 10 y cuerpos conocidos.", ejemplo: "2,5 × 10 = 25." } ] } } },
+      { id: "reto", label: "Reto final del tema + rúbrica", motor: "udi-doc-builder", builder: "generarRetoYRubrica",
+        args: { id: "m5-t3-bloque2", titulo: "La compra saludable y el objeto absurdo",
+          consigna: ["Este es el reto que integra el tema. Vais a elaborar una lista de la compra para un menú saludable de las cinco comidas del día sin pasaros de 7 €, y a construir un objeto con cuerpos geométricos.",
+            "Usaréis lo aprendido: multiplicaréis y dividiréis decimales para calcular el coste, y reconoceréis los cuerpos geométricos y su desarrollo al construir el objeto."],
+          pasos: ["Elegid los alimentos de las cinco comidas y su precio (con decimales).", "Calculad el coste de varias unidades multiplicando decimales.", "Sumad el total y comprobad que no pasa de 7 €.", "Construid un objeto usando cuerpos geométricos (con material reciclado) e identificad cada cuerpo.", "Presentad la compra y el objeto explicando los cálculos y los cuerpos usados."],
           criterios: [
-            { nombre: "Convierto unidades de medida", niveles: ["Sin errores.", "Con algún error.", "Con dificultad.", "No lo consigo."] },
-            { nombre: "Calculo duraciones con el tiempo", niveles: ["Correctamente.", "Con algún error.", "Con ayuda.", "No lo consigo."] },
-            { nombre: "Presento el plan con claridad", niveles: ["Con claridad.", "Con ayuda.", "Con dificultad.", "No lo consigo."] },
+            { nombre: "Multiplico y divido decimales para el presupuesto", niveles: ["Sin errores.", "Con algún error.", "Con dificultad.", "No lo consigo."] },
+            { nombre: "Ajusto la compra al presupuesto de 7 €", niveles: ["Correctamente.", "Con algún error.", "Con ayuda.", "No lo consigo."] },
+            { nombre: "Reconozco los cuerpos geométricos del objeto", niveles: ["Todos correctamente.", "La mayoría.", "Alguno, con ayuda.", "No los reconozco."] },
           ],
-          variantesACS: { titulo: "Planificamos un viaje a América",
-            consigna: ["Vas a leer la hora en el reloj y convertir metros en centímetros."],
-            pasos: ["Di qué hora marca un reloj (en punto y media).", "Convierte 1 metro y 2 metros a centímetros."],
-            criterios: [ { nombre: "Leo la hora", niveles: ["Bien.", "Con ayuda.", "Lo intento.", "No lo consigo."] }, { nombre: "Convierto metros a centímetros", niveles: ["Bien.", "Con ayuda.", "Lo intento.", "No lo consigo."] } ] } } },
+          variantesACS: { titulo: "La compra saludable y el objeto",
+            consigna: ["Vas a sumar el precio de 3 alimentos y decir qué cuerpo es una caja."],
+            pasos: ["Elige 3 alimentos con precios sencillos (1,00 €, 2,00 €, 0,50 €) y súmalos.", "Mira una caja y di qué cuerpo geométrico es."],
+            criterios: [ { nombre: "Sumo precios", niveles: ["Bien.", "Con ayuda.", "Lo intento.", "No lo consigo."] }, { nombre: "Reconozco un cuerpo geométrico", niveles: ["Bien.", "Con ayuda.", "Lo intento.", "No lo consigo."] } ] } } },
     ] },
     { id: "compilacion", label: "Compilación", tipo: "compilacion" },
   ],

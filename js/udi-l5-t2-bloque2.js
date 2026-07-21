@@ -1,6 +1,6 @@
 // ============================================================
 // UDI Lengua 5º · 2º Trimestre · Bloque 2 (mini-SDA sa04+sa05+sa06):
-//   sa04 · Textos discontinuos, el anuncio y el cartel (tipos-texto-6)
+//   sa04 · Textos discontinuos, el anuncio y el cartel (comunicacion-textos)
 //   sa05 · El adjetivo (adjetivo)
 //   sa06 · La estructura de una obra teatral (texto-teatral)
 // ============================================================
@@ -18,8 +18,8 @@ const UDI_L5_T2_BLOQUE2 = {
     {
       id: "plan", label: "Plan de la UDI", tipo: "plan",
       sesiones: [
-        { n: 1, titulo: "sa04 · Los textos discontinuos", descripcion: "Gráficos, tablas, folletos, anuncios y carteles.", topicId: "tipos-texto-6" },
-        { n: 2, titulo: "sa04 · El anuncio y el cartel publicitario", descripcion: "Cómo se comunica un mensaje breve y atractivo.", topicId: "tipos-texto-6" },
+        { n: 1, titulo: "sa04 · Los textos discontinuos", descripcion: "Gráficos, tablas, folletos, anuncios y carteles.", topicId: "comunicacion-textos" },
+        { n: 2, titulo: "sa04 · El anuncio y el cartel publicitario", descripcion: "Cómo se comunica un mensaje breve y atractivo.", topicId: "comunicacion-textos" },
         { n: 3, titulo: "sa05 · El adjetivo", descripcion: "Qué es y para qué sirve.", topicId: "adjetivo" },
         { n: 4, titulo: "sa05 · Grados del adjetivo y concordancia", descripcion: "Positivo, comparativo y superlativo.", topicId: "adjetivo" },
         { n: 5, titulo: "sa06 · La estructura de una obra teatral", descripcion: "Actos y escenas; planteamiento, nudo y desenlace.", topicId: "texto-teatral" },
@@ -31,7 +31,7 @@ const UDI_L5_T2_BLOQUE2 = {
     {
       id: "fichas", label: "Fichas por bloque", tipo: "fichas",
       documentos: [
-        { id: "ficha-sa04", label: "sa04 · Textos discontinuos y el cartel", motor: "lengua-ficha", topicId: "tipos-texto-6", count: 5 },
+        { id: "ficha-sa04", label: "sa04 · Textos discontinuos y el cartel", motor: "lengua-ficha", topicId: "comunicacion-textos", count: 5 },
         { id: "ficha-sa05", label: "sa05 · El adjetivo", motor: "lengua-ficha", topicId: "adjetivo", count: 6 },
         { id: "ficha-sa06", label: "sa06 · La estructura teatral", motor: "lengua-ficha", topicId: "texto-teatral", count: 5 },
       ],
@@ -41,9 +41,9 @@ const UDI_L5_T2_BLOQUE2 = {
       id: "evaluacion", label: "Evaluación", tipo: "evaluacion",
       documentos: [
         { id: "repaso", label: "Ficha de repaso (bloque combinado)", motor: "lengua-examen", tipo: "repaso",
-          topics: [{ topicId: "tipos-texto-6", count: 3 }, { topicId: "adjetivo", count: 3 }, { topicId: "texto-teatral", count: 3 }] },
+          topics: [{ topicId: "comunicacion-textos", count: 3 }, { topicId: "adjetivo", count: 3 }, { topicId: "texto-teatral", count: 3 }] },
         { id: "examen", label: "Examen del bloque (combinado)", motor: "lengua-examen", tipo: "examen",
-          topics: [{ topicId: "tipos-texto-6", count: 4 }, { topicId: "adjetivo", count: 4 }, { topicId: "texto-teatral", count: 4 }] },
+          topics: [{ topicId: "comunicacion-textos", count: 4 }, { topicId: "adjetivo", count: 4 }, { topicId: "texto-teatral", count: 4 }] },
         { id: "explicacion", label: "Explicación y solucionario del bloque", motor: "udi-doc-builder", builder: "generarDocumentoExplicacion",
           args: {
             id: "l5-t2-bloque2",
