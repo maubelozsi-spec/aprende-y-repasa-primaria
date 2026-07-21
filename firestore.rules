@@ -51,10 +51,13 @@ service cloud.firestore {
       allow get: if signedIn();
       allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
       allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      // Cualquier sesión con la clave puede reclamar al alumno, y solo
+      // puede tocar authUid y lastLoginAt. Antes la clave quedaba atada
+      // al primer dispositivo que la usaba, así que el mismo alumno no
+      // podía entrar en clase y en casa: ahora el último dispositivo
+      // desde el que entra pasa a ser el activo.
       allow update: if isOwnerTeacher(resource.data.teacherId)
                     || (signedIn()
-                        && (!("authUid" in resource.data) || resource.data.authUid == null
-                            || resource.data.authUid == request.auth.uid)
                         && request.resource.data.diff(resource.data).affectedKeys()
                              .hasOnly(["authUid", "lastLoginAt"]));
       allow delete: if isOwnerTeacher(resource.data.teacherId);

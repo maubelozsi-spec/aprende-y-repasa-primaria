@@ -183,6 +183,33 @@ function esDocenteSinSerAlumno() {
   return !!getTeacherSessionCache() && !getStudentSessionCache();
 }
 
+// Sincronización en la nube del progreso del alumnado.
+//
+// js/cloud-sync.js es quien envía a Firestore los aciertos y fallos de
+// cada tema, pero solo estaba enlazado en la página de acceso del
+// alumno, donde nadie practica: el progreso no llegaba nunca al panel
+// del docente. En vez de añadir cuatro <script> a las ~65 páginas de
+// contenido, se cargan aquí y solo cuando hay un alumno identificado,
+// de modo que quien usa la app sin clave no descarga nada de Firebase.
+function cargarSincronizacionDelAlumno() {
+  if (!getStudentSessionCache()) return;
+  if (document.querySelector('script[src*="cloud-sync.js"]')) return;
+
+  const base = typeof window.BASE_PATH === "string" ? window.BASE_PATH : "";
+  const config = document.createElement("script");
+  config.src = base + "js/firebase-config.js";
+  config.onload = function () {
+    ["js/firebase-init.js", "js/auth.js", "js/cloud-sync.js"].forEach((ruta) => {
+      if (document.querySelector('script[src="' + base + ruta + '"]')) return;
+      const modulo = document.createElement("script");
+      modulo.type = "module";
+      modulo.src = base + ruta;
+      document.head.appendChild(modulo);
+    });
+  };
+  document.head.appendChild(config);
+}
+
 function buildSidebar(base, current) {
   const student = getStudentSessionCache();
   let html = `
@@ -837,7 +864,9 @@ function registerServiceWorker(base) {
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initLayout);
   document.addEventListener("DOMContentLoaded", buildA11yWidget);
+  document.addEventListener("DOMContentLoaded", cargarSincronizacionDelAlumno);
 } else {
   initLayout();
   buildA11yWidget();
+  cargarSincronizacionDelAlumno();
 }

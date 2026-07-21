@@ -2857,11 +2857,37 @@ table.rules-table tr:last-child td {
 
 .student-code {
   font-family: monospace;
-  font-size: 13px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: var(--color-indigo-tint);
+  border: 1px solid var(--color-indigo);
+  color: var(--color-indigo);
   border-radius: var(--radius-sm);
   padding: 2px 8px;
+  user-select: all;
+}
+
+.student-key {
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.btn-copiar {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.btn-copiar:hover {
+  border-color: var(--color-indigo);
+  color: var(--color-indigo);
 }
 
 .student-row-actions {

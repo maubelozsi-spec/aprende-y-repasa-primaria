@@ -154,6 +154,26 @@ async function logoutStudent() {
   clearStudentSession();
 }
 
+// El mismo alumno puede trabajar en clase y en casa. Como cada
+// dispositivo tiene su propia sesión anónima, al abrir la app desde
+// otro ordenador hay que volver a marcar cuál es el activo; si no, sus
+// respuestas no se podrían guardar en la nube desde ese equipo.
+// No añade un registro de acceso nuevo: eso solo pasa al teclear la
+// clave.
+async function refreshStudentDevice() {
+  const session = loadStudentSession();
+  if (!session || !session.code) return;
+  try {
+    if (!auth.currentUser) await signInAnonymously(auth);
+    await updateDoc(doc(db, "students", session.code), {
+      authUid: auth.currentUser.uid,
+      lastLoginAt: serverTimestamp(),
+    });
+  } catch (e) {
+    // Sin conexión o clave desactivada: se sigue practicando en local.
+  }
+}
+
 window.Auth = {
   signUpTeacher: signUpTeacher,
   loginTeacher: loginTeacher,
@@ -162,6 +182,9 @@ window.Auth = {
   claimStudentCode: claimStudentCode,
   logoutStudent: logoutStudent,
   loadStudentSession: loadStudentSession,
+  refreshStudentDevice: refreshStudentDevice,
 };
 
 document.dispatchEvent(new CustomEvent("ar:auth-ready"));
+
+refreshStudentDevice();

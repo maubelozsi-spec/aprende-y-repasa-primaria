@@ -459,7 +459,8 @@ document.addEventListener("DOMContentLoaded", () => {
         row.innerHTML = `
           <div class="student-row-main">
             <strong>${data.nickname}</strong>
-            <span class="student-code">${code}</span>
+            <span class="student-key">Clave: <span class="student-code">${code}</span></span>
+            <button type="button" class="btn-copiar" data-action="copiar" title="Copiar la clave">Copiar</button>
             ${data.active === false ? '<span class="status-pill status-soon">Desactivado</span>' : ""}
           </div>
           <div class="student-row-actions">
@@ -472,6 +473,18 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="student-progress-panel" style="display:none;"></div>
           <div class="student-visibility-panel" style="display:none;"></div>
         `;
+
+        const btnCopiar = row.querySelector('[data-action="copiar"]');
+        btnCopiar.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(code);
+            btnCopiar.textContent = "¡Copiada!";
+          } catch (e) {
+            // Navegador sin permiso de portapapeles: al menos se ve.
+            btnCopiar.textContent = "Copia a mano: " + code;
+          }
+          setTimeout(() => (btnCopiar.textContent = "Copiar"), 2000);
+        });
 
         const progPanel = row.querySelector(".student-progress-panel");
         row.querySelector('[data-action="progreso"]').addEventListener("click", async () => {
@@ -564,7 +577,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       input.value = "";
       document.getElementById("new-student-code").textContent =
-        "Clave de acceso para " + nickname + ": " + code + " (apúntala, solo se muestra una vez)";
+        "Clave de acceso para " + nickname + ": " + code + " (queda siempre visible en su ficha, aquí abajo)";
       refreshStudents();
     });
 
