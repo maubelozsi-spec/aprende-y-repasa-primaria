@@ -133,6 +133,23 @@ function renderGamification() {
   `;
 }
 
+// Deja claro de quién es el progreso que se está viendo: con sesión de
+// alumno lleva su nombre; sin sesión son datos sueltos del dispositivo
+// (por ejemplo, de quien usara antes ese ordenador de clase).
+function renderProgressOwner() {
+  const el = document.getElementById("progress-owner");
+  if (!el) return;
+  const alumno = typeof getStudentSessionCache === "function" ? getStudentSessionCache() : null;
+  const titulo = document.getElementById("progress-title");
+  if (alumno) {
+    if (titulo) titulo.textContent = "Progreso de " + alumno.nickname;
+    el.innerHTML = "Has entrado como <strong>" + alumno.nickname + "</strong>.";
+  } else {
+    el.innerHTML =
+      "<strong>Sin identificar:</strong> nadie ha entrado con su clave en este navegador, así que estos datos no están asociados a ningún alumno concreto.";
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   function render() {
     const data = AppProgress.getAll();
@@ -140,6 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderProgressSections(data);
   }
 
+  renderProgressOwner();
   render();
   renderGamification();
   document.addEventListener("ar:gamification-ready", renderGamification, { once: true });

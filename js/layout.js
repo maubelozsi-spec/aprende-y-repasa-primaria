@@ -175,6 +175,14 @@ function esAlumnoSinSerDocente() {
   return !!getStudentSessionCache() && !getTeacherSessionCache();
 }
 
+// "Mi progreso" es la vista personal del alumnado (se guarda en el
+// propio dispositivo). Al docente no le dice nada útil —vería datos
+// sueltos sin saber de quién son—, así que se le oculta y se le manda
+// al panel, donde ve el progreso de cada alumno con su nombre.
+function esDocenteSinSerAlumno() {
+  return !!getTeacherSessionCache() && !getStudentSessionCache();
+}
+
 function buildSidebar(base, current) {
   const student = getStudentSessionCache();
   let html = `
@@ -189,7 +197,11 @@ function buildSidebar(base, current) {
         ? `<div class="sidebar-student-badge">👤 ${student.nickname} · <a href="#" id="sidebar-student-logout">Salir</a></div>`
         : ""
     }
-    <a href="${base}mi-progreso.html" class="sidebar-progress-link${current === "mi-progreso" ? " active" : ""}">Mi progreso</a>`;
+    ${
+      esDocenteSinSerAlumno()
+        ? `<a href="${base}docente/dashboard.html" class="sidebar-progress-link">Panel docente</a>`
+        : `<a href="${base}mi-progreso.html" class="sidebar-progress-link${current === "mi-progreso" ? " active" : ""}">Mi progreso</a>`
+    }`;
   html += `
     <div class="sidebar-search-wrap">
       <input type="search" id="sidebar-search" class="sidebar-search" placeholder="Buscar un contenido..." autocomplete="off">
@@ -397,6 +409,33 @@ function requireDocente() {
         <div class="actions-row">
           <a class="btn btn-primary" href="${base}index.html">Ir a mis contenidos</a>
           <a class="btn btn-secondary" href="${base}mi-progreso.html">Ver mi progreso</a>
+        </div>
+      </div>`;
+  });
+  return false;
+}
+
+// Equivalente para "Mi progreso": es la vista del alumnado. Si quien
+// entra es el docente, se le explica y se le manda al panel, donde el
+// progreso aparece con el nombre de cada alumno.
+function requireAlumno() {
+  if (!esDocenteSinSerAlumno()) return true;
+
+  const base = typeof window.BASE_PATH === "string" ? window.BASE_PATH : "";
+  document.addEventListener("DOMContentLoaded", () => {
+    const content = document.querySelector(".content");
+    if (!content) return;
+    content.innerHTML = `
+      <header class="content-header">
+        <p class="eyebrow">Zona docente</p>
+        <h1>Esta página es la del alumnado</h1>
+        <p class="content-subtitle">«Mi progreso» muestra los aciertos y fallos guardados en <strong>este dispositivo</strong>, sin nombre ni alumno asociado, así que como docente no te dice de quién son.</p>
+      </header>
+      <div class="game-card generator-card">
+        <p>Para ver el progreso de tu alumnado, con su nombre y el detalle por contenido, entra en el panel docente y abre una clase.</p>
+        <div class="actions-row">
+          <a class="btn btn-primary" href="${base}docente/dashboard.html">Ir al panel docente</a>
+          <a class="btn btn-secondary" href="${base}index.html">Ir a los contenidos</a>
         </div>
       </div>`;
   });

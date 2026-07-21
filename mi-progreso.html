@@ -28,7 +28,8 @@
     <main class="content">
       <header class="content-header">
         <p class="eyebrow">Progreso</p>
-        <h1>Mi progreso</h1>
+        <h1 id="progress-title">Mi progreso</h1>
+        <p class="content-subtitle" id="progress-owner"></p>
         <p class="content-subtitle">Aciertos y fallos guardados en este dispositivo cada vez que practicas un contenido. Se guarda solo en este navegador: si cambias de ordenador o borras los datos del sitio, empezará de nuevo.</p>
       </header>
 
@@ -51,6 +52,8 @@
 </div>
 
 <script src="js/layout.js"></script>
+<!-- Vista del alumnado: si entra el docente, requireAlumno() lo manda al panel. -->
+<script>requireAlumno();</script>
 <script src="js/mi-progreso.js"></script>
 </body>
 </html>

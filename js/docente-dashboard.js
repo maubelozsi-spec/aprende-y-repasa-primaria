@@ -38,6 +38,82 @@ async function genUniqueCode() {
   throw new Error("No se pudo generar una clave única. Inténtalo de nuevo.");
 }
 
+// ---------------- Progreso del alumnado ----------------
+
+function etiquetaDeTema(topicId) {
+  for (const section of NAV) {
+    for (const group of section.groups || []) {
+      for (const item of group.items || []) {
+        if (item.id === topicId) return item.label;
+      }
+    }
+  }
+  return topicId;
+}
+
+function formatearFechaHora(ts) {
+  if (!ts || !ts.toDate) return "Nunca";
+  return ts.toDate().toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+function porcentaje(aciertos, fallos) {
+  const total = aciertos + fallos;
+  return total ? Math.round((aciertos / total) * 100) : null;
+}
+
+// Suma los dailyStats de un alumno (una fila por tema y día) para
+// obtener su total y el desglose por contenido.
+async function estadisticasDeAlumno(code) {
+  const snap = await getDocs(collection(db, "students", code, "dailyStats"));
+  const porTema = {};
+  let aciertos = 0;
+  let fallos = 0;
+  snap.forEach((d) => {
+    const s = d.data();
+    if (!s.topicId) return;
+    if (!porTema[s.topicId]) porTema[s.topicId] = { aciertos: 0, fallos: 0 };
+    porTema[s.topicId].aciertos += s.aciertos || 0;
+    porTema[s.topicId].fallos += s.fallos || 0;
+    aciertos += s.aciertos || 0;
+    fallos += s.fallos || 0;
+  });
+  return { porTema, aciertos, fallos };
+}
+
+// Desglose por contenido, con lo peor primero: es lo que interesa para
+// decidir qué reforzar.
+function pintarProgresoPorTema(container, stats) {
+  const temas = Object.keys(stats.porTema);
+  if (!temas.length) {
+    container.innerHTML = '<p class="content-subtitle">Este alumno todavía no ha practicado nada.</p>';
+    return;
+  }
+
+  temas.sort((a, b) => {
+    const pa = porcentaje(stats.porTema[a].aciertos, stats.porTema[a].fallos);
+    const pb = porcentaje(stats.porTema[b].aciertos, stats.porTema[b].fallos);
+    return pa - pb;
+  });
+
+  container.innerHTML =
+    '<div class="progreso-temas">' +
+    temas
+      .map((id) => {
+        const t = stats.porTema[id];
+        const pct = porcentaje(t.aciertos, t.fallos);
+        const nivel = pct >= 75 ? "bien" : pct >= 50 ? "regular" : "flojo";
+        return (
+          '<div class="progreso-tema ' + nivel + '">' +
+          '<span class="progreso-tema-nombre">' + etiquetaDeTema(id) + "</span>" +
+          '<span class="progreso-tema-datos">' + t.aciertos + " aciertos · " + t.fallos + " fallos</span>" +
+          '<span class="progreso-tema-pct">' + pct + "%</span>" +
+          "</div>"
+        );
+      })
+      .join("") +
+    "</div>";
+}
+
 // Construye la lista de contenidos con una casilla por tema. Devuelve
 // un pequeño controlador para poder filtrar por texto y marcar o
 // desmarcar todo de golpe (con ~65 contenidos, hacerlo a mano cansa).
@@ -134,6 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const studentListEl = document.getElementById("student-list");
     const classTopicListEl = document.getElementById("class-topic-list");
     const classPlaceholderEl = document.getElementById("class-placeholder");
+    const classSummaryEl = document.getElementById("class-summary");
     const topicSearchEl = document.getElementById("class-topic-search");
 
     let currentClass = null;
@@ -305,6 +382,54 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    async function renderClassSummary(alumnos) {
+      if (!classSummaryEl) return;
+      classSummaryEl.innerHTML = '<p class="content-subtitle">Cargando actividad de la clase...</p>';
+
+      const filas = [];
+      for (const docSnap of alumnos) {
+        const data = docSnap.data();
+        let stats = { aciertos: 0, fallos: 0, porTema: {} };
+        try {
+          stats = await estadisticasDeAlumno(docSnap.id);
+        } catch (e) {
+          // Si un alumno falla, el resto del resumen se sigue mostrando.
+        }
+        filas.push({
+          nombre: data.nickname,
+          ultimo: formatearFechaHora(data.lastLoginAt),
+          conectado: !!data.lastLoginAt,
+          temas: Object.keys(stats.porTema).length,
+          aciertos: stats.aciertos,
+          fallos: stats.fallos,
+          pct: porcentaje(stats.aciertos, stats.fallos),
+        });
+      }
+
+      const sinConectar = filas.filter((f) => !f.conectado).length;
+      classSummaryEl.innerHTML =
+        '<table class="class-summary-table"><thead><tr>' +
+        "<th>Alumno</th><th>Última conexión</th><th>Contenidos</th><th>Aciertos</th><th>Fallos</th><th>% acierto</th>" +
+        "</tr></thead><tbody>" +
+        filas
+          .map(
+            (f) =>
+              "<tr>" +
+              "<td><strong>" + f.nombre + "</strong></td>" +
+              "<td>" + f.ultimo + "</td>" +
+              "<td>" + (f.temas || "—") + "</td>" +
+              '<td class="ok">' + f.aciertos + "</td>" +
+              '<td class="ko">' + f.fallos + "</td>" +
+              "<td>" + (f.pct === null ? "—" : f.pct + "%") + "</td>" +
+              "</tr>"
+          )
+          .join("") +
+        "</tbody></table>" +
+        (sinConectar
+          ? '<p class="content-subtitle">' + sinConectar + " alumno(s) todavía no han entrado con su clave.</p>"
+          : "");
+    }
+
     async function refreshStudents() {
       // Importante: las reglas de Firestore solo permiten listar alumnos
       // filtrando por teacherId. Si se consulta por classId, la consulta
@@ -319,8 +444,13 @@ document.addEventListener("DOMContentLoaded", () => {
       studentListEl.innerHTML = "";
       if (!deLaClase.length) {
         studentListEl.innerHTML = '<p class="content-subtitle">Todavía no hay alumnos en esta clase.</p>';
+        if (classSummaryEl) classSummaryEl.innerHTML = '<p class="content-subtitle">Añade alumnos para ver aquí su actividad.</p>';
         return;
       }
+
+      // El resumen se carga aparte y sin bloquear: la lista de alumnos
+      // aparece enseguida y las cifras se rellenan en cuanto llegan.
+      renderClassSummary(deLaClase);
       deLaClase.forEach((docSnap) => {
         const data = docSnap.data();
         const code = docSnap.id;
@@ -333,13 +463,30 @@ document.addEventListener("DOMContentLoaded", () => {
             ${data.active === false ? '<span class="status-pill status-soon">Desactivado</span>' : ""}
           </div>
           <div class="student-row-actions">
+            <button type="button" class="btn btn-secondary" data-action="progreso">Ver progreso</button>
             <button type="button" class="btn btn-secondary" data-action="toggle">${data.active === false ? "Reactivar" : "Desactivar"}</button>
             <button type="button" class="btn btn-secondary" data-action="regen">Nueva clave</button>
             <button type="button" class="btn btn-secondary" data-action="visibility">Contenidos individuales</button>
             <button type="button" class="btn btn-secondary" data-action="delete">Eliminar</button>
           </div>
+          <div class="student-progress-panel" style="display:none;"></div>
           <div class="student-visibility-panel" style="display:none;"></div>
         `;
+
+        const progPanel = row.querySelector(".student-progress-panel");
+        row.querySelector('[data-action="progreso"]').addEventListener("click", async () => {
+          const abierto = progPanel.style.display !== "none";
+          progPanel.style.display = abierto ? "none" : "";
+          if (abierto || progPanel.dataset.cargado) return;
+          progPanel.innerHTML = '<p class="content-subtitle">Cargando progreso...</p>';
+          try {
+            const stats = await estadisticasDeAlumno(code);
+            pintarProgresoPorTema(progPanel, stats);
+            progPanel.dataset.cargado = "1";
+          } catch (err) {
+            progPanel.innerHTML = '<p class="content-subtitle">No se ha podido cargar el progreso: ' + err.message + "</p>";
+          }
+        });
 
         row.querySelector('[data-action="toggle"]').addEventListener("click", async () => {
           await updateDoc(doc(db, "students", code), { active: data.active === false });
