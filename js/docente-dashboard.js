@@ -38,8 +38,13 @@ async function genUniqueCode() {
   throw new Error("No se pudo generar una clave única. Inténtalo de nuevo.");
 }
 
+// Construye la lista de contenidos con una casilla por tema. Devuelve
+// un pequeño controlador para poder filtrar por texto y marcar o
+// desmarcar todo de golpe (con ~65 contenidos, hacerlo a mano cansa).
 function buildTopicChecklist(container, hiddenSet, onToggle) {
   container.innerHTML = "";
+  const filas = [];
+
   NAV.forEach((section) => {
     (section.groups || []).forEach((group) => {
       const groupEl = document.createElement("div");
@@ -49,10 +54,12 @@ function buildTopicChecklist(container, hiddenSet, onToggle) {
       title.textContent = section.label + (group.label ? " · " + group.label : "");
       groupEl.appendChild(title);
 
+      let visiblesEnGrupo = 0;
       (group.items || []).forEach((item) => {
         // Las herramientas del profesorado nunca las ve el alumnado,
         // así que no tiene sentido ofrecerlas aquí como conmutables.
         if (item.soloDocente) return;
+        visiblesEnGrupo++;
         const row = document.createElement("label");
         row.className = "exm-topic-row";
         const checkbox = document.createElement("input");
@@ -65,10 +72,38 @@ function buildTopicChecklist(container, hiddenSet, onToggle) {
         row.appendChild(checkbox);
         row.appendChild(label);
         groupEl.appendChild(row);
+        filas.push({ row: row, groupEl: groupEl, checkbox: checkbox, id: item.id, texto: item.label.toLowerCase() });
       });
-      container.appendChild(groupEl);
+
+      if (visiblesEnGrupo) container.appendChild(groupEl);
     });
   });
+
+  return {
+    filtrar: function (texto) {
+      const q = (texto || "").trim().toLowerCase();
+      const gruposConResultados = new Set();
+      filas.forEach((f) => {
+        const coincide = !q || f.texto.indexOf(q) !== -1;
+        f.row.style.display = coincide ? "" : "none";
+        if (coincide) gruposConResultados.add(f.groupEl);
+      });
+      // Oculta también el título de los grupos que se quedan sin nada.
+      const grupos = new Set(filas.map((f) => f.groupEl));
+      grupos.forEach((g) => {
+        g.style.display = !q || gruposConResultados.has(g) ? "" : "none";
+      });
+    },
+    marcarTodo: function (visible) {
+      filas.forEach((f) => {
+        // Solo afecta a lo que se está viendo tras el filtro.
+        if (f.row.style.display === "none") return;
+        if (f.checkbox.checked === visible) return;
+        f.checkbox.checked = visible;
+        onToggle(f.id, visible);
+      });
+    },
+  };
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -98,39 +133,74 @@ document.addEventListener("DOMContentLoaded", () => {
     const classDetailTitle = document.getElementById("class-detail-title");
     const studentListEl = document.getElementById("student-list");
     const classTopicListEl = document.getElementById("class-topic-list");
+    const classPlaceholderEl = document.getElementById("class-placeholder");
+    const topicSearchEl = document.getElementById("class-topic-search");
 
     let currentClass = null;
+    let classTopicCtrl = null;
+
+    if (topicSearchEl) {
+      topicSearchEl.addEventListener("input", () => {
+        if (classTopicCtrl) classTopicCtrl.filtrar(topicSearchEl.value);
+      });
+    }
+    const btnTodo = document.getElementById("class-topic-all");
+    const btnNada = document.getElementById("class-topic-none");
+    if (btnTodo) btnTodo.addEventListener("click", () => classTopicCtrl && classTopicCtrl.marcarTodo(true));
+    if (btnNada) btnNada.addEventListener("click", () => classTopicCtrl && classTopicCtrl.marcarTodo(false));
 
     async function refreshClasses() {
       const snap = await getDocs(query(collection(db, "classes"), where("teacherId", "==", teacher.uid)));
       classListEl.innerHTML = "";
       if (snap.empty) {
-        classListEl.innerHTML = '<p class="content-subtitle">Todavía no tienes ninguna clase creada.</p>';
+        classListEl.innerHTML = '<p class="content-subtitle">Todavía no tienes ninguna clase creada. Crea una aquí abajo para poder elegir qué contenidos ve tu alumnado.</p>';
+        classPlaceholderEl.style.display = "";
+        classDetailEl.style.display = "none";
         return;
       }
+
+      const primeras = [];
       snap.forEach((docSnap) => {
         const data = docSnap.data();
         const item = document.createElement("button");
         item.type = "button";
         item.className = "content-list-item class-list-item";
+        item.dataset.classId = docSnap.id;
         item.innerHTML = `<div class="content-list-text"><strong>${data.name}</strong></div>`;
         item.addEventListener("click", () => openClass(docSnap.id, data));
         classListEl.appendChild(item);
+        primeras.push({ id: docSnap.id, data: data });
+      });
+
+      // Abre automáticamente la clase que ya estaba seleccionada (o la
+      // primera): así el panel de contenidos se ve sin tener que
+      // descubrir que hay que pulsar la clase.
+      const previa = currentClass && primeras.find((c) => c.id === currentClass.id);
+      const aAbrir = previa || primeras[0];
+      if (aAbrir) await openClass(aAbrir.id, aAbrir.data);
+    }
+
+    function marcarClaseActiva(classId) {
+      classListEl.querySelectorAll(".class-list-item").forEach((el) => {
+        el.classList.toggle("active", el.dataset.classId === classId);
       });
     }
 
     async function openClass(classId, data) {
       currentClass = { id: classId, data: data };
+      classPlaceholderEl.style.display = "none";
       classDetailEl.style.display = "";
       classDetailTitle.textContent = data.name;
+      marcarClaseActiva(classId);
       await refreshStudents();
-      buildTopicChecklist(classTopicListEl, new Set(data.hiddenTopics || []), async (topicId, visible) => {
+      classTopicCtrl = buildTopicChecklist(classTopicListEl, new Set(data.hiddenTopics || []), async (topicId, visible) => {
         const hidden = new Set(currentClass.data.hiddenTopics || []);
         if (visible) hidden.delete(topicId);
         else hidden.add(topicId);
         currentClass.data.hiddenTopics = Array.from(hidden);
         await updateDoc(doc(db, "classes", classId), { hiddenTopics: currentClass.data.hiddenTopics });
       });
+      if (topicSearchEl) topicSearchEl.value = "";
     }
 
     async function refreshStudents() {

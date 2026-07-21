@@ -49,8 +49,13 @@
           </div>
         </div>
 
-        <div class="docente-column docente-column-wide" id="class-detail" style="display:none;">
-          <div class="game-card generator-card">
+        <div class="docente-column docente-column-wide">
+          <div class="game-card generator-card" id="class-placeholder">
+            <h2>Elige una clase</h2>
+            <p class="content-subtitle">Selecciona una clase de la lista de la izquierda para gestionar sus alumnos y <strong>decidir qué contenidos puede ver</strong>. Si aún no tienes ninguna, créala primero con el formulario de la izquierda.</p>
+          </div>
+
+          <div class="game-card generator-card" id="class-detail" style="display:none;">
             <h2 id="class-detail-title">Clase</h2>
 
             <h3>Alumnos</h3>
@@ -62,7 +67,12 @@
             <p class="review-item-meta" id="new-student-code"></p>
 
             <h3>Contenidos visibles para toda la clase</h3>
-            <p class="content-subtitle">Desmarca lo que no quieras que esta clase vea todavía. Se aplica a todos los alumnos de la clase (puedes ocultar contenidos extra para un alumno concreto desde su fila en la lista de arriba).</p>
+            <p class="content-subtitle">Marcado = el alumnado lo ve. Desmarca lo que no quieras que esta clase vea todavía. Se aplica a todos sus alumnos; para ocultar algo solo a un alumno concreto, usa el botón <strong>«Contenidos individuales»</strong> de su fila.</p>
+            <div class="topic-tools">
+              <input type="search" id="class-topic-search" class="generator-select" placeholder="Buscar un contenido...">
+              <button type="button" class="btn btn-secondary" id="class-topic-all">Mostrar todo</button>
+              <button type="button" class="btn btn-secondary" id="class-topic-none">Ocultar todo</button>
+            </div>
             <div id="class-topic-list" class="exm-topic-list"></div>
           </div>
         </div>

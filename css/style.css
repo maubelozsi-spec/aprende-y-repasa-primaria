@@ -1812,6 +1812,33 @@ table.rules-table tr:last-child td {
   color: var(--color-success) !important;
 }
 
+/* ---------- Panel docente: elegir contenidos visibles ---------- */
+
+.topic-tools {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.topic-tools .generator-select {
+  flex: 1 1 220px;
+  width: auto;
+  font-size: 14px;
+  padding: 9px 12px;
+}
+
+.topic-tools .btn {
+  padding: 9px 16px;
+  font-size: 14px;
+}
+
+.class-list-item.active {
+  border-color: var(--color-indigo);
+  background: var(--color-indigo-tint);
+}
+
 /* ---------- Generador de Unidad Didáctica: indicador de fases ---------- */
 
 .udi-steps {
