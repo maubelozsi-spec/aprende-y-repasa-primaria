@@ -285,6 +285,7 @@ registerLenguaFicha("texto-predictivo", {
   resumen: "Un texto predictivo anuncia algo que va a ocurrir en el futuro. Se organiza en introducción (plantea la predicción), desarrollo (da razones, con conectores como «en primer lugar») y conclusión (resume, con conectores como «en definitiva»).",
   easyMode: "prediccion",
   altasMode: "conectores",
+  defaultMode: "partes",
   pools: {
     prediccion: { pool: PREDICCION_ENTRIES, field: "tipo", question: () => "¿Es una predicción sobre el futuro o no?", displayField: "display", options: ["Predicción", "No es predicción"] },
     partes: { pool: PARTES_ENTRIES, field: "parte", question: () => "¿A qué parte del texto predictivo pertenece esta frase?", displayField: "display", options: ["Introducción", "Desarrollo", "Conclusión"] },

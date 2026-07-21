@@ -98,6 +98,29 @@ const UDI_TEXTO_PREDICTIVO = {
               { tipo: "Partes del texto", explicacion: "Se comprueba si la frase plantea la predicción (introducción), da una razón con un conector ordinal (desarrollo) o resume con un conector conclusivo (conclusión).", ejemplo: "«En segundo lugar, las energías renovables sustituirán a los combustibles fósiles» → desarrollo, por el conector «en segundo lugar»." },
               { tipo: "Conectores", explicacion: "Los conectores que enumeran razones (en primer lugar, para empezar, en segundo lugar, para continuar, en tercer lugar, por último, además, por otro lado) van en el desarrollo. Los que cierran el texto (en definitiva, en conclusión, en consecuencia, por ello, por todo esto, en resumen) van en la conclusión.", ejemplo: "«Por último...» → desarrollo (cierra la lista de razones, no el texto)." },
             ],
+            variantesACS: {
+              titulo: "Cómo reconocer una predicción sobre el futuro",
+              subtitulo: "Versión adaptada (ACS, nivel de 3º) — mismo tema que el resto de la clase, con menos partes y frases más cortas.",
+              teoria: [
+                {
+                  heading: "¿Qué es una predicción?",
+                  paragraphs: [
+                    "Una predicción es una frase que habla de algo que va a pasar en el futuro. No habla de algo que ya ha pasado.",
+                    "«Mañana lloverá» habla del futuro: es una predicción. «Ayer llovió» habla del pasado: no es una predicción.",
+                  ],
+                },
+              ],
+              ejemplo: {
+                heading: "Ejemplo",
+                partes: [
+                  { parte: "Es una predicción", texto: "«Dentro de unos años habrá más coches eléctricos.»" },
+                  { parte: "No es una predicción", texto: "«El año pasado compramos un coche nuevo.»" },
+                ],
+              },
+              comoCorregir: [
+                { tipo: "¿Es una predicción?", explicacion: "Si la frase habla de algo que todavía no ha pasado, es una predicción. Si habla de algo que ya pasó, no lo es.", ejemplo: "«El curso que viene aprenderemos inglés» → predicción." },
+              ],
+            },
           },
         },
         {
@@ -164,6 +187,38 @@ const UDI_TEXTO_PREDICTIVO = {
                 ],
               },
             ],
+            variantesACS: {
+              titulo: "¿Cómo me imagino el año 3030?",
+              consigna: [
+                "Vas a escribir una o dos frases sobre cómo crees que será el futuro.",
+                "No hace falta que sea muy larga: lo importante es que hable del futuro, no del pasado.",
+              ],
+              pasos: [
+                "Piensa en algo que crees que cambiará en el futuro (los coches, el colegio, la ropa...).",
+                "Escribe una frase que empiece por «Yo creo que en el futuro...».",
+                "Léela en voz alta a la clase.",
+              ],
+              criterios: [
+                {
+                  nombre: "Escribo una frase sobre el futuro (predicción)",
+                  niveles: [
+                    "Escribo una frase clara sobre el futuro.",
+                    "Escribo una frase, aunque no queda muy clara.",
+                    "Necesito ayuda para escribir la frase.",
+                    "No consigo escribir una frase sobre el futuro.",
+                  ],
+                },
+                {
+                  nombre: "Leo mi frase en voz alta",
+                  niveles: [
+                    "Leo mi frase con voz clara.",
+                    "Leo mi frase, aunque bajo.",
+                    "Leo mi frase con ayuda.",
+                    "No consigo leer mi frase en voz alta.",
+                  ],
+                },
+              ],
+            },
           },
         },
       ],

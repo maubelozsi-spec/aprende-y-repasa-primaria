@@ -113,12 +113,36 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function buildFichaRow(doc, dificultad, statusEl) {
+    const wrap = document.createElement("div");
+
     const row = document.createElement("div");
     row.className = "exm-topic-row";
 
     const label = document.createElement("span");
     label.className = "exm-topic-label";
     label.textContent = `${doc.label} (${doc.count} preguntas)`;
+
+    const previewBox = document.createElement("div");
+    previewBox.className = "rule-box llana udi-preview-box";
+    previewBox.style.display = "none";
+
+    const previewBtn = document.createElement("button");
+    previewBtn.type = "button";
+    previewBtn.className = "btn btn-secondary";
+    previewBtn.textContent = "Vista previa";
+    previewBtn.addEventListener("click", () => {
+      const showing = previewBox.style.display !== "none";
+      if (showing) {
+        previewBox.style.display = "none";
+        previewBtn.textContent = "Vista previa";
+        return;
+      }
+      const topic = LENGUA_FICHA_CONFIG[doc.topicId];
+      const [problem] = lenguaPickProblems(topic, dificultad, 1);
+      previewBox.innerHTML = `<h4>Vista previa (1 pregunta de ejemplo)</h4><p>${problem.enunciado}</p><p><strong>Respuesta:</strong> ${problem.respuesta}</p>`;
+      previewBox.style.display = "";
+      previewBtn.textContent = "Ocultar vista previa";
+    });
 
     const btn = document.createElement("button");
     btn.type = "button";
@@ -137,8 +161,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     row.appendChild(label);
+    row.appendChild(previewBtn);
     row.appendChild(btn);
-    return row;
+    wrap.appendChild(row);
+    wrap.appendChild(previewBox);
+    return wrap;
   }
 
   // ---------------- Fase 3: Adaptaciones ----------------
@@ -208,27 +235,29 @@ document.addEventListener("DOMContentLoaded", () => {
           group.appendChild(row);
         });
       } else if (doc.motor === "udi-doc-builder") {
-        const row = document.createElement("div");
-        row.className = "exm-topic-row";
-        const label = document.createElement("span");
-        label.className = "exm-topic-label";
-        label.textContent = "Versión estándar (documento del profesorado)";
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "btn btn-secondary";
-        btn.textContent = "Generar";
-        btn.addEventListener("click", () => {
-          try {
-            window[doc.builder](doc.args);
-            btn.textContent = "✓ Generado";
-            showStatus(statusEl, "ok", "¡Listo!", `Se ha descargado «${doc.label}».`);
-          } catch (err) {
-            showStatus(statusEl, "ko", "Ha ocurrido un error", err.message);
-          }
+        ["none", ...udi.perfilesAdaptacion].forEach((perfil) => {
+          const row = document.createElement("div");
+          row.className = `exm-topic-row type-${perfil}`;
+          const label = document.createElement("span");
+          label.className = "exm-topic-label";
+          label.textContent = udiDifficultyLabel(perfil);
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn btn-secondary";
+          btn.textContent = "Generar";
+          btn.addEventListener("click", () => {
+            try {
+              window[doc.builder](doc.args, perfil);
+              btn.textContent = "✓ Generado";
+              showStatus(statusEl, "ok", "¡Listo!", `Se ha descargado «${doc.label}» (${udiDifficultyLabel(perfil)}).`);
+            } catch (err) {
+              showStatus(statusEl, "ko", "Ha ocurrido un error", err.message);
+            }
+          });
+          row.appendChild(label);
+          row.appendChild(btn);
+          group.appendChild(row);
         });
-        row.appendChild(label);
-        row.appendChild(btn);
-        group.appendChild(row);
       }
 
       el.appendChild(group);
@@ -275,8 +304,10 @@ document.addEventListener("DOMContentLoaded", () => {
               namedBlobs.push({ name: `${carpeta}/${soluciones.filename}`, blob: soluciones.blob });
             });
           } else if (doc.motor === "udi-doc-builder") {
-            const { blob, filename } = window[doc.builder](doc.args, { download: false });
-            namedBlobs.push({ name: `evaluacion/${filename}`, blob });
+            perfiles.forEach((perfil) => {
+              const { blob, filename } = window[doc.builder](doc.args, perfil, { download: false });
+              namedBlobs.push({ name: `evaluacion/${doc.id}/${perfil}/${filename}`, blob });
+            });
           }
         });
 
@@ -285,6 +316,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         statusEl.classList.add("show", "ok");
         statusEl.innerHTML = `<p class="feedback-title">¡Paquete listo!</p><p>Se ha descargado <strong>UDI_${udi.id}.zip</strong> con ${namedBlobs.length} documentos (versión estándar + ${udi.perfilesAdaptacion.length} adaptaciones).</p>`;
+
+        if (window.UdiHistorial) {
+          window.UdiHistorial.save({
+            udiId: udi.id,
+            titulo: udi.titulo,
+            curso: udi.curso,
+            documentos: namedBlobs.length,
+          }).catch(() => {
+            // Sin sesión docente o sin conexión: la herramienta sigue
+            // funcionando igual, el histórico es un extra opcional.
+          });
+        }
       } catch (err) {
         statusEl.classList.add("show", "ko");
         statusEl.innerHTML = `<p class="feedback-title">Ha ocurrido un error</p><p>${err.message}</p>`;

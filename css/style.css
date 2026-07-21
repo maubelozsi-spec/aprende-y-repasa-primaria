@@ -1797,6 +1797,15 @@ table.rules-table tr:last-child td {
 .exm-topic-row.type-dislexia { border-left: 3px solid var(--color-teal); padding-left: 8px; }
 .exm-topic-row.type-tdah { border-left: 3px solid var(--color-amber); padding-left: 8px; }
 
+.udi-preview-box {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.udi-preview-box h4 {
+  margin: 0 0 8px;
+}
+
 .udi-generated {
   border-color: var(--color-success) !important;
   background: var(--color-success-tint) !important;

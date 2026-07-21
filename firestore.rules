@@ -37,6 +37,16 @@ service cloud.firestore {
       allow update, delete: if isOwnerTeacher(resource.data.teacherId);
     }
 
+    // Histórico opcional del Generador de Unidad Didáctica: un registro
+    // ligero por cada paquete compilado, solo visible/creable por el
+    // propio docente. La herramienta funciona igual sin esta colección
+    // (uso sin login), así que no bloquea nada si no se publica.
+    match /udiHistorial/{entryId} {
+      allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
     match /students/{code} {
       allow get: if signedIn();
       allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
