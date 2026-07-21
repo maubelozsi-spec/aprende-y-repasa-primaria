@@ -32,7 +32,7 @@ const HOMONIMIA_ENTRIES = [
   { display: "botar / votar", correct: "Homófonas", options: ["Homófonas", "Homógrafas"] },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_LENGUAJE_FIGURADO = {
   literalfigurado: {
     pool: LITERALFIGURADO_ENTRIES,
     field: "correct",
@@ -143,7 +143,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_LENGUAJE_FIGURADO);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "literalfigurado";
@@ -178,7 +178,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_LENGUAJE_FIGURADO[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];

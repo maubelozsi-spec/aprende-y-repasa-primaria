@@ -41,7 +41,7 @@ const ARTICULO_ENTRIES = [
   { word: "unas", clase: "Indeterminado" },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_DETERMINANTES = {
   tipo: {
     pool: TIPO_ENTRIES,
     field: "tipo",
@@ -183,7 +183,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? (Math.random() < 0.5 ? "tipo" : "articulo") : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_DETERMINANTES[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];

@@ -2,7 +2,7 @@
 // Textos científicos, históricos, descriptivos y discontinuos: banco de datos + quiz
 // ============================================================
 
-const IDENTIFICAR_ENTRIES = [
+const IDENTIFICAR_ENTRIES_TIPOS_TEXTO_6 = [
   { display: "Explica cómo se forman los volcanes, con datos y vocabulario técnico.", correct: "Científico", options: ["Científico", "Histórico", "Descriptivo", "Discontinuo"] },
   { display: "Cuenta cómo se descubrió América en 1492 y sus consecuencias.", correct: "Histórico", options: ["Histórico", "Científico", "Descriptivo", "Discontinuo"] },
   { display: "\"La casa era pequeña, blanca, con un jardín lleno de flores.\"", correct: "Descriptivo", options: ["Descriptivo", "Científico", "Histórico", "Discontinuo"] },
@@ -33,9 +33,9 @@ const CONTINUODISCONTINUO_ENTRIES = [
   { display: "Un texto científico explicado en varios párrafos.", correct: "Continuo", options: ["Continuo", "Discontinuo"] },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_TIPOS_TEXTO_6 = {
   identificar: {
-    pool: IDENTIFICAR_ENTRIES,
+    pool: IDENTIFICAR_ENTRIES_TIPOS_TEXTO_6,
     field: "correct",
     question: () => "¿Qué tipo de texto es?",
   },
@@ -144,7 +144,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_TIPOS_TEXTO_6);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "identificar";
@@ -179,7 +179,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_TIPOS_TEXTO_6[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];
@@ -260,7 +260,7 @@ registerLenguaFicha("tipos-texto-6", {
   altasMode: "descripcion",
   defaultMode: "identificar",
   pools: {
-    identificar: { pool: IDENTIFICAR_ENTRIES, field: "correct", question: () => "¿Qué tipo de texto es?", displayField: "display", perEntryOptions: true },
+    identificar: { pool: IDENTIFICAR_ENTRIES_TIPOS_TEXTO_6, field: "correct", question: () => "¿Qué tipo de texto es?", displayField: "display", perEntryOptions: true },
     descripcion: { pool: DESCRIPCION_ENTRIES, field: "correct", question: () => "¿Qué tipo de descripción es?", displayField: "display", perEntryOptions: true },
     continuodiscontinuo: { pool: CONTINUODISCONTINUO_ENTRIES, field: "correct", question: () => "¿Es un texto continuo o discontinuo?", displayField: "display", perEntryOptions: true },
   },

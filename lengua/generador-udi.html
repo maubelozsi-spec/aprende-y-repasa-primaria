@@ -27,10 +27,16 @@
 
     <main class="content">
       <header class="content-header">
-        <p class="eyebrow">Lengua · Herramientas</p>
+        <p class="eyebrow">Herramientas · Lengua y Matemáticas</p>
         <h1 id="udi-titulo">Generador de Unidad Didáctica</h1>
         <p class="content-subtitle" id="udi-resumen">Genera todo el material imprimible de una unidad — fichas, adaptaciones, repaso, examen y reto final — en un único paquete.</p>
       </header>
+
+      <div class="difficulty-selector" id="udi-picker-wrap">
+        <label for="udi-picker">Bloque / SDA:</label>
+        <select id="udi-picker" class="generator-select" style="max-width:520px;"></select>
+        <span class="difficulty-hint">Elige el bloque de Lengua o Matemáticas que quieres preparar</span>
+      </div>
 
       <div class="udi-steps" id="udi-steps"></div>
 
@@ -96,20 +102,56 @@
 
 <script src="../js/layout.js"></script>
 <script src="../js/docx-writer.js"></script>
+<!-- Motores de ficha y examen (Lengua y Matemáticas) + constructores de documentos -->
 <script src="../js/lengua-ficha-generator.js"></script>
 <script src="../js/lengua-examen-generator.js"></script>
+<script src="../js/ficha-generator.js"></script>
+<script src="../js/mate-examen-generator.js"></script>
 <script src="../js/udi-doc-builder.js"></script>
 <script src="../js/zip-bundle.js"></script>
-<!-- Temas que registran contenido de ficha (registerLenguaFicha) usados por esta UDI.
-     Si se añade una UDI que use otros temas, hay que cargar aquí sus scripts también.
-     Aviso: cada tema declara sus propias constantes internas (p. ej. "MODE_GROUPS_xxx");
-     si un tema nuevo reutiliza aquí el nombre genérico "MODE_GROUPS" sin sufijo,
-     chocará con los demás temas cargados en esta misma página. -->
+<!-- Temas de Lengua que registran contenido de ficha (registerLenguaFicha).
+     Cada tema declara sus constantes con nombre único (p. ej. "MODE_GROUPS_xxx");
+     por eso se pueden cargar todos juntos sin colisionar. Los temas de
+     Matemáticas viven todos dentro de ficha-generator.js (banco TOPICS). -->
 <script src="../js/texto-predictivo.js"></script>
 <script src="../js/tipos-enunciado.js"></script>
 <script src="../js/tira-comica.js"></script>
+<script src="../js/textos-instructivos.js"></script>
 <script src="../js/sinonimos-antonimos.js"></script>
+<script src="../js/comunicacion-textos.js"></script>
+<script src="../js/verbo.js"></script>
+<script src="../js/narrativa.js"></script>
+<script src="../js/dialogo-debate-argumentativo.js"></script>
+<script src="../js/sustantivo-pronombre.js"></script>
+<script src="../js/texto-teatral.js"></script>
+<script src="../js/tipos-texto-6.js"></script>
+<script src="../js/adjetivo.js"></script>
+<script src="../js/determinantes.js"></script>
+<script src="../js/poesia.js"></script>
+<script src="../js/lenguas-espana.js"></script>
+<script src="../js/formacion-palabras.js"></script>
+<script src="../js/adverbio-preposicion-conjuncion.js"></script>
+<script src="../js/lenguaje-figurado.js"></script>
+<script src="../js/sintactico.js"></script>
+<!-- Configuración de cada bloque/SDA (se registran en window.UDI_REGISTRY) -->
 <script src="../js/udi-l5-t1-bloque1.js"></script>
+<script src="../js/udi-l5-t1-bloque2.js"></script>
+<script src="../js/udi-l5-t1-bloque3.js"></script>
+<script src="../js/udi-l5-t2-bloque1.js"></script>
+<script src="../js/udi-l5-t2-bloque2.js"></script>
+<script src="../js/udi-l5-t2-bloque3.js"></script>
+<script src="../js/udi-l5-t3-bloque1.js"></script>
+<script src="../js/udi-l5-t3-bloque2.js"></script>
+<script src="../js/udi-l5-t3-bloque3.js"></script>
+<script src="../js/udi-m5-t1-bloque1.js"></script>
+<script src="../js/udi-m5-t1-bloque2.js"></script>
+<script src="../js/udi-m5-t1-bloque3.js"></script>
+<script src="../js/udi-m5-t2-bloque1.js"></script>
+<script src="../js/udi-m5-t2-bloque2.js"></script>
+<script src="../js/udi-m5-t2-bloque3.js"></script>
+<script src="../js/udi-m5-t3-bloque1.js"></script>
+<script src="../js/udi-m5-t3-bloque2.js"></script>
+<script src="../js/udi-m5-t3-bloque3.js"></script>
 <script src="../js/generador-udi-ui.js"></script>
 <!-- Histórico opcional: si hay sesión docente, guarda un registro de
      cada UDI compilada. Sin login, la página funciona exactamente igual. -->

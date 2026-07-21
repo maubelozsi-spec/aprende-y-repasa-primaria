@@ -20,7 +20,7 @@ const NARRADOR_ENTRIES = [
   { display: "Ana nunca olvidaría el día en que ganó la carrera.", tipo: "3ª persona" },
 ];
 
-const ELEMENTOS_ENTRIES = [
+const ELEMENTOS_ENTRIES_NARRATIVA = [
   { display: "Quien cuenta la historia.", tipo: "Narrador" },
   { display: "El bosque oscuro donde transcurre toda la historia.", tipo: "Espacio" },
   { display: "El castillo donde vive la princesa.", tipo: "Espacio" },
@@ -42,7 +42,7 @@ const SUBGENERO_ENTRIES = [
   { display: "Robots inteligentes conviven con humanos en una ciudad futurista.", tipo: "Ciencia ficción" },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_NARRATIVA = {
   genero: {
     pool: GENERO_ENTRIES,
     field: "tipo",
@@ -56,7 +56,7 @@ const MODE_GROUPS = {
     options: ["1ª persona", "3ª persona"],
   },
   elementos: {
-    pool: ELEMENTOS_ENTRIES,
+    pool: ELEMENTOS_ENTRIES_NARRATIVA,
     field: "tipo",
     question: () => "¿A qué parte de la narración corresponde esto?",
     options: ["Narrador", "Personaje principal", "Personaje secundario", "Espacio", "Tiempo"],
@@ -162,7 +162,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_NARRATIVA);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "genero";
@@ -197,7 +197,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_NARRATIVA[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];
@@ -285,7 +285,7 @@ registerLenguaFicha("narrativa", {
   pools: {
     genero: { pool: GENERO_ENTRIES, field: "tipo", question: () => "¿Es un cuento, una novela o una leyenda?", displayField: "display", options: ["Cuento", "Novela", "Leyenda"] },
     narrador: { pool: NARRADOR_ENTRIES, field: "tipo", question: () => "¿Está contado en 1ª o en 3ª persona?", displayField: "display", options: ["1ª persona", "3ª persona"] },
-    elementos: { pool: ELEMENTOS_ENTRIES, field: "tipo", question: () => "¿A qué parte de la narración corresponde esto?", displayField: "display", options: ["Narrador", "Personaje principal", "Personaje secundario", "Espacio", "Tiempo"] },
+    elementos: { pool: ELEMENTOS_ENTRIES_NARRATIVA, field: "tipo", question: () => "¿A qué parte de la narración corresponde esto?", displayField: "display", options: ["Narrador", "Personaje principal", "Personaje secundario", "Espacio", "Tiempo"] },
     subgenero: { pool: SUBGENERO_ENTRIES, field: "tipo", question: () => "¿A qué subgénero de novela pertenece?", displayField: "display", options: ["Aventuras", "Misterio o policíaca", "Ciencia ficción", "Fantástica", "Histórica"] },
   },
 });

@@ -1,10 +1,17 @@
 // ============================================================
 // Interfaz genérica del Generador de Unidad Didáctica: recorre las
-// fases definidas en el UDI_CONFIG activo (Plan → Fichas →
-// Adaptaciones → Evaluación → Compilación), con botones "Generar" por
-// documento y "Aprobar y continuar" para desbloquear la fase
-// siguiente. Añadir una UDI nueva es escribir un fichero como
-// js/udi-l5-t1-bloque1.js: esta interfaz no necesita cambios.
+// fases definidas en el UDI activo (Plan → Fichas → Adaptaciones →
+// Evaluación → Compilación), con botones "Generar" por documento y
+// "Aprobar y continuar" para desbloquear la fase siguiente.
+//
+// Cada bloque/UDI se define en un fichero js/udi-*.js que se registra
+// en window.UDI_REGISTRY. La página muestra un selector con todos los
+// bloques disponibles; el bloque activo se elige con ?udi=<id>.
+//
+// Cada documento indica su "motor": lengua-ficha / mate-ficha /
+// lengua-examen / mate-examen / udi-doc-builder. Así una misma UI
+// sirve para Lengua y Matemáticas sin cambios: añadir un bloque nuevo
+// es escribir un fichero de datos, no tocar esta interfaz.
 // ============================================================
 
 const UDI_PHASE_IDS = ["plan", "fichas", "adaptaciones", "evaluacion", "compilacion"];
@@ -21,10 +28,37 @@ function udiDifficultyLabel(id) {
   return found ? found.label : id;
 }
 
+// ---------------- Despacho por motor (Lengua / Matemáticas) ----------------
+
+function udiGenerarFicha(doc, curso, dificultad, options) {
+  const fn = doc.motor === "mate-ficha" ? window.generarFichaMateYSoluciones : window.generarFichaLenguaYSoluciones;
+  return fn(doc.topicId, curso, doc.count, dificultad, options || {});
+}
+
+function udiGenerarExamen(doc, curso, dificultad, options) {
+  const fn = doc.motor === "mate-examen" ? window.generarExamenMixtoMateYSoluciones : window.generarExamenMixtoLenguaYSoluciones;
+  return fn(doc.topics, curso, dificultad, options || {});
+}
+
+function udiPreviewProblem(doc, dificultad) {
+  if (doc.motor === "mate-ficha") {
+    const topic = TOPICS.find((t) => t.id === doc.topicId);
+    const [p] = generarProblemas(topic, "5", 1, dificultad);
+    return { enunciado: p.enunciado, respuesta: p.solucion };
+  }
+  const topic = LENGUA_FICHA_CONFIG[doc.topicId];
+  const [p] = lenguaPickProblems(topic, dificultad, 1);
+  return { enunciado: p.enunciado, respuesta: p.respuesta };
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  const registry = window.UDI_REGISTRY || {};
+  const ids = Object.keys(registry);
   const params = new URLSearchParams(window.location.search);
-  const udiId = params.get("udi") || Object.keys(UDI_REGISTRY)[0];
-  const udi = UDI_REGISTRY[udiId];
+  const udiId = params.get("udi") && registry[params.get("udi")] ? params.get("udi") : ids[0];
+  const udi = registry[udiId];
+
+  renderPicker(registry, udiId);
   if (!udi) return;
 
   document.getElementById("udi-titulo").textContent = udi.titulo;
@@ -48,6 +82,22 @@ document.addEventListener("DOMContentLoaded", () => {
       showPhase(idx + 1);
     });
   });
+
+  function renderPicker(registry, activeId) {
+    const sel = document.getElementById("udi-picker");
+    if (!sel) return;
+    sel.innerHTML = "";
+    Object.values(registry).forEach((u) => {
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.textContent = `${u.area || "Lengua"} · ${u.titulo}`;
+      if (u.id === activeId) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener("change", () => {
+      window.location.search = "?udi=" + encodeURIComponent(sel.value);
+    });
+  }
 
   function renderSteps() {
     const stepsEl = document.getElementById("udi-steps");
@@ -137,11 +187,14 @@ document.addEventListener("DOMContentLoaded", () => {
         previewBtn.textContent = "Vista previa";
         return;
       }
-      const topic = LENGUA_FICHA_CONFIG[doc.topicId];
-      const [problem] = lenguaPickProblems(topic, dificultad, 1);
-      previewBox.innerHTML = `<h4>Vista previa (1 pregunta de ejemplo)</h4><p>${problem.enunciado}</p><p><strong>Respuesta:</strong> ${problem.respuesta}</p>`;
-      previewBox.style.display = "";
-      previewBtn.textContent = "Ocultar vista previa";
+      try {
+        const problem = udiPreviewProblem(doc, dificultad);
+        previewBox.innerHTML = `<h4>Vista previa (1 pregunta de ejemplo)</h4><p>${problem.enunciado}</p><p><strong>Respuesta:</strong> ${problem.respuesta}</p>`;
+        previewBox.style.display = "";
+        previewBtn.textContent = "Ocultar vista previa";
+      } catch (err) {
+        showStatus(statusEl, "ko", "No se pudo previsualizar", err.message);
+      }
     });
 
     const btn = document.createElement("button");
@@ -151,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btn.addEventListener("click", () => {
       try {
-        generarFichaYSoluciones(doc.topicId, udi.curso, doc.count, dificultad);
+        udiGenerarFicha(doc, udi.curso, dificultad);
         btn.textContent = "✓ Generada";
         btn.classList.add("udi-generated");
         showStatus(statusEl, "ok", "¡Listo!", `Se ha descargado «${doc.label}» (${udiDifficultyLabel(dificultad)}).`);
@@ -196,6 +249,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------------- Fase 4: Evaluación ----------------
 
+  function buildDocButtonRow(labelText, perfil, statusEl, onClick) {
+    const row = document.createElement("div");
+    row.className = `exm-topic-row type-${perfil}`;
+    const label = document.createElement("span");
+    label.className = "exm-topic-label";
+    label.textContent = labelText;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn btn-secondary";
+    btn.textContent = "Generar";
+    btn.addEventListener("click", () => {
+      try {
+        onClick();
+        btn.textContent = "✓ Generado";
+        showStatus(statusEl, "ok", "¡Listo!", `Documento generado (${udiDifficultyLabel(perfil)}).`);
+      } catch (err) {
+        showStatus(statusEl, "ko", "Ha ocurrido un error", err.message);
+      }
+    });
+    row.appendChild(label);
+    row.appendChild(btn);
+    return row;
+  }
+
   function renderEvaluacion() {
     const documentos = fase("evaluacion").documentos;
     const statusEl = document.getElementById("udi-evaluacion-status");
@@ -210,52 +287,15 @@ document.addEventListener("DOMContentLoaded", () => {
       title.textContent = doc.label;
       group.appendChild(title);
 
-      if (doc.motor === "lengua-examen") {
+      const esExamen = doc.motor === "lengua-examen" || doc.motor === "mate-examen";
+      const esDoc = doc.motor === "udi-doc-builder";
+
+      if (esExamen || esDoc) {
         ["none", ...udi.perfilesAdaptacion].forEach((perfil) => {
-          const row = document.createElement("div");
-          row.className = `exm-topic-row type-${perfil}`;
-          const label = document.createElement("span");
-          label.className = "exm-topic-label";
-          label.textContent = udiDifficultyLabel(perfil);
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "btn btn-secondary";
-          btn.textContent = "Generar";
-          btn.addEventListener("click", () => {
-            try {
-              generarExamenMixtoLenguaYSoluciones(doc.topics, udi.curso, perfil);
-              btn.textContent = "✓ Generado";
-              showStatus(statusEl, "ok", "¡Listo!", `Se ha descargado «${doc.label}» (${udiDifficultyLabel(perfil)}).`);
-            } catch (err) {
-              showStatus(statusEl, "ko", "Ha ocurrido un error", err.message);
-            }
+          const row = buildDocButtonRow(udiDifficultyLabel(perfil), perfil, statusEl, () => {
+            if (esExamen) udiGenerarExamen(doc, udi.curso, perfil);
+            else window[doc.builder](doc.args, perfil);
           });
-          row.appendChild(label);
-          row.appendChild(btn);
-          group.appendChild(row);
-        });
-      } else if (doc.motor === "udi-doc-builder") {
-        ["none", ...udi.perfilesAdaptacion].forEach((perfil) => {
-          const row = document.createElement("div");
-          row.className = `exm-topic-row type-${perfil}`;
-          const label = document.createElement("span");
-          label.className = "exm-topic-label";
-          label.textContent = udiDifficultyLabel(perfil);
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "btn btn-secondary";
-          btn.textContent = "Generar";
-          btn.addEventListener("click", () => {
-            try {
-              window[doc.builder](doc.args, perfil);
-              btn.textContent = "✓ Generado";
-              showStatus(statusEl, "ok", "¡Listo!", `Se ha descargado «${doc.label}» (${udiDifficultyLabel(perfil)}).`);
-            } catch (err) {
-              showStatus(statusEl, "ko", "Ha ocurrido un error", err.message);
-            }
-          });
-          row.appendChild(label);
-          row.appendChild(btn);
           group.appendChild(row);
         });
       }
@@ -288,7 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         fase("fichas").documentos.forEach((doc) => {
           perfiles.forEach((perfil) => {
-            const { ficha, soluciones } = generarFichaYSoluciones(doc.topicId, udi.curso, doc.count, perfil, { download: false });
+            const { ficha, soluciones } = udiGenerarFicha(doc, udi.curso, perfil, { download: false });
             const carpeta = `fichas/${perfil}`;
             namedBlobs.push({ name: `${carpeta}/${ficha.filename}`, blob: ficha.blob });
             namedBlobs.push({ name: `${carpeta}/${soluciones.filename}`, blob: soluciones.blob });
@@ -296,9 +336,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         fase("evaluacion").documentos.forEach((doc) => {
-          if (doc.motor === "lengua-examen") {
+          if (doc.motor === "lengua-examen" || doc.motor === "mate-examen") {
             perfiles.forEach((perfil) => {
-              const { ficha, soluciones } = generarExamenMixtoLenguaYSoluciones(doc.topics, udi.curso, perfil, { download: false });
+              const { ficha, soluciones } = udiGenerarExamen(doc, udi.curso, perfil, { download: false });
               const carpeta = `evaluacion/${doc.id}/${perfil}`;
               namedBlobs.push({ name: `${carpeta}/${ficha.filename}`, blob: ficha.blob });
               namedBlobs.push({ name: `${carpeta}/${soluciones.filename}`, blob: soluciones.blob });

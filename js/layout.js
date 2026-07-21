@@ -56,6 +56,7 @@ const NAV = [
         label: "Textos y literatura",
         items: [
           { id: "comunicacion-textos", label: "Comunicación y tipos de texto", href: "lengua/comunicacion-textos.html", available: true },
+          { id: "textos-instructivos", label: "Los textos instructivos", href: "lengua/textos-instructivos.html", available: true },
           { id: "tipos-texto-6", label: "Textos científicos, históricos, descriptivos y discontinuos", href: "lengua/tipos-texto-6.html", available: true },
           { id: "dialogo-debate-argumentativo", label: "El diálogo, el debate y el texto argumentativo", href: "lengua/dialogo-debate-argumentativo.html", available: true },
           { id: "texto-teatral", label: "El texto teatral", href: "lengua/texto-teatral.html", available: true },
@@ -141,6 +142,7 @@ const NAV = [
           { id: "generador-fichas", label: "Generador de fichas de problemas", href: "matematicas/generador-fichas.html", available: true },
           { id: "generador-operaciones", label: "Generador de operaciones básicas", href: "matematicas/generador-operaciones.html", available: true },
           { id: "examen-mixto", label: "Generador de exámenes mixtos", href: "matematicas/examen-mixto.html", available: true },
+          { id: "generador-udi", label: "Generador de Unidad Didáctica", href: "lengua/generador-udi.html", available: true },
         ],
       },
     ],

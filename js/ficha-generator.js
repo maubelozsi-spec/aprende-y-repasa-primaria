@@ -2437,7 +2437,7 @@ function generarProblemas(topic, curso, count, dificultad) {
   return problems;
 }
 
-function generarFichaYSoluciones(topicId, curso, count, dificultad = "none") {
+function generarFichaYSoluciones(topicId, curso, count, dificultad = "none", options = {}) {
   const topic = TOPICS.find((t) => t.id === topicId);
   if (!topic) throw new Error("Tema no encontrado: " + topicId);
 
@@ -2451,6 +2451,16 @@ function generarFichaYSoluciones(topicId, curso, count, dificultad = "none") {
   const solucionesBlob = createDocxBlob(solucionesParagraphs);
 
   const sufijo = dificultad && dificultad !== "none" ? `_${dificultad}` : "";
-  downloadBlob(fichaBlob, `ficha_matematicas_${topicId}_${curso}${sufijo}.docx`);
-  setTimeout(() => downloadBlob(solucionesBlob, `soluciones_matematicas_${topicId}_${curso}${sufijo}.docx`), 400);
+  const fichaFile = { blob: fichaBlob, filename: `ficha_matematicas_${topicId}_${curso}${sufijo}.docx` };
+  const solucionesFile = { blob: solucionesBlob, filename: `soluciones_matematicas_${topicId}_${curso}${sufijo}.docx` };
+
+  if (options.download === false) return { ficha: fichaFile, soluciones: solucionesFile };
+
+  downloadBlob(fichaBlob, fichaFile.filename);
+  setTimeout(() => downloadBlob(solucionesBlob, solucionesFile.filename), 400);
+  return { ficha: fichaFile, soluciones: solucionesFile };
 }
+
+// Alias explícito para coexistir con el generador de Lengua (ambos
+// definen generarFichaYSoluciones) en la página del Generador de UDI.
+window.generarFichaMateYSoluciones = generarFichaYSoluciones;

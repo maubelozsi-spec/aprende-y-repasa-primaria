@@ -229,3 +229,7 @@ function generarFichaYSoluciones(topicId, curso, count, dificultad = "none", opt
   setTimeout(() => downloadBlob(solucionesBlob, solucionesFile.filename), 400);
   return { ficha: fichaFile, soluciones: solucionesFile };
 }
+
+// Alias explícito para poder coexistir con el generador de Matemáticas
+// (ambos definen generarFichaYSoluciones) en la página del Generador de UDI.
+window.generarFichaLenguaYSoluciones = generarFichaYSoluciones;

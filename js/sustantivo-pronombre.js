@@ -85,7 +85,7 @@ const QUESTION_TYPES = {
   },
 };
 
-const MODE_GROUPS = {
+const MODE_GROUPS_SUSTANTIVO_PRONOMBRE = {
   clases: { pool: NOUNS, types: ["tipo", "cantidad", "concrecion"] },
   generonumero: { pool: NOUNS, types: ["genero", "numero"] },
   pronombres: { pool: PRONOUNS, types: ["pronombre"] },
@@ -218,7 +218,7 @@ function initGame(diff, registerRestart) {
   });
 
   function pickQuestion() {
-    const group = MODE_GROUPS[mode];
+    const group = MODE_GROUPS_SUSTANTIVO_PRONOMBRE[mode];
     let entry, typeKey;
     let attempts = 0;
     do {

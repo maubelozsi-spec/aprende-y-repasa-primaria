@@ -2,7 +2,7 @@
 // Comunicación y tipos de texto: banco de datos + lógica del quiz
 // ============================================================
 
-const ELEMENTOS_ENTRIES = [
+const ELEMENTOS_ENTRIES_COMUNICACION_TEXTOS = [
   { display: "La persona que escribe la carta", tipo: "Emisor" },
   { display: "El profesor que explica la lección", tipo: "Emisor" },
   { display: "La persona que lee la carta", tipo: "Receptor" },
@@ -39,9 +39,9 @@ const TIPO_TEXTO_ENTRIES = [
   { display: "«Un reportaje sobre la vida de los pingüinos, con entrevistas a científicos.»", tipo: "Reportaje" },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_COMUNICACION_TEXTOS = {
   elementos: {
-    pool: ELEMENTOS_ENTRIES,
+    pool: ELEMENTOS_ENTRIES_COMUNICACION_TEXTOS,
     field: "tipo",
     question: () => "¿A qué elemento de la comunicación corresponde esto?",
     options: ["Emisor", "Receptor", "Mensaje", "Canal", "Código", "Contexto"],
@@ -153,7 +153,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_COMUNICACION_TEXTOS);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "elementos";
@@ -188,7 +188,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_COMUNICACION_TEXTOS[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];
@@ -273,7 +273,7 @@ registerLenguaFicha("comunicacion-textos", {
   easyMode: "verbalnoverbal",
   altasMode: "tipotexto",
   pools: {
-    elementos: { pool: ELEMENTOS_ENTRIES, field: "tipo", question: () => "¿A qué elemento de la comunicación corresponde esto?", displayField: "display", options: ["Emisor", "Receptor", "Mensaje", "Canal", "Código", "Contexto"] },
+    elementos: { pool: ELEMENTOS_ENTRIES_COMUNICACION_TEXTOS, field: "tipo", question: () => "¿A qué elemento de la comunicación corresponde esto?", displayField: "display", options: ["Emisor", "Receptor", "Mensaje", "Canal", "Código", "Contexto"] },
     verbalnoverbal: { pool: VERBAL_NOVERBAL_ENTRIES, field: "tipo", question: () => "¿Es lenguaje verbal o no verbal?", displayField: "display", options: ["Verbal", "No verbal"] },
     tipotexto: { pool: TIPO_TEXTO_ENTRIES, field: "tipo", question: () => "¿Qué tipo de texto es este?", displayField: "display", options: ["Predictivo", "Argumentativo", "Expositivo", "Instructivo", "Noticia", "Reportaje"] },
   },

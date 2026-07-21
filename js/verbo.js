@@ -133,7 +133,7 @@ const PREDICATIVOCOPULATIVO_ENTRIES = [
   { word: "Este ejercicio es muy difícil.", tipo: "Copulativo" },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_VERBO = {
   formas: {
     pool: FORMAS_ENTRIES,
     field: "forma",
@@ -270,7 +270,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const choiceModeKeys = Object.keys(MODE_GROUPS);
+  const choiceModeKeys = Object.keys(MODE_GROUPS_VERBO);
   const allModeKeys = [...choiceModeKeys, "conjugar"];
   let scoreOk = 0;
   let scoreKo = 0;
@@ -317,7 +317,7 @@ function initGame(diff, registerRestart) {
     const groupKey = mode === "mezcla" ? allModeKeys[Math.floor(Math.random() * allModeKeys.length)] : mode;
     if (groupKey === "conjugar") return pickConjugarQuestion();
 
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_VERBO[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];

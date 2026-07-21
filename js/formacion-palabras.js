@@ -60,7 +60,7 @@ const MORFEMAS_ENTRIES = [
   { display: "En \"reponer\", el morfema re- crea una palabra nueva.", tipo: "Derivativo" },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_FORMACION_PALABRAS = {
   prefijosufijo: {
     pool: PREFIJO_SUFIJO_ENTRIES,
     field: "tipo",
@@ -180,7 +180,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_FORMACION_PALABRAS);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "prefijosufijo";
@@ -215,7 +215,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_FORMACION_PALABRAS[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];

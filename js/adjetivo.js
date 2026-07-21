@@ -32,7 +32,7 @@ const GRADO_ENTRIES = [
   { phrase: "Este pastel está buenísimo", grado: "Superlativo" },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_ADJETIVO = {
   clases: { pool: CLASES_ENTRIES, field: "clase", label: (e) => e.word, question: (e) => `¿"${e.word}" es un adjetivo calificativo o gentilicio?`, options: ["Calificativo", "Gentilicio"] },
   grados: { pool: GRADO_ENTRIES, field: "grado", label: (e) => e.phrase, question: (e) => `«${e.phrase}» → ¿en qué grado está el adjetivo?`, options: ["Positivo", "Comparativo", "Superlativo"] },
 };
@@ -164,7 +164,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? (Math.random() < 0.5 ? "clases" : "grados") : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_ADJETIVO[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];

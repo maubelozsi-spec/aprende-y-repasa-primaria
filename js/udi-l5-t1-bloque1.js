@@ -413,6 +413,6 @@ const UDI_L5_T1_BLOQUE1 = {
   ],
 };
 
-const UDI_REGISTRY = {
-  "l5-t1-bloque1": UDI_L5_T1_BLOQUE1,
-};
+UDI_L5_T1_BLOQUE1.area = "Lengua 5º · T1";
+window.UDI_REGISTRY = window.UDI_REGISTRY || {};
+window.UDI_REGISTRY[UDI_L5_T1_BLOQUE1.id] = UDI_L5_T1_BLOQUE1;

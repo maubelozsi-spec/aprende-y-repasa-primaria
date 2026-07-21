@@ -2,7 +2,7 @@
 // El diálogo, el debate y el texto argumentativo: banco de datos + quiz
 // ============================================================
 
-const ELEMENTOS_ENTRIES = [
+const ELEMENTOS_ENTRIES_DIALOGO_DEBATE_ARGUMENTATIVO = [
   { display: "Organiza los turnos de palabra y controla el tiempo.", correct: "Moderador", options: ["Moderador", "Participante", "Tema", "Conclusión"] },
   { display: "Defiende su postura con argumentos.", correct: "Participante", options: ["Participante", "Moderador", "Tema", "Conclusión"] },
   { display: "La cuestión sobre la que se discute.", correct: "Tema", options: ["Tema", "Moderador", "Participante", "Conclusión"] },
@@ -18,7 +18,7 @@ const PARTESARGUMENTATIVO_ENTRIES = [
   { display: "\"Así pues, el deporte debe formar parte del horario escolar.\"", correct: "Conclusión", options: ["Conclusión", "Tesis", "Argumento"] },
 ];
 
-const IDENTIFICAR_ENTRIES = [
+const IDENTIFICAR_ENTRIES_DIALOGO_DEBATE_ARGUMENTATIVO = [
   { display: "—¿Vienes al parque? —Sí, ahora mismo salgo.", correct: "Diálogo", options: ["Diálogo", "Debate", "Texto argumentativo"] },
   { display: "Varias personas discuten ordenadamente si los móviles deben estar en el colegio, con un moderador.", correct: "Debate", options: ["Debate", "Diálogo", "Texto argumentativo"] },
   { display: "\"Creo que deberíamos reciclar más porque ayuda al planeta.\"", correct: "Texto argumentativo", options: ["Texto argumentativo", "Diálogo", "Debate"] },
@@ -27,9 +27,9 @@ const IDENTIFICAR_ENTRIES = [
   { display: "\"El deporte es esencial porque mejora la salud; por eso debería ser obligatorio.\"", correct: "Texto argumentativo", options: ["Texto argumentativo", "Diálogo", "Debate"] },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_DIALOGO_DEBATE_ARGUMENTATIVO = {
   elementos: {
-    pool: ELEMENTOS_ENTRIES,
+    pool: ELEMENTOS_ENTRIES_DIALOGO_DEBATE_ARGUMENTATIVO,
     field: "correct",
     question: () => "¿A qué elemento del debate corresponde?",
   },
@@ -39,7 +39,7 @@ const MODE_GROUPS = {
     question: () => "¿Es la tesis, un argumento o la conclusión?",
   },
   identificar: {
-    pool: IDENTIFICAR_ENTRIES,
+    pool: IDENTIFICAR_ENTRIES_DIALOGO_DEBATE_ARGUMENTATIVO,
     field: "correct",
     question: () => "¿Es un diálogo, un debate o un texto argumentativo?",
   },
@@ -138,7 +138,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_DIALOGO_DEBATE_ARGUMENTATIVO);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "elementos";
@@ -173,7 +173,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_DIALOGO_DEBATE_ARGUMENTATIVO[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];
@@ -253,8 +253,8 @@ registerLenguaFicha("dialogo-debate-argumentativo", {
   easyMode: "identificar",
   altasMode: "partesargumentativo",
   pools: {
-    elementos: { pool: ELEMENTOS_ENTRIES, field: "correct", question: () => "¿A qué elemento del debate corresponde?", displayField: "display", perEntryOptions: true },
+    elementos: { pool: ELEMENTOS_ENTRIES_DIALOGO_DEBATE_ARGUMENTATIVO, field: "correct", question: () => "¿A qué elemento del debate corresponde?", displayField: "display", perEntryOptions: true },
     partesargumentativo: { pool: PARTESARGUMENTATIVO_ENTRIES, field: "correct", question: () => "¿Es la tesis, un argumento o la conclusión?", displayField: "display", perEntryOptions: true },
-    identificar: { pool: IDENTIFICAR_ENTRIES, field: "correct", question: () => "¿Es un diálogo, un debate o un texto argumentativo?", displayField: "display", perEntryOptions: true },
+    identificar: { pool: IDENTIFICAR_ENTRIES_DIALOGO_DEBATE_ARGUMENTATIVO, field: "correct", question: () => "¿Es un diálogo, un debate o un texto argumentativo?", displayField: "display", perEntryOptions: true },
   },
 });
