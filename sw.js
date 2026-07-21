@@ -9,7 +9,7 @@
 // instalados (no hay proceso de build que lo haga automáticamente).
 // ============================================================
 
-const CACHE_NAME = "ar-cache-v3";
+const CACHE_NAME = "ar-cache-v4";
 const APP_SHELL = [
   "./",
   "index.html",
@@ -43,25 +43,32 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// Estrategia: PRIMERO LA RED y, si no hay conexión, la caché.
+//
+// Antes era al revés (primero la caché), y eso hacía que una vez
+// guardado un archivo el navegador no volviera a pedirlo nunca: las
+// actualizaciones del sitio no llegaban hasta subir a mano el número
+// de CACHE_NAME. Con este orden, quien tenga conexión ve siempre la
+// versión actual, y sin conexión sigue funcionando con lo guardado.
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET" || !req.url.startsWith(self.location.origin)) return;
 
   event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-      return fetch(req)
-        .then((res) => {
-          if (res && res.status === 200) {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => {
+    fetch(req)
+      .then((res) => {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() =>
+        caches.match(req).then((cached) => {
+          if (cached) return cached;
           if (req.mode === "navigate") return caches.match("index.html");
           return undefined;
-        });
-    })
+        })
+      )
   );
 });

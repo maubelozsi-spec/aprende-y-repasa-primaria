@@ -158,6 +158,23 @@ function getStudentSessionCache() {
   }
 }
 
+function getTeacherSessionCache() {
+  try {
+    const raw = localStorage.getItem("ar_docente");
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Es habitual que el docente pruebe una clave de alumno en su propio
+// navegador y se quede con las dos sesiones abiertas a la vez. En ese
+// caso manda la de docente: si no, las herramientas del profesorado se
+// le bloquearían a sí mismo.
+function esAlumnoSinSerDocente() {
+  return !!getStudentSessionCache() && !getTeacherSessionCache();
+}
+
 function buildSidebar(base, current) {
   const student = getStudentSessionCache();
   let html = `
@@ -192,9 +209,9 @@ function buildSidebar(base, current) {
         if (group.label) html += `<span class="nav-group-label">${group.label}</span>`;
         html += `<ul class="nav-children">`;
         group.items.forEach((child) => {
-          // Herramientas exclusivas del profesorado: no se muestran nunca
-          // cuando hay un perfil de alumno activo (ver requireDocente()).
-          if (child.soloDocente && student) return;
+          // Herramientas exclusivas del profesorado: se ocultan solo si
+          // quien navega es alumno y NO hay sesión de docente abierta.
+          if (child.soloDocente && esAlumnoSinSerDocente()) return;
           if (!window.__navFilter(child.id)) return;
           if (child.available) {
             const activeClass = child.id === current ? " active" : "";
@@ -362,8 +379,8 @@ window.__navFilter = function (topicId) {
 // ============================================================
 
 function requireDocente() {
+  if (!esAlumnoSinSerDocente()) return true;
   const student = getStudentSessionCache();
-  if (!student) return true;
 
   const base = typeof window.BASE_PATH === "string" ? window.BASE_PATH : "";
   document.addEventListener("DOMContentLoaded", () => {
