@@ -72,7 +72,7 @@ const NAV = [
         items: [
           { id: "generador-dictados", label: "Generador de dictados", href: "lengua/generador-dictados.html", available: true },
           { id: "lectura-comprension", label: "Lectura comprensiva", href: "lengua/lectura-comprension.html", available: true },
-          { id: "generador-udi", label: "Generador de Unidad Didáctica", href: "lengua/generador-udi.html", available: true },
+          { id: "generador-udi", label: "Generador de Unidad Didáctica", href: "lengua/generador-udi.html", available: true, soloDocente: true },
         ],
       },
     ],
@@ -142,7 +142,7 @@ const NAV = [
           { id: "generador-fichas", label: "Generador de fichas de problemas", href: "matematicas/generador-fichas.html", available: true },
           { id: "generador-operaciones", label: "Generador de operaciones básicas", href: "matematicas/generador-operaciones.html", available: true },
           { id: "examen-mixto", label: "Generador de exámenes mixtos", href: "matematicas/examen-mixto.html", available: true },
-          { id: "generador-udi", label: "Generador de Unidad Didáctica", href: "lengua/generador-udi.html", available: true },
+          { id: "generador-udi", label: "Generador de Unidad Didáctica", href: "lengua/generador-udi.html", available: true, soloDocente: true },
         ],
       },
     ],
@@ -192,6 +192,9 @@ function buildSidebar(base, current) {
         if (group.label) html += `<span class="nav-group-label">${group.label}</span>`;
         html += `<ul class="nav-children">`;
         group.items.forEach((child) => {
+          // Herramientas exclusivas del profesorado: no se muestran nunca
+          // cuando hay un perfil de alumno activo (ver requireDocente()).
+          if (child.soloDocente && student) return;
           if (!window.__navFilter(child.id)) return;
           if (child.available) {
             const activeClass = child.id === current ? " active" : "";
@@ -347,6 +350,41 @@ function getHiddenTopics() {
 window.__navFilter = function (topicId) {
   return getHiddenTopics().indexOf(topicId) === -1;
 };
+
+// ============================================================
+// Herramientas exclusivas del profesorado (NAV con soloDocente:true).
+// Además de no aparecer en el menú del alumnado, la propia página se
+// protege llamando a requireDocente(): si hay un perfil de alumno
+// activo, se sustituye el contenido por un aviso y se ofrece volver.
+// No es una barrera de seguridad "de banco" (el material se genera en
+// el navegador), sino la forma de que el alumnado no entre por error
+// ni escribiendo la dirección a mano.
+// ============================================================
+
+function requireDocente() {
+  const student = getStudentSessionCache();
+  if (!student) return true;
+
+  const base = typeof window.BASE_PATH === "string" ? window.BASE_PATH : "";
+  document.addEventListener("DOMContentLoaded", () => {
+    const content = document.querySelector(".content");
+    if (!content) return;
+    content.innerHTML = `
+      <header class="content-header">
+        <p class="eyebrow">Zona del profesorado</p>
+        <h1>Esta herramienta es solo para el profesorado</h1>
+        <p class="content-subtitle">Hola, ${student.nickname}. Esta página sirve para preparar el material de clase, así que no forma parte de tus contenidos.</p>
+      </header>
+      <div class="game-card generator-card">
+        <p>Puedes volver a tus contenidos desde aquí:</p>
+        <div class="actions-row">
+          <a class="btn btn-primary" href="${base}index.html">Ir a mis contenidos</a>
+          <a class="btn btn-secondary" href="${base}mi-progreso.html">Ver mi progreso</a>
+        </div>
+      </div>`;
+  });
+  return false;
+}
 
 // ============================================================
 // Seguimiento de progreso: cada juego de práctica llama a

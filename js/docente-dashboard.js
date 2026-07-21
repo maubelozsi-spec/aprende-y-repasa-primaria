@@ -50,6 +50,9 @@ function buildTopicChecklist(container, hiddenSet, onToggle) {
       groupEl.appendChild(title);
 
       (group.items || []).forEach((item) => {
+        // Las herramientas del profesorado nunca las ve el alumnado,
+        // así que no tiene sentido ofrecerlas aquí como conmutables.
+        if (item.soloDocente) return;
         const row = document.createElement("label");
         row.className = "exm-topic-row";
         const checkbox = document.createElement("input");
