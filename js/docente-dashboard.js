@@ -192,25 +192,49 @@ document.addEventListener("DOMContentLoaded", () => {
       classDetailEl.style.display = "";
       classDetailTitle.textContent = data.name;
       marcarClaseActiva(classId);
-      await refreshStudents();
+
+      // La lista de contenidos se pinta ANTES de tocar la red: no
+      // depende de Firestore, así que un fallo al cargar los alumnos
+      // ya no puede dejarla en blanco (era el motivo de que no se
+      // viera ninguna casilla).
       classTopicCtrl = buildTopicChecklist(classTopicListEl, new Set(data.hiddenTopics || []), async (topicId, visible) => {
         const hidden = new Set(currentClass.data.hiddenTopics || []);
         if (visible) hidden.delete(topicId);
         else hidden.add(topicId);
         currentClass.data.hiddenTopics = Array.from(hidden);
-        await updateDoc(doc(db, "classes", classId), { hiddenTopics: currentClass.data.hiddenTopics });
+        try {
+          await updateDoc(doc(db, "classes", classId), { hiddenTopics: currentClass.data.hiddenTopics });
+        } catch (err) {
+          window.alert("No se ha podido guardar el cambio: " + err.message);
+        }
       });
       if (topicSearchEl) topicSearchEl.value = "";
+
+      try {
+        await refreshStudents();
+      } catch (err) {
+        studentListEl.innerHTML =
+          '<p class="content-subtitle">No se ha podido cargar la lista de alumnos: ' + err.message + "</p>";
+      }
     }
 
     async function refreshStudents() {
-      const snap = await getDocs(query(collection(db, "students"), where("classId", "==", currentClass.id)));
+      // Importante: las reglas de Firestore solo permiten listar alumnos
+      // filtrando por teacherId. Si se consulta por classId, la consulta
+      // entera se rechaza. Por eso se pide por docente y se filtra la
+      // clase aquí (son pocos alumnos).
+      const snap = await getDocs(query(collection(db, "students"), where("teacherId", "==", teacher.uid)));
+      const deLaClase = [];
+      snap.forEach((docSnap) => {
+        if (docSnap.data().classId === currentClass.id) deLaClase.push(docSnap);
+      });
+
       studentListEl.innerHTML = "";
-      if (snap.empty) {
+      if (!deLaClase.length) {
         studentListEl.innerHTML = '<p class="content-subtitle">Todavía no hay alumnos en esta clase.</p>';
         return;
       }
-      snap.forEach((docSnap) => {
+      deLaClase.forEach((docSnap) => {
         const data = docSnap.data();
         const code = docSnap.id;
         const row = document.createElement("div");
@@ -310,6 +334,9 @@ document.addEventListener("DOMContentLoaded", () => {
       refreshStudents();
     });
 
-    refreshClasses();
+    refreshClasses().catch((err) => {
+      classListEl.innerHTML =
+        '<p class="content-subtitle">No se han podido cargar tus clases: ' + err.message + "</p>";
+    });
   });
 });
