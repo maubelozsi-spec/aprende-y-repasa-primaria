@@ -2760,6 +2760,24 @@ table.rules-table tr:last-child td {
   width: 100%;
 }
 
+.class-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.class-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-left: 4px;
+}
+
+.class-row-actions .btn {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
 .student-row {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);

@@ -162,13 +162,36 @@ document.addEventListener("DOMContentLoaded", () => {
       const primeras = [];
       snap.forEach((docSnap) => {
         const data = docSnap.data();
-        const item = document.createElement("button");
-        item.type = "button";
-        item.className = "content-list-item class-list-item";
-        item.dataset.classId = docSnap.id;
-        item.innerHTML = `<div class="content-list-text"><strong>${data.name}</strong></div>`;
-        item.addEventListener("click", () => openClass(docSnap.id, data));
-        classListEl.appendChild(item);
+        const fila = document.createElement("div");
+        fila.className = "class-row";
+        fila.dataset.classId = docSnap.id;
+
+        const abrir = document.createElement("button");
+        abrir.type = "button";
+        abrir.className = "content-list-item class-list-item";
+        abrir.innerHTML = `<div class="content-list-text"><strong>${data.name}</strong></div>`;
+        abrir.addEventListener("click", () => openClass(docSnap.id, data));
+
+        const acciones = document.createElement("div");
+        acciones.className = "class-row-actions";
+
+        const btnNombre = document.createElement("button");
+        btnNombre.type = "button";
+        btnNombre.className = "btn btn-secondary";
+        btnNombre.textContent = "Cambiar nombre";
+        btnNombre.addEventListener("click", () => renombrarClase(docSnap.id, data));
+
+        const btnBorrar = document.createElement("button");
+        btnBorrar.type = "button";
+        btnBorrar.className = "btn btn-secondary";
+        btnBorrar.textContent = "Eliminar";
+        btnBorrar.addEventListener("click", () => eliminarClase(docSnap.id, data));
+
+        acciones.appendChild(btnNombre);
+        acciones.appendChild(btnBorrar);
+        fila.appendChild(abrir);
+        fila.appendChild(acciones);
+        classListEl.appendChild(fila);
         primeras.push({ id: docSnap.id, data: data });
       });
 
@@ -181,9 +204,73 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function marcarClaseActiva(classId) {
-      classListEl.querySelectorAll(".class-list-item").forEach((el) => {
-        el.classList.toggle("active", el.dataset.classId === classId);
+      classListEl.querySelectorAll(".class-row").forEach((fila) => {
+        const activa = fila.dataset.classId === classId;
+        const boton = fila.querySelector(".class-list-item");
+        if (boton) boton.classList.toggle("active", activa);
       });
+    }
+
+    async function alumnosDeLaClase(classId) {
+      // Las reglas solo permiten listar filtrando por teacherId.
+      const snap = await getDocs(query(collection(db, "students"), where("teacherId", "==", teacher.uid)));
+      const lista = [];
+      snap.forEach((d) => {
+        if (d.data().classId === classId) lista.push(d);
+      });
+      return lista;
+    }
+
+    async function renombrarClase(classId, data) {
+      const nuevo = window.prompt("Nuevo nombre para la clase:", data.name);
+      if (nuevo === null) return;
+      const nombre = nuevo.trim();
+      if (!nombre || nombre === data.name) return;
+      try {
+        await updateDoc(doc(db, "classes", classId), { name: nombre });
+        data.name = nombre;
+        if (currentClass && currentClass.id === classId) {
+          currentClass.data.name = nombre;
+          classDetailTitle.textContent = nombre;
+        }
+        await refreshClasses();
+      } catch (err) {
+        window.alert("No se ha podido cambiar el nombre: " + err.message);
+      }
+    }
+
+    async function eliminarClase(classId, data) {
+      let alumnos;
+      try {
+        alumnos = await alumnosDeLaClase(classId);
+      } catch (err) {
+        window.alert("No se ha podido comprobar si la clase tiene alumnos: " + err.message);
+        return;
+      }
+
+      // Al borrar la clase hay que borrar también a sus alumnos: si no,
+      // quedarían en una clase inexistente, invisibles en el panel pero
+      // con su clave todavía activa. Por eso se avisa de cuántos son.
+      const aviso = alumnos.length
+        ? 'Se va a eliminar la clase "' + data.name + '" y sus ' + alumnos.length +
+          " alumno(s), con sus claves de acceso y su progreso.\n\nEsta acción NO se puede deshacer. ¿Continuar?"
+        : 'Se va a eliminar la clase "' + data.name + '" (no tiene alumnos).\n\n¿Continuar?';
+      if (!window.confirm(aviso)) return;
+
+      if (alumnos.length && !window.confirm("Confirma otra vez: se borrarán " + alumnos.length + " alumno(s) de forma permanente.")) return;
+
+      try {
+        for (const alumno of alumnos) await deleteDoc(doc(db, "students", alumno.id));
+        await deleteDoc(doc(db, "classes", classId));
+        if (currentClass && currentClass.id === classId) {
+          currentClass = null;
+          classDetailEl.style.display = "none";
+          classPlaceholderEl.style.display = "";
+        }
+        await refreshClasses();
+      } catch (err) {
+        window.alert("No se ha podido eliminar la clase: " + err.message);
+      }
     }
 
     async function openClass(classId, data) {
