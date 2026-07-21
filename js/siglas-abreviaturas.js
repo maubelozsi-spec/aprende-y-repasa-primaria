@@ -25,7 +25,7 @@ const SIGNIFICADO_ENTRIES = [
   { display: "UE", correct: "Unión Europea", options: ["Unión Europea", "Unidad Educativa", "Universidad Estatal", "Unión Estudiantil"] },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_SIGLAS_ABREVIATURAS = {
   siglaoabrev: {
     pool: SIGLAOABREV_ENTRIES,
     field: "correct",
@@ -131,7 +131,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_SIGLAS_ABREVIATURAS);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "siglaoabrev";
@@ -166,7 +166,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_SIGLAS_ABREVIATURAS[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];

@@ -30,7 +30,7 @@ const EXCLAMATIVA_ENTRIES = [
   { display: "No sé ___ hacer con esto.", correct: "qué", options: ["qué", "que"] },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_TILDE_DIACRITICA = {
   diacritica: {
     pool: DIACRITICA_ENTRIES,
     field: "correct",
@@ -136,7 +136,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_TILDE_DIACRITICA);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "diacritica";
@@ -171,7 +171,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_TILDE_DIACRITICA[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];

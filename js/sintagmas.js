@@ -26,7 +26,7 @@ const NUCLEO_ENTRIES = [
   { display: "mi hermana pequeña", correct: "hermana", options: ["hermana", "mi", "pequeña", "mi hermana"] },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_SINTAGMAS = {
   clasificar: {
     pool: CLASIFICAR_ENTRIES,
     field: "correct",
@@ -132,7 +132,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_SINTAGMAS);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "clasificar";
@@ -167,7 +167,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_SINTAGMAS[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];

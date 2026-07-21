@@ -13,7 +13,7 @@ const IDENTIFICAR_ENTRIES = [
   { display: "Leímos el poema \"Verde que te quiero verde\".", correct: "Comillas", options: ["Comillas", "Punto y coma", "Puntos suspensivos", "Paréntesis", "Raya"] },
 ];
 
-const COMPLETAR_ENTRIES = [
+const COMPLETAR_ENTRIES_SIGNOS_PUNTUACION = [
   { display: "Quería ir ___ sin embargo, se quedó. (unir dos ideas relacionadas)", correct: ";", options: [";", "...", "()", "\" \""] },
   { display: "No sabía qué decir ___ (frase incompleta con suspense)", correct: "...", options: ["...", ";", "()", "\" \""] },
   { display: "Cristóbal Colón ___1451-1506___ descubrió América. (aclaración que se puede quitar)", correct: "()", options: ["()", ";", "...", "\" \""] },
@@ -21,14 +21,14 @@ const COMPLETAR_ENTRIES = [
   { display: "___¿Vienes? ___preguntó Juan. (marcar diálogo)", correct: "—", options: ["—", ";", "...", "()"] },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_SIGNOS_PUNTUACION = {
   identificar: {
     pool: IDENTIFICAR_ENTRIES,
     field: "correct",
     question: () => "¿Qué signo de puntuación destaca en esta frase?",
   },
   completar: {
-    pool: COMPLETAR_ENTRIES,
+    pool: COMPLETAR_ENTRIES_SIGNOS_PUNTUACION,
     field: "correct",
     question: () => "¿Qué signo hay que usar aquí?",
   },
@@ -127,7 +127,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_SIGNOS_PUNTUACION);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "identificar";
@@ -162,7 +162,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_SIGNOS_PUNTUACION[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];
@@ -243,6 +243,6 @@ registerLenguaFicha("signos-puntuacion", {
   altasMode: "completar",
   pools: {
     identificar: { pool: IDENTIFICAR_ENTRIES, field: "correct", question: () => "¿Qué signo de puntuación destaca en esta frase?", displayField: "display", perEntryOptions: true },
-    completar: { pool: COMPLETAR_ENTRIES, field: "correct", question: () => "¿Qué signo hay que usar aquí?", displayField: "display", perEntryOptions: true },
+    completar: { pool: COMPLETAR_ENTRIES_SIGNOS_PUNTUACION, field: "correct", question: () => "¿Qué signo hay que usar aquí?", displayField: "display", perEntryOptions: true },
   },
 });

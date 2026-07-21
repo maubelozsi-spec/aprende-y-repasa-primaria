@@ -21,7 +21,7 @@ const EUFEMISMO_ENTRIES = [
   { display: "pobre", correct: "Persona con pocos recursos", options: ["Persona con pocos recursos", "Muerto de hambre", "Pelagatos", "Mendigo (despectivo)"] },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_PRESTAMOS_TABU_EUFEMISMOS = {
   origen: {
     pool: ORIGEN_ENTRIES,
     field: "correct",
@@ -127,7 +127,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_PRESTAMOS_TABU_EUFEMISMOS);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "origen";
@@ -162,7 +162,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_PRESTAMOS_TABU_EUFEMISMOS[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];

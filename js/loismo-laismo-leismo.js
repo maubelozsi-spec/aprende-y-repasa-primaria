@@ -2,7 +2,7 @@
 // Loísmo, laísmo y leísmo: banco de datos + lógica del quiz
 // ============================================================
 
-const COMPLETAR_ENTRIES = [
+const COMPLETAR_ENTRIES_LOISMO_LAISMO_LEISMO = [
   { display: "Compré el pan. ___ compré esta mañana. (CD masculino)", correct: "Lo", options: ["Lo", "La", "Le"] },
   { display: "Vi a María. ___ vi en el parque. (CD femenino)", correct: "La", options: ["La", "Lo", "Le"] },
   { display: "Regalé flores a mi madre. ___ regalé flores. (CI)", correct: "Le", options: ["Le", "Lo", "La"] },
@@ -24,9 +24,9 @@ const IDENTIFICARERROR_ENTRIES = [
   { display: "La vi en la tienda ayer.", correct: "Correcta", options: ["Correcta", "Loísmo", "Laísmo", "Leísmo"] },
 ];
 
-const MODE_GROUPS = {
+const MODE_GROUPS_LOISMO_LAISMO_LEISMO = {
   completar: {
-    pool: COMPLETAR_ENTRIES,
+    pool: COMPLETAR_ENTRIES_LOISMO_LAISMO_LEISMO,
     field: "correct",
     question: () => "Completa correctamente el hueco:",
   },
@@ -130,7 +130,7 @@ function initGame(diff, registerRestart) {
     scoreKo: document.getElementById("score-ko"),
   };
 
-  const modeKeys = Object.keys(MODE_GROUPS);
+  const modeKeys = Object.keys(MODE_GROUPS_LOISMO_LAISMO_LEISMO);
   let scoreOk = 0;
   let scoreKo = 0;
   let mode = "completar";
@@ -165,7 +165,7 @@ function initGame(diff, registerRestart) {
 
   function pickQuestion() {
     const groupKey = mode === "mezcla" ? modeKeys[Math.floor(Math.random() * modeKeys.length)] : mode;
-    const group = MODE_GROUPS[groupKey];
+    const group = MODE_GROUPS_LOISMO_LAISMO_LEISMO[groupKey];
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];
@@ -245,7 +245,7 @@ registerLenguaFicha("loismo-laismo-leismo", {
   easyMode: "completar",
   altasMode: "identificarerror",
   pools: {
-    completar: { pool: COMPLETAR_ENTRIES, field: "correct", question: () => "Completa correctamente el hueco:", displayField: "display", perEntryOptions: true },
+    completar: { pool: COMPLETAR_ENTRIES_LOISMO_LAISMO_LEISMO, field: "correct", question: () => "Completa correctamente el hueco:", displayField: "display", perEntryOptions: true },
     identificarerror: { pool: IDENTIFICARERROR_ENTRIES, field: "correct", question: () => "¿Qué tipo de error tiene esta oración (o está correcta)?", displayField: "display", perEntryOptions: true },
   },
 });

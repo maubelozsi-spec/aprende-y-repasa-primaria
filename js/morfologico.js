@@ -2,7 +2,7 @@
 // Análisis morfológico: banco de palabras + lógica del artefacto
 // ============================================================
 
-const ENTRIES = [
+const ENTRIES_MORFOLOGICO = [
   // Frase 1
   { words: ["El", "perro", "pequeño", "corre", "rápido", "por", "el", "parque"], target: 0, category: "determinante", subtype: "artículo" },
   { words: ["El", "perro", "pequeño", "corre", "rápido", "por", "el", "parque"], target: 1, category: "sustantivo" },
@@ -216,9 +216,9 @@ function initGame(diff, registerRestart) {
 
   function pool() {
     if (diff.is("acs") || diff.is("discalculia")) {
-      return ENTRIES.filter((e) => MORFOLOGICO_EASY_CATEGORIES.includes(e.category));
+      return ENTRIES_MORFOLOGICO.filter((e) => MORFOLOGICO_EASY_CATEGORIES.includes(e.category));
     }
-    return ENTRIES;
+    return ENTRIES_MORFOLOGICO;
   }
 
   function applyDifficultyUI() {
@@ -295,7 +295,7 @@ function initGame(diff, registerRestart) {
   startRound();
 }
 
-const MORFOLOGICO_FICHA_EASY_POOL = ENTRIES.filter((e) => MORFOLOGICO_EASY_CATEGORIES.includes(e.category));
+const MORFOLOGICO_FICHA_EASY_POOL = ENTRIES_MORFOLOGICO.filter((e) => MORFOLOGICO_EASY_CATEGORIES.includes(e.category));
 
 registerLenguaFicha("morfologico", {
   label: "Análisis morfológico",
@@ -311,7 +311,7 @@ registerLenguaFicha("morfologico", {
       options: ["sustantivo", "adjetivo", "verbo"],
     },
     completo: {
-      pool: ENTRIES,
+      pool: ENTRIES_MORFOLOGICO,
       field: "category",
       question: (e) => `¿Qué categoría gramatical es la palabra "${e.words[e.target]}"?`,
       selfContained: true,
