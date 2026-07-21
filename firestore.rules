@@ -1,18 +1,24 @@
 rules_version = '2';
 
 // ============================================================
-// Reglas de seguridad de Firestore para el sistema de docente/
-// alumno. Pega este contenido en la consola de Firebase:
-// Firestore Database → Reglas → sustituir todo → Publicar.
+// Reglas de seguridad de Firestore para TODO el proyecto Firebase
+// "aprende-y-repasa-cc321", que aloja DOS apps distintas:
 //
-// Nivel de seguridad: "razonable para un aula no adversarial", no
-// de nivel bancario. Los docentes tienen cuentas reales (correo +
-// contraseña); los alumnos solo tienen una clave de 6+ caracteres
-// (son menores, sin más datos). Cualquier sesión (incluida una
-// anónima) puede LEER un documento concreto de "students" para
-// poder validar una clave tecleada, pero nadie salvo el docente
-// dueño puede LISTAR la colección completa (no se puede "explorar"
-// el listado de alumnos sin ser su docente).
+//   - App educativa "Aprende y Repasa" (colecciones "teachers",
+//     "classes", "students", "udiHistorial").
+//   - App del viaje a Finlandia (colecciones "trips", "tripInvites").
+//
+// ATENCIÓN: las reglas de Firestore son ÚNICAS por proyecto, no por
+// app. Este archivo es el ÚNICO que hay que pegar en la consola
+// (Firestore Database → Reglas → sustituir todo → Publicar). Pegar
+// solo las reglas de una de las dos apps dejaría a la otra sin
+// acceso. Existe una copia igual en el repositorio del viaje a
+// Finlandia: si se cambia una, hay que cambiar la otra.
+//
+// Nivel de seguridad: "razonable para un aula / un grupo de viaje no
+// adversarial", no de nivel bancario. Los docentes tienen cuentas
+// reales (correo + contraseña); los alumnos solo tienen una clave de
+// 6+ caracteres (son menores, sin más datos).
 // ============================================================
 
 service cloud.firestore {
@@ -25,6 +31,8 @@ service cloud.firestore {
     function isOwnerTeacher(teacherId) {
       return signedIn() && request.auth.uid == teacherId;
     }
+
+    // ================= App educativa =================
 
     match /teachers/{teacherId} {
       allow read, write: if isOwnerTeacher(teacherId);
@@ -39,8 +47,7 @@ service cloud.firestore {
 
     // Histórico opcional del Generador de Unidad Didáctica: un registro
     // ligero por cada paquete compilado, solo visible/creable por el
-    // propio docente. La herramienta funciona igual sin esta colección
-    // (uso sin login), así que no bloquea nada si no se publica.
+    // propio docente. La herramienta funciona igual sin esta colección.
     match /udiHistorial/{entryId} {
       allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
       allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
@@ -51,11 +58,11 @@ service cloud.firestore {
       allow get: if signedIn();
       allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
       allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
-      // Cualquier sesión con la clave puede reclamar al alumno, y solo
-      // puede tocar authUid y lastLoginAt. Antes la clave quedaba atada
-      // al primer dispositivo que la usaba, así que el mismo alumno no
-      // podía entrar en clase y en casa: ahora el último dispositivo
-      // desde el que entra pasa a ser el activo.
+      // Cualquier sesión que conozca la clave puede reclamar al alumno,
+      // y solo puede tocar authUid y lastLoginAt. Antes la clave quedaba
+      // atada al primer dispositivo que la usaba, así que el mismo
+      // alumno no podía entrar en clase y en casa: ahora el último
+      // dispositivo desde el que entra pasa a ser el activo.
       allow update: if isOwnerTeacher(resource.data.teacherId)
                     || (signedIn()
                         && request.resource.data.diff(resource.data).affectedKeys()
@@ -83,6 +90,80 @@ service cloud.firestore {
         allow read, write: if signedIn()
                        && get(/databases/$(database)/documents/students/$(code)).data.authUid == request.auth.uid;
         allow read: if isOwnerTeacher(get(/databases/$(database)/documents/students/$(code)).data.teacherId);
+      }
+    }
+
+    // ================= App del viaje a Finlandia =================
+
+    match /tripInvites/{code} {
+      allow get: if signedIn();
+      allow create: if signedIn() && request.resource.data.tripId is string;
+      allow update, delete: if false;
+    }
+
+    match /trips/{tripId} {
+      function isMember() {
+        return signedIn() && request.auth.uid in resource.data.memberUids;
+      }
+      function isJoiningSelf() {
+        return signedIn()
+               && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["memberUids"])
+               && request.resource.data.memberUids == resource.data.memberUids.concat([request.auth.uid]);
+      }
+
+      // "get" no exige ya ser miembro: un acompañante nuevo necesita poder
+      // leer el documento del viaje (nombre, memberUids) la primera vez que
+      // se une con el código, antes de que su uid esté todavía en la lista.
+      // Solo se permite leer un viaje concreto si ya se conoce su ID (no se
+      // puede "listar" todos los viajes: eso sigue prohibido más abajo).
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+                     && request.resource.data.memberUids.size() == 1
+                     && request.auth.uid in request.resource.data.memberUids;
+      allow update: if isMember() || isJoiningSelf();
+      allow delete: if false;
+
+      match /stages/{stageId} {
+        allow read, write: if signedIn()
+                       && request.auth.uid in get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids;
+      }
+      match /flights/{flightId} {
+        allow read, write: if signedIn()
+                       && request.auth.uid in get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids;
+      }
+      match /hotels/{hotelId} {
+        allow read, write: if signedIn()
+                       && request.auth.uid in get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids;
+      }
+      match /expenses/{expenseId} {
+        allow read, write: if signedIn()
+                       && request.auth.uid in get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids;
+      }
+      match /checklist/{itemId} {
+        allow read, write: if signedIn()
+                       && request.auth.uid in get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids;
+      }
+      match /planItems/{itemId} {
+        allow read, write: if signedIn()
+                       && request.auth.uid in get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids;
+      }
+      match /positions/{uid} {
+        // Cada acompañante solo puede escribir SU PROPIA posición (el id del
+        // documento tiene que coincidir con su uid); todos los miembros del
+        // viaje pueden leer las posiciones compartidas por los demás.
+        allow read: if signedIn()
+                       && request.auth.uid in get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids;
+        allow write: if signedIn() && request.auth.uid == uid
+                       && request.auth.uid in get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids;
+      }
+      match /emergencyContacts/{contactId} {
+        allow read, write: if signedIn()
+                       && request.auth.uid in get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids;
+      }
+      match /journal/{noteId} {
+        allow read, write: if signedIn()
+                       && request.auth.uid in get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids;
       }
     }
   }
