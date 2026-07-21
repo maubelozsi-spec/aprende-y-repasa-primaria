@@ -290,270 +290,117 @@ const UDI_L5_T1_BLOQUE1 = {
           },
         },
         {
-          id: "reto-sa01", label: "sa01 · Reto final + rúbrica", motor: "udi-doc-builder", builder: "generarRetoYRubrica",
+          id: "reto", label: "Reto final del bloque + rúbrica", motor: "udi-doc-builder", builder: "generarRetoYRubrica",
           args: {
-            id: "texto-predictivo",
-            titulo: "¿Cómo me imagino el año 3030?",
+            id: "l5-t1-bloque1",
+            titulo: "Una tira cómica del futuro",
             consigna: [
-              "Vas a escribir tu propio texto predictivo sobre cómo crees que será la vida en el año 3030.",
-              "Recuerda seguir la estructura que has aprendido: introducción, desarrollo y conclusión, usando los conectores adecuados en cada parte.",
-              "Después, expondrás tu predicción a tus compañeros y compañeras cuidando la pronunciación y el énfasis.",
+              "Este es el reto que reúne todo lo que has aprendido en el bloque. Vas a crear una tira cómica que imagine cómo será la vida en el futuro.",
+              "En ella juntarás las tres cosas que has trabajado: harás una predicción sobre el futuro (como un texto predictivo), tus personajes hablarán usando distintos tipos de enunciados e interjecciones, y todo se presentará como una tira cómica con su estructura y sus recursos.",
+              "Al final, expondrás tu tira a la clase leyendo los diálogos con la entonación adecuada.",
             ],
             pasos: [
-              "Elige un tema para tu predicción: la ciudad, el colegio, la tecnología, el medioambiente, el deporte...",
-              "Escribe un borrador con las tres partes: introducción, desarrollo (con al menos dos razones) y conclusión.",
-              "Revisa que uses conectores adecuados en el desarrollo y en la conclusión.",
-              "Pasa tu texto a limpio.",
-              "Prepárate para leerlo en voz alta, cuidando la pronunciación y haciendo énfasis en las partes importantes.",
+              "Piensa una predicción sobre el futuro: ¿cómo será una ciudad, el colegio o el planeta dentro de muchos años? Comprueba que la idea en la que te apoyas sea razonable y fiable.",
+              "Escribe tu predicción como un texto predictivo breve: introducción (qué crees que pasará), desarrollo (dos razones, con conectores como «en primer lugar» o «además») y conclusión (con un conector como «en definitiva»).",
+              "Convierte esa predicción en una pequeña historia con personajes: presentación, desarrollo con una situación divertida o sorprendente, y un final que haga reír o pensar.",
+              "Escribe los diálogos de los bocadillos usando distintos tipos de enunciado (una pregunta, una exclamación, una orden...) y al menos una interjección (¡ay!, ¡oh!, ¡uf!...).",
+              "Dibuja las viñetas y añade los recursos de la tira cómica: bocadillos, líneas de movimiento y onomatopeyas.",
+              "Prepárate para exponer tu tira a la clase, leyendo los diálogos con la entonación y el énfasis adecuados.",
             ],
             criterios: [
               {
-                nombre: "Reconozco y ordeno las partes de un texto predictivo",
+                nombre: "Mi historia parte de una predicción del futuro bien construida (texto predictivo)",
                 niveles: [
-                  "Identifico las tres partes y las ordeno correctamente.",
-                  "Identifico las tres partes pero me equivoco al ordenarlas.",
-                  "Identifico solo alguna de las partes.",
-                  "No reconozco las partes del texto predictivo.",
+                  "Mi predicción tiene introducción, desarrollo con razones y conectores, y conclusión.",
+                  "Mi predicción tiene las tres partes, aunque le faltan conectores o alguna razón.",
+                  "Mi predicción es una idea sobre el futuro, pero sin estructura clara.",
+                  "No parto de una predicción sobre el futuro.",
                 ],
               },
               {
-                nombre: "Redacto un texto predictivo con introducción, desarrollo y conclusión",
+                nombre: "Compruebo que la idea de mi predicción es fiable",
                 niveles: [
-                  "Redacto las tres partes con coherencia, con borrador previo.",
-                  "Redacto las tres partes, aunque no hago un borrador previo.",
-                  "Redacto el texto, pero falta alguna parte.",
-                  "No redacto un texto predictivo sobre el tema elegido.",
+                  "Explico en qué me baso y por qué es una idea razonable.",
+                  "Digo en qué me baso, aunque sin explicarlo del todo.",
+                  "Mi predicción se apoya en algo, pero no sé justificarlo.",
+                  "Mi predicción es del todo inventada, sin ninguna base.",
                 ],
               },
               {
-                nombre: "Uso conectores adecuados en el desarrollo y en la conclusión",
+                nombre: "Uso distintos tipos de enunciado e interjecciones en los diálogos",
                 niveles: [
-                  "Uso varios conectores distintos y en el lugar correcto.",
-                  "Uso conectores, aunque repito siempre el mismo.",
-                  "Uso algún conector, pero no siempre en el lugar correcto.",
-                  "No uso conectores en mi texto.",
+                  "Uso varios tipos de enunciado distintos y al menos una interjección.",
+                  "Uso dos tipos de enunciado y alguna interjección.",
+                  "Uso siempre el mismo tipo de enunciado o me olvido de las interjecciones.",
+                  "Los diálogos no muestran distintos tipos de enunciado ni interjecciones.",
                 ],
               },
               {
-                nombre: "Compruebo si una fuente de información es fiable",
+                nombre: "Mi tira cómica tiene presentación, desarrollo y final sorprendente",
                 niveles: [
-                  "Explico con mis palabras cómo comprobar si una fuente es fiable, con varios criterios.",
-                  "Explico algún criterio para comprobar si una fuente es fiable.",
-                  "Nombro algún criterio, pero sin explicarlo.",
-                  "No sé explicar cómo comprobar si una fuente es fiable.",
-                ],
-              },
-              {
-                nombre: "Expongo mi predicción cuidando la pronunciación y el énfasis",
-                niveles: [
-                  "Expongo mi texto con una pronunciación clara y énfasis en las partes importantes.",
-                  "Expongo mi texto con una pronunciación clara, pero sin hacer énfasis.",
-                  "Expongo mi texto, aunque con dificultades de pronunciación.",
-                  "No consigo exponer mi texto en voz alta.",
-                ],
-              },
-            ],
-            variantesACS: {
-              titulo: "¿Cómo me imagino el año 3030?",
-              consigna: [
-                "Vas a escribir una o dos frases sobre cómo crees que será el futuro.",
-                "No hace falta que sea muy larga: lo importante es que hable del futuro, no del pasado.",
-              ],
-              pasos: [
-                "Piensa en algo que crees que cambiará en el futuro (los coches, el colegio, la ropa...).",
-                "Escribe una frase que empiece por «Yo creo que en el futuro...».",
-                "Léela en voz alta a la clase.",
-              ],
-              criterios: [
-                {
-                  nombre: "Escribo una frase sobre el futuro (predicción)",
-                  niveles: [
-                    "Escribo una frase clara sobre el futuro.",
-                    "Escribo una frase, aunque no queda muy clara.",
-                    "Necesito ayuda para escribir la frase.",
-                    "No consigo escribir una frase sobre el futuro.",
-                  ],
-                },
-                {
-                  nombre: "Leo mi frase en voz alta",
-                  niveles: [
-                    "Leo mi frase con voz clara.",
-                    "Leo mi frase, aunque bajo.",
-                    "Leo mi frase con ayuda.",
-                    "No consigo leer mi frase en voz alta.",
-                  ],
-                },
-              ],
-            },
-          },
-        },
-        {
-          id: "reto-sa02", label: "sa02 · Reto final + rúbrica", motor: "udi-doc-builder", builder: "generarRetoYRubrica",
-          args: {
-            id: "tipos-enunciado",
-            titulo: "¡Qué cara pone!",
-            consigna: [
-              "Vas a jugar con un compañero o compañera a adivinar la intención de una frase a partir del tono de voz y los gestos.",
-              "Recuerda: cada frase que digas corresponde a un tipo de enunciado (enunciativo, interrogativo, exclamativo, imperativo, desiderativo o dubitativo).",
-            ],
-            pasos: [
-              "Elige una frase corta (por ejemplo: «¡Qué bien!», «¿Qué has hecho?», «Cierra la puerta»).",
-              "Piensa qué intención quieres expresar: alegría, sorpresa, enfado, duda, una orden...",
-              "Dila a tu compañero o compañera con el tono de voz y los gestos adecuados a esa intención.",
-              "Tu compañero adivina qué intención tenías y a qué tipo de enunciado corresponde tu frase.",
-              "Cambiad de turno y repetid con otras frases, usando también alguna interjección.",
-            ],
-            criterios: [
-              {
-                nombre: "Interpreto la intención del hablante a partir de gestos y tono de voz",
-                niveles: [
-                  "Adivino la intención de mi compañero en casi todas las frases.",
-                  "Adivino la intención en la mayoría de las frases.",
-                  "Me cuesta adivinar la intención, acierto pocas veces.",
-                  "No consigo adivinar la intención de las frases.",
-                ],
-              },
-              {
-                nombre: "Relaciono la intención comunicativa con el tipo de enunciado",
-                niveles: [
-                  "Identifico correctamente el tipo de enunciado de cada frase.",
-                  "Identifico el tipo de enunciado en la mayoría de los casos.",
-                  "Identifico el tipo de enunciado con ayuda.",
-                  "No relaciono la intención con el tipo de enunciado.",
-                ],
-              },
-              {
-                nombre: "Utilizo interjecciones adecuadas para expresar emociones",
-                niveles: [
-                  "Uso interjecciones variadas y adecuadas a la emoción.",
-                  "Uso alguna interjección adecuada.",
-                  "Uso interjecciones, aunque no siempre adecuadas.",
-                  "No uso interjecciones en el juego.",
-                ],
-              },
-              {
-                nombre: "Trabajo de forma individual aunque esté en un grupo",
-                niveles: [
-                  "Participo de forma individual y activa dentro del grupo.",
-                  "Participo, aunque a veces sigo lo que hacen los demás.",
-                  "Me cuesta participar de forma individual dentro del grupo.",
-                  "No trabajo de forma individual cuando estoy en grupo.",
-                ],
-              },
-            ],
-            variantesACS: {
-              titulo: "¡Qué cara pone!",
-              consigna: [
-                "Vas a jugar a adivinar si tu compañero está contento o enfadado, fijándote en su cara y su voz.",
-              ],
-              pasos: [
-                "Elige una frase corta, como «¡Qué bien!» o «¡Vaya!».",
-                "Dila poniendo cara de contento o de enfadado, tú eliges.",
-                "Tu compañero adivina qué sentías: contento o enfadado.",
-              ],
-              criterios: [
-                {
-                  nombre: "Adivino si mi compañero está contento o enfadado",
-                  niveles: [
-                    "Adivino bien casi siempre.",
-                    "Adivino bien la mayoría de las veces.",
-                    "Adivino bien con ayuda.",
-                    "No consigo adivinarlo.",
-                  ],
-                },
-                {
-                  nombre: "Expreso con la cara y la voz una emoción",
-                  niveles: [
-                    "Expreso la emoción con claridad.",
-                    "Expreso la emoción, aunque no muy clara.",
-                    "Expreso la emoción con ayuda.",
-                    "No consigo expresar la emoción.",
-                  ],
-                },
-              ],
-            },
-          },
-        },
-        {
-          id: "reto-sa03", label: "sa03 · Reto final + rúbrica", motor: "udi-doc-builder", builder: "generarRetoYRubrica",
-          args: {
-            id: "tira-comica",
-            titulo: "Creo mi tira cómica",
-            consigna: [
-              "Vas a crear tu propia tira cómica de 3 o 4 viñetas, con personajes inventados por ti.",
-              "El objetivo es que sea graciosa o que haga pensar, como las que has visto en clase.",
-            ],
-            pasos: [
-              "Piensa en uno o dos personajes y el lugar donde ocurre la historia (presentación).",
-              "Inventa un problema o situación divertida para tus personajes (desarrollo).",
-              "Piensa un final sorprendente que haga reír o pensar.",
-              "Dibuja las viñetas y añade bocadillos con lo que dicen o piensan los personajes.",
-              "Añade alguna onomatopeya o línea de movimiento si tu historia lo necesita.",
-            ],
-            criterios: [
-              {
-                nombre: "Distingo textos literarios de no literarios",
-                niveles: [
-                  "Explico con claridad qué hace que mi tira sea un texto literario.",
-                  "Sé que mi tira es literaria, aunque no lo explico bien.",
-                  "Necesito ayuda para explicarlo.",
-                  "No distingo lo literario de lo no literario.",
-                ],
-              },
-              {
-                nombre: "Reconozco y utilizo las partes de la tira cómica",
-                niveles: [
-                  "Mi tira tiene presentación, desarrollo y final sorprendente, bien diferenciados.",
-                  "Mi tira tiene las tres partes, aunque no muy diferenciadas.",
-                  "A mi tira le falta alguna parte.",
+                  "Las tres partes están bien diferenciadas y se entienden.",
+                  "Están las tres partes, aunque no muy diferenciadas.",
+                  "A mi tira le falta alguna de las tres partes.",
                   "Mi tira no sigue la estructura de presentación, desarrollo y final.",
                 ],
               },
               {
-                nombre: "Utilizo bocadillos, onomatopeyas o líneas de movimiento",
+                nombre: "Utilizo los recursos de la tira cómica (bocadillos, onomatopeyas, líneas de movimiento)",
                 niveles: [
                   "Uso varios recursos distintos y bien colocados.",
-                  "Uso algún recurso gráfico.",
+                  "Uso algún recurso gráfico correctamente.",
                   "Uso algún recurso, aunque mal colocado.",
-                  "No uso ningún recurso gráfico en mi tira.",
+                  "No uso recursos gráficos en mi tira.",
                 ],
               },
               {
-                nombre: "He creado una tira graciosa o que hace pensar",
+                nombre: "Expongo mi tira leyendo los diálogos con la entonación adecuada",
                 niveles: [
-                  "Mi tira consigue hacer reír o pensar claramente.",
-                  "Mi tira lo consigue en parte.",
-                  "Lo he intentado, aunque no termina de conseguirlo.",
-                  "Mi tira no hace reír ni pensar.",
+                  "Leo los diálogos con claridad y con la entonación de cada tipo de enunciado.",
+                  "Leo los diálogos con claridad, aunque sin mucha entonación.",
+                  "Leo los diálogos con dificultad.",
+                  "No consigo exponer mi tira en voz alta.",
                 ],
               },
             ],
             variantesACS: {
-              titulo: "Creo mi tira cómica",
+              titulo: "Una tira cómica del futuro",
               consigna: [
-                "Vas a dibujar una tira cómica sencilla de 2 viñetas, con un personaje.",
+                "Vas a crear una tira cómica sencilla, de 2 o 3 viñetas, que imagine algo del futuro.",
+                "Juntarás lo que has aprendido: una idea sobre el futuro, un personaje que habla en un bocadillo y el dibujo de la tira.",
               ],
               pasos: [
-                "Dibuja tu personaje en la viñeta 1.",
-                "Dibuja qué le pasa en la viñeta 2 y añade un bocadillo con lo que dice.",
+                "Piensa una idea sobre el futuro: «En el futuro los coches volarán», por ejemplo.",
+                "Dibuja tu personaje en la primera viñeta.",
+                "Dibuja qué pasa en la siguiente viñeta y escribe en un bocadillo lo que dice tu personaje (puede ser una pregunta, una exclamación o una interjección como «¡oh!»).",
+                "Enseña tu tira a la clase y lee el bocadillo en voz alta.",
               ],
               criterios: [
                 {
-                  nombre: "Dibujo un personaje y una situación en dos viñetas",
+                  nombre: "Mi tira parte de una idea sobre el futuro",
                   niveles: [
-                    "Completo las dos viñetas con claridad.",
-                    "Completo las dos viñetas, aunque con poco detalle.",
-                    "Completo una viñeta con ayuda.",
-                    "No consigo completar las viñetas.",
+                    "Mi idea sobre el futuro se entiende bien.",
+                    "Tengo una idea sobre el futuro, aunque poco clara.",
+                    "Necesito ayuda para pensar la idea.",
+                    "No parto de una idea sobre el futuro.",
                   ],
                 },
                 {
-                  nombre: "Uso un bocadillo con lo que dice mi personaje",
+                  nombre: "Dibujo la tira y escribo un bocadillo",
                   niveles: [
-                    "Uso el bocadillo correctamente.",
-                    "Uso el bocadillo, aunque con ayuda.",
-                    "Intento usar el bocadillo, sin conseguirlo del todo.",
-                    "No uso ningún bocadillo.",
+                    "Completo las viñetas y el bocadillo con claridad.",
+                    "Completo las viñetas y el bocadillo, aunque con poco detalle.",
+                    "Lo completo con ayuda.",
+                    "No consigo completar la tira.",
+                  ],
+                },
+                {
+                  nombre: "Leo mi bocadillo en voz alta",
+                  niveles: [
+                    "Leo el bocadillo con voz clara.",
+                    "Leo el bocadillo, aunque bajo.",
+                    "Leo el bocadillo con ayuda.",
+                    "No consigo leerlo en voz alta.",
                   ],
                 },
               ],
