@@ -487,7 +487,6 @@ async function alternarEdicion() {
   estado.editando = !estado.editando;
   document.body.classList.toggle("editando", estado.editando);
   $("#barra-formato").hidden = !estado.editando;
-  $("#btn-config").hidden = !estado.editando;
   $("#btn-salir-edicion").hidden = !estado.editando;
   $("#btn-editar").hidden = estado.editando;
   if (!estado.editando) $("#panel-config").hidden = true;
@@ -1015,7 +1014,16 @@ $("#btn-anterior").addEventListener("click", () => ir(estado.idx - 1));
 $("#btn-indice").addEventListener("click", () => ir(1));
 $("#btn-editar").addEventListener("click", alternarEdicion);
 $("#btn-salir-edicion").addEventListener("click", alternarEdicion);
-$("#btn-config").addEventListener("click", abrirConfig);
+// El engranaje está siempre visible: si aún no se está en modo
+// edición, pide el código (mismo camino que el lápiz) y, una vez
+// dentro, abre directamente el panel de configuración.
+$("#btn-config").addEventListener("click", async () => {
+  if (!estado.editando) {
+    await alternarEdicion();
+    if (!estado.editando) return; // código cancelado o incorrecto
+  }
+  abrirConfig();
+});
 $("#btn-cerrar-config").addEventListener("click", () => { $("#panel-config").hidden = true; });
 
 document.addEventListener("keydown", (ev) => {
