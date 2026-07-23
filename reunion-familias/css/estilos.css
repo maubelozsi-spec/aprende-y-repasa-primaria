@@ -9,6 +9,11 @@
 
 * { box-sizing: border-box; }
 
+/* Los elementos con display propio (flex/grid) anularían el atributo
+   hidden sin esta regla: el panel de configuración y los modales se
+   quedaban abiertos y bloqueaban los clics. */
+[hidden] { display: none !important; }
+
 :root {
   --fuente-titulos: "Caveat", cursive;
   --fuente-texto: "Patrick Hand", "Segoe Print", cursive;
@@ -513,6 +518,37 @@ body.editando .btn-anadir-bloque { display: block; }
   border: 1px solid rgba(127,127,127,.4);
 }
 .tema-btn.activo { border-color: var(--tiza-amarilla); box-shadow: 0 0 0 2px var(--tiza-amarilla); }
+
+.nota-config { font-size: 15px; color: var(--texto-suave); margin: 0 0 6px; }
+
+.fila-fondo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+.fila-fondo label { font-size: 15px; color: var(--texto-suave); }
+.fila-fondo input[type="color"] {
+  width: 46px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--tarjeta-borde);
+  border-radius: 6px;
+  background: var(--tarjeta);
+  cursor: pointer;
+}
+.fila-fondo input[type="range"] { flex: 1; }
+.boton-mini {
+  border: 1px solid var(--tarjeta-borde);
+  background: var(--tarjeta);
+  color: var(--texto);
+  font-family: var(--fuente-texto);
+  font-size: 14px;
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+.boton-mini:hover { background: rgba(127,127,127,.2); }
 
 .fila-seccion {
   display: flex;

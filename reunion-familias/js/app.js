@@ -540,6 +540,34 @@ async function menuAnadirBloque(secId) {
   }
 }
 
+function elegirImagenFondo() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.addEventListener("change", () => {
+    const f = input.files && input.files[0];
+    if (!f) return;
+    const lector = new FileReader();
+    lector.onload = () => comprimirImagen(
+      lector.result,
+      (dataUrl) => {
+        if (!dataUrl) {
+          aviso("Imagen demasiado grande", "No se pudo reducir lo suficiente. Prueba con otra imagen o recórtala antes.");
+          return;
+        }
+        estado.app.fondoImagen = dataUrl;
+        if (typeof estado.app.fondoVelo !== "number") estado.app.fondoVelo = 0.45;
+        aplicarTema();
+        programarGuardadoApp(0);
+        renderConfig();
+      },
+      { max: 1600, blando: 600000, duro: 900000 }
+    );
+    lector.readAsDataURL(f);
+  });
+  input.click();
+}
+
 function elegirImagen(secId, i) {
   const input = document.createElement("input");
   input.type = "file";
@@ -563,11 +591,13 @@ function elegirImagen(secId, i) {
 }
 
 // Reduce la imagen a un tamaño razonable para guardarla dentro del
-// documento de Firestore (límite ~1 MB por sección).
-function comprimirImagen(dataUrl, listo) {
+// documento de Firestore (límite ~1 MB por documento).
+function comprimirImagen(dataUrl, listo, opciones = {}) {
+  const MAX = opciones.max || 1200;
+  const LIMITE_BLANDO = opciones.blando || 500000;
+  const LIMITE_DURO = opciones.duro || 700000;
   const img = new Image();
   img.onload = () => {
-    const MAX = 1200;
     const escala = Math.min(1, MAX / Math.max(img.width, img.height));
     const canvas = document.createElement("canvas");
     canvas.width = Math.round(img.width * escala);
@@ -577,8 +607,8 @@ function comprimirImagen(dataUrl, listo) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     let salida = canvas.toDataURL("image/jpeg", 0.82);
-    if (salida.length > 500000) salida = canvas.toDataURL("image/jpeg", 0.6);
-    if (salida.length > 700000) salida = null;
+    if (salida.length > LIMITE_BLANDO) salida = canvas.toDataURL("image/jpeg", 0.6);
+    if (salida.length > LIMITE_DURO) salida = null;
     listo(salida);
   };
   img.onerror = () => listo(null);
@@ -622,6 +652,8 @@ function renderConfig() {
   // --- Fondo ---
   const g2 = el("div", "config-grupo");
   g2.appendChild(el("h3", "", "Fondo de la presentación"));
+
+  g2.appendChild(el("p", "nota-config", "Elige un tema (define los colores del texto y la tiza):"));
   const temas = el("div", "temas");
   TEMAS.forEach((t) => {
     const b = el("button", "tema-btn" + (estado.app.tema === t.id ? " activo" : ""));
@@ -635,7 +667,11 @@ function renderConfig() {
     mini.textContent = "Abc";
     b.append(mini, document.createTextNode(t.nombre));
     b.addEventListener("click", () => {
+      // Elegir un tema limpia el color y la imagen personalizados,
+      // para que el resultado sea siempre el del tema elegido.
       estado.app.tema = t.id;
+      estado.app.fondoColor = null;
+      estado.app.fondoImagen = null;
       aplicarTema();
       programarGuardadoApp(0);
       renderConfig();
@@ -643,6 +679,74 @@ function renderConfig() {
     temas.appendChild(b);
   });
   g2.appendChild(temas);
+
+  // Color de fondo libre
+  const filaColor = el("div", "fila-fondo");
+  const labColor = el("label", "", "Color de fondo personalizado:");
+  labColor.htmlFor = "inp-color-fondo";
+  const inpColor = document.createElement("input");
+  inpColor.type = "color";
+  inpColor.id = "inp-color-fondo";
+  const temaActual = TEMAS.find((t) => t.id === estado.app.tema) || TEMAS[0];
+  inpColor.value = estado.app.fondoColor || temaActual.fondo;
+  inpColor.addEventListener("input", () => {
+    estado.app.fondoColor = inpColor.value;
+    aplicarTema();
+    programarGuardadoApp();
+  });
+  inpColor.addEventListener("change", () => renderConfig());
+  filaColor.append(labColor, inpColor);
+  if (estado.app.fondoColor) {
+    const quitarColor = el("button", "boton-mini", "✕ Quitar");
+    quitarColor.title = "Volver al color del tema";
+    quitarColor.addEventListener("click", () => {
+      estado.app.fondoColor = null;
+      aplicarTema();
+      programarGuardadoApp(0);
+      renderConfig();
+    });
+    filaColor.appendChild(quitarColor);
+  }
+  g2.appendChild(filaColor);
+
+  // Imagen de fondo propia
+  const btnImagenFondo = el(
+    "button",
+    "boton-config",
+    estado.app.fondoImagen ? "🖼 Cambiar la imagen de fondo…" : "🖼 Poner una imagen de fondo…"
+  );
+  btnImagenFondo.addEventListener("click", () => elegirImagenFondo());
+  g2.appendChild(btnImagenFondo);
+
+  if (estado.app.fondoImagen) {
+    const filaVelo = el("div", "fila-fondo");
+    const labVelo = el("label", "", "Oscurecer la imagen:");
+    labVelo.htmlFor = "inp-velo";
+    const inpVelo = document.createElement("input");
+    inpVelo.type = "range";
+    inpVelo.id = "inp-velo";
+    inpVelo.min = "0";
+    inpVelo.max = "0.7";
+    inpVelo.step = "0.05";
+    inpVelo.value = String(typeof estado.app.fondoVelo === "number" ? estado.app.fondoVelo : 0.45);
+    inpVelo.addEventListener("input", () => {
+      estado.app.fondoVelo = Number(inpVelo.value);
+      aplicarTema();
+      programarGuardadoApp();
+    });
+    filaVelo.append(labVelo, inpVelo);
+    g2.appendChild(filaVelo);
+
+    const quitarImagen = el("button", "boton-config", "✕ Quitar la imagen de fondo");
+    quitarImagen.addEventListener("click", () => {
+      estado.app.fondoImagen = null;
+      aplicarTema();
+      programarGuardadoApp(0);
+      renderConfig();
+    });
+    g2.appendChild(quitarImagen);
+  }
+
   c.appendChild(g2);
 
   // --- Apartados ---
@@ -775,11 +879,29 @@ function moverSeccion(i, delta) {
 
 // ---------------- Tema ----------------
 
+// El tema base define los colores del texto y la tiza; encima se
+// pueden aplicar un color de fondo libre o una imagen de fondo
+// propia (con un velo oscuro regulable para que el texto se lea).
 function aplicarTema() {
   const tema = TEMAS.some((t) => t.id === estado.app.tema)
     ? estado.app.tema
     : "pizarra-negra";
   document.body.dataset.tema = tema;
+
+  const s = document.body.style;
+  if (estado.app.fondoImagen) {
+    const velo = typeof estado.app.fondoVelo === "number" ? estado.app.fondoVelo : 0.45;
+    s.backgroundImage =
+      `linear-gradient(rgba(0,0,0,${velo}), rgba(0,0,0,${velo})), url("${estado.app.fondoImagen}")`;
+    s.backgroundSize = "cover";
+    s.backgroundPosition = "center";
+    s.backgroundColor = estado.app.fondoColor || "";
+  } else {
+    s.backgroundImage = "";
+    s.backgroundSize = "";
+    s.backgroundPosition = "";
+    s.backgroundColor = estado.app.fondoColor || "";
+  }
 }
 
 // ---------------- Modales ----------------

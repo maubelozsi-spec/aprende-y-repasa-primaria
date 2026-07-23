@@ -25,6 +25,9 @@ window.CONTENIDO_INICIAL = {
     tutor: "Miguel Ángel Úbeda López",
     centro: "CEIP San Indalecio · La Cañada (Almería)",
     tema: "pizarra-negra",
+    fondoColor: null,
+    fondoImagen: null,
+    fondoVelo: 0.45,
     secciones: [
       { id: "presentacion",   titulo: "Presentación",              visible: true },
       { id: "calendario",     titulo: "Calendario escolar",        visible: true },
