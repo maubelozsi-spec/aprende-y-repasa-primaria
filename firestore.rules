@@ -2,11 +2,14 @@ rules_version = '2';
 
 // ============================================================
 // Reglas de seguridad de Firestore para TODO el proyecto Firebase
-// "aprende-y-repasa-cc321", que aloja DOS apps distintas:
+// "aprende-y-repasa-cc321", que aloja TRES apps distintas:
 //
 //   - App educativa "Aprende y Repasa" (colecciones "teachers",
 //     "classes", "students", "udiHistorial").
 //   - App del viaje a Finlandia (colecciones "trips", "tripInvites").
+//   - App "Reunión de familias" (colecciones "reunionFamilias",
+//     "reunionFamiliasSecciones", "reunionFamiliasSecret",
+//     "reunionFamiliasEditores").
 //
 // ATENCIÓN: las reglas de Firestore son ÚNICAS por proyecto, no por
 // app. Este archivo es el ÚNICO que hay que pegar en la consola
@@ -91,6 +94,52 @@ service cloud.firestore {
                        && get(/databases/$(database)/documents/students/$(code)).data.authUid == request.auth.uid;
         allow read: if isOwnerTeacher(get(/databases/$(database)/documents/students/$(code)).data.teacherId);
       }
+    }
+
+    // ================= App Reunión de familias =================
+    //
+    // Las familias LEEN sin iniciar sesión (el enlace es público).
+    // Para ESCRIBIR hay que estar inscrito como editor: el docente
+    // introduce el código de edición en la web, la app inicia una
+    // sesión anónima y crea su documento en reunionFamiliasEditores;
+    // esa creación solo se permite si el código coincide con el del
+    // documento secreto (que nadie puede leer). La primera vez que
+    // se usa la app aún no existe el secreto: el primer código que
+    // se escriba lo crea y queda establecido (mismo nivel de
+    // seguridad "de aula" que las claves de alumnos).
+
+    function esEditorReunion() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/reunionFamiliasEditores/$(request.auth.uid));
+    }
+
+    match /reunionFamilias/{docId} {
+      allow read: if true;
+      allow write: if esEditorReunion();
+    }
+
+    match /reunionFamiliasSecciones/{seccionId} {
+      allow read: if true;
+      allow write: if esEditorReunion();
+    }
+
+    match /reunionFamiliasSecret/main {
+      allow read: if false;
+      // "create" solo ocurre cuando el documento no existe todavía
+      // (primer arranque); después, solo los editores pueden cambiarlo.
+      allow create: if signedIn() && request.resource.data.code is string;
+      allow update: if esEditorReunion() && request.resource.data.code is string;
+      allow delete: if false;
+    }
+
+    match /reunionFamiliasEditores/{uid} {
+      allow read, list: if false;
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.code
+             == get(/databases/$(database)/documents/reunionFamiliasSecret/main).data.code;
+      allow update: if false;
+      allow delete: if signedIn() && request.auth.uid == uid;
     }
 
     // ================= App del viaje a Finlandia =================

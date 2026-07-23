@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reunión de familias · Curso 2026/2027</title>
+<meta name="description" content="Presentación de la reunión de familias de principio de curso.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body data-tema="pizarra-negra">
+
+<!-- ===================== VISOR DE DIAPOSITIVAS ===================== -->
+<main id="escenario" aria-live="polite">
+  <div id="diapositivas"></div>
+
+  <button id="btn-anterior" class="flecha flecha-izq" title="Anterior (←)" aria-label="Diapositiva anterior">‹</button>
+  <button id="btn-siguiente" class="flecha flecha-der" title="Siguiente (→)" aria-label="Diapositiva siguiente">›</button>
+
+  <div id="barra-inferior">
+    <button id="btn-indice" title="Ir al índice (Esc)">☰ Índice</button>
+    <span id="contador">1 / 1</span>
+    <span id="estado-guardado" hidden></span>
+    <button id="btn-editar" title="Modo edición">✏️</button>
+    <button id="btn-config" title="Configuración" hidden>⚙️</button>
+    <button id="btn-salir-edicion" title="Salir del modo edición" hidden>👁 Ver</button>
+  </div>
+</main>
+
+<!-- ===================== BARRA DE FORMATO (modo edición) ===================== -->
+<div id="barra-formato" hidden>
+  <button data-cmd="bold" title="Negrita"><b>N</b></button>
+  <button data-cmd="italic" title="Cursiva"><i>C</i></button>
+  <button data-cmd="underline" title="Subrayado"><u>S</u></button>
+  <button data-cmd="insertUnorderedList" title="Lista">• Lista</button>
+  <span class="separador"></span>
+  <button data-color="var(--texto)" class="muestra muestra-blanca" title="Tiza blanca"></button>
+  <button data-color="var(--tiza-azul)" class="muestra muestra-azul" title="Tiza azul"></button>
+  <button data-color="var(--tiza-rosa)" class="muestra muestra-rosa" title="Tiza rosa"></button>
+  <button data-color="var(--tiza-amarilla)" class="muestra muestra-amarilla" title="Tiza amarilla"></button>
+  <span class="separador"></span>
+  <button data-cmd="removeFormat" title="Quitar formato">⌫ Formato</button>
+</div>
+
+<!-- ===================== MODALES ===================== -->
+<div id="fondo-modal" hidden>
+  <div id="modal" role="dialog" aria-modal="true"></div>
+</div>
+
+<!-- ===================== PANEL DE CONFIGURACIÓN ===================== -->
+<aside id="panel-config" hidden>
+  <header>
+    <h2>⚙️ Configuración</h2>
+    <button id="btn-cerrar-config" title="Cerrar">✕</button>
+  </header>
+  <div id="config-contenido"></div>
+</aside>
+
+<script src="../js/firebase-config.js"></script>
+<script src="js/contenido-inicial.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

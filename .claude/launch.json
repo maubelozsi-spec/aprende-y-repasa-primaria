@@ -2,10 +2,42 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "reunion-familias",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "C:\\Users\\User\\AppData\\Local\\Temp\\claude\\C--Users-User-Documents-Claude-Work-PROYECTOS-Aplicaci-n-5---6--curso\\e8b239e1-e16e-4086-a496-ceeab2aa43fb\\scratchpad\\static-server.js",
+        "C:\\Users\\User\\Documents\\Claude-Work\\PROYECTOS\\Aplicación 5º- 6º curso",
+        "8137"
+      ],
+      "port": 8137
+    },
+    {
       "name": "static-site",
       "runtimeExecutable": "py",
       "runtimeArgs": ["-3", "-m", "http.server", "8124"],
       "port": 8124
+    },
+    {
+      "name": "viaje-finlandia",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": [
+        "-ExecutionPolicy", "Bypass",
+        "-File", "C:\\Users\\User\\AppData\\Local\\Temp\\claude\\C--Users-User-Documents-Claude-Work-PROYECTOS-Aplicaci-n-5---6--curso\\af05dcaa-9e69-48d6-8996-ea18999a73b5\\scratchpad\\static-server.ps1",
+        "-Root", "C:\\Users\\User\\Documents\\Claude-Work\\PROYECTOS\\viaje-finlandia\\www",
+        "-Port", "8099"
+      ],
+      "port": 8099
+    },
+    {
+      "name": "mi-historia",
+      "runtimeExecutable": "powershell",
+      "runtimeArgs": [
+        "-ExecutionPolicy", "Bypass",
+        "-File", "C:\\Users\\User\\AppData\\Local\\Temp\\claude\\C--Users-User-Documents-Claude-Work-PROYECTOS-Aplicaci-n-5---6--curso\\e1c7c627-2f49-4ece-8226-d6731b97361b\\scratchpad\\static-server.ps1",
+        "-Root", "C:\\Users\\User\\Documents\\Claude-Work\\PROYECTOS\\Mi Historia",
+        "-Port", "8131"
+      ],
+      "port": 8131
     }
   ]
 }
