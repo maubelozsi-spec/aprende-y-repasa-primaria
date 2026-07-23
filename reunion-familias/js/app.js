@@ -407,10 +407,16 @@ async function avisarPermisos() {
 
 // ---------------- Sincronización con Firestore ----------------
 
+// Pasa a true en cuanto se consigue leer algo de Firestore. Si nunca
+// se consigue, es casi seguro que faltan las reglas por publicar en
+// la consola de Firebase, y los avisos de la app lo dicen así.
+let nubeDisponible = false;
+
 function escucharNube() {
   onSnapshot(
     doc(db, COL_APP, "app"),
     (snap) => {
+      nubeDisponible = true;
       if (snap.metadata.hasPendingWrites) return;
       if (snap.exists()) {
         const datos = snap.data();
@@ -427,6 +433,7 @@ function escucharNube() {
   onSnapshot(
     collection(db, COL_SECCIONES),
     (qs) => {
+      nubeDisponible = true;
       if (qs.metadata.hasPendingWrites) return;
       let hayCambios = false;
       qs.forEach((d) => {
@@ -480,7 +487,14 @@ async function alternarEdicion() {
     });
     $("#estado-guardado").hidden = true;
     if (!ok) {
-      await aviso("Código incorrecto", "El código de edición no es válido.");
+      if (!nubeDisponible) {
+        await aviso(
+          "Falta un paso en Firebase",
+          "La base de datos todavía no tiene publicadas las reglas de esta aplicación, así que no acepta ningún código. Hay que pegar el archivo firestore.rules en la consola de Firebase (Firestore Database → Reglas → sustituir todo → Publicar) y volver a intentarlo."
+        );
+      } else {
+        await aviso("Código incorrecto", "El código de edición no es válido.");
+      }
       return;
     }
   }
@@ -830,11 +844,16 @@ function renderConfig() {
     );
     if (!nuevo) return;
     try {
+      await sesionRestaurada;
       await setDoc(doc(db, COL_SECRETO, "main"), { code: nuevo });
-      aviso("Código cambiado", "A partir de ahora, para inscribir un dispositivo nuevo hará falta el código nuevo.");
+      aviso("Código cambiado", "A partir de ahora, para inscribir un dispositivo nuevo hará falta el código nuevo. Los dispositivos ya inscritos (como este) siguen funcionando.");
     } catch (e) {
       console.error(e);
-      aviso("Error", "No se pudo cambiar el código.");
+      if (!nubeDisponible) {
+        aviso("Falta un paso en Firebase", "La base de datos todavía no tiene publicadas las reglas de esta aplicación. Hay que pegar el archivo firestore.rules en la consola de Firebase (Firestore Database → Reglas → sustituir todo → Publicar).");
+      } else {
+        aviso("Error", "No se pudo cambiar el código. Comprueba la conexión e inténtalo de nuevo.");
+      }
     }
   });
   g4.appendChild(btnCodigo);
