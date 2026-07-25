@@ -12,6 +12,16 @@
       "port": 8137
     },
     {
+      "name": "economia-familiar",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "C:\\Users\\User\\AppData\\Local\\Temp\\claude\\C--Users-User-Documents-Claude-Work-PROYECTOS-Aplicaci-n-5---6--curso\\1fcdab4c-fff2-4fe0-92ed-88ecfb768005\\scratchpad\\static-server.js",
+        "C:\\Users\\User\\Documents\\Claude-Work\\PROYECTOS\\Aplicación 5º- 6º curso",
+        "8142"
+      ],
+      "port": 8142
+    },
+    {
       "name": "static-site",
       "runtimeExecutable": "py",
       "runtimeArgs": ["-3", "-m", "http.server", "8124"],

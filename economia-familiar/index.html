@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Economía Familiar 2.0</title>
+  <meta name="description" content="Juego de aula para aprender a gestionar la economía de una familia durante un año: ingresos, gastos, imprevistos, banco, negocios y solidaridad.">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#e07a3f">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+</head>
+<body>
+  <main class="portada">
+    <div class="logo-grande">💰🏠</div>
+    <h1>Economía Familiar 2.0</h1>
+    <p class="subtitulo">
+      Un año en la vida de vuestra familia: cobrar, pagar, ahorrar, superar imprevistos,
+      montar un negocio y echar una mano a quien lo necesite. ¿Llegaréis a diciembre con las cuentas sanas?
+    </p>
+    <div class="portada-botones">
+      <a class="boton-rol" href="familia.html">
+        <span class="emoji">👨‍👩‍👧‍👦</span>
+        Somos una familia
+        <br><small style="font-weight:400; color:var(--gris-texto);">Entrar con nuestro código</small>
+      </a>
+      <a class="boton-rol" href="docente.html">
+        <span class="emoji">🧑‍🏫</span>
+        Soy docente
+        <br><small style="font-weight:400; color:var(--gris-texto);">Dirigir la partida</small>
+      </a>
+    </div>
+    <div class="portada-botones">
+      <a class="btn btn-secundario" href="proyeccion.html">📽️ Panel de proyección para clase</a>
+    </div>
+  </main>
+  <footer class="pie-app">Economía Familiar 2.0 · Un juego para aprender a manejar el dinero de verdad</footer>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch(function () { /* sin sw */ });
+    }
+  </script>
+</body>
+</html>

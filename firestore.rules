@@ -2,7 +2,7 @@ rules_version = '2';
 
 // ============================================================
 // Reglas de seguridad de Firestore para TODO el proyecto Firebase
-// "aprende-y-repasa-cc321", que aloja TRES apps distintas:
+// "aprende-y-repasa-cc321", que aloja CUATRO apps distintas:
 //
 //   - App educativa "Aprende y Repasa" (colecciones "teachers",
 //     "classes", "students", "udiHistorial").
@@ -10,6 +10,9 @@ rules_version = '2';
 //   - App "Reunión de familias" (colecciones "reunionFamilias",
 //     "reunionFamiliasSecciones", "reunionFamiliasSecret",
 //     "reunionFamiliasEditores").
+//   - App "Economía Familiar 2.0" (colecciones "ecoPartidas",
+//     "ecoFamilias", "ecoMeses", "ecoMarcador",
+//     "ecoPrestamosFamilias", "ecoEventos").
 //
 // ATENCIÓN: las reglas de Firestore son ÚNICAS por proyecto, no por
 // app. Este archivo es el ÚNICO que hay que pegar en la consola
@@ -140,6 +143,88 @@ service cloud.firestore {
              == get(/databases/$(database)/documents/reunionFamiliasSecret/main).data.code;
       allow update: if false;
       allow delete: if signedIn() && request.auth.uid == uid;
+    }
+
+    // ================= App Economía Familiar 2.0 =================
+    //
+    // Juego de aula: el docente (cuenta real) crea una partida con
+    // familias; cada familia entra con un código de 6 caracteres que
+    // es el ID de su documento en ecoFamilias, con el mismo esquema
+    // de "reclamar el código desde una sesión anónima" que usan los
+    // alumnos de Aprende y Repasa. El marcador y los préstamos entre
+    // familias son escribibles por cualquier sesión identificada de
+    // la clase: no contienen códigos ni datos personales, solo el
+    // estado público del juego (nivel de seguridad "de aula").
+
+    function esFamiliaReclamada(codigo) {
+      return signedIn()
+        && get(/databases/$(database)/documents/ecoFamilias/$(codigo)).data.authUid == request.auth.uid;
+    }
+
+    match /ecoPartidas/{partidaId} {
+      // Las familias leen los datos básicos de su partida (nombre,
+      // mes actual, ajustes) conociendo su ID; listar, solo el docente.
+      allow get: if signedIn();
+      allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    match /ecoFamilias/{codigo} {
+      // "get" exige conocer el código (nadie puede listar las claves
+      // de las demás familias salvo el docente de la partida).
+      allow get: if signedIn();
+      allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      // Reclamar el código: cualquier sesión que lo conozca puede
+      // apuntarse como dispositivo activo (solo authUid/lastLoginAt).
+      // Jugar (escribir el estado del juego): solo el dispositivo que
+      // tiene el código reclamado, o el docente propietario.
+      allow update: if isOwnerTeacher(resource.data.teacherId)
+                    || (signedIn()
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(["authUid", "lastLoginAt"]))
+                    || (signedIn() && resource.data.authUid == request.auth.uid);
+      allow delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    match /ecoMeses/{mesId} {
+      // Cada registro mensual lo lee y escribe la familia dueña (vía
+      // su código reclamado) y el docente de la partida. Las demás
+      // familias no ven los detalles: para comparar está ecoMarcador.
+      allow get, list: if signedIn()
+                        && (resource.data.teacherId == request.auth.uid
+                            || esFamiliaReclamada(resource.data.familiaCodigo));
+      allow create: if signedIn()
+                     && (request.resource.data.teacherId == request.auth.uid
+                         || esFamiliaReclamada(request.resource.data.familiaCodigo));
+      allow update: if signedIn()
+                     && (resource.data.teacherId == request.auth.uid
+                         || esFamiliaReclamada(resource.data.familiaCodigo));
+      allow delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    match /ecoMarcador/{partidaId} {
+      // Tablón público de la partida (nombre, emoji, ahorros,
+      // estrellas… de cada familia, sin códigos): lo leen todas las
+      // sesiones y lo actualiza cada familia al cerrar su mes.
+      allow read: if signedIn();
+      allow write: if signedIn();
+    }
+
+    match /ecoPrestamosFamilias/{prestamoId} {
+      // Préstamos solidarios entre familias, identificadas por su ID
+      // público (nunca por su código de acceso).
+      allow read, create, update: if signedIn();
+      allow delete: if signedIn() && resource.data.teacherId == request.auth.uid;
+    }
+
+    match /ecoEventos/{eventoId} {
+      // Eventos de la localidad (Feria, Reyes…): los define el
+      // docente y los leen todas las familias de la clase.
+      allow get, list: if signedIn();
+      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if isOwnerTeacher(resource.data.teacherId);
     }
 
     // ================= App del viaje a Finlandia =================

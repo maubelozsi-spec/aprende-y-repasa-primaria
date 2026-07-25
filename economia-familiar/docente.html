@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docente — Economía Familiar 2.0</title>
+  <link rel="stylesheet" href="css/estilos.css">
+  <meta name="theme-color" content="#e07a3f">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+</head>
+<body>
+  <header class="cabecera-app no-imprimir">
+    <div class="contenedor">
+      <span class="logo">🧑‍🏫</span>
+      <h1>Economía Familiar 2.0 — Panel docente</h1>
+      <a href="index.html">Portada</a>
+      <a href="proyeccion.html">Proyección</a>
+      <button id="btn-salir" class="btn btn-mini btn-secundario" style="display:none;">Salir</button>
+    </div>
+  </header>
+
+  <main class="contenedor">
+
+    <!-- ============ ACCESO ============ -->
+    <section id="vista-login" class="vista">
+      <div class="tarjeta destacada" style="max-width:460px; margin:40px auto;">
+        <h2>Acceso del docente</h2>
+        <p>Usa tu cuenta de Aprende y Repasa (o crea una nueva: sirve para las dos apps).</p>
+        <form id="form-login">
+          <div class="campo"><label>Correo</label><input type="email" id="campo-email" autocomplete="email" required></div>
+          <div class="campo"><label>Contraseña</label><input type="password" id="campo-clave" autocomplete="current-password" required></div>
+          <div class="campo" id="caja-nombre" style="display:none;"><label>Tu nombre (para la cuenta nueva)</label><input id="campo-nombre"></div>
+          <p class="error-form" id="error-login"></p>
+          <button class="btn btn-principal" style="width:100%;" type="submit" id="btn-entrar">Entrar</button>
+          <button class="btn btn-secundario" style="width:100%; margin-top:8px;" type="button" id="btn-cambiar-modo">No tengo cuenta: crear una</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ LISTA DE PARTIDAS ============ -->
+    <section id="vista-partidas" class="vista">
+      <div class="tarjeta">
+        <h2>🎲 Mis partidas</h2>
+        <div id="lista-partidas"></div>
+        <button class="btn btn-principal" id="btn-nueva-partida">➕ Nueva partida</button>
+      </div>
+    </section>
+
+    <!-- ============ UNA PARTIDA ============ -->
+    <section id="vista-partida" class="vista">
+      <button class="btn btn-mini btn-secundario no-imprimir" id="btn-volver-partidas">← Mis partidas</button>
+      <div id="cabecera-partida"></div>
+      <div class="pestanas no-imprimir">
+        <button class="pestana activa" data-vista="mes">📅 El mes</button>
+        <button class="pestana" data-vista="familias">👨‍👩‍👧‍👦 Familias</button>
+        <button class="pestana" data-vista="eventos">🎡 Eventos</button>
+        <button class="pestana" data-vista="analisis">📊 Análisis</button>
+        <button class="pestana" data-vista="informe">📄 Informe final</button>
+      </div>
+      <div id="subvista-mes" class="vista activa"></div>
+      <div id="subvista-familias" class="vista"></div>
+      <div id="subvista-eventos" class="vista"></div>
+      <div id="subvista-analisis" class="vista"></div>
+      <div id="subvista-informe" class="vista"></div>
+    </section>
+
+  </main>
+
+  <footer class="pie-app no-imprimir">Economía Familiar 2.0</footer>
+
+  <script src="../js/firebase-config.js"></script>
+  <script type="module" src="js/docente.js"></script>
+</body>
+</html>

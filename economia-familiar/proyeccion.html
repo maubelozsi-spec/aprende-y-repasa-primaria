@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyección — Economía Familiar 2.0</title>
+  <link rel="stylesheet" href="css/estilos.css">
+  <meta name="theme-color" content="#e07a3f">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📽️</text></svg>">
+</head>
+<body class="modo-proyeccion">
+  <header class="cabecera-app">
+    <div class="contenedor">
+      <span class="logo">📽️</span>
+      <h1 id="titulo-proyeccion">Economía Familiar 2.0</h1>
+      <a href="docente.html">Panel docente</a>
+      <button class="btn btn-mini btn-secundario" id="btn-actualizar" style="display:none;">🔄 Actualizar</button>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <section id="vista-acceso" class="vista activa">
+      <div class="tarjeta" style="max-width:520px; margin:40px auto; text-align:center;">
+        <h2>📽️ Panel de proyección</h2>
+        <p id="mensaje-acceso">Para proyectar, primero entra como docente.</p>
+        <a class="btn btn-principal" href="docente.html">Ir al acceso de docente</a>
+        <div id="selector-partida" style="margin-top:16px;"></div>
+      </div>
+    </section>
+    <section id="vista-panel" class="vista"></section>
+  </main>
+
+  <script src="../js/firebase-config.js"></script>
+  <script type="module" src="js/proyeccion.js"></script>
+</body>
+</html>
