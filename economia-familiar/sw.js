@@ -6,7 +6,7 @@
 // código llegan en cuanto hay conexión).
 // ============================================================
 
-const CACHE = "eco-familiar-v1";
+const CACHE = "eco-familiar-v2";
 const ARCHIVOS = [
   "./",
   "./index.html",
@@ -17,6 +17,7 @@ const ARCHIVOS = [
   "./js/firebase-init.js",
   "./js/catalogos.js",
   "./js/motor.js",
+  "./js/ruleta.js",
   "./js/comun.js",
   "./js/familia.js",
   "./js/docente.js",

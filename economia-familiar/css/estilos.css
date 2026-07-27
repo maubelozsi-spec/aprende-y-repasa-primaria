@@ -272,6 +272,63 @@ tr.fila-clicable:hover { background: #fdf8ee; }
 .importe-grande.positivo { color: var(--exito); }
 .importe-grande.negativo { color: var(--peligro); }
 
+/* ---------- ruleta del mes ---------- */
+
+.ruleta-envoltura {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-top: 26px;
+  margin: 8px auto;
+}
+
+.ruleta-aguja {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  color: var(--tinta);
+  z-index: 2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.ruleta-canvas { border-radius: 50%; box-shadow: var(--sombra-alta); }
+
+.ruleta-fuerza { max-width: 420px; margin: 14px auto 0; text-align: center; }
+.ruleta-barra { accent-color: var(--peligro); height: 40px; }
+.ruleta-fuerza-texto { font-weight: 700; color: var(--gris-texto); }
+
+.dado {
+  font-size: 5.5rem;
+  line-height: 1;
+  display: inline-block;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s;
+}
+
+.dado:hover { transform: scale(1.08); }
+
+.dado-girando { animation: dado-rueda 0.35s linear infinite; }
+
+@keyframes dado-rueda {
+  0% { transform: rotate(-12deg) translateY(0); }
+  25% { transform: rotate(8deg) translateY(-8px); }
+  50% { transform: rotate(-8deg) translateY(0); }
+  75% { transform: rotate(12deg) translateY(-6px); }
+  100% { transform: rotate(-12deg) translateY(0); }
+}
+
+.consejo-opcion {
+  cursor: pointer;
+  border: 2px solid var(--gris-borde);
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.consejo-opcion:hover { transform: translateY(-2px); }
+.consejo-opcion.elegido { border-color: var(--exito); background: #f4fcf6; }
+
 /* ---------- barra deslizante de ocio ---------- */
 
 input[type="range"] { padding: 0; accent-color: var(--primario); height: 34px; }

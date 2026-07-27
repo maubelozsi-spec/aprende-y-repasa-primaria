@@ -332,6 +332,63 @@ export const RETOS_TRAMO = {
   ],
 };
 
+// ---------- Consejos de ahorro en los gastos fijos ----------
+// Cada mes la familia recibe 3 consejos aplicables a SUS gastos y
+// elige uno: el ahorro se aplica ese mes y aprenden que hay
+// estrategias reales para gastar menos. "aplicaA" son palabras que
+// deben aparecer en el concepto del gasto; "pct" es el % de ahorro
+// sobre ese gasto (con tope "max" en €).
+export const CONSEJOS_AHORRO = [
+  { id: "led", emoji: "💡", titulo: "Caza-vampiros eléctricos", texto: "Apagad las luces al salir, desenchufad los aparatos en espera (la tele y la consola gastan aunque estén apagadas) y cambiad a bombillas LED.", aplicaA: ["luz", "gas", "electricidad"], pct: 15, max: 40 },
+  { id: "termostato", emoji: "🌡️", titulo: "Un grado menos", texto: "Bajar la calefacción solo 1 grado (o subir 1 el aire) ahorra hasta un 7% por grado. Un jersey en casa es gratis.", aplicaA: ["luz", "gas", "calefacción"], pct: 10, max: 30 },
+  { id: "ducha", emoji: "🚿", titulo: "Duchas de canción", texto: "Duchas de lo que dura una canción (5 minutos) y grifo cerrado mientras os laváis los dientes o enjabonáis los platos.", aplicaA: ["agua"], pct: 15, max: 15 },
+  { id: "menu", emoji: "📝", titulo: "Menú semanal y lista de la compra", texto: "Planificad el menú de la semana, haced lista antes de comprar y no vayáis al súper con hambre: se compra solo lo necesario y no se tira comida.", aplicaA: ["comida", "compra", "alimentación"], pct: 12, max: 60 },
+  { id: "marcas", emoji: "🏷️", titulo: "Marca blanca y ofertas", texto: "Comparad precios por kilo, aprovechad ofertas de temporada y probad marcas blancas: muchas se fabrican en las mismas fábricas que las caras.", aplicaA: ["comida", "compra", "alimentación"], pct: 10, max: 50 },
+  { id: "tupper", emoji: "🍱", titulo: "Táper al rescate", texto: "Cocinad de más el domingo y congelad raciones: los táperes evitan caer en comida rápida o precocinados caros entre semana.", aplicaA: ["comida", "compra", "alimentación"], pct: 8, max: 40 },
+  { id: "tarifa", emoji: "📞", titulo: "Revisar la tarifa", texto: "Llamad a vuestra compañía de teléfono e internet y preguntad por ofertas: muchas familias pagan servicios que no usan. Comparar es gratis.", aplicaA: ["teléfono", "internet", "móvil"], pct: 20, max: 25 },
+  { id: "compartir-coche", emoji: "🚗", titulo: "Compartir coche", texto: "Poneos de acuerdo con otras familias para llevar a los niños al cole o al entreno por turnos: la mitad de viajes, la mitad de gasolina.", aplicaA: ["coche", "gasolina", "taxi", "furgoneta"], pct: 15, max: 40 },
+  { id: "bici", emoji: "🚲", titulo: "Piernas y pedales", texto: "Para trayectos cortos, andando o en bici: cero gasolina, cero atascos y encima cuenta como deporte.", aplicaA: ["coche", "gasolina", "moto", "transporte", "autobús"], pct: 10, max: 30 },
+  { id: "eco-conduccion", emoji: "🐢", titulo: "Conducción eficiente", texto: "Sin acelerones ni frenazos, marchas largas y ruedas bien hinchadas: el mismo viaje puede gastar un 15% menos de combustible.", aplicaA: ["coche", "gasolina", "furgoneta", "moto", "taxi"], pct: 12, max: 35 },
+  { id: "bono", emoji: "🎫", titulo: "Bono de transporte", texto: "Si usáis mucho el autobús, el bono mensual o la tarjeta joven sale mucho más barato que pagar billete a billete.", aplicaA: ["transporte", "autobús", "bus"], pct: 15, max: 20 },
+  { id: "genericos", emoji: "💊", titulo: "Medicamentos genéricos", texto: "Preguntad en la farmacia por el genérico: mismo principio activo, mismo efecto, bastante más barato.", aplicaA: ["médico", "farmacia", "medicinas"], pct: 15, max: 20 },
+  { id: "pienso", emoji: "🐾", titulo: "Pienso a lo grande", texto: "Comprar el saco grande de pienso y comparar veterinarios para las vacunas ahorra un buen pico al año.", aplicaA: ["veterinario", "pienso", "mascota"], pct: 12, max: 20 },
+  { id: "presupuesto", emoji: "📒", titulo: "Presupuesto familiar", texto: "Apuntad TODOS los gastos de la semana en una libreta o una app. Solo con verlos escritos, las familias gastan menos: se descubren fugas de dinero.", aplicaA: ["*"], pctTotal: 2, max: 45 },
+  { id: "segunda-mano", emoji: "🔁", titulo: "Segunda mano primero", texto: "Antes de comprar algo nuevo (ropa, libros, deporte), mirad en tiendas de segunda mano o intercambiad con otras familias del cole.", aplicaA: ["*"], pctTotal: 1.5, max: 35 },
+  { id: "comparar", emoji: "🔍", titulo: "Comparar antes de pagar", texto: "Para cualquier recibo (seguro, luz, internet) hay comparadores gratis. Dedicar 20 minutos a comparar puede ahorrar todo el año.", aplicaA: ["*"], pctTotal: 2, max: 40 },
+];
+
+// ---------- Ruleta del mes: oportunidades e imprevistos ----------
+// Sustituye a las tarjetas: cada mes se monta una ruleta nueva con
+// estos elementos. Importes pequeños porque el dado puede obligar a
+// girar varias veces.
+export const RULETA_OPORTUNIDADES = [
+  { texto: "Venta de segunda mano", emoji: "📦", descripcion: "Vendéis por internet ropa y juguetes que ya no usabais. ¡Lo que no usas, a otro le sirve!", importe: [30, 90] },
+  { texto: "Horas extra", emoji: "⏰", descripcion: "Un fin de semana de trabajo extra bien pagado.", importe: [60, 120] },
+  { texto: "Cuidar la mascota del vecino", emoji: "🐕", descripcion: "El vecino se va de viaje y os paga por cuidar a su perro.", importe: [20, 50] },
+  { texto: "Premio del barrio", emoji: "🏆", descripcion: "¡Ganáis el concurso de tortillas de las fiestas!", importe: [40, 100] },
+  { texto: "Devolución de Hacienda", emoji: "🧾", descripcion: "Os devuelven dinero de los impuestos: pagasteis de más y ahora vuelve.", importe: [50, 150] },
+  { texto: "Clases particulares", emoji: "📚", descripcion: "Alguien de la familia da clases de repaso a un vecino.", importe: [40, 80] },
+  { texto: "Encuesta pagada", emoji: "📋", descripcion: "Participáis en un estudio de consumo y os lo pagan.", importe: [15, 40] },
+  { texto: "Chatarra y reciclaje", emoji: "♻️", descripcion: "Lleváis chatarra y aparatos viejos al punto de reciclaje que paga por ellos.", importe: [20, 45] },
+  { texto: "Mercadillo casero", emoji: "🧺", descripcion: "Montáis un puestecillo de limonada y bizcochos en la fiesta del barrio.", importe: [25, 60] },
+  { texto: "Apaño bien pagado", emoji: "🔧", descripcion: "Ayudáis a un vecino con una mudanza y os lo agradece con dinero.", importe: [30, 70] },
+];
+
+export const RULETA_IMPREVISTOS = [
+  { texto: "Pinchazo de rueda", emoji: "🛞", descripcion: "Una rueda pinchada: parche o rueda nueva, no queda otra.", importe: [-70, -30] },
+  { texto: "Adiós, microondas", emoji: "🍲", descripcion: "El microondas dice basta. Toca repararlo o comprar otro.", importe: [-90, -50] },
+  { texto: "Multa por despiste", emoji: "🅿️", descripcion: "Aparcasteis donde no tocaba. La grúa no perdona.", importe: [-100, -40] },
+  { texto: "Visita al dentista", emoji: "🦷", descripcion: "Un empaste que no puede esperar.", importe: [-120, -60] },
+  { texto: "Cumpleaños sorpresa", emoji: "🎁", descripcion: "Invitación de última hora: regalo y merienda.", importe: [-50, -20] },
+  { texto: "Mochila perdida", emoji: "🎒", descripcion: "Se pierde la mochila con el estuche dentro. Hay que reponerlo todo.", importe: [-60, -30] },
+  { texto: "Factura sorpresa de la luz", emoji: "💡", descripcion: "Este mes la factura llega más alta de lo esperado.", importe: [-90, -40] },
+  { texto: "A la farmacia", emoji: "💊", descripcion: "Un catarro familiar: jarabes, pañuelos y termómetro nuevo.", importe: [-50, -20] },
+  { texto: "Cristal roto", emoji: "🪟", descripcion: "El balonazo entró por la ventana del vecino. Hay que pagar el cristal.", importe: [-100, -50] },
+  { texto: "El móvil al agua", emoji: "📱", descripcion: "El móvil se cae donde no debía. Reparación de pantalla.", importe: [-150, -60] },
+];
+
+export const RULETA_RESPIRO = { texto: "¡Mes tranquilo!", emoji: "😮‍💨", descripcion: "Esta vez no pasa nada: respirad hondo.", importe: [0, 0] };
+
 // ---------- Metas de ahorro familiares ----------
 export const METAS_AHORRO = [
   { id: "vacaciones", titulo: "Vacaciones en familia", emoji: "✈️", importe: 1500, descripcion: "Ahorrar para una semana de vacaciones todos juntos." },
@@ -359,7 +416,8 @@ export const INSIGNIAS = [
 export const CONFIG_JUEGO = {
   ahorroInicial: 500,
   interesCuentaAhorro: 2, // % mensual
-  mesesPrestamoBanco: 4, // plazo para devolver el préstamo bancario
+  interesPrestamoPct: 10, // interés total del préstamo bancario (se devuelve el 110%)
+  mesLimitePrestamo: 12, // todo préstamo se devuelve antes de acabar el año
   mesesPrestamoSolidario: 3,
   inflacionMensual: 0.5, // % de subida de los gastos fijos al mes (si está activada)
   pagaExtraPorcentaje: 50, // % de los ingresos que llega de paga extra en junio y diciembre

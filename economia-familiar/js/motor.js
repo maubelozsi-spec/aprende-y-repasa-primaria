@@ -10,6 +10,10 @@ import {
   TARJETAS_IMPREVISTO,
   ESTRATEGIAS_NEGOCIO,
   RETOS_TRAMO,
+  CONSEJOS_AHORRO,
+  RULETA_OPORTUNIDADES,
+  RULETA_IMPREVISTOS,
+  RULETA_RESPIRO,
   CONFIG_JUEGO,
   NOMBRES_MES,
 } from "./catalogos.js";
@@ -91,6 +95,119 @@ export function sacarTarjeta(familia) {
     texto: tarjeta.texto,
     emoji: tarjeta.emoji,
     importe: importe,
+  };
+}
+
+// ---------- consejos de ahorro del mes ----------
+
+// Devuelve 3 consejos aplicables a los gastos fijos de la familia,
+// cada uno con el ahorro concreto en euros que produciría este mes.
+// La familia elige UNO y su ahorro se descuenta de los gastos.
+export function consejosDelMes(familia, mes) {
+  const gastos = familia.gastosFijos || [];
+  const totalGastos = gastos.reduce((s, g) => s + (Number(g.importe) || 0), 0);
+  const aplicables = [];
+
+  for (const c of CONSEJOS_AHORRO) {
+    if (c.aplicaA[0] === "*") {
+      const ahorro = redondear(Math.min(c.max, totalGastos * c.pctTotal / 100));
+      if (ahorro >= 5) {
+        aplicables.push({ id: c.id, emoji: c.emoji, titulo: c.titulo, texto: c.texto, concepto: "todos los gastos", ahorro: Math.round(ahorro) });
+      }
+      continue;
+    }
+    const gasto = gastos.find((g) => {
+      const nombre = String(g.concepto || "").toLowerCase();
+      return c.aplicaA.some((palabra) => nombre.includes(palabra));
+    });
+    if (gasto) {
+      const ahorro = Math.round(Math.min(c.max, (Number(gasto.importe) || 0) * c.pct / 100));
+      if (ahorro >= 5) {
+        aplicables.push({ id: c.id, emoji: c.emoji, titulo: c.titulo, texto: c.texto, concepto: gasto.concepto, ahorro: ahorro });
+      }
+    }
+  }
+
+  // Barajar con el mes como pequeña variación y devolver 3 distintos.
+  const barajados = [...aplicables].sort(() => Math.random() - 0.5);
+  return barajados.slice(0, 3);
+}
+
+// ---------- ruleta del mes ----------
+
+// Monta la ruleta de 8 casillas del mes: mezcla de oportunidades
+// (ganancias explicadas) e imprevistos (gastos explicados), distinta
+// cada mes y ajustada a la dificultad de la familia.
+export function construirRuleta(familia, mes) {
+  const dif = familia.dificultad || "media";
+  const escala = CONFIG_JUEGO.escalaImportes[dif] || 1;
+  const reparto = { facil: [4, 3, 1], media: [3, 4, 1], dificil: [3, 5, 0] }[dif] || [3, 4, 1];
+
+  const cogeVarios = (lista, n) => {
+    const copia = [...lista].sort(() => Math.random() - 0.5);
+    return copia.slice(0, n);
+  };
+  const conImporte = (item, esNegativo) => {
+    const bruto = azarEntre(Math.min(...item.importe), Math.max(...item.importe));
+    const importe = Math.round(esNegativo ? bruto * escala : bruto * (2 - escala));
+    return { texto: item.texto, emoji: item.emoji, descripcion: item.descripcion, importe: importe };
+  };
+
+  const casillas = [
+    ...cogeVarios(RULETA_OPORTUNIDADES, reparto[0]).map((x) => conImporte(x, false)),
+    ...cogeVarios(RULETA_IMPREVISTOS, reparto[1]).map((x) => conImporte(x, true)),
+    ...Array.from({ length: reparto[2] }, () => ({ ...RULETA_RESPIRO, importe: 0 })),
+  ];
+  // Intercalar para que la ruleta alterne colores.
+  return casillas.sort(() => Math.random() - 0.5);
+}
+
+// ---------- patrimonio y capacidad de crédito ----------
+
+// Si la familia no tiene declarados vivienda/vehículos (partidas
+// antiguas), se deducen de sus gastos fijos: pagar "hipoteca" implica
+// casa propia, pagar "alquiler" implica vivir de alquiler, etc.
+export function inferirPatrimonio(familia) {
+  const conceptos = (familia.gastosFijos || []).map((g) => String(g.concepto || "").toLowerCase()).join(" · ");
+  const vivienda = familia.vivienda
+    || (conceptos.includes("hipoteca") ? "propia" : conceptos.includes("alquiler") ? "alquiler" : "alquiler");
+  let vehiculos = familia.vehiculos;
+  if (!Array.isArray(vehiculos)) {
+    vehiculos = [];
+    if (/coche|taxi|gasolina/.test(conceptos)) vehiculos.push("coche");
+    if (conceptos.includes("moto")) vehiculos.push("moto");
+    if (conceptos.includes("furgoneta")) vehiculos.push("furgoneta");
+  }
+  return { vivienda: vivienda, vehiculos: vehiculos };
+}
+
+// Condiciones del banco para prestar: cuánto puede pedir la familia
+// según sus ingresos y sus avales (vivienda en propiedad, vehículos).
+export function capacidadCredito(familia) {
+  const patrimonio = inferirPatrimonio(familia);
+  const condiciones = [];
+  let maximo = Math.round((Number(familia.ingresosMensuales) || 0) * 2);
+  condiciones.push("Por vuestros ingresos (" + euros(familia.ingresosMensuales) + "/mes): hasta " + euros(maximo));
+
+  for (const v of patrimonio.vehiculos) {
+    maximo += 3000;
+    condiciones.push("Aval del " + (v === "coche" ? "coche 🚗" : v === "moto" ? "la moto 🛵" : "la furgoneta 🚐") + ": +" + euros(3000));
+  }
+  if (patrimonio.vivienda === "propia") {
+    maximo += 25000;
+    condiciones.push("Hipoteca sobre vuestra casa 🏠: +" + euros(25000));
+  } else {
+    condiciones.push("Vivís de alquiler: sin aval de vivienda");
+  }
+  maximo = Math.min(60000, maximo);
+
+  return {
+    maximo: maximo,
+    interesPct: CONFIG_JUEGO.interesPrestamoPct,
+    mesLimite: CONFIG_JUEGO.mesLimitePrestamo,
+    vivienda: patrimonio.vivienda,
+    vehiculos: patrimonio.vehiculos,
+    condiciones: condiciones,
   };
 }
 
@@ -342,7 +459,7 @@ export function efectosCierreMes(familia, mesCerrado) {
 
   // Préstamo bancario vencido sin devolver → plan de rescate.
   const prestamo = familia.prestamoBanco;
-  if (prestamo && prestamo.activo && mesCerrado >= prestamo.mesLimite && (prestamo.devuelto || 0) < prestamo.importe) {
+  if (prestamo && prestamo.activo && mesCerrado >= prestamo.mesLimite && (prestamo.devuelto || 0) < (prestamo.total || prestamo.importe)) {
     if (!familia.planRescate || !familia.planRescate.activo) {
       cambios.planRescate = {
         activo: true,

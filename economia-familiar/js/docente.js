@@ -18,7 +18,7 @@ import {
   PERFILES_FAMILIA, EVENTOS_PLANTILLA, INSIGNIAS, CONFIG_JUEGO, NOMBRES_MES,
 } from "./catalogos.js";
 import {
-  euros, redondear, generarCodigo, idAleatorio, sortearRetos, analisisDelMes, efectosCierreMes,
+  euros, redondear, generarCodigo, idAleatorio, sortearRetos, analisisDelMes, efectosCierreMes, inferirPatrimonio,
 } from "./motor.js";
 import {
   CLAVE_SESION_DOCENTE, guardarSesion, cargarSesion, borrarSesion,
@@ -535,6 +535,20 @@ function formularioFamilia(existente) {
     "</select></div></div>" +
     '<div class="campo"><label>Alumnos que la juegan</label><input id="ff-alumnos" value="' + escapaHtml(f.alumnos || "") + '" placeholder="Ej: Lucía, Hugo y Vera"></div>' +
     '<div class="campo"><label>Mascotas (vacío si no hay)</label><input id="ff-mascotas" value="' + escapaHtml(f.mascotas || "") + '"></div>' +
+    (() => {
+      const pat = inferirPatrimonio(f);
+      return '<div class="fila-campos">' +
+        '<div class="campo"><label>Vivienda (aval del banco)</label><select id="ff-vivienda">' +
+        '<option value="propia"' + (pat.vivienda === "propia" ? " selected" : "") + ">🏠 Casa en propiedad</option>" +
+        '<option value="alquiler"' + (pat.vivienda === "alquiler" ? " selected" : "") + ">🔑 De alquiler</option>" +
+        "</select></div>" +
+        '<div class="campo"><label>Vehículos (aval del banco)</label>' +
+        '<div style="display:flex; gap:12px; flex-wrap:wrap; padding-top:6px;">' +
+        [["coche", "🚗 Coche"], ["moto", "🛵 Moto"], ["furgoneta", "🚐 Furgoneta"]].map((par) =>
+          '<label style="font-weight:400; display:flex; gap:4px; align-items:center;"><input type="checkbox" class="ff-vehiculo" value="' + par[0] +
+          '" style="width:auto;"' + (pat.vehiculos.includes(par[0]) ? " checked" : "") + ">" + par[1] + "</label>").join("") +
+        "</div></div></div>";
+    })() +
     "<h4>Miembros e ingresos</h4><div id='ff-miembros'></div>" +
     '<button class="btn btn-mini btn-secundario" id="ff-add-miembro">+ Añadir miembro</button>' +
     "<h4 style='margin-top:12px;'>Gastos fijos mensuales</h4><div id='ff-gastos'></div>" +
@@ -591,6 +605,10 @@ function formularioFamilia(existente) {
     fondo.querySelector("#ff-mascotas").value = p.mascotas || "";
     pintarMiembros(p.miembros.map((x) => ({ ...x })));
     pintarGastos(p.gastosFijos.map((x) => ({ ...x })));
+    // Deducir vivienda y vehículos del perfil (hipoteca → propia, etc.).
+    const pat = inferirPatrimonio(p);
+    fondo.querySelector("#ff-vivienda").value = pat.vivienda;
+    fondo.querySelectorAll(".ff-vehiculo").forEach((chk) => { chk.checked = pat.vehiculos.includes(chk.value); });
   });
 
   fondo.querySelector("#ff-add-miembro").addEventListener("click", () => {
@@ -617,6 +635,8 @@ function formularioFamilia(existente) {
       dificultad: dificultad,
       alumnos: fondo.querySelector("#ff-alumnos").value.trim(),
       mascotas: fondo.querySelector("#ff-mascotas").value.trim(),
+      vivienda: fondo.querySelector("#ff-vivienda").value,
+      vehiculos: Array.from(fondo.querySelectorAll(".ff-vehiculo:checked")).map((x) => x.value),
       miembros: miembros,
       gastosFijos: gastos,
       ingresosMensuales: ingresos,
@@ -664,8 +684,8 @@ function verFamilia(codigo) {
     "<p>🎯 " + (f.retos || []).map((r) => "<strong>" + r.meses + "</strong>: " + escapaHtml(r.descripcion) +
       " (" + (r.importe >= 0 ? "+" : "") + r.importe + " €" + (r.recurrente ? "/mes" : "") + ")").join(" · ") + "</p>" +
     (f.prestamoBanco && f.prestamoBanco.activo
-      ? "<p>💳 Debe al banco " + euros(f.prestamoBanco.importe - (f.prestamoBanco.devuelto || 0)) +
-        " (límite: " + NOMBRES_MES[f.prestamoBanco.mesLimite] + ")</p>" : "") +
+      ? "<p>💳 Debe al banco " + euros((f.prestamoBanco.total || f.prestamoBanco.importe) - (f.prestamoBanco.devuelto || 0)) +
+        " con intereses (límite: " + NOMBRES_MES[f.prestamoBanco.mesLimite] + ")</p>" : "") +
     (f.cuentaAhorro && f.cuentaAhorro.activa ? "<p>🐷 Cuenta de ahorro: " + euros(f.cuentaAhorro.saldo) + "</p>" : "") +
     (f.negocio && f.negocio.activo ? "<p>🚀 " + f.negocio.emoji + " " + escapaHtml(f.negocio.nombre) +
       " (balance " + euros(f.negocio.totalGanado || 0) + ")</p>" : "") +

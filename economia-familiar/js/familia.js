@@ -17,9 +17,11 @@ import {
   METAS_AHORRO, INSIGNIAS, NEGOCIOS, ESTRATEGIAS_NEGOCIO, CONFIG_JUEGO, NOMBRES_MES,
 } from "./catalogos.js";
 import {
-  euros, redondear, sacarTarjeta, retoDelMes, eventosDelMes, resultadoNegocio,
+  euros, redondear, retoDelMes, eventosDelMes, resultadoNegocio,
   gastosFijosDelMes, ingresosDelMes, calcularISE, premiosDelMes, insigniasNuevas, idAleatorio,
+  consejosDelMes, construirRuleta, capacidadCredito, inferirPatrimonio,
 } from "./motor.js";
+import { crearRuleta, tirarDado } from "./ruleta.js";
 import {
   CLAVE_SESION_FAMILIA, guardarSesion, cargarSesion, borrarSesion,
   aviso, confirmar, graficaLineas, el, escapaHtml,
@@ -243,7 +245,14 @@ function pintarInicio() {
       "<li><strong>" + escapaHtml(mi.nombre) + "</strong> (" + mi.edad + " años) — " + escapaHtml(mi.rol) +
       (mi.ingresos ? " · " + euros(mi.ingresos) + "/mes" : "") + "</li>").join("") +
     (familia.mascotas ? "<li>🐾 " + escapaHtml(familia.mascotas) + "</li>" : "") +
-    "</ul><p><strong>Ingresos: " + euros(familia.ingresosMensuales) + "/mes</strong></p>" +
+    "</ul>" +
+    (() => {
+      const pat = inferirPatrimonio(familia);
+      return "<p>" + (pat.vivienda === "propia" ? "🏠 Casa en propiedad" : "🔑 Viven de alquiler") +
+        (pat.vehiculos.length ? " · " + pat.vehiculos.map((v) => v === "coche" ? "🚗 coche" : v === "moto" ? "🛵 moto" : "🚐 furgoneta").join(", ") : " · sin vehículos") +
+        " <span class='chip' title='La vivienda y los vehículos sirven de aval para pedir préstamos al banco'>aval del banco</span></p>";
+    })() +
+    "<p><strong>Ingresos: " + euros(familia.ingresosMensuales) + "/mes</strong></p>" +
     (familia.alumnos ? "<p style='color:var(--gris-texto);'>Jugadores: " + escapaHtml(familia.alumnos) + "</p>" : "") +
     "</div>";
 
@@ -257,8 +266,8 @@ function pintarInicio() {
   let bancoHtml = "";
   if (familia.prestamoBanco && familia.prestamoBanco.activo) {
     const p = familia.prestamoBanco;
-    bancoHtml += "<p>💳 Préstamo pendiente: <strong>" + euros(p.importe - (p.devuelto || 0)) +
-      "</strong> (devolver antes de " + NOMBRES_MES[p.mesLimite] + ")</p>";
+    bancoHtml += "<p>💳 Préstamo pendiente: <strong>" + euros((p.total || p.importe) - (p.devuelto || 0)) +
+      "</strong> (con intereses; devolver antes de " + NOMBRES_MES[p.mesLimite] + ")</p>";
   }
   if (familia.cuentaAhorro && familia.cuentaAhorro.activa) {
     bancoHtml += "<p>🏦 Cuenta de ahorro: <strong>" + euros(familia.cuentaAhorro.saldo) +
@@ -374,8 +383,11 @@ function pintarHistorial() {
         (h.premios && h.premios.corazon ? "❤️" : "") +
         (h.premios && h.premios.alerta ? "⚠️" : "") +
         (h.premioReflexion ? "🏅" : "");
+      const totalRuleta = h.ruleta ? h.ruleta.resultados.reduce((s, r) => s + r.importe, 0) : null;
       const sucesos = [
+        h.ruleta ? "🎡 Ruleta (dado " + h.ruleta.dado + "): " + (totalRuleta >= 0 ? "+" : "−") + euros(Math.abs(totalRuleta)) : "",
         h.tarjeta ? h.tarjeta.emoji + " " + h.tarjeta.texto : "",
+        h.consejo ? h.consejo.emoji + " " + h.consejo.titulo + " (+" + euros(h.consejo.ahorro) + ")" : "",
         h.reto ? "🎯 " + h.reto.descripcion : "",
         h.negocio && h.negocio.importe != null ? "🚀 Negocio: " + euros(h.negocio.importe) : "",
       ].filter(Boolean).join(" · ");
@@ -439,7 +451,7 @@ function empezarMes() {
   let borrador = null;
   try { borrador = JSON.parse(localStorage.getItem(claveBorrador())); } catch (e) { /* nada */ }
 
-  if (borrador && borrador.m && borrador.m.mes === mes) {
+  if (borrador && borrador.m && borrador.m.mes === mes && borrador.m.ruleta) {
     m = borrador.m;
     pasoActual = borrador.paso || 0;
   } else {
@@ -449,11 +461,13 @@ function empezarMes() {
       enRescate: !!enRescate,
       ingresos: ingresosDelMes(familia, mes, ajustes),
       gastosFijos: gastosFijosDelMes(familia, mes, ajustes),
-      tarjeta: sacarTarjeta(familia),
+      consejos: consejosDelMes(familia, mes),
+      consejo: null,
+      ruleta: { dado: null, casillas: construirRuleta(familia, mes), resultados: [] },
       reto: retoDelMes(familia, mes),
       eventos: eventosDelMes(eventos, mes).map((ev) => ({ ...ev, participa: !ev.opcional })),
       banco: { prestamoPedido: 0, prestamoDevuelto: 0, deposito: 0, retirada: 0, abrirCuenta: false },
-      negocio: { montado: null, estrategia: null, resultado: null },
+      negocio: { montado: null, estrategia: null, resultado: null, financiado: 0 },
       solidaridad: { aPublicId: null, aNombre: null, importe: 0, devoluciones: [] },
       ocio: 0,
       reflexion: "",
@@ -467,7 +481,7 @@ function empezarMes() {
 
 // Lista de pasos según lo que toque este mes.
 function pasosDelMes() {
-  const pasos = ["intro", "ingresos", "gastos", "tarjeta"];
+  const pasos = ["intro", "ingresos", "gastos", "ruleta"];
   if (m.reto) pasos.push("reto");
   if (m.eventos.length) pasos.push("eventos");
   pasos.push("banco");
@@ -482,7 +496,9 @@ function puedeMontarNegocio() {
 
 // Dinero del mes acumulado hasta el paso actual (caja del mes).
 function cajaDelMes() {
-  let caja = m.ingresos.total - m.gastosFijos + m.tarjeta.importe;
+  let caja = m.ingresos.total - m.gastosFijos;
+  if (m.consejo) caja += m.consejo.ahorro;
+  for (const r of m.ruleta.resultados) caja += r.importe;
   if (m.reto) caja += m.reto.importe;
   for (const ev of m.eventos) if (ev.participa) caja += ev.importe;
   caja += m.banco.prestamoPedido - m.banco.prestamoDevuelto - m.banco.deposito + m.banco.retirada;
@@ -560,7 +576,7 @@ function pintarPaso() {
     return;
   }
 
-  // ---------- GASTOS FIJOS ----------
+  // ---------- GASTOS FIJOS + CONSEJO DE AHORRO ----------
   if (paso === "gastos") {
     const base = (familia.gastosFijos || []).reduce((s, g) => s + g.importe, 0);
     const subida = redondear(m.gastosFijos - base);
@@ -569,29 +585,117 @@ function pintarPaso() {
       "</ul>" +
       (subida > 0.5 ? "<p class='chip chip-naranja'>📈 Inflación: todo cuesta ya " + euros(subida) + " más al mes que en enero</p>" : "") +
       '<p class="importe-grande negativo">Total: −' + euros(m.gastosFijos) + "</p>" +
+
+      "<h3>💡 Trucos para gastar menos</h3>" +
+      "<p>Las familias con cabeza siempre buscan cómo recortar sus gastos fijos. " +
+      "Leed estos tres trucos y <strong>elegid uno para aplicarlo este mes</strong>: su ahorro se descontará de vuestros gastos.</p>" +
+      '<div class="rejilla">' +
+      m.consejos.map((cj, i) =>
+        '<div class="tarjeta consejo-opcion' + (m.consejo && m.consejo.id === cj.id ? " elegido" : "") + '" style="margin:0;" data-consejo="' + i + '">' +
+        '<div style="font-size:1.8rem;">' + cj.emoji + "</div>" +
+        "<strong>" + escapaHtml(cj.titulo) + "</strong>" +
+        "<p style='font-size:0.9rem;'>" + escapaHtml(cj.texto) + "</p>" +
+        "<p><span class='chip chip-verde'>Ahorra " + euros(cj.ahorro) + " en " + escapaHtml(cj.concepto) + "</span></p>" +
+        "</div>"
+      ).join("") + "</div>" +
+      (m.consejo ? "<p class='chip chip-verde' style='margin-top:10px;'>✅ Este mes aplicáis: " + m.consejo.emoji + " " +
+        escapaHtml(m.consejo.titulo) + " (+" + euros(m.consejo.ahorro) + ")</p>" : "") +
       botonesPaso() + "</div>";
-    conectarBotonesPaso();
+
+    c.querySelectorAll("[data-consejo]").forEach((tarjetaEl) => {
+      tarjetaEl.addEventListener("click", () => {
+        m.consejo = m.consejos[Number(tarjetaEl.dataset.consejo)];
+        guardarBorrador();
+        pintarPaso();
+      });
+    });
+    conectarBotonesPaso(async () => {
+      if (!m.consejo) {
+        aviso("Elegid uno de los trucos de ahorro: ¡tocad su tarjeta!", "aviso");
+        return false;
+      }
+      return true;
+    });
     return;
   }
 
-  // ---------- TARJETA SORPRESA ----------
-  if (paso === "tarjeta") {
-    const t = m.tarjeta;
-    if (!m.tarjetaVista) {
-      c.innerHTML = '<div class="tarjeta" style="text-align:center;"><h2>🃏 La tarjeta del mes</h2>' +
-        "<p>Cada mes la vida sorprende. ¿Suerte o imprevisto?</p>" +
-        '<button class="btn btn-principal btn-grande" id="btn-revelar">Sacar tarjeta</button></div>';
-      $("btn-revelar").addEventListener("click", () => { m.tarjetaVista = true; guardarBorrador(); pintarPaso(); });
+  // ---------- LA RULETA DE LA VIDA ----------
+  if (paso === "ruleta") {
+    const rl = m.ruleta;
+    const totalRuleta = rl.resultados.reduce((s, r) => s + r.importe, 0);
+
+    // Fase 1: tirar el dado que decide cuántas veces gira la ruleta.
+    if (!rl.dado) {
+      c.innerHTML = '<div class="tarjeta" style="text-align:center;"><h2>🎡 La ruleta de la vida</h2>' +
+        "<p>Cada mes la vida da vueltas: imprevistos que cuestan dinero y oportunidades que lo traen. " +
+        "Primero, <strong>tirad el dado</strong>: os dirá cuántas veces tenéis que hacer girar la ruleta este mes.</p>" +
+        '<div class="dado" id="el-dado" title="¡Tocad para tirar!">🎲</div>' +
+        "<p style='color:var(--gris-texto);'>Tocad el dado para tirarlo</p></div>";
+      const dado = $("el-dado");
+      let tirado = false;
+      dado.addEventListener("click", async () => {
+        if (tirado) return;
+        tirado = true;
+        const numero = await tirarDado(dado);
+        rl.dado = numero;
+        guardarBorrador();
+        aviso("🎲 ¡Ha salido un " + numero + "! " + numero + (numero === 1 ? " giro" : " giros") + " de ruleta.", "aviso");
+        setTimeout(pintarPaso, 900);
+      });
       return;
     }
-    c.innerHTML = '<div class="tarjeta-sorpresa ' + t.tipo + '">' +
-      '<div class="emoji-grande">' + t.emoji + "</div>" +
-      "<h2>" + (t.tipo === "suerte" ? "🍀 ¡Suerte!" : "🌩️ Imprevisto") + "</h2>" +
-      "<p>" + escapaHtml(t.texto) + "</p>" +
-      '<p class="importe-grande ' + (t.importe >= 0 ? "positivo" : "negativo") + '">' +
-      (t.importe >= 0 ? "+" : "−") + euros(Math.abs(t.importe)) + "</p>" +
-      botonesPaso() + "</div>";
-    conectarBotonesPaso();
+
+    // Fase 3: giros completados → resumen de la ruleta.
+    if (rl.resultados.length >= rl.dado) {
+      c.innerHTML = '<div class="tarjeta" style="text-align:center;"><h2>🎡 Resultado de la ruleta</h2>' +
+        "<p>El dado pidió <strong>" + rl.dado + "</strong> " + (rl.dado === 1 ? "giro" : "giros") + ". Esto es lo que os ha deparado el mes:</p>" +
+        '<div class="tabla-envoltura"><table><tbody>' +
+        rl.resultados.map((r) =>
+          "<tr><td style='text-align:left;'>" + r.emoji + " " + escapaHtml(r.texto) +
+          "<br><small style='color:var(--gris-texto);'>" + escapaHtml(r.descripcion || "") + "</small></td>" +
+          "<td style='text-align:right; font-weight:800; color:" + (r.importe >= 0 ? "var(--exito)" : "var(--peligro)") + ";'>" +
+          (r.importe >= 0 ? "+" : "−") + euros(Math.abs(r.importe)) + "</td></tr>").join("") +
+        "</tbody></table></div>" +
+        '<p class="importe-grande ' + (totalRuleta >= 0 ? "positivo" : "negativo") + '">Total: ' +
+        (totalRuleta >= 0 ? "+" : "−") + euros(Math.abs(totalRuleta)) + "</p>" +
+        botonesPaso() + "</div>";
+      conectarBotonesPaso();
+      return;
+    }
+
+    // Fase 2: girar la ruleta con la barra de fuerza.
+    const giroActual = rl.resultados.length + 1;
+    c.innerHTML = '<div class="tarjeta" style="text-align:center;">' +
+      "<h2>🎡 Giro " + giroActual + " de " + rl.dado + "</h2>" +
+      (rl.resultados.length
+        ? "<p>Llevamos: <strong style='color:" + (totalRuleta >= 0 ? "var(--exito)" : "var(--peligro)") + ";'>" +
+          (totalRuleta >= 0 ? "+" : "−") + euros(Math.abs(totalRuleta)) + "</strong></p>"
+        : "<p>🟢 verdes = oportunidades que dan dinero · 🔴 rojas = imprevistos que cuestan dinero</p>") +
+      '<div id="caja-ruleta"></div>' +
+      '<div id="caja-resultado-giro"></div></div>';
+
+    const control = crearRuleta({
+      contenedor: $("caja-ruleta"),
+      casillas: rl.casillas,
+      alParar: (casilla) => {
+        rl.resultados.push({ texto: casilla.texto, emoji: casilla.emoji, descripcion: casilla.descripcion, importe: casilla.importe });
+        guardarBorrador();
+        const positivo = casilla.importe > 0;
+        $("caja-resultado-giro").innerHTML =
+          '<div class="tarjeta-sorpresa ' + (positivo ? "suerte" : casilla.importe < 0 ? "imprevisto" : "") + '" style="margin-top:14px;">' +
+          '<div class="emoji-grande">' + casilla.emoji + "</div>" +
+          "<h3>" + (positivo ? "🍀 ¡Oportunidad!" : casilla.importe < 0 ? "🌩️ Imprevisto" : "😮‍💨 ¡De buena os libráis!") + " " + escapaHtml(casilla.texto) + "</h3>" +
+          "<p>" + escapaHtml(casilla.descripcion || "") + "</p>" +
+          '<p class="importe-grande ' + (casilla.importe >= 0 ? "positivo" : "negativo") + '">' +
+          (casilla.importe >= 0 ? "+" : "−") + euros(Math.abs(casilla.importe)) + "</p>" +
+          '<button class="btn btn-principal btn-grande" id="btn-tras-giro">' +
+          (rl.resultados.length >= rl.dado ? "Ver el total de la ruleta →" : "Siguiente giro (" + (rl.resultados.length + 1) + " de " + rl.dado + ") →") +
+          "</button></div>";
+        $("btn-tras-giro").addEventListener("click", pintarPaso);
+        $("caja-resultado-giro").scrollIntoView({ behavior: "smooth", block: "center" });
+      },
+    });
+    control.reiniciarBarra();
     return;
   }
 
@@ -637,24 +741,36 @@ function pintarPaso() {
   if (paso === "banco") {
     const p = familia.prestamoBanco;
     const cta = familia.cuentaAhorro;
-    const pendiente = p && p.activo ? redondear(p.importe - (p.devuelto || 0) - m.banco.prestamoDevuelto) : 0;
+    const totalPrestamo = p ? (p.total || p.importe) : 0;
+    const pendiente = p && p.activo ? redondear(totalPrestamo - (p.devuelto || 0) - m.banco.prestamoDevuelto) : 0;
+    const credito = capacidadCredito(familia);
     let html = '<div class="tarjeta"><h2>🏦 El banco</h2>';
 
     if (m.enRescate) {
       html += "<p class='chip chip-rojo'>🚨 En plan de rescate no se puede pedir dinero.</p>";
     } else if (p && p.activo) {
       html += '<div class="tarjeta"><h3>💳 Vuestro préstamo</h3>' +
-        "<p>Debéis <strong>" + euros(pendiente) + "</strong>. Fecha límite: <strong>" + NOMBRES_MES[p.mesLimite] + "</strong>." +
-        (m.mes >= p.mesLimite ? " <span class='chip chip-rojo'>¡Último aviso!</span>" : "") + "</p>" +
+        "<p>Pedisteis " + euros(p.importe) + " y con los intereses del " + (p.interes || CONFIG_JUEGO.interesPrestamoPct) +
+        "% debéis devolver " + euros(totalPrestamo) + " en total. Os queda: <strong>" + euros(pendiente) + "</strong>.</p>" +
+        "<p>Fecha límite: <strong>" + NOMBRES_MES[p.mesLimite] + "</strong> (antes de que acabe el año)." +
+        (m.mes >= p.mesLimite ? " <span class='chip chip-rojo'>¡Último aviso!</span>" :
+          m.mes >= p.mesLimite - 2 ? " <span class='chip chip-naranja'>Se acerca el final del año…</span>" : "") + "</p>" +
+        "<p class='chip'>El banco solo da un préstamo a la vez: hasta saldar este, no hay otro.</p>" +
         '<div class="fila-campos"><div class="campo"><label>Devolver este mes (€)</label>' +
-        '<input type="number" id="campo-devolver" min="0" max="' + pendiente + '" value="' + m.banco.prestamoDevuelto + '"></div></div>' +
+        '<input type="number" id="campo-devolver" min="0" max="' + redondear(totalPrestamo - (p.devuelto || 0)) + '" value="' + m.banco.prestamoDevuelto + '"></div></div>' +
         "</div>";
     } else {
       html += '<div class="tarjeta"><h3>💳 Pedir un préstamo</h3>' +
-        "<p>El banco presta sin intereses, pero hay que devolverlo TODO antes de " +
-        CONFIG_JUEGO.mesesPrestamoBanco + " meses. Si no… plan de rescate. 🚨</p>" +
+        "<p>Antes de prestar, el banco estudia a la familia: ingresos y avales (casa en propiedad, vehículos…).</p>" +
+        "<ul>" + credito.condiciones.map((cond) => "<li>" + escapaHtml(cond) + "</li>").join("") + "</ul>" +
+        "<p><strong>Crédito máximo: " + euros(credito.maximo) + "</strong></p>" +
+        "<p>Condiciones: interés del <strong>" + credito.interesPct + "%</strong> (si pedís 1.000 €, devolvéis 1.100 €), " +
+        "<strong>un solo préstamo a la vez</strong> y hay que devolverlo TODO antes de que acabe el año (diciembre). " +
+        "Si no… plan de rescate. 🚨</p>" +
+        (m.mes >= 10 ? "<p class='chip chip-naranja'>⏳ Ojo: quedan pocos meses para devolverlo.</p>" : "") +
         '<div class="fila-campos"><div class="campo"><label>Cantidad (€)</label>' +
-        '<input type="number" id="campo-pedir" min="0" step="50" value="' + m.banco.prestamoPedido + '"></div></div></div>';
+        '<input type="number" id="campo-pedir" min="0" step="50" value="' + m.banco.prestamoPedido + '"></div></div>' +
+        '<p id="aviso-devolucion" style="color:var(--gris-texto);"></p></div>';
     }
 
     if (cta && cta.activa) {
@@ -687,6 +803,15 @@ function pintarPaso() {
       $("caja-deposito-inicial").style.display = chkAbrir.checked ? "" : "none";
     });
 
+    // Avisar en vivo de cuánto habrá que devolver con intereses.
+    const campoPedir = $("campo-pedir");
+    if (campoPedir) campoPedir.addEventListener("input", () => {
+      const cantidad = Number(campoPedir.value || 0);
+      $("aviso-devolucion").textContent = cantidad > 0
+        ? "Si pedís " + euros(cantidad) + ", devolveréis " + euros(redondear(cantidad * (1 + CONFIG_JUEGO.interesPrestamoPct / 100))) + " antes de diciembre."
+        : "";
+    });
+
     conectarBotonesPaso(async () => {
       const pedir = Number(($("campo-pedir") || {}).value || 0);
       const devolver = Number(($("campo-devolver") || {}).value || 0);
@@ -695,8 +820,8 @@ function pintarPaso() {
       const abrir = chkAbrir ? chkAbrir.checked : false;
 
       if (pedir < 0 || devolver < 0 || deposito < 0) { aviso("Las cantidades no pueden ser negativas.", "error"); return false; }
-      if (p && p.activo && devolver > redondear(p.importe - (p.devuelto || 0))) { aviso("Estáis devolviendo más de lo que debéis.", "error"); return false; }
-      if (pedir > 3000) { aviso("El banco no presta más de 3.000 € de golpe.", "error"); return false; }
+      if (p && p.activo && devolver > redondear(totalPrestamo - (p.devuelto || 0))) { aviso("Estáis devolviendo más de lo que debéis.", "error"); return false; }
+      if (pedir > credito.maximo) { aviso("Con vuestros avales, el banco no os presta más de " + euros(credito.maximo) + ".", "error"); return false; }
 
       m.banco.prestamoPedido = m.enRescate ? 0 : (p && p.activo ? 0 : redondear(pedir));
       m.banco.prestamoDevuelto = p && p.activo ? redondear(devolver) : 0;
@@ -757,24 +882,38 @@ function pintarPaso() {
       return;
     }
 
-    // Sin negocio: posibilidad de montar uno.
+    // Sin negocio: posibilidad de montar uno, al contado o con préstamo.
     const dineroTotal = redondear(familia.ahorros + cajaDelMes());
-    const asequibles = NEGOCIOS.filter((n) => n.coste <= dineroTotal + 3000); // se puede combinar con préstamo
+    const credito = capacidadCredito(familia);
+    const yaHayPrestamo = (familia.prestamoBanco && familia.prestamoBanco.activo) || m.banco.prestamoPedido > 0;
+    const creditoDisponible = yaHayPrestamo ? 0 : credito.maximo;
+    const asequibles = NEGOCIOS.filter((n) => n.coste <= dineroTotal + creditoDisponible);
+
     c.innerHTML = '<div class="tarjeta"><h2>🚀 ¿Montamos un negocio?</h2>' +
-      "<p>Un negocio puede daros ingresos cada mes… o pérdidas. El coste inicial sale de vuestros ahorros. " +
-      "Dinero total disponible: <strong>" + euros(dineroTotal) + "</strong>.</p>" +
+      "<p>Un negocio puede daros ingresos cada mes… o pérdidas. Analizad su coste: si vuestros ahorros no llegan, " +
+      "el banco puede financiar la parte que falte (con sus condiciones).</p>" +
+      "<p>💰 Vuestro dinero: <strong>" + euros(dineroTotal) + "</strong>" +
+      (yaHayPrestamo
+        ? " · 🏦 <span class='chip chip-rojo'>Ya tenéis un préstamo: el banco no da otro</span>"
+        : " · 🏦 Crédito máximo del banco: <strong>" + euros(creditoDisponible) + "</strong>") + "</p>" +
       (asequibles.length
-        ? '<div class="rejilla">' + asequibles.slice(0, 12).map((n, i) =>
-            '<div class="tarjeta" style="margin:0;"><h3>' + n.emoji + " " + n.nombre + "</h3>" +
-            "<p style='font-size:0.88rem;'>" + n.descripcion + "</p>" +
-            "<p><span class='chip chip-naranja'>Coste: " + euros(n.coste) + "</span> " +
-            "<span class='chip chip-azul'>Éxito: " + n.exito + "%</span> " +
-            "<span class='chip chip-verde'>Puede dar: " + euros(n.beneficioBase) + "/mes</span></p>" +
-            '<button class="btn btn-exito btn-mini" data-negocio="' + NEGOCIOS.indexOf(n) + '"' +
-            (n.coste > dineroTotal ? " disabled title='No os llega el dinero'" : "") + ">Montarlo</button></div>"
-          ).join("") + "</div>"
-        : "<p>De momento ningún negocio está a vuestro alcance. ¡Seguid ahorrando!</p>") +
+        ? '<div class="rejilla">' + asequibles.slice(0, 12).map((n) => {
+            const alContado = n.coste <= dineroTotal;
+            const faltante = Math.max(0, redondear(n.coste - Math.max(0, dineroTotal)));
+            return '<div class="tarjeta" style="margin:0;"><h3>' + n.emoji + " " + n.nombre + "</h3>" +
+              "<p style='font-size:0.88rem;'>" + n.descripcion + "</p>" +
+              "<p><span class='chip chip-naranja'>Coste: " + euros(n.coste) + "</span> " +
+              "<span class='chip chip-azul'>Éxito: " + n.exito + "%</span> " +
+              "<span class='chip chip-verde'>Puede dar: " + euros(n.beneficioBase) + "/mes</span></p>" +
+              (alContado
+                ? '<button class="btn btn-exito btn-mini" data-negocio="' + NEGOCIOS.indexOf(n) + '">Montarlo con vuestro dinero</button>'
+                : '<button class="btn btn-azul btn-mini" data-financiar="' + NEGOCIOS.indexOf(n) + '">Montarlo pidiendo ' + euros(faltante) + " al banco</button>") +
+              "</div>";
+          }).join("") + "</div>"
+        : "<p>De momento ningún negocio está a vuestro alcance" +
+          (yaHayPrestamo ? " (y con un préstamo pendiente el banco no financia otro)" : "") + ". ¡Seguid ahorrando!</p>") +
       botonesPaso({ texto: "Este mes no montamos nada →" }) + "</div>";
+
     c.querySelectorAll("[data-negocio]").forEach((b) => {
       b.addEventListener("click", async () => {
         const n = NEGOCIOS[Number(b.dataset.negocio)];
@@ -782,10 +921,39 @@ function pintarPaso() {
           "? El dinero sale de vuestros ahorros y no hay vuelta atrás.", "¡Emprendemos!");
         if (!ok) return;
         m.negocio.montado = { ...n };
+        m.negocio.financiado = 0;
         guardarBorrador();
         pasoActual++;
         pintarPaso();
         aviso("¡Negocio en marcha! Empezará a funcionar el mes que viene.", "exito");
+      });
+    });
+    c.querySelectorAll("[data-financiar]").forEach((b) => {
+      b.addEventListener("click", async () => {
+        const n = NEGOCIOS[Number(b.dataset.financiar)];
+        // Análisis del banco: cuánto falta y en qué condiciones lo presta.
+        const faltante = Math.max(0, redondear(n.coste - Math.max(0, dineroTotal)));
+        const prestamo = Math.min(creditoDisponible, Math.ceil(faltante / 100) * 100);
+        if (prestamo < faltante) { aviso("El banco no os concede tanto crédito.", "error"); return; }
+        const totalDevolver = redondear(prestamo * (1 + CONFIG_JUEGO.interesPrestamoPct / 100));
+        const ok = await confirmar(
+          "<strong>🏦 Análisis del banco para " + n.emoji + " " + n.nombre + "</strong><br><br>" +
+          "Coste del negocio: <strong>" + euros(n.coste) + "</strong><br>" +
+          "Vuestro dinero: <strong>" + euros(Math.max(0, dineroTotal)) + "</strong><br>" +
+          "Préstamo necesario: <strong>" + euros(prestamo) + "</strong><br><br>" +
+          "Condiciones:<br>" + credito.condiciones.map((cond) => "· " + cond).join("<br>") + "<br>" +
+          "· Interés del " + credito.interesPct + "%: devolveréis <strong>" + euros(totalDevolver) + "</strong><br>" +
+          "· Todo pagado antes de <strong>diciembre</strong><br>" +
+          "· Un solo préstamo a la vez<br><br>¿Firmáis?",
+          "Firmar el préstamo y emprender");
+        if (!ok) return;
+        m.negocio.montado = { ...n };
+        m.negocio.financiado = prestamo;
+        m.banco.prestamoPedido = prestamo;
+        guardarBorrador();
+        pasoActual++;
+        pintarPaso();
+        aviso("🏦 Préstamo de " + euros(prestamo) + " concedido. ¡Negocio en marcha!", "exito");
       });
     });
     conectarBotonesPaso();
@@ -936,11 +1104,12 @@ function pintarPaso() {
     const lineas = [
       ["💶 Ingresos", m.ingresos.total],
       ["🧾 Gastos fijos", -m.gastosFijos],
-      [m.tarjeta.emoji + " " + m.tarjeta.texto, m.tarjeta.importe],
     ];
+    if (m.consejo) lineas.push([m.consejo.emoji + " Truco de ahorro: " + m.consejo.titulo, m.consejo.ahorro]);
+    for (const r of m.ruleta.resultados) if (r.importe !== 0) lineas.push(["🎡 " + r.emoji + " " + r.texto, r.importe]);
     if (m.reto) lineas.push(["🎯 " + m.reto.descripcion, m.reto.importe]);
     for (const ev of m.eventos) if (ev.participa) lineas.push([ev.emoji + " " + ev.titulo, ev.importe]);
-    if (m.banco.prestamoPedido) lineas.push(["💳 Préstamo del banco", m.banco.prestamoPedido]);
+    if (m.banco.prestamoPedido) lineas.push(["💳 Préstamo del banco" + (m.negocio.financiado ? " (para el negocio)" : ""), m.banco.prestamoPedido]);
     if (m.banco.prestamoDevuelto) lineas.push(["💳 Devolución al banco", -m.banco.prestamoDevuelto]);
     if (m.banco.deposito) lineas.push(["🐷 A la cuenta de ahorro", -m.banco.deposito]);
     if (m.banco.retirada) lineas.push(["🐷 Retirada de la cuenta", m.banco.retirada]);
@@ -989,14 +1158,17 @@ async function guardarMes() {
     if (m.banco.prestamoPedido > 0) {
       prestamoBanco = {
         importe: m.banco.prestamoPedido,
+        interes: CONFIG_JUEGO.interesPrestamoPct,
+        total: redondear(m.banco.prestamoPedido * (1 + CONFIG_JUEGO.interesPrestamoPct / 100)),
         devuelto: 0,
         mesConcedido: m.mes,
-        mesLimite: Math.min(12, m.mes + CONFIG_JUEGO.mesesPrestamoBanco),
+        mesLimite: CONFIG_JUEGO.mesLimitePrestamo,
+        paraNegocio: m.negocio.financiado > 0,
         activo: true,
       };
     } else if (prestamoBanco && prestamoBanco.activo && m.banco.prestamoDevuelto > 0) {
       const devuelto = redondear((prestamoBanco.devuelto || 0) + m.banco.prestamoDevuelto);
-      prestamoBanco = { ...prestamoBanco, devuelto: devuelto, activo: devuelto < prestamoBanco.importe };
+      prestamoBanco = { ...prestamoBanco, devuelto: devuelto, activo: devuelto < (prestamoBanco.total || prestamoBanco.importe) };
     }
 
     let cuentaAhorro = familia.cuentaAhorro || null;
@@ -1070,7 +1242,8 @@ async function guardarMes() {
       ingresos: m.ingresos.total,
       pagaExtra: m.ingresos.pagaExtra,
       gastosFijos: m.gastosFijos,
-      tarjeta: m.tarjeta,
+      consejo: m.consejo || null,
+      ruleta: { dado: m.ruleta.dado, resultados: m.ruleta.resultados },
       reto: m.reto || null,
       eventos: m.eventos.map((ev) => ({ titulo: ev.titulo, emoji: ev.emoji, importe: ev.importe, participa: ev.participa })),
       banco: m.banco,
