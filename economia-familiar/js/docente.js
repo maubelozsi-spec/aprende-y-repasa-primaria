@@ -306,15 +306,22 @@ function pintarControlMes() {
         "<td>" + (r ? r.ise : "—") + "</td></tr>";
     }).join("") + "</tbody></table></div>";
 
-  html += "<p><strong>" + codigosHechos.size + " de " + familias.length + "</strong> familias han completado el mes.</p>";
+  html += "<p><strong>" + codigosHechos.size + " de " + familias.length + "</strong> familias han completado el mes " +
+    '<button class="btn btn-mini btn-secundario" id="btn-refrescar-mes">🔄 Actualizar</button></p>';
 
   if (partida.mesAbierto) {
-    html += '<button class="btn btn-peligro" id="btn-cerrar-mes">🔒 Cerrar ' + NOMBRES_MES[mes] + "</button> " +
-      "<span style='color:var(--gris-texto);'>Al cerrar: intereses del banco, control de préstamos y análisis del mes.</span>";
+    html += "<p style='color:var(--gris-texto);'>Los pasos son: 1️⃣ las familias juegan su mes → 2️⃣ cierras " +
+      NOMBRES_MES[mes] + " (intereses del banco, préstamos y análisis) → 3️⃣ se abre el botón para empezar " +
+      (mes >= 12 ? "el final del juego" : NOMBRES_MES[mes + 1]) + ".</p>" +
+      '<button class="btn btn-peligro btn-grande" id="btn-cerrar-mes">🔒 Cerrar ' + NOMBRES_MES[mes] + "</button>";
   } else {
     html += mes >= 12
-      ? '<button class="btn btn-exito btn-grande" id="btn-terminar">🏁 Terminar la partida</button>'
-      : '<button class="btn btn-exito" id="btn-abrir-mes">🔓 Abrir ' + NOMBRES_MES[mes + 1] + "</button>";
+      ? '<div class="tarjeta destacada" style="text-align:center;"><h3>✅ ' + NOMBRES_MES[mes] + " está cerrado</h3>" +
+        "<p>¡Era el último mes! Solo queda poner el broche final.</p>" +
+        '<button class="btn btn-exito btn-grande" id="btn-terminar">🏁 Terminar la partida</button></div>'
+      : '<div class="tarjeta destacada" style="text-align:center;"><h3>✅ ' + NOMBRES_MES[mes] + " está cerrado</h3>" +
+        "<p>Cuando la clase esté lista (buen momento para leer el análisis y premiar la mejor reflexión), empezad el mes siguiente:</p>" +
+        '<button class="btn btn-exito btn-grande" id="btn-abrir-mes">▶️ Abrir ' + NOMBRES_MES[mes + 1] + "</button></div>";
   }
   html += "</div>";
 
@@ -357,11 +364,35 @@ function pintarControlMes() {
   if (btnAbrir) btnAbrir.addEventListener("click", abrirSiguienteMes);
   const btnTerminar = $("btn-terminar");
   if (btnTerminar) btnTerminar.addEventListener("click", terminarPartida);
+  const btnRefrescar = $("btn-refrescar-mes");
+  if (btnRefrescar) btnRefrescar.addEventListener("click", async () => {
+    btnRefrescar.disabled = true;
+    await recargarDatosPartida();
+    aviso("Datos actualizados.", "exito");
+    pintarPartida();
+  });
   c.querySelectorAll("[data-premiar]").forEach((b) => b.addEventListener("click", () => premiarReflexion(b.dataset.premiar)));
+}
+
+// Vuelve a leer familias, meses y préstamos de la partida abierta: lo
+// que las familias hayan hecho desde que se abrió este panel.
+async function recargarDatosPartida() {
+  const [fSnap, mSnap, prSnap] = await Promise.all([
+    getDocs(query(collection(db, "ecoFamilias"), where("partidaId", "==", partida.id), where("teacherId", "==", docente.uid))),
+    getDocs(query(collection(db, "ecoMeses"), where("partidaId", "==", partida.id), where("teacherId", "==", docente.uid))),
+    getDocs(query(collection(db, "ecoPrestamosFamilias"), where("partidaId", "==", partida.id))),
+  ]);
+  familias = fSnap.docs.map((d) => ({ codigo: d.id, ...d.data() })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  meses = mSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  prestamos = prSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
 async function cerrarMes() {
   const mes = partida.mesActual;
+  // Releer los datos antes de cerrar: las familias pueden haber jugado
+  // su mes después de que se abriera este panel, y el cierre (premios,
+  // intereses y análisis) debe hacerse con lo último.
+  await recargarDatosPartida();
   const completados = registrosDelMes(mes);
   const faltan = familias.length - completados.length;
   const ok = await confirmar(
