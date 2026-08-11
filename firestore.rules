@@ -2,7 +2,7 @@ rules_version = '2';
 
 // ============================================================
 // Reglas de seguridad de Firestore para TODO el proyecto Firebase
-// "aprende-y-repasa-cc321", que aloja CUATRO apps distintas:
+// "aprende-y-repasa-cc321", que aloja CINCO apps distintas:
 //
 //   - App educativa "Aprende y Repasa" (colecciones "teachers",
 //     "classes", "students", "udiHistorial").
@@ -13,6 +13,8 @@ rules_version = '2';
 //   - App "Economía Familiar 2.0" (colecciones "ecoPartidas",
 //     "ecoFamilias", "ecoMeses", "ecoMarcador",
 //     "ecoPrestamosFamilias", "ecoEventos").
+//   - Juego "Cifras y Letras" (colecciones "cylPartidas",
+//     "cylJugadores", "cylRespuestas").
 //
 // ATENCIÓN: las reglas de Firestore son ÚNICAS por proyecto, no por
 // app. Este archivo es el ÚNICO que hay que pegar en la consola
@@ -225,6 +227,51 @@ service cloud.firestore {
       allow get, list: if signedIn();
       allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
       allow update, delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    // ================= Juego Cifras y Letras =================
+    //
+    // Concurso en tiempo real. Dos modos: partida de aula (la crea
+    // el docente con su cuenta real) y sala libre (la crea un alumno
+    // desde una sesión anónima y él mismo hace de anfitrión). Los
+    // jugadores entran solo con el código de 6 caracteres y un apodo,
+    // sin datos personales. El estado del juego (letras sorteadas,
+    // objetivo, respuestas, marcador) es público dentro de la partida:
+    // nivel de seguridad "de aula", como en Economía Familiar.
+
+    match /cylPartidas/{codigo} {
+      // Leer exige conocer el código; listar, ser el docente creador.
+      allow get: if signedIn();
+      allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
+      // Crear: cualquier sesión identificada que se apunte a sí misma
+      // como anfitrión (docente en las de aula, alumno en las libres).
+      allow create: if signedIn() && request.resource.data.anfitrionUid == request.auth.uid;
+      // Dirigir la partida (sorteos, tiempo, cierre): solo el
+      // anfitrión o el docente propietario.
+      allow update, delete: if signedIn()
+        && (resource.data.anfitrionUid == request.auth.uid
+            || resource.data.teacherId == request.auth.uid);
+    }
+
+    match /cylJugadores/{jugadorId} {
+      // El marcador es público para quien está en la partida (se
+      // consulta filtrando por el código, que hay que conocer).
+      allow read: if signedIn();
+      // Cada dispositivo crea su propio jugador.
+      allow create: if signedIn() && request.resource.data.authUid == request.auth.uid;
+      // Actualizan el propio jugador (reconexión) y quien dirige la
+      // partida (reparto de puntos). Nivel "de aula": cualquier
+      // sesión identificada de la clase.
+      allow update: if signedIn();
+      allow delete: if signedIn();
+    }
+
+    match /cylRespuestas/{respuestaId} {
+      // Una respuesta por jugador y ronda; las lee toda la partida
+      // (para el marcador y la proyección) y las corrige quien
+      // dirige. Sin datos personales: apodo, palabra y cuentas.
+      allow read, create, update: if signedIn();
+      allow delete: if signedIn();
     }
 
     // ================= App del viaje a Finlandia =================

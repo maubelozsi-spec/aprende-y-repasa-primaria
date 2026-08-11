@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jugar — Cifras y Letras</title>
+  <link rel="stylesheet" href="css/estilos.css">
+  <meta name="theme-color" content="#131b3a">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🙋</text></svg>">
+</head>
+<body>
+  <header class="cabecera-app">
+    <div class="contenedor">
+      <span class="logo">🔤</span>
+      <h1>Cifras y Letras</h1>
+      <a href="index.html">Portada</a>
+      <button id="btn-salir" class="btn btn-mini btn-secundario" style="display:none;">Salir de la partida</button>
+    </div>
+  </header>
+
+  <main class="contenedor">
+
+    <!-- ============ ENTRADA ============ -->
+    <section id="vista-entrada" class="vista activa">
+      <div class="rejilla-2" style="max-width:860px; margin:20px auto;">
+
+        <div class="tarjeta destacada">
+          <h2>🙋 Unirse a una partida</h2>
+          <p class="texto-suave">Escribid el código que os han dado y el nombre de vuestro equipo.</p>
+          <form id="form-unirse">
+            <div class="campo campo-codigo-grande"><label>Código de la partida</label>
+              <input id="campo-codigo" maxlength="6" autocomplete="off" placeholder="ABC123" required></div>
+            <div class="campo"><label>Nombre del equipo o jugador</label>
+              <input id="campo-nombre" maxlength="24" placeholder="Los Rapidillos" required></div>
+            <p class="error-form" id="error-unirse"></p>
+            <button class="btn btn-principal btn-grande" style="width:100%;" type="submit">¡A concursar!</button>
+          </form>
+        </div>
+
+        <div class="tarjeta">
+          <h2>🎲 Crear una sala libre</h2>
+          <p class="texto-suave">Sin docente: tú creas la sala, les pasas el código a tus amigos y diriges el concurso desde tu pantalla (también juegas).</p>
+          <form id="form-crear">
+            <div class="campo"><label>Nombre de la sala</label>
+              <input id="crear-nombre" maxlength="40" placeholder="Reto de la merienda"></div>
+            <div class="campo"><label>Tu nombre de jugador</label>
+              <input id="crear-jugador" maxlength="24" placeholder="Alex" required></div>
+            <div class="campo"><label>Nivel de cifras</label>
+              <select id="crear-nivel">
+                <option value="1">Iniciación · 4 números, objetivo de 2 cifras</option>
+                <option value="2">Avanzado · 5 números, objetivo hasta 499</option>
+                <option value="3">Como en la tele · 6 números, objetivo hasta 999</option>
+              </select></div>
+            <div class="campo"><label>Ayuda con las cuentas</label>
+              <select id="crear-ayuda">
+                <option value="pasos">Sencillo: se ve cada operación</option>
+                <option value="final">Intermedio: solo el resultado final</option>
+                <option value="mental">Reto mental: sin resultados</option>
+              </select></div>
+            <p class="error-form" id="error-crear"></p>
+            <button class="btn btn-secundario" style="width:100%;" type="submit">Crear la sala</button>
+          </form>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ JUEGO ============ -->
+    <section id="vista-juego" class="vista">
+      <div id="zona-cabecera-juego" class="tarjeta centrado"></div>
+      <div id="zona-anfitrion" class="tarjeta oculto"></div>
+      <div id="zona-juego" class="tarjeta"></div>
+      <div class="tarjeta">
+        <h3>🏆 Marcador</h3>
+        <div id="zona-marcador"></div>
+      </div>
+    </section>
+
+  </main>
+  <footer class="pie-app">Cifras y Letras · 5º y 6º de Primaria</footer>
+
+  <script src="../js/firebase-config.js"></script>
+  <script type="module" src="js/jugador.js"></script>
+</body>
+</html>
