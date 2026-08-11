@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docente — Cifras y Letras</title>
+  <link rel="stylesheet" href="css/estilos.css">
+  <meta name="theme-color" content="#131b3a">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧑‍🏫</text></svg>">
+</head>
+<body>
+  <header class="cabecera-app">
+    <div class="contenedor">
+      <span class="logo">🧑‍🏫</span>
+      <h1>Cifras y Letras — Panel del docente</h1>
+      <a href="index.html">Portada</a>
+      <a href="proyeccion.html" target="_blank">Proyección</a>
+      <button id="btn-salir" class="btn btn-mini btn-secundario" style="display:none;">Salir</button>
+    </div>
+  </header>
+
+  <main class="contenedor">
+
+    <!-- ============ ACCESO ============ -->
+    <section id="vista-login" class="vista">
+      <div class="tarjeta destacada" style="max-width:460px; margin:40px auto;">
+        <h2>Acceso del docente</h2>
+        <p class="texto-suave">Usa tu cuenta de Aprende y Repasa (o crea una: sirve para todas las apps).</p>
+        <form id="form-login">
+          <div class="campo"><label>Correo</label><input type="email" id="campo-email" autocomplete="email" required></div>
+          <div class="campo"><label>Contraseña</label><input type="password" id="campo-clave" autocomplete="current-password" required></div>
+          <div class="campo" id="caja-nombre" style="display:none;"><label>Tu nombre (para la cuenta nueva)</label><input id="campo-nombre"></div>
+          <p class="error-form" id="error-login"></p>
+          <button class="btn btn-principal" style="width:100%;" type="submit" id="btn-entrar">Entrar</button>
+          <button class="btn btn-secundario" style="width:100%; margin-top:8px;" type="button" id="btn-cambiar-modo">No tengo cuenta: crear una</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ MIS PARTIDAS ============ -->
+    <section id="vista-partidas" class="vista">
+      <div class="tarjeta">
+        <h2>🎬 Mis concursos</h2>
+        <div id="lista-partidas"></div>
+        <hr class="separador">
+        <h3>Nuevo concurso</h3>
+        <form id="form-nueva">
+          <div class="rejilla-2">
+            <div class="campo"><label>Nombre (por ejemplo, «5ºA contra 5ºB»)</label>
+              <input id="nueva-nombre" placeholder="Concurso de clase" maxlength="60"></div>
+            <div class="campo"><label>Nivel de la prueba de cifras</label>
+              <select id="nueva-nivel">
+                <option value="1">Iniciación · 4 números, objetivo de 2 cifras</option>
+                <option value="2">Avanzado · 5 números, objetivo hasta 499</option>
+                <option value="3">Como en la tele · 6 números, objetivo hasta 999</option>
+              </select></div>
+            <div class="campo"><label>Ayuda con las cuentas</label>
+              <select id="nueva-ayuda">
+                <option value="pasos">Sencillo: se ve el resultado de cada operación</option>
+                <option value="final">Intermedio: solo se ve el resultado final</option>
+                <option value="mental">Reto mental: sin resultados, hay que declararlo</option>
+              </select></div>
+            <div class="campo"><label>Validación de palabras</label>
+              <select id="nueva-validacion">
+                <option value="auto">Automática con diccionario (con tu comodín)</option>
+                <option value="docente">La valido yo palabra a palabra</option>
+              </select></div>
+            <div class="campo"><label>Letras del panel</label>
+              <select id="nueva-numletras">
+                <option value="7">7 letras (más fácil)</option>
+                <option value="8">8 letras</option>
+                <option value="9" selected>9 letras (como en la tele)</option>
+                <option value="10">10 letras</option>
+              </select></div>
+            <div class="campo"><label>Tiempo de letras</label>
+              <select id="nueva-tletras">
+                <option value="45">45 segundos (como en la tele)</option>
+                <option value="60" selected>60 segundos</option>
+                <option value="90">90 segundos</option>
+                <option value="120">2 minutos</option>
+              </select></div>
+            <div class="campo"><label>Tiempo de cifras</label>
+              <select id="nueva-tcifras">
+                <option value="45">45 segundos (como en la tele)</option>
+                <option value="60">60 segundos</option>
+                <option value="90" selected>90 segundos</option>
+                <option value="120">2 minutos</option>
+              </select></div>
+            <div class="campo"><label>Reparto de puntos</label>
+              <select id="nueva-puntuacion">
+                <option value="todos">Todos puntúan según su jugada</option>
+                <option value="mejor">Solo puntúa la mejor jugada (como en la tele)</option>
+              </select></div>
+          </div>
+          <button class="btn btn-principal" type="submit">➕ Crear concurso</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ UNA PARTIDA ============ -->
+    <section id="vista-partida" class="vista">
+      <button class="btn btn-mini btn-secundario" id="btn-volver">← Mis concursos</button>
+      <div id="zona-cabecera" class="tarjeta centrado"></div>
+      <div id="zona-control" class="tarjeta"></div>
+      <div class="tarjeta">
+        <h3>🏆 Marcador</h3>
+        <div id="zona-marcador"></div>
+      </div>
+    </section>
+
+  </main>
+  <footer class="pie-app">Cifras y Letras · Panel del docente</footer>
+
+  <script src="../js/firebase-config.js"></script>
+  <script type="module" src="js/docente.js"></script>
+</body>
+</html>
