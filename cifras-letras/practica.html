@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Práctica — Cifras y Letras</title>
+  <meta name="description" content="Entrenamiento en solitario de Cifras y Letras: practica la prueba de letras y la de cifras a tu ritmo, sin código de partida.">
+  <link rel="stylesheet" href="css/estilos.css">
+  <meta name="theme-color" content="#131b3a">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏋️</text></svg>">
+</head>
+<body>
+  <header class="cabecera-app">
+    <div class="contenedor">
+      <span class="logo">🏋️</span>
+      <h1>Cifras y Letras — Práctica</h1>
+      <a href="index.html">Portada</a>
+    </div>
+  </header>
+
+  <main class="contenedor">
+
+    <!-- ============ ELEGIR PRUEBA ============ -->
+    <section id="vista-config" class="vista activa">
+      <div class="tarjeta destacada" style="max-width:720px; margin:20px auto;">
+        <h2>🏋️ Entrenamiento en solitario</h2>
+        <p class="texto-suave">Sin código ni esperas: elige tu prueba y practica todas las rondas que quieras. Los puntos se guardan en este dispositivo.</p>
+
+        <div class="rejilla-2">
+          <div class="campo"><label>Tiempo por ronda</label>
+            <select id="cfg-tiempo">
+              <option value="45">45 segundos (como en la tele)</option>
+              <option value="60" selected>60 segundos</option>
+              <option value="90">90 segundos</option>
+              <option value="120">2 minutos</option>
+              <option value="0">Sin límite de tiempo</option>
+            </select></div>
+          <div class="campo"><label>Letras del panel</label>
+            <select id="cfg-numletras">
+              <option value="7">7 letras (más fácil)</option>
+              <option value="8">8 letras</option>
+              <option value="9" selected>9 letras (como en la tele)</option>
+              <option value="10">10 letras</option>
+            </select></div>
+          <div class="campo"><label>Nivel de cifras</label>
+            <select id="cfg-nivel">
+              <option value="1" selected>Iniciación · 4 números, objetivo de 2 cifras</option>
+              <option value="2">Avanzado · 5 números, objetivo hasta 499</option>
+              <option value="3">Como en la tele · 6 números, objetivo hasta 999</option>
+            </select></div>
+          <div class="campo"><label>Ayuda con las cuentas</label>
+            <select id="cfg-ayuda">
+              <option value="pasos" selected>Sencillo: se ve cada operación</option>
+              <option value="final">Intermedio: solo el resultado final</option>
+              <option value="mental">Reto mental: sin resultados</option>
+            </select></div>
+        </div>
+
+        <div class="botones-operaciones">
+          <button class="btn btn-letras btn-grande" id="btn-practicar-letras">🔤 Practicar LETRAS</button>
+          <button class="btn btn-cifras btn-grande" id="btn-practicar-cifras">🔢 Practicar CIFRAS</button>
+        </div>
+      </div>
+
+      <div class="tarjeta" style="max-width:720px; margin:0 auto;">
+        <h3>🏆 Tus marcas</h3>
+        <div id="zona-marcas"></div>
+      </div>
+    </section>
+
+    <!-- ============ RONDA ============ -->
+    <section id="vista-ronda" class="vista">
+      <div class="tarjeta">
+        <div id="zona-juego"></div>
+      </div>
+      <p class="centrado"><button class="btn btn-mini btn-secundario" id="btn-abandonar">← Dejar esta ronda</button></p>
+    </section>
+
+  </main>
+  <footer class="pie-app">Cifras y Letras · Práctica en solitario · 5º y 6º de Primaria</footer>
+
+  <script type="module" src="js/practica.js"></script>
+</body>
+</html>
