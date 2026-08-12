@@ -235,6 +235,19 @@ a { color: var(--acento); }
 .btn-op.seleccionada { background: var(--acento); color: #2a2200; transform: scale(1.08); }
 .btn-op:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* operación en curso (número marcado + signo + hueco) */
+.zona-operacion { min-height: 84px; }
+.zona-operacion .ficha-cifra { cursor: default; }
+.signo-en-curso {
+  font-size: 2rem; font-weight: 800; color: var(--acento);
+  min-width: 44px; text-align: center;
+}
+.signo-en-curso.esperando { font-size: 1rem; color: var(--texto-suave); font-weight: 600; }
+.ficha-cifra.hueco-cifra {
+  background: var(--fondo-suave); color: var(--texto-suave);
+  border: 2px dashed var(--panel-borde); box-shadow: none;
+}
+
 .lista-pasos { list-style: none; padding: 0; margin: 8px 0; text-align: center; }
 .lista-pasos li {
   display: inline-block; background: var(--fondo-suave);

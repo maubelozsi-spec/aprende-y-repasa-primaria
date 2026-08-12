@@ -536,6 +536,14 @@ function pintarJuegoCifras(z, r) {
   const pasos = local.pasos.map((p, i) =>
     "<li>" + p.etiquetaA + " " + p.op + " " + p.etiquetaB + " = " + (ayuda === "pasos" ? p.r : "★") + "</li>").join("");
 
+  // Operación en curso, en grande debajo del panel: el número que
+  // habéis marcado, el signo elegido y el hueco del segundo número.
+  const enCurso = local.selA === null
+    ? '<span class="aviso-vacia">tocad un número para empezar una operación…</span>'
+    : '<button class="ficha-cifra seleccionada" disabled>' + etiquetaFicha(local.fichas[local.selA]) + "</button>" +
+      '<span class="signo-en-curso' + (local.op ? "" : " esperando") + '">' + (local.op || "¿+ − × ÷?") + "</span>" +
+      '<button class="ficha-cifra hueco-cifra" disabled>?</button>';
+
   const resultado = local.pasos.length ? local.pasos[local.pasos.length - 1].r : null;
   const textoResultado = resultado === null ? "—" : (ayuda === "pasos" ? String(resultado) : "★ (oculto)");
 
@@ -551,6 +559,7 @@ function pintarJuegoCifras(z, r) {
     '<p class="texto-suave centrado">Tocad un número, una operación y otro número. La división tiene que ser exacta y no valen números negativos.</p>' +
     '<div class="panel-fichas">' + fichas + "</div>" +
     '<div class="botones-operaciones">' + ops + "</div>" +
+    '<div class="zona-palabra zona-operacion">' + enCurso + "</div>" +
     '<ul class="lista-pasos">' + pasos + "</ul>" +
     '<p class="centrado">Vuestro resultado ahora mismo: <strong style="font-size:1.3rem;">' + textoResultado + "</strong></p>" +
     cajaMental +
