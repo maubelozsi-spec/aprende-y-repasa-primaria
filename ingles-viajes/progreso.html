@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi progreso · Inglés para Viajar</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f3d56">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
+</head>
+<body>
+
+<header class="cabecera"><div class="contenedor"></div></header>
+
+<main class="contenedor-estrecho" id="pantalla"></main>
+
+<footer class="pie">Inglés para Viajar</footer>
+
+<script type="module" src="js/progreso.js"></script>
+
+<script>
+  // Guarda la app para poder usarla sin conexión (en el avión, en el
+  // metro, en un país sin datos). Si el navegador no lo admite, la app
+  // sigue funcionando igual con conexión.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {
+        // Sin service worker no hay modo sin conexión, nada más.
+      });
+    });
+  }
+</script>
+</body>
+</html>
