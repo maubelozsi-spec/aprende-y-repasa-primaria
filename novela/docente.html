@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel docente · Novela Colectiva</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+</head>
+<body>
+
+<header class="cabecera-app">
+  <div class="contenedor">
+    <span class="logo">📖</span>
+    <h1>Novela Colectiva · panel docente</h1>
+    <span class="quien" id="quien-soy"></span>
+    <a href="index.html">Salir</a>
+  </div>
+</header>
+
+<main class="contenedor">
+  <div id="sin-sesion" class="tarjeta oculto">
+    <h2>Entra con tu cuenta de profesorado</h2>
+    <p>Este panel usa la misma cuenta que el resto de Aprende y Repasa.</p>
+    <p><a class="btn btn-principal" href="../docente/login.html">Ir al acceso del profesorado</a></p>
+  </div>
+
+  <div id="panel" class="oculto">
+    <div class="columnas">
+      <div>
+        <div id="sin-proyecto" class="tarjeta">
+          <h2>Elige una novela o crea una nueva</h2>
+          <p class="texto-suave">A la derecha tienes tus novelas. Cada grupo puede tener la suya.</p>
+        </div>
+
+        <div id="proyecto" class="oculto">
+          <div class="pestanas">
+            <button class="pestana activa" data-vista="vista-novela">La novela</button>
+            <button class="pestana" data-vista="vista-alumnos">Alumnado</button>
+            <button class="pestana" data-vista="vista-fichas">Fichas</button>
+            <button class="pestana" data-vista="vista-ajustes">Ajustes</button>
+            <button class="pestana" data-vista="vista-descargar">Descargar</button>
+          </div>
+
+          <section class="vista activa" id="vista-novela">
+            <div class="tarjeta" id="pendientes"></div>
+            <div class="novela">
+              <h2 class="titulo-novela" id="titulo-novela"></h2>
+              <p class="subtitulo-novela" id="datos-novela"></p>
+              <div id="fragmentos"></div>
+            </div>
+          </section>
+
+          <section class="vista" id="vista-alumnos">
+            <div class="tarjeta">
+              <h2>Quién puede escribir en esta novela</h2>
+              <p class="texto-suave pequeno">Marca a quien quieras autorizar. Un mismo alumno puede
+                estar en varias novelas a la vez.</p>
+              <div id="lista-autorizar"></div>
+              <div class="botonera" style="margin-top:10px">
+                <button class="btn btn-secundario btn-mini" id="btn-todos">Marcar toda la clase</button>
+                <button class="btn btn-secundario btn-mini" id="btn-ninguno">Desmarcar a todos</button>
+                <button class="btn btn-principal" id="btn-guardar-alumnos">Guardar</button>
+              </div>
+            </div>
+            <div class="tarjeta">
+              <h2>Participación</h2>
+              <div id="tabla-participacion"></div>
+            </div>
+          </section>
+
+          <section class="vista" id="vista-fichas">
+            <div class="tarjeta">
+              <h2>Personajes, lugares e inventos</h2>
+              <p class="texto-suave pequeno">Son las fichas que ha ido rellenando el alumnado. Puedes
+                corregirlas o borrar las que estén duplicadas.</p>
+              <div id="fichas-docente"></div>
+            </div>
+          </section>
+
+          <section class="vista" id="vista-ajustes">
+            <div class="tarjeta">
+              <h2>Ajustes de la novela</h2>
+              <div class="campo">
+                <label for="aj-titulo">Título</label>
+                <input type="text" id="aj-titulo">
+              </div>
+              <div class="campo">
+                <label for="aj-resumen">Resumen para el alumnado (opcional)</label>
+                <textarea id="aj-resumen" rows="3"></textarea>
+                <p class="pista">Aparece arriba del todo en su columna de "Por dónde va".</p>
+              </div>
+              <div class="campo">
+                <label for="aj-genero">Género, época y tono</label>
+                <input type="text" id="aj-genero" placeholder="Aventura · Edad Media · divertido">
+                <p class="pista">Marca mucho el rumbo de la novela: media línea aquí ahorra muchos líos.</p>
+              </div>
+
+              <hr class="separador">
+
+              <label class="interruptor"><input type="checkbox" id="aj-escritura">
+                <span>Escritura abierta<small>Ciérrala para que no escriban fuera de clase.</small></span></label>
+              <label class="interruptor"><input type="checkbox" id="aj-cola">
+                <span>Por turnos<small>Solo escribe quien tiene el turno. Si lo dejas sin marcar, escriben cuando quieran y se ordena por el momento de enviar.</small></span></label>
+              <label class="interruptor"><input type="checkbox" id="aj-moderacion">
+                <span>Aprobar antes de publicar<small>Lo que envíen no aparece en la novela hasta que le des el visto bueno.</small></span></label>
+              <label class="interruptor"><input type="checkbox" id="aj-autoria">
+                <span>Que el alumnado vea quién escribió cada parte<small>Por defecto está desactivado: solo tú ves la autoría.</small></span></label>
+
+              <div class="campo" style="margin-top:12px">
+                <label for="aj-lineas">Líneas por tanda</label>
+                <input type="number" id="aj-lineas" min="3" max="30">
+              </div>
+              <div class="campo">
+                <label for="aj-cerrador">Alumno autorizado a dar por terminada la novela</label>
+                <select id="aj-cerrador"></select>
+              </div>
+
+              <div class="botonera">
+                <button class="btn btn-principal" id="btn-guardar-ajustes">Guardar ajustes</button>
+                <button class="btn btn-exito" id="btn-cerrar-novela">Dar por terminada la novela</button>
+                <button class="btn btn-peligro" id="btn-borrar">Borrar esta novela</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="vista" id="vista-descargar">
+            <div class="tarjeta">
+              <h2>Descargar el libro</h2>
+              <p>Los dos PDF se generan en este mismo ordenador, sin enviar nada a ningún sitio.</p>
+              <div class="botonera">
+                <button class="btn btn-principal btn-grande" id="btn-pdf-novela">📕 La novela (para leer)</button>
+                <button class="btn btn-secundario btn-grande" id="btn-pdf-docente">📋 Cuaderno del docente</button>
+              </div>
+              <p class="texto-suave pequeno" style="margin-top:12px">
+                El cuaderno del docente incluye el autor de cada parte, las palabras escritas,
+                las faltas por cada cien palabras, el texto original antes de corregir y las
+                indicaciones que enviaste.
+              </p>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <aside>
+        <section class="tarjeta">
+          <div class="tarjeta-titulo">
+            <h2>Mis novelas</h2>
+            <button class="btn btn-mini btn-principal" id="btn-nueva">Nueva</button>
+          </div>
+          <ul class="lista-proyectos" id="lista-proyectos"></ul>
+        </section>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer class="pie-app">Novela Colectiva · panel docente</footer>
+
+<script src="../js/firebase-config.js"></script>
+<script type="module" src="../js/auth.js"></script>
+<script type="module" src="js/docente.js"></script>
+
+<script>
+  // PWA: instalable y utilizable sin conexión (ver sw.js).
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {
+        // sin service worker la app funciona igual, solo que sin modo sin conexión
+      });
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escribir · Novela Colectiva</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+</head>
+<body>
+
+<header class="cabecera-app">
+  <div class="contenedor">
+    <span class="logo">📖</span>
+    <h1 id="titulo-cabecera">Novela Colectiva</h1>
+    <span class="quien" id="quien-soy"></span>
+    <a href="tutorial.html">¿Cómo se juega?</a>
+    <a href="index.html">Salir</a>
+  </div>
+</header>
+
+<main class="contenedor">
+  <div id="cargando" class="aviso-caja">Abriendo la novela…</div>
+
+  <div id="todo" class="oculto">
+    <div id="avisos-cabecera"></div>
+
+    <div class="columnas">
+      <div>
+        <section class="novela" id="novela">
+          <h2 class="titulo-novela" id="titulo-novela"></h2>
+          <p class="subtitulo-novela" id="datos-novela"></p>
+          <div id="fragmentos"></div>
+        </section>
+
+        <section class="tarjeta" id="caja-editor">
+          <div class="tarjeta-titulo">
+            <h2 id="titulo-editor">Escribe tu parte</h2>
+            <span class="etiqueta" id="etiqueta-turno"></span>
+          </div>
+
+          <div class="editor-caja">
+            <textarea id="editor" spellcheck="false"
+              placeholder="Continúa la historia por donde la dejó el último. Puedes escribir hasta 10 líneas."></textarea>
+          </div>
+
+          <div class="contador-lineas">
+            <span id="texto-contador">0 de 10 líneas</span>
+            <span class="barra-lineas" id="barra"><div style="width:0%"></div></span>
+            <span class="pequeno texto-suave" id="contador-palabras"></span>
+          </div>
+
+          <div class="botonera">
+            <button class="btn btn-principal btn-grande" id="btn-publicar">Añadir a la novela</button>
+            <button class="btn btn-secundario" id="btn-revisar">Revisar mi ortografía</button>
+            <button class="btn btn-secundario" id="btn-ideas">No sé cómo seguir</button>
+            <button class="btn btn-secundario oculto" id="btn-cancelar-edicion">Cancelar</button>
+          </div>
+
+          <ul class="lista-avisos" id="avisos"></ul>
+        </section>
+      </div>
+
+      <aside>
+        <section class="tarjeta">
+          <h2>Por dónde va</h2>
+          <div id="resumen" class="resumen-bloque"></div>
+        </section>
+
+        <section class="tarjeta">
+          <div class="tarjeta-titulo">
+            <h2>Quién es quién</h2>
+            <span class="pequeno texto-suave" id="num-fichas"></span>
+          </div>
+          <div class="lista-fichas" id="fichas"></div>
+          <p class="pequeno texto-suave" style="margin-top:8px">
+            Pincha en un nombre para ver su ficha. Cuando escribas un nombre nuevo, te tocará rellenarla a ti.
+          </p>
+        </section>
+
+        <section class="tarjeta" id="caja-notas">
+          <h2>Mensajes de tu profe</h2>
+          <div id="notas"></div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer class="pie-app">Novela Colectiva · lo que escribes se guarda aunque se caiga el wifi</footer>
+
+<script src="../js/firebase-config.js"></script>
+<script type="module" src="../js/auth.js"></script>
+<script type="module" src="js/escribir.js"></script>
+
+<script>
+  // PWA: instalable y utilizable sin conexión (ver sw.js).
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {
+        // sin service worker la app funciona igual, solo que sin modo sin conexión
+      });
+    });
+  }
+</script>
+</body>
+</html>

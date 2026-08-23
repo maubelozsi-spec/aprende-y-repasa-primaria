@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novela Colectiva · Aprende y Repasa</title>
+  <meta name="description" content="Escribid una novela entre toda la clase: cada alumno aporta sus diez líneas, con corrector, fichas de personajes y panel docente.">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+</head>
+<body>
+
+<main class="portada">
+  <div class="logo-grande">📖 ✍️</div>
+  <h1>Novela Colectiva</h1>
+  <p class="lema">
+    Una novela escrita entre toda la clase. Cada uno aporta diez líneas cuando le toca,
+    presenta a sus personajes y va enlazando con lo que escribieron los demás.
+    Al final, el libro se descarga en PDF.
+  </p>
+
+  <div class="rejilla-menu">
+    <a class="tarjeta-menu" href="#" id="ir-alumno" style="--acento: var(--acento)">
+      <span class="icono">🧒</span>
+      <h2>Soy alumno o alumna</h2>
+      <p>Entra con tu clave de siempre y escribe tu parte de la novela.</p>
+    </a>
+
+    <a class="tarjeta-menu" href="tutorial.html" style="--acento: var(--azul)">
+      <span class="icono">🧭</span>
+      <h2>¿Cómo se juega?</h2>
+      <p>El tutorial, paso a paso y con ejemplos. Si es tu primera vez, empieza por aquí.</p>
+    </a>
+
+    <a class="tarjeta-menu" href="docente.html" style="--acento: var(--tinta-verde)">
+      <span class="icono">👩‍🏫</span>
+      <h2>Panel del profesorado</h2>
+      <p>Crear novelas, ver quién escribe cada parte, corregir y cerrar el libro.</p>
+    </a>
+  </div>
+
+  <section class="tarjeta" id="zona-alumno" style="margin-top:22px; text-align:left;">
+    <div id="alumno-sin-entrar">
+      <h2>Entra con tu clave</h2>
+      <p class="texto-suave pequeno">Es la misma clave de seis letras que usas en el resto de la web.</p>
+      <form id="form-clave">
+        <div class="campo campo-codigo-grande">
+          <label for="clave">Tu clave</label>
+          <input type="text" id="clave" maxlength="8" autocomplete="off" autocapitalize="characters" required>
+        </div>
+        <p class="error-form" id="error-clave"></p>
+        <button type="submit" class="btn btn-principal btn-grande btn-bloque">Entrar</button>
+      </form>
+    </div>
+
+    <div id="alumno-dentro" class="oculto">
+      <div class="tarjeta-titulo">
+        <h2>Tus novelas</h2>
+        <button class="btn btn-secundario btn-mini" id="btn-salir">Salir</button>
+      </div>
+      <p class="texto-suave pequeno" id="saludo"></p>
+      <div id="lista-novelas"></div>
+    </div>
+  </section>
+
+  <p class="pequeno texto-suave" style="margin-top:20px">
+    <a href="../index.html">← Volver a Aprende y Repasa</a>
+  </p>
+</main>
+
+<footer class="pie-app">Novela Colectiva · 5.º y 6.º de Primaria</footer>
+
+<script src="../js/firebase-config.js"></script>
+<script type="module" src="../js/auth.js"></script>
+<script type="module" src="js/inicio.js"></script>
+
+<script>
+  // PWA: instalable y utilizable sin conexión (ver sw.js).
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {
+        // sin service worker la app funciona igual, solo que sin modo sin conexión
+      });
+    });
+  }
+</script>
+</body>
+</html>
