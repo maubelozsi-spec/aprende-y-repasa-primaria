@@ -1,189 +1,148 @@
-# Novela Colectiva — plan del proyecto
+# Novela Colectiva
 
 App de escritura literaria colaborativa para 3.er ciclo de Primaria, dentro de
-"Aprende y Repasa". Toda la clase (o varios grupos con proyectos distintos)
-escribe una misma novela por turnos, con panel docente, corrección ortográfica,
-fichas de personajes y exportación final a documento.
+"Aprende y Repasa". Toda la clase (o varios grupos, cada uno con su proyecto)
+escribe una misma novela por tandas de diez líneas, con corrector ortográfico,
+fichas de personajes, panel docente y libro final en PDF.
 
-Este documento es la referencia para continuar el desarrollo desde cualquier
-dispositivo: recoge decisiones cerradas, lo que falta por decidir y el orden de
-trabajo. **Antes de programar, leer las decisiones cerradas.**
+**Este documento es la referencia para seguir desarrollando desde cualquier
+dispositivo.** Dice qué está hecho, dónde está cada cosa y qué queda pendiente.
 
 ---
 
-## 1. Decisiones ya cerradas
+## 1. Cómo se usa en clase
 
-| Tema | Decisión |
+**La primera vez (docente):**
+1. Entrar en `novela/docente.html` con la cuenta de profesorado de siempre.
+2. «Nueva» → título, grupo y, muy recomendable, el género/época/tono.
+   Se autoriza automáticamente a todo el grupo elegido.
+3. En «Alumnado» se puede afinar quién escribe. Un mismo alumno puede estar en
+   varias novelas a la vez.
+
+**Cada sesión (alumnado):**
+1. `novela/index.html` → su clave de seis letras → elige la novela.
+2. Lee lo último y el resumen, escribe sus diez líneas y pulsa
+   «Añadir a la novela».
+3. Si escribe un nombre nuevo, rellena su ficha. Si tiene faltas, las ve
+   explicadas y las corrige de un clic.
+
+**Mientras tanto (docente):** en «La novela» ve cada parte con el color y el
+código de su autor, y puede felicitar, mandar una indicación, devolver para
+corregir, quitar de la novela o borrar. En «Alumnado» ve quién no ha escrito
+todavía y las faltas por cada cien palabras de cada uno.
+
+**Al terminar:** «Dar por terminada la novela» (o dejar que lo haga el alumno
+autorizado en Ajustes) y descargar los dos PDF.
+
+### Interruptores que conviene conocer
+
+| Ajuste | Para qué |
 |---|---|
-| Coste | 0 € obligatorio. Todo funciona sin IA (motor propio en el navegador). La IA real es una capa **opcional** que el docente activa pegando su clave en su dispositivo, igual que en `ingles-viajes/js/ia.js`. |
-| Orden de escritura | Libre por defecto (se publica en el orden en que se pulsa el botón) **+ modo "cola de turnos" activable** por el docente en cada proyecto. |
-| Autoría | Los alumnos ven la novela sin autores. Solo el docente pincha un fragmento y ve el código del autor. (Interruptor previsto por si algún día se quiere abrir.) |
-| Claves de acceso | Se reutilizan las claves de 6 caracteres que ya genera el panel docente (`students/{code}`). No hay sistema de códigos nuevo. |
-| Base técnica | HTML + CSS + JS modular sin build, Firebase (Firestore + Auth anónima), PWA propia. Mismo patrón que `cifras-letras/` y `economia-familiar/`. |
+| Escritura abierta | Cerrarla para que no escriban fuera de clase. |
+| Por turnos | Solo escribe quien tiene el turno; útil con el grupo entero a la vez. |
+| Aprobar antes de publicar | Nada aparece en la novela sin tu visto bueno. |
+| Autoría visible | Por defecto NO: solo el docente ve quién escribió cada parte. |
+| Líneas por tanda | 10 por defecto (una línea = 90 caracteres o un salto de línea). |
+| Alumno autorizado a terminar | Le aparece el botón de cerrar la novela. |
 
 ---
 
-## 2. Estructura de carpetas prevista
+## 2. Qué hay hecho
+
+- **Acceso**: se reutilizan las claves de alumno y las cuentas de docente que ya
+  existían (`students/{code}`, `js/auth.js`). No hay un sistema nuevo de códigos.
+- **Escritura por tandas** con contador de líneas, borrador guardado en el
+  propio equipo y aviso cuando entran partes nuevas mientras escribías.
+- **Orden transaccional**: si dos alumnos pulsan el botón a la vez, cada uno
+  recibe su número de orden; nadie pisa a nadie.
+- **Corrector propio** (~26.600 formas) que distingue faltas seguras (con la
+  regla explicada) de palabras simplemente desconocidas, y ofrece la forma
+  correcta de un clic. Nunca impide publicar.
+- **Fichas obligatorias** de personajes, lugares y palabras inventadas la
+  primera vez que aparecen; los nombres de varias palabras se piden juntos.
+- **Motor de continuidad** local: personajes que reaparecen sin poder, cambios
+  de lugar sin contarlos, saltos de tiempo verbal o de narrador, partes que no
+  enlazan. Avisa y aconseja; no reescribe nada.
+- **Resumen automático** y botón «No sé cómo seguir» con ideas hechas a partir
+  de los personajes de esa misma novela.
+- **Filtro de seguridad** antes de publicar: palabras malsonantes y datos
+  personales reales (teléfonos, correos, direcciones, DNI).
+- **Panel docente**: autoría por colores, participación, faltas por cada cien
+  palabras, aprobación previa, turnos, fichas, cierre y borrado.
+- **Correcciones al alumno**: llegan como mensaje con su texto al lado y un
+  botón para ir a corregirlo. El texto original nunca se sobrescribe
+  (`textoOriginal`).
+- **PDF** generado en el propio navegador, sin librerías: la novela para leer y
+  el cuaderno del docente con autoría, participación e indicaciones.
+- **Tutorial** para el alumnado con un recuadro para practicar con el corrector
+  de verdad sin guardar nada.
+- **IA opcional** (`js/ia.js`): solo en el panel docente y solo si el docente
+  pega su clave de la API. Revisa la coherencia de una parte y redacta el
+  resumen. Propone; nunca cambia el texto.
+- **PWA**: instalable y utilizable con el wifi caído.
+
+---
+
+## 3. Mapa de archivos
 
 ```
 novela/
-  index.html        · portada: entrar como alumno o como docente
-  escribir.html     · vista del alumno: novela + resumen + fichas + editor
-  docente.html      · panel docente: proyectos, corrección, cierre, exportación
-  proyeccion.html   · pantalla de aula (opcional, fase 3)
-  manifest.json  sw.js
-  css/estilos.css
+  index.html      portada y entrada del alumnado
+  escribir.html   vista del alumno (novela, editor, resumen, fichas, mensajes)
+  docente.html    panel docente (novela, alumnado, fichas, ajustes, descargas)
+  tutorial.html   tutorial con recuadro de práctica
+  manifest.json sw.js css/estilos.css
   js/
-    firebase-init.js   · reexporta la config global
-    comun.js           · sesiones, avisos, modales (copiar de cifras-letras)
-    proyectos.js       · crear/abrir/cerrar proyectos, suscripciones
-    editor.js          · editor de 10 líneas, contador, avisos en vivo
-    corrector.js       · ortografía sin IA (diccionario + reglas + sugerencias)
-    diccionario.js     · léxico ampliado (parte de cifras-letras/js/diccionario.js)
-    fichas.js          · personajes, lugares y palabras inventadas
-    coherencia.js      · avisos de continuidad antes de publicar
-    resumen.js         · resumen automático extractivo + resumen editable
-    docente.js         · panel, correcciones, participación, cierre
-    exportar.js        · .docx/.pdf usando ../js/docx-writer.js
-    ia.js              · capa opcional (misma pauta que ingles-viajes/js/ia.js)
+    comun.js         sesiones, avisos, modales, contar líneas
+    firebase-init.js reexporta la app de Firebase de la raíz
+    proyectos.js     TODO el acceso a Firestore (colecciones nov*)
+    inicio.js  escribir.js  docente.js  tutorial.js
+    lexico.js        listas de palabras (ARCHIVO GENERADO)
+    diccionario.js   genera plurales, femeninos, -mente y conjugaciones
+    corrector.js     reglas, faltas deducidas y dudas
+    fichas.js        preguntas y ventanas de las fichas
+    coherencia.js    avisos de continuidad
+    resumen.js       resumen extractivo e ideas para seguir
+    moderacion.js    filtro de seguridad
+    pdf.js           escritor de PDF propio
+    exportar.js      los dos documentos finales
+    ia.js            capa opcional de IA (solo panel docente)
 ```
 
----
+## 4. Datos (Firestore)
 
-## 3. Modelo de datos (Firestore)
+- `novProyectos/{id}`: `teacherId, classId, titulo, semilla, participantes[],
+  estado, modoTurno, moderacionPrevia, autoriaVisible, maxLineas,
+  escrituraAbierta, siguienteOrden, numFragmentos, numPalabras, resumenManual,
+  turnoDe, cerradorAutorizado`.
+- `novFragmentos/{id}`: `proyectoId, teacherId, orden, texto, textoOriginal,
+  autorCode, estado (publicado|pendiente|cambios|oculto), palabras, creadoEn,
+  editadoEn, vecesEditado`.
+- `novFichas/{id}`: `proyectoId, teacherId, tipo, nombre, respuestas{},
+  estadoNarrativo, autorCode`.
+- `novNotas/{id}`: `proyectoId, teacherId, fragmentoId, destinatarioCode, tipo,
+  texto, leido, resuelto`.
 
-Colecciones nuevas, con prefijo `nov` para no chocar con lo existente:
+Las reglas están en `firestore.rules` (raíz): cada uno solo publica en su
+nombre, solo corrige su parte, `textoOriginal` no se puede sobrescribir y solo
+el alumno autorizado puede dar por terminada la novela. **Al cambiar las reglas
+hay que volver a publicarlas en la consola de Firebase.**
 
-- **`novProyectos/{proyectoId}`**
-  `teacherId, classId, titulo, semilla{genero, epoca, tono, personajesIniciales},
-  estado: abierto|pausado|cerrado, modoTurno: libre|cola, maxLineas: 10,
-  ventanaEscritura{abierta, desde, hasta}, autoriaVisible: false,
-  moderacionPrevia: false, siguienteOrden, numFragmentos, numPalabras,
-  createdAt, closedAt, cerradoPor`
+## 5. Coste
 
-- **`novFragmentos/{fragmentoId}`**
-  `proyectoId, orden, texto, textoOriginal, autorCode, createdAt,
-  estado: publicado|pendiente|oculto, faltasDetectadas[], entidades[],
-  editadoPorDocente: bool`
-  `textoOriginal` se conserva siempre: es lo que el alumno escribió de verdad,
-  imprescindible para evaluar y para que ninguna corrección borre su trabajo.
+Cero. Firebase plan Spark, GitHub Pages y todo el procesamiento en el
+navegador. Lo único que puede costar dinero es la capa de IA opcional, que solo
+se activa pegando una clave propia y solo funciona en el dispositivo del
+docente. Para no agotar la cuota gratuita de Firestore, cada pantalla escucha
+únicamente el proyecto abierto.
 
-- **`novFichas/{fichaId}`** — mini wiki del proyecto
-  `proyectoId, tipo: personaje|lugar|invento, nombre, alias[],
-  respuestas{quienEs, relacion, aspecto, dondeEsta, otros},
-  estadoNarrativo (vivo/desaparecido/...), autorCode, createdAt`
+## 6. Ideas pendientes
 
-- **`novNotas/{notaId}`** — correcciones e indicaciones del docente
-  `proyectoId, fragmentoId, destinatarioCode, texto,
-  tipo: correccion|indicacion|felicitacion, leido, createdAt`
-
-- **`novTurnos/{proyectoId}/cola/{code}`** — solo en modo cola: `pedidoAt`.
-
-Reglas de seguridad (`firestore.rules`): el docente dueño (`teacherId == uid`)
-lo puede todo; el alumno solo lee proyectos de su `classId` y solo escribe
-fragmentos con su propio `autorCode`, comprobado contra `students/{code}.authUid`
-como ya se hace en el resto de la app.
-
----
-
-## 4. Funcionamiento
-
-### Alumno
-1. Entra con su clave (la de siempre) y ve los proyectos abiertos de su clase.
-2. Abre el proyecto: novela completa, **resumen de por dónde va** y fichas.
-3. Botón *Escribir* → editor con contador de líneas (máximo 10) y corrección
-   ortográfica en vivo: la palabra dudosa se subraya y al tocarla salen
-   sugerencias, con la regla explicada en corto ("se escribe con b porque…").
-4. Al pulsar **Añadir a la novela**:
-   - se detectan nombres propios y palabras desconocidas nuevas y se piden sus
-     fichas (¿quién es? ¿qué relación tiene con la historia? ¿dónde está?…);
-     sin ficha no se publica;
-   - el motor de coherencia avisa de saltos: personaje sin ficha, personaje que
-     estaba en otro sitio, cambio de tiempo verbal o de narrador, contradicción
-     con una ficha existente. El alumno corrige o justifica y publica;
-   - se asigna el `orden` con una transacción, así dos envíos simultáneos nunca
-     se pisan; si mientras escribía se publicó otro fragmento, se le avisa y se
-     le ofrece releerlo antes de mandar.
-5. Puede escribir tantas veces como quiera, siempre en lotes de 10 líneas.
-6. Recibe las indicaciones del docente en un aviso dentro de la app.
-
-### Docente
-- Crea proyectos (uno para toda la clase o varios para grupos distintos),
-  pone el título y, opcionalmente, la semilla (género, época, tono).
-- Ve la novela con la autoría a la vista: color y código por alumno, filtro por
-  alumno, y mapa de participación (quién escribe mucho, quién no ha escrito).
-- Sobre cualquier fragmento: comentar (le llega al alumno), corregir el texto
-  (queda registrado, con el original guardado), ocultar, reordenar.
-- Abre y cierra la ventana de escritura, cambia libre ↔ cola, pausa el proyecto.
-- Cierra la novela o autoriza a un alumno a cerrarla.
-- Exporta el documento final.
-
-### La parte "que la historia tenga sentido", sin coste
-Motor local que **avisa y sugiere, nunca reescribe a espaldas del alumno**:
-comprueba fichas, continuidad de personajes y lugares, tiempo verbal y persona
-narrativa, repeticiones y conectores. Si el docente activa la IA opcional, esa
-misma revisión la hace un modelo de verdad y propone una reescritura suave que
-el alumno acepta o rechaza; el texto original siempre queda guardado.
-
-### Resumen de la novela
-Automático y extractivo (sin IA): última escena, personajes que han aparecido,
-lugares, hilos abiertos y número de palabras. Editable a mano por el docente.
-Con IA activada, resumen redactado por capítulos.
-
-### Exportación final
-Reutiliza `js/docx-writer.js` (ya genera .docx en el navegador, sin librerías):
-- versión limpia: portada con el título, la novela y los créditos de la clase;
-- versión docente: la novela con autorías y comentarios;
-- anexo opcional: índice de personajes y lugares a partir de las fichas.
-
----
-
-## 5. Orden de trabajo propuesto
-
-**Fase 1 — el núcleo (que funcione en clase mañana)**
-1. Estructura de carpetas, CSS y PWA, siguiendo `cifras-letras/`.
-2. Reglas de Firestore para las colecciones `nov*`.
-3. Panel docente mínimo: crear proyecto con título y ver la novela con autorías.
-4. Vista de alumno: leer la novela + editor de 10 líneas + publicar con orden
-   transaccional.
-
-**Fase 2 — lo que hace que la novela no se descarrile**
-5. Corrector ortográfico con sugerencias.
-6. Fichas de personajes, lugares e inventos, obligatorias al aparecer.
-7. Resumen automático.
-8. Comentarios del docente y avisos al alumno.
-9. Motor de coherencia local.
-
-**Fase 3 — cierre y extras**
-10. Cierre de la novela y exportación a .docx.
-11. Modo cola de turnos y ventana de escritura.
-12. Pantalla de proyección para el aula.
-13. Capa de IA opcional.
-14. Informe de evaluación por alumno (palabras, faltas por 100 palabras, fichas).
-
----
-
-## 6. Cuidados que no hay que perder de vista
-
-- **Datos de menores**: solo códigos y apodos, nunca nombres y apellidos reales.
-  Si se activa la IA, avisar de forma explícita de que el texto sale del centro.
-- **Filtro previo** de palabras malsonantes y de datos personales (teléfonos,
-  direcciones) antes de publicar, con aviso al docente.
-- **Límites del plan gratuito de Firebase** (Spark): con 25 alumnos escuchando
-  la misma novela en directo hay que paginar y no suscribirse a todo el
-  histórico, o se agotan las lecturas diarias.
-- **Definir "línea"**: se contará por caracteres (~90 por línea) además de por
-  saltos de línea, para que no se haga trampa con líneas de una palabra.
-- **Nada de borrados irreversibles**: papelera y deshacer en el panel docente.
-
----
-
-## 7. Pendiente de decidir (preguntado al docente)
-
-- Nº de alumnos a la vez y dispositivos (ordenador, Chromebook, tablet, móvil).
-- ¿Moderación previa (yo apruebo antes de que se vea) o publicación directa?
-- ¿Las correcciones del docente cambian el texto de la novela o solo llegan
-  como indicación para que el alumno lo reescriba?
-- ¿Puede un alumno editar o borrar su propio fragmento después de enviarlo?
-- ¿Un alumno puede pertenecer a varios proyectos a la vez?
-- ¿Exportación en Word, PDF o las dos?
+- Pantalla de proyección para la pizarra digital, con la novela creciendo en
+  directo (patrón ya resuelto en `cifras-letras/proyeccion.html`).
+- Reordenar partes desde el panel docente (ahora solo se pueden ocultar).
+- Papelera con deshacer para lo borrado.
+- Capítulos: cerrar capítulo y generar su resumen.
+- Informe de evaluación exportable en CSV además del PDF.
+- Lectura en voz alta con la voz del navegador (accesibilidad).
+- Portada ilustrada por el alumnado.

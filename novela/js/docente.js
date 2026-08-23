@@ -23,6 +23,7 @@ import {
 import { indiceDeFaltas } from "./corrector.js";
 import { TIPOS, ESTADOS_NARRATIVOS } from "./fichas.js";
 import { descargarNovela, descargarCuadernoDocente } from "./exportar.js";
+import { MODELOS, ajustesIA, guardarAjustesIA, hayIA, revisarCoherenciaConIA, resumirConIA } from "./ia.js";
 
 const estado = {
   docente: null,
@@ -70,10 +71,106 @@ async function arrancar() {
   el("btn-guardar-alumnos").addEventListener("click", guardarAutorizados);
   el("btn-todos").addEventListener("click", () => marcarTodos(true));
   el("btn-ninguno").addEventListener("click", () => marcarTodos(false));
+  prepararIA();
   el("btn-pdf-novela").addEventListener("click", () =>
     descargarNovela(estado.proyecto, estado.fragmentos, estado.fichas, estado.alumnos));
   el("btn-pdf-docente").addEventListener("click", () =>
     descargarCuadernoDocente(estado.proyecto, estado.fragmentos, estado.fichas, estado.notas, estado.alumnos));
+}
+
+// ---------- ayuda de IA (opcional) ----------
+
+function prepararIA() {
+  const a = ajustesIA();
+  el("ia-usar").checked = !!a.usar;
+  el("ia-clave").value = a.clave || "";
+  el("ia-modelo").innerHTML = MODELOS
+    .map((m) => `<option value="${m.id}" ${m.id === a.modelo ? "selected" : ""}>${m.nombre}</option>`).join("");
+
+  el("btn-guardar-ia").addEventListener("click", () => {
+    guardarAjustesIA({
+      usar: el("ia-usar").checked,
+      clave: el("ia-clave").value.trim(),
+      modelo: el("ia-modelo").value,
+    });
+    aviso(hayIA() ? "Ayuda de IA activada en este dispositivo." : "Ayuda de IA desactivada.", "exito");
+    pintarNovela();
+  });
+
+  el("btn-resumen-ia").addEventListener("click", resumirNovelaConIA);
+}
+
+async function resumirNovelaConIA() {
+  if (!hayIA()) { aviso("Primero activa la ayuda de IA y guarda tu clave.", "error"); return; }
+  const publicados = estado.fragmentos.filter((f) => f.estado === "publicado");
+  if (!publicados.length) { aviso("Todavía no hay nada que resumir.", "error"); return; }
+  aviso("Pidiendo el resumen a la IA…", "info");
+  try {
+    const r = await resumirConIA({
+      titulo: estado.proyecto.titulo,
+      fragmentos: publicados.map((f) => f.texto),
+    });
+    const texto = r.resumen + (r.hilos && r.hilos.length ? "\n\nSin resolver: " + r.hilos.join(" · ") : "");
+    el("aj-resumen").value = texto;
+    aviso("Resumen escrito. Revísalo y pulsa «Guardar ajustes» para que lo vea la clase.", "exito");
+  } catch (e) {
+    aviso(e.message, "error");
+  }
+}
+
+async function revisarFragmentoConIA(f) {
+  if (!hayIA()) { aviso("Activa la ayuda de IA en Ajustes para usar esto.", "error"); return; }
+  aviso("Revisando con la IA…", "info");
+  let r;
+  try {
+    const anteriores = estado.fragmentos
+      .filter((x) => x.orden < f.orden && x.estado === "publicado")
+      .slice(-4).map((x) => x.texto);
+    r = await revisarCoherenciaConIA({
+      titulo: estado.proyecto.titulo,
+      fichas: estado.fichas,
+      ultimos: anteriores,
+      textoNuevo: f.texto,
+    });
+  } catch (e) {
+    aviso(e.message, "error");
+    return;
+  }
+
+  const enviar = await modal((caja, cerrar) => {
+    caja.innerHTML = `
+      <h2>${r.encaja ? "✅ La parte encaja" : "⚠️ Hay cosas que no encajan"}</h2>
+      ${(r.avisos || []).length ? `<ul class="lista-avisos">${r.avisos.map((a) =>
+        `<li class="coherencia"><strong>${escapaHtml(a.que)}</strong>
+         <span class="explica">${escapaHtml(a.consejo)}</span></li>`).join("")}</ul>` : ""}
+      <h3>Cómo quedaría si se arreglara</h3>
+      <div class="cita" style="font-family:var(--serif); border-left:3px solid var(--borde-fuerte); padding-left:10px">
+        ${escapaHtml(r.propuesta || "")}
+      </div>
+      <p class="pequeno texto-suave">Esta propuesta NO se guarda ni sustituye nada: la app nunca
+      cambia lo que escribió el alumno. Si te parece bien, mándale el mensaje de abajo para que
+      lo corrija él mismo.</p>
+      <div class="campo">
+        <label for="ia-mensaje">Mensaje para el alumno</label>
+        <textarea id="ia-mensaje" rows="3">${escapaHtml(r.paraElAlumno || "")}</textarea>
+      </div>
+      <div class="modal-botones">
+        <button class="btn btn-secundario" id="ia-cerrar">Cerrar sin enviar</button>
+        <button class="btn btn-principal" id="ia-enviar">Enviárselo</button>
+      </div>`;
+    caja.querySelector("#ia-cerrar").addEventListener("click", () => cerrar(null));
+    caja.querySelector("#ia-enviar").addEventListener("click", () =>
+      cerrar(caja.querySelector("#ia-mensaje").value.trim()));
+  }, { cerrarFuera: false });
+
+  if (!enviar) return;
+  await crearNota(estado.proyecto, {
+    fragmentoId: f.id,
+    destinatarioCode: f.autorCode,
+    tipo: "indicacion",
+    texto: enviar,
+  });
+  aviso("Enviado al alumno.", "exito");
 }
 
 // ---------- lista de novelas ----------
@@ -234,6 +331,7 @@ function abrirDetalle(div, id) {
     (f.vecesEditado ? `<span class="etiqueta">corregido ${f.vecesEditado}×</span>` : "") +
     `<span class="botonera">
       ${f.estado === "pendiente" ? '<button class="btn btn-mini btn-exito" data-accion="aprobar">Aprobar</button>' : ""}
+      ${hayIA() ? '<button class="btn btn-mini btn-secundario" data-accion="ia">🤖 Revisar con IA</button>' : ""}
       <button class="btn btn-mini btn-secundario" data-accion="indicacion">Enviar indicación</button>
       <button class="btn btn-mini btn-secundario" data-accion="felicitar">Felicitar</button>
       <button class="btn btn-mini btn-secundario" data-accion="devolver">Devolver para corregir</button>
@@ -256,7 +354,8 @@ function abrirDetalle(div, id) {
       } else if (accion === "devolver") {
         await cambiarEstadoFragmento(f.id, "cambios");
         await mandarNota(f, "correccion", "Devuelta para corregir");
-      } else if (accion === "indicacion") await mandarNota(f, "indicacion", "Indicación");
+      } else if (accion === "ia") await revisarFragmentoConIA(f);
+      else if (accion === "indicacion") await mandarNota(f, "indicacion", "Indicación");
       else if (accion === "felicitar") await mandarNota(f, "felicitacion", "Felicitación");
     });
   });

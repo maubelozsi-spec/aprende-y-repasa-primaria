@@ -124,6 +124,36 @@
                 <button class="btn btn-peligro" id="btn-borrar">Borrar esta novela</button>
               </div>
             </div>
+            <div class="tarjeta">
+              <h2>Ayuda de IA (opcional, y solo tuya)</h2>
+              <p class="texto-suave pequeno">
+                La app funciona entera sin esto: el corrector, el resumen y los avisos de continuidad
+                son propios y no cuestan nada. Si además pegas aquí tu clave de la API de Anthropic,
+                se desbloquean dos botones: revisar la coherencia de una parte y redactar el resumen.
+                <strong>La clave se guarda solo en este navegador</strong> y nunca se pide en los
+                equipos del alumnado.
+              </p>
+              <div class="aviso-caja alerta pequeno">
+                Al usar estos botones, el texto de esa parte de la novela se envía a un servicio
+                externo. Se manda solo el texto, sin el nombre ni la clave de quien lo escribió.
+                Cada llamada la pagas tú y cuesta unos céntimos; si no pulsas los botones, no se
+                envía nada ni se gasta nada.
+              </div>
+              <label class="interruptor"><input type="checkbox" id="ia-usar">
+                <span>Activar la ayuda de IA en este dispositivo</span></label>
+              <div class="campo">
+                <label for="ia-clave">Clave de la API</label>
+                <input type="password" id="ia-clave" autocomplete="off" placeholder="sk-ant-...">
+              </div>
+              <div class="campo">
+                <label for="ia-modelo">Modelo</label>
+                <select id="ia-modelo"></select>
+              </div>
+              <div class="botonera">
+                <button class="btn btn-secundario" id="btn-guardar-ia">Guardar la ayuda de IA</button>
+                <button class="btn btn-secundario" id="btn-resumen-ia">Redactar el resumen con IA</button>
+              </div>
+            </div>
           </section>
 
           <section class="vista" id="vista-descargar">
