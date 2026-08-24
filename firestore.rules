@@ -347,5 +347,82 @@ service cloud.firestore {
                        && request.auth.uid in get(/databases/$(database)/documents/trips/$(tripId)).data.memberUids;
       }
     }
+
+    // ================= Novela Colectiva =================
+    //
+    // Un alumno se identifica con su clave (students/{code}); la sesión
+    // anónima que reclamó esa clave queda guardada en authUid, y es lo
+    // que aquí comprueba esAlumno(). Así, aunque cualquiera pudiera
+    // adivinar el id de un proyecto, solo puede escribir en él quien
+    // tiene una clave viva del docente dueño de la novela.
+
+    function esAlumno(code) {
+      return signedIn()
+             && exists(/databases/$(database)/documents/students/$(code))
+             && get(/databases/$(database)/documents/students/$(code)).data.authUid == request.auth.uid;
+    }
+
+    // Campos que un alumno puede tocar del proyecto: los contadores que
+    // se actualizan al publicar y el turno. Nunca los ajustes.
+    function soloContadoresDeNovela() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(["siguienteOrden", "numFragmentos", "numPalabras",
+                         "actualizadoEn", "turnoDe", "turnoDesde"]);
+    }
+
+    match /novProyectos/{proyectoId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow update: if isOwnerTeacher(resource.data.teacherId)
+                    // publicar (contadores y turno) lo hace el alumnado
+                    || (signedIn() && soloContadoresDeNovela())
+                    // y dar por terminada la novela, SOLO el alumno al que
+                    // el docente ha autorizado expresamente para ello
+                    || (esAlumno(request.resource.data.cerradaPor)
+                        && resource.data.cerradorAutorizado == request.resource.data.cerradaPor
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(["estado", "escrituraAbierta", "cerradaPor", "actualizadoEn"]));
+      allow delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    match /novFragmentos/{fragmentoId} {
+      allow read: if signedIn();
+      // Solo se puede publicar en nombre propio: el código del autor
+      // tiene que ser el de la clave con la que se entró.
+      allow create: if esAlumno(request.resource.data.autorCode)
+                    && request.resource.data.texto is string
+                    && request.resource.data.texto.size() < 4000;
+      // El alumno solo puede corregir SU parte y solo el texto; el
+      // docente dueño puede además aprobar, ocultar o reordenar.
+      allow update: if isOwnerTeacher(resource.data.teacherId)
+                    || (esAlumno(resource.data.autorCode)
+                        && request.resource.data.autorCode == resource.data.autorCode
+                        && request.resource.data.textoOriginal == resource.data.textoOriginal
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(["texto", "palabras", "editadoEn", "vecesEditado", "estado"]));
+      allow delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    match /novFichas/{fichaId} {
+      allow read: if signedIn();
+      allow create: if esAlumno(request.resource.data.autorCode)
+                    || isOwnerTeacher(request.resource.data.teacherId);
+      allow update: if isOwnerTeacher(resource.data.teacherId)
+                    || esAlumno(resource.data.autorCode);
+      allow delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    match /novNotas/{notaId} {
+      allow read: if signedIn();
+      // Las indicaciones solo las escribe el docente; el alumno
+      // destinatario únicamente puede marcarlas como leídas.
+      allow create: if isOwnerTeacher(request.resource.data.teacherId);
+      allow update: if isOwnerTeacher(resource.data.teacherId)
+                    || (esAlumno(resource.data.destinatarioCode)
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(["leido", "resuelto"]));
+      allow delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
   }
 }
