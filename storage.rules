@@ -1,0 +1,23 @@
+rules_version = '2';
+
+// ============================================================
+// Reglas de Firebase Storage — solo las usa "Cuaderno Digital"
+// (el resto de la web no sube archivos). Cada docente lee y escribe
+// únicamente dentro de su propia carpeta, identificada por su uid
+// de Firebase Auth (el mismo que usan las reglas de Firestore).
+//
+// Cómo activarlo (una sola vez, en la consola de Firebase):
+// 1. Firebase Console → Storage → "Comenzar" (crea el bucket si no
+//    existe todavía; puede seguir en el plan gratuito "Spark", con
+//    un límite de 5 GB — de sobra para PDFs e imágenes de clase).
+// 2. Storage → pestaña "Rules" → sustituir todo el contenido por el
+//    de este archivo → "Publicar".
+// ============================================================
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /cuadernoDigital/{teacherId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == teacherId;
+    }
+  }
+}

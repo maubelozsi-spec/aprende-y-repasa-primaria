@@ -15,6 +15,9 @@ rules_version = '2';
 //     "ecoPrestamosFamilias", "ecoEventos").
 //   - Juego "Cifras y Letras" (colecciones "cylPartidas",
 //     "cylJugadores", "cylRespuestas").
+//   - "Cuaderno Digital", bloc de notas personal del docente
+//     (colecciones "cdCuadernos", "cdSecciones", "cdPaginas" y sus
+//     subcolecciones "elementos" y "trazos").
 //
 // ATENCIÓN: las reglas de Firestore son ÚNICAS por proyecto, no por
 // app. Este archivo es el ÚNICO que hay que pegar en la consola
@@ -422,6 +425,54 @@ service cloud.firestore {
                         && request.resource.data.diff(resource.data).affectedKeys()
                              .hasOnly(["leido", "resuelto"]));
       allow delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    // ================= Cuaderno Digital =================
+    //
+    // Bloc de notas personal del docente (estilo OneNote): cuadernos,
+    // secciones, páginas y, dentro de cada página, sus elementos
+    // (cajas de texto, imágenes y páginas de PDF importadas) y sus
+    // trazos de lápiz. Es EXCLUSIVAMENTE del docente que lo crea:
+    // nadie más lo lee ni lo escribe, ni siquiera el alumnado. Se
+    // sincroniza solo entre los dispositivos donde ha iniciado sesión
+    // ese mismo docente (misma cuenta de "teachers").
+    //
+    // Cada trazo de lápiz es su propio documento (no un array dentro
+    // de la página): así, si el mismo docente dibuja sin conexión en
+    // dos dispositivos a la vez, al reconectar los trazos de ambos se
+    // guardan los dos (documentos distintos, sin pisarse). Lo único
+    // que sigue la regla de "el último que guarda gana" es mover o
+    // editar UN MISMO elemento (texto/imagen) desde dos sitios a la
+    // vez, algo mucho menos probable que dibujar.
+
+    match /cdCuadernos/{cuadernoId} {
+      allow read: if isOwnerTeacher(resource.data.teacherId);
+      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    match /cdSecciones/{seccionId} {
+      allow read: if isOwnerTeacher(resource.data.teacherId);
+      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    match /cdPaginas/{paginaId} {
+      allow read: if isOwnerTeacher(resource.data.teacherId);
+      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow update, delete: if isOwnerTeacher(resource.data.teacherId);
+
+      match /elementos/{elementoId} {
+        allow read: if isOwnerTeacher(resource.data.teacherId);
+        allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+        allow update, delete: if isOwnerTeacher(resource.data.teacherId);
+      }
+
+      match /trazos/{trazoId} {
+        allow read: if isOwnerTeacher(resource.data.teacherId);
+        allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+        allow update, delete: if isOwnerTeacher(resource.data.teacherId);
+      }
     }
 
   }

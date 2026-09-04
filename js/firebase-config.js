@@ -15,6 +15,11 @@
 //    aquí abajo, sustituyendo los valores de ejemplo.
 // 4. En Firestore → "Reglas", pega el contenido de firestore.rules
 //    (en la raíz del proyecto) y publícalo.
+// 5. Solo si vas a usar "Cuaderno Digital" (el bloc de notas estilo
+//    OneNote): activa además "Storage" y pega el contenido de
+//    storage.rules (en la raíz del proyecto) en Storage → "Rules".
+//    Sin este paso, el resto de la web funciona igual; solo fallará
+//    subir imágenes y PDFs al cuaderno.
 // ============================================================
 
 window.FIREBASE_CONFIG = {

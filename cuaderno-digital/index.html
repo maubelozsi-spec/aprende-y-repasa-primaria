@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cuaderno Digital · Aprende y Repasa</title>
+<meta name="description" content="Bloc de notas personal del docente: cuadernos, secciones y páginas con texto, imágenes, PDF y lápiz digital, sincronizado entre tus dispositivos.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7c3aed">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilos.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📓</text></svg>">
+</head>
+<body>
+
+<div class="cd-app">
+
+  <header class="cd-topbar">
+    <span class="cd-topbar-titulo">📓 Cuaderno Digital</span>
+    <span class="cd-estado-guardado" id="estado-guardado">Guardado</span>
+    <span class="cd-topbar-saludo" id="saludo-docente"></span>
+    <button type="button" class="cd-btn-topbar" id="btn-cerrar-sesion">Cerrar sesión</button>
+  </header>
+
+  <div class="cd-cuerpo">
+
+    <aside class="cd-panel cd-panel-cuadernos">
+      <div class="cd-panel-cabecera">
+        <h2>Cuadernos</h2>
+        <button type="button" class="cd-btn-icono" id="btn-nuevo-cuaderno" title="Nuevo cuaderno">+</button>
+      </div>
+      <ul class="cd-lista" id="lista-cuadernos"></ul>
+    </aside>
+
+    <aside class="cd-panel cd-panel-paginas">
+      <div class="cd-panel-cabecera">
+        <h2>Secciones</h2>
+        <button type="button" class="cd-btn-icono" id="btn-nueva-seccion" title="Nueva sección">+</button>
+      </div>
+      <div class="cd-tabs-secciones" id="lista-secciones"></div>
+
+      <div class="cd-panel-cabecera">
+        <h2>Páginas</h2>
+        <button type="button" class="cd-btn-icono" id="btn-nueva-pagina" title="Nueva página">+</button>
+      </div>
+      <ul class="cd-lista" id="lista-paginas"></ul>
+    </aside>
+
+    <main class="cd-editor cd-sin-pagina" id="editor-pagina">
+
+      <div class="cd-editor-vacio">
+        <p>📓</p>
+        <p>Crea un cuaderno, una sección y una página para empezar a escribir.</p>
+      </div>
+
+      <div class="cd-editor-cuerpo">
+        <div class="cd-toolbar">
+          <input type="text" id="titulo-pagina" class="cd-titulo-pagina" placeholder="Título de la página">
+
+          <div class="cd-toolbar-grupo">
+            <button type="button" class="cd-herramienta" data-herramienta="seleccionar" title="Seleccionar / mover">🖐️</button>
+            <button type="button" class="cd-herramienta activo" data-herramienta="boli" title="Bolígrafo">✒️</button>
+            <button type="button" class="cd-herramienta" data-herramienta="marcador" title="Marcador">🖍️</button>
+            <button type="button" class="cd-herramienta" data-herramienta="goma" title="Goma de borrar">🧹</button>
+          </div>
+
+          <div class="cd-toolbar-grupo" id="paleta-color"></div>
+
+          <div class="cd-toolbar-grupo">
+            <label class="cd-grosor-label">Grosor
+              <input type="range" id="grosor-tinta" min="1" max="10" step="1" value="3">
+            </label>
+          </div>
+
+          <div class="cd-toolbar-grupo">
+            <button type="button" class="cd-btn-toolbar" id="btn-deshacer" title="Deshacer último trazo">↶ Deshacer</button>
+            <button type="button" class="cd-btn-toolbar" id="btn-rehacer" title="Rehacer">↷ Rehacer</button>
+          </div>
+
+          <div class="cd-toolbar-grupo">
+            <button type="button" class="cd-btn-toolbar" id="btn-insertar-texto">🆎 Texto</button>
+            <button type="button" class="cd-btn-toolbar" id="btn-insertar-imagen">🖼️ Imagen</button>
+            <button type="button" class="cd-btn-toolbar" id="btn-insertar-pdf">📄 PDF</button>
+            <input type="file" id="input-imagen" accept="image/*" multiple hidden>
+            <input type="file" id="input-pdf" accept="application/pdf" hidden>
+          </div>
+        </div>
+
+        <p class="cd-estado-pdf" id="estado-pdf" hidden></p>
+
+        <div class="cd-lienzo-scroll">
+          <div class="cd-lienzo-wrap" id="lienzo-wrap">
+            <canvas class="cd-canvas-tinta" id="canvas-tinta"></canvas>
+            <div class="cd-elementos-contenedor" id="elementos-contenedor"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+</div>
+
+<script src="../js/firebase-config.js"></script>
+<script type="module" src="../js/firebase-init.js"></script>
+<script type="module" src="../js/auth.js"></script>
+<script type="module" src="js/app.js"></script>
+
+<script>
+  // PWA: instalable y utilizable sin conexión (ver sw.js).
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {
+        // sin service worker la app funciona igual, solo que sin modo sin conexión
+      });
+    });
+  }
+</script>
+</body>
+</html>

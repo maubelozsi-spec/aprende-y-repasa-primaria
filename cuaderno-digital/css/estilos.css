@@ -1,0 +1,422 @@
+/* ============================================================
+   Cuaderno Digital — hoja de estilos única.
+   Diseño de tres columnas (cuadernos · secciones/páginas · página
+   abierta), pensado sobre todo para tablet con lápiz en horizontal.
+   En pantallas estrechas las columnas laterales se encogen y el
+   conjunto permite scroll horizontal en vez de un menú móvil aparte
+   (limitación deliberada: es una herramienta personal del docente,
+   no una app pública que deba pulirse para todos los tamaños).
+   ============================================================ */
+
+:root {
+  --bg: #f4f5f9;
+  --superficie: #ffffff;
+  --borde: #e5e7ef;
+  --borde-fuerte: #d7dae6;
+
+  --texto: #20232e;
+  --texto-suave: #666d80;
+  --texto-tenue: #9aa0b1;
+
+  --acento: #7c3aed;
+  --acento-tinta: #ecebfd;
+  --verde: #15803d;
+  --verde-tinta: #e6f6ec;
+  --rojo: #be123c;
+  --rojo-tinta: #fbe8ee;
+  --ambar: #b45309;
+  --ambar-tinta: #fdf0dc;
+
+  --radius: 10px;
+  --sombra: 0 4px 16px rgba(20, 24, 40, 0.08);
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font);
+  color: var(--texto);
+  background: var(--bg);
+  overscroll-behavior: none;
+}
+
+button, input {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.cd-app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* -------- Barra superior -------- */
+
+.cd-topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borde);
+  flex-shrink: 0;
+}
+
+.cd-topbar-titulo {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--acento);
+}
+
+.cd-estado-guardado {
+  font-size: 0.82rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--verde-tinta);
+  color: var(--verde);
+}
+.cd-estado-guardado.cd-estado-guardando { background: var(--ambar-tinta); color: var(--ambar); }
+.cd-estado-guardado.cd-estado-offline { background: var(--rojo-tinta); color: var(--rojo); }
+
+.cd-topbar-saludo {
+  margin-left: auto;
+  color: var(--texto-suave);
+  font-size: 0.88rem;
+}
+
+.cd-btn-topbar {
+  border: 1px solid var(--borde-fuerte);
+  background: var(--superficie);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.cd-btn-topbar:hover { background: var(--bg); }
+
+/* -------- Estructura de tres columnas -------- */
+
+.cd-cuerpo {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow-x: auto;
+}
+
+.cd-panel {
+  flex-shrink: 0;
+  border-right: 1px solid var(--borde);
+  background: var(--superficie);
+  padding: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cd-panel-cuadernos { width: 220px; }
+.cd-panel-paginas { width: 260px; }
+
+.cd-panel-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+.cd-panel-cabecera:first-child { margin-top: 0; }
+.cd-panel-cabecera h2 {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--texto-tenue);
+  margin: 0;
+}
+
+.cd-btn-icono {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--borde-fuerte);
+  background: var(--superficie);
+  cursor: pointer;
+  line-height: 1;
+  font-size: 1rem;
+}
+.cd-btn-icono:hover { background: var(--acento-tinta); border-color: var(--acento); }
+
+.cd-lista {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cd-vacio {
+  font-size: 0.82rem;
+  color: var(--texto-tenue);
+  padding: 8px 4px;
+}
+
+.cd-item-cuaderno, .cd-item-pagina {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+.cd-item-cuaderno { border-left-color: var(--color-cuaderno, transparent); }
+.cd-item-cuaderno:hover, .cd-item-pagina:hover { background: var(--bg); }
+.cd-item-cuaderno.activo, .cd-item-pagina.activo { background: var(--acento-tinta); }
+
+.cd-item-nombre {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.cd-fila-botones { display: none; gap: 2px; }
+.cd-item-cuaderno:hover .cd-fila-botones,
+.cd-item-pagina:hover .cd-fila-botones,
+.cd-tab-seccion:hover .cd-fila-botones { display: flex; }
+.cd-fila-botones button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.cd-fila-botones button:hover { background: var(--borde); }
+
+.cd-tabs-secciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.cd-tab-seccion {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--bg);
+  cursor: pointer;
+  font-size: 0.85rem;
+  border: 1px solid transparent;
+}
+.cd-tab-seccion.activo { background: var(--acento); color: #fff; }
+.cd-tab-seccion.activo .cd-fila-botones button { color: #fff; }
+
+/* -------- Editor de página -------- */
+
+.cd-editor {
+  flex: 1;
+  min-width: 640px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--bg);
+}
+
+.cd-editor-vacio {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--texto-tenue);
+  text-align: center;
+  padding: 40px;
+}
+.cd-editor-vacio p:first-child { font-size: 3rem; margin: 0; }
+
+.cd-editor-cuerpo { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+
+.cd-editor.cd-sin-pagina .cd-editor-vacio { display: flex; }
+.cd-editor.cd-sin-pagina .cd-editor-cuerpo { display: none; }
+
+.cd-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borde);
+}
+
+.cd-titulo-pagina {
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 4px 2px;
+  width: 220px;
+  background: transparent;
+}
+.cd-titulo-pagina:focus { outline: none; border-bottom-color: var(--acento); }
+
+.cd-toolbar-grupo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 10px;
+  border-left: 1px solid var(--borde);
+}
+
+.cd-herramienta, .cd-btn-toolbar {
+  border: 1px solid var(--borde-fuerte);
+  background: var(--superficie);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+.cd-herramienta.activo { background: var(--acento); color: #fff; border-color: var(--acento); }
+.cd-btn-toolbar:hover { background: var(--bg); }
+
+.cd-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--borde-fuerte);
+  background: var(--color);
+  cursor: pointer;
+  padding: 0;
+}
+.cd-swatch.activo { border-color: var(--texto); box-shadow: 0 0 0 2px var(--superficie), 0 0 0 4px var(--texto); }
+.cd-swatch[style*="#ffffff"] { border-color: var(--borde-fuerte); }
+
+.cd-grosor-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--texto-suave);
+}
+
+.cd-estado-pdf {
+  margin: 0;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  background: var(--acento-tinta);
+  color: var(--acento);
+}
+
+.cd-lienzo-scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.cd-lienzo-wrap {
+  position: relative;
+  width: 820px;
+  max-width: 100%;
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+  border-radius: 4px;
+}
+
+.cd-canvas-tinta {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  width: 100%;
+  height: 100%;
+}
+
+.cd-elementos-contenedor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cd-elemento {
+  position: absolute;
+  pointer-events: auto;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+}
+.cd-elemento:hover, .cd-elemento:focus-within { border-color: var(--acento); }
+
+.cd-elemento-barra {
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  height: 20px;
+  cursor: grab;
+  background: var(--acento);
+  border-radius: 5px 5px 0 0;
+  touch-action: none;
+}
+.cd-elemento:hover .cd-elemento-barra, .cd-elemento:focus-within .cd-elemento-barra { display: flex; }
+.cd-elemento-eliminar {
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  padding: 0 6px;
+  font-size: 0.75rem;
+}
+
+.cd-elemento-cuerpo { flex: 1; min-height: 0; overflow: hidden; }
+
+.cd-elemento-texto {
+  height: 100%;
+  padding: 8px;
+  outline: none;
+  overflow-y: auto;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  background: rgba(255, 255, 255, 0.6);
+}
+.cd-elemento:focus-within .cd-elemento-texto { background: #fff; }
+
+.cd-elemento-imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: var(--bg);
+}
+
+.cd-elemento-resize {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--acento);
+  cursor: nwse-resize;
+  display: none;
+  touch-action: none;
+}
+.cd-elemento:hover .cd-elemento-resize, .cd-elemento:focus-within .cd-elemento-resize { display: block; }
+
+/* -------- Responsive: pantallas estrechas -------- */
+
+@media (max-width: 900px) {
+  .cd-panel-cuadernos { width: 160px; }
+  .cd-panel-paginas { width: 200px; }
+  .cd-editor { min-width: 480px; }
+  .cd-topbar-saludo { display: none; }
+}
