@@ -1,0 +1,47 @@
+# ============================================================
+# Publica la web en GitHub Pages, gratis (repositorio público).
+#
+# No hay paso de "build": la web es HTML/CSS/JS puro, así que se
+# publica el repositorio tal cual. Se dispara solo con cada push a
+# "master" (la rama en producción); "workflow_dispatch" permite
+# además lanzarlo a mano desde la pestaña "Actions" de GitHub, o
+# apuntando a otra rama, para probar cambios antes de fusionarlos.
+# ============================================================
+
+name: Publicar en GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empaquetar el sitio
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
