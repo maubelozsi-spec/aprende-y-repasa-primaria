@@ -85,11 +85,81 @@ function partirEnLineas(texto, fuente, tamano, ancho) {
 const A4 = { ancho: 595.28, alto: 841.89 };
 const MARGEN = { izq: 64, der: 64, arriba: 64, abajo: 64 };
 
+// ---------- imágenes ----------
+//
+// Solo JPEG, y a propósito: un JPEG se puede meter en un PDF tal
+// cual, sin descomprimir ni recodificar nada (el visor ya sabe
+// leerlo, es el filtro DCTDecode). Así la portada que dibuja el
+// alumnado entra en el libro sin librerías ni conversiones.
+
+function leeCabeceraJpeg(bytes) {
+  // Recorre los marcadores buscando el SOF, que es donde están el
+  // alto y el ancho de verdad de la imagen.
+  let i = 2;
+  while (i < bytes.length - 9) {
+    if (bytes[i] !== 0xff) { i++; continue; }
+    const marca = bytes[i + 1];
+    const largo = (bytes[i + 2] << 8) | bytes[i + 3];
+    const esSof = marca >= 0xc0 && marca <= 0xcf &&
+      marca !== 0xc4 && marca !== 0xc8 && marca !== 0xcc;
+    if (esSof) {
+      return {
+        alto: (bytes[i + 5] << 8) | bytes[i + 6],
+        ancho: (bytes[i + 7] << 8) | bytes[i + 8],
+        componentes: bytes[i + 9],
+      };
+    }
+    i += 2 + largo;
+  }
+  return null;
+}
+
+// De "data:image/jpeg;base64,..." a los bytes crudos.
+function bytesDeDataUrl(dataUrl) {
+  const coma = String(dataUrl || "").indexOf(",");
+  if (coma < 0) return null;
+  const crudo = atob(String(dataUrl).slice(coma + 1));
+  const bytes = new Uint8Array(crudo.length);
+  for (let i = 0; i < crudo.length; i++) bytes[i] = crudo.charCodeAt(i);
+  return bytes;
+}
+
 class Documento {
   constructor(opciones) {
     this.opciones = opciones || {};
     this.paginas = [];
+    this.imagenes = [];
     this.nueva();
+  }
+
+  // Coloca una imagen centrada, ajustada a un ancho máximo. Devuelve
+  // false si el dato no es un JPEG que se pueda leer: quien llama
+  // sigue adelante sin ella en vez de romper el documento entero.
+  imagen(dataUrl, opciones) {
+    const conf = opciones || {};
+    if (!/^data:image\/jpe?g/i.test(String(dataUrl || ""))) return false;
+    const bytes = bytesDeDataUrl(dataUrl);
+    if (!bytes || bytes.length < 4) return false;
+    const cabecera = leeCabeceraJpeg(bytes);
+    if (!cabecera || !cabecera.ancho || !cabecera.alto) return false;
+
+    const anchoMax = Math.min(conf.ancho || this.anchoUtil, this.anchoUtil);
+    const escala = anchoMax / cabecera.ancho;
+    const ancho = anchoMax;
+    const alto = cabecera.alto * escala;
+
+    this.espacio(alto);
+    const nombre = "Img" + (this.imagenes.length + 1);
+    this.imagenes.push({ nombre: nombre, bytes: bytes, cabecera: cabecera });
+
+    const x = conf.centrado === false ? MARGEN.izq : (A4.ancho - ancho) / 2;
+    const y = this.y - alto;
+    this.actual.ops.push(
+      "q " + ancho.toFixed(2) + " 0 0 " + alto.toFixed(2) + " " +
+      x.toFixed(2) + " " + y.toFixed(2) + " cm /" + nombre + " Do Q"
+    );
+    this.y = y;
+    return true;
   }
 
   nueva() {
@@ -160,9 +230,28 @@ class Documento {
       idFuentes[clave] = añadir("<< /Type /Font /Subtype /Type1 /BaseFont /" + f.pdf +
         " /Encoding /WinAnsiEncoding >>");
     }
+    // Las imágenes van como objetos con el JPEG dentro sin tocar
+    // (DCTDecode): el visor lo descomprime solo.
+    const idImagenes = {};
+    for (const img of this.imagenes) {
+      let crudo = "";
+      for (let i = 0; i < img.bytes.length; i++) crudo += String.fromCharCode(img.bytes[i]);
+      const espacio = img.cabecera.componentes === 1 ? "/DeviceGray" : "/DeviceRGB";
+      idImagenes[img.nombre] = añadir(
+        "<< /Type /XObject /Subtype /Image /Width " + img.cabecera.ancho +
+        " /Height " + img.cabecera.alto + " /ColorSpace " + espacio +
+        " /BitsPerComponent 8 /Filter /DCTDecode /Length " + crudo.length + " >>\n" +
+        "stream\n" + crudo + "\nendstream");
+    }
+
     const recursos = "<< /Font << " +
       Object.entries(idFuentes).map(([clave, id]) => "/" + clave + " " + id + " 0 R").join(" ") +
-      " >> >>";
+      " >>" +
+      (this.imagenes.length
+        ? " /XObject << " + Object.entries(idImagenes)
+            .map(([nombre, id]) => "/" + nombre + " " + id + " 0 R").join(" ") + " >>"
+        : "") +
+      " >>";
 
     const idPaginas = objetos.length + 1 + this.paginas.length * 2;
     const idsPagina = [];

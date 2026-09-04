@@ -417,6 +417,133 @@ a { color: var(--acento); }
 .separador { border: none; border-top: 1px solid var(--borde); margin: 14px 0; }
 .pequeno { font-size: 0.86rem; }
 
+/* ---------- capítulos ---------- */
+
+.rotulo-capitulo {
+  margin: 22px 0 12px;
+  padding: 10px 0 8px;
+  border-top: 2px solid var(--borde-fuerte);
+  border-bottom: 1px solid var(--borde);
+}
+.rotulo-capitulo h3 {
+  margin: 0; font-family: var(--serif); font-size: 1.2rem; color: var(--tinta);
+}
+.rotulo-capitulo p {
+  margin: 5px 0 0; font-size: 0.86rem; color: var(--tinta-suave); font-style: italic;
+}
+
+/* ---------- papelera y portadas en el panel docente ---------- */
+
+.chip-contador:not(:empty) {
+  display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 5px;
+  background: var(--rojo); color: #fff; border-radius: 9px;
+  font-size: 0.72rem; line-height: 18px; text-align: center;
+}
+
+.rejilla-portadas {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+.portada-card {
+  margin: 0; padding: 8px; background: var(--superficie);
+  border: 1px solid var(--borde); border-radius: var(--radio-sm);
+}
+.portada-card.elegida { border-color: var(--acento); box-shadow: 0 0 0 2px var(--acento-suave); }
+.portada-card img {
+  width: 100%; display: block; border-radius: var(--radio-sm);
+  border: 1px solid var(--borde); background: #fff;
+}
+.portada-card figcaption {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  margin: 6px 0; font-size: 0.8rem;
+}
+
+/* ---------- lienzo de la portada ---------- */
+
+.modal-caja.modal-ancho { max-width: 720px; }
+
+.barra-dibujo {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 10px 0; padding: 8px; background: var(--papel-hondo);
+  border-radius: var(--radio-sm);
+}
+.grupo-colores, .grupo-grosores { display: flex; gap: 6px; }
+
+.pincel-color {
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  border: 2px solid var(--borde-fuerte); padding: 0;
+}
+.pincel-color.activo { border-color: var(--tinta); transform: scale(1.14); }
+
+.pincel-grosor {
+  width: 30px; height: 28px; display: grid; place-items: center; cursor: pointer;
+  background: var(--superficie); border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio-sm); padding: 0;
+}
+.pincel-grosor span { display: block; background: var(--tinta); border-radius: 50%; }
+.pincel-grosor.activo { border-color: var(--acento); background: var(--acento-suave); }
+.barra-dibujo .btn.activo { background: var(--acento); color: #fff; }
+
+.marco-lienzo { display: flex; justify-content: center; }
+#lienzo {
+  background: #fff; border: 1px solid var(--borde-fuerte); border-radius: var(--radio-sm);
+  cursor: crosshair; touch-action: none;      /* si no, el dedo hace scroll en vez de pintar */
+  max-width: 100%; height: auto;
+}
+
+/* ---------- lectura en voz alta ---------- */
+
+.fragmento.leyendo, .proy-parte.leyendo {
+  background: var(--acento-suave);
+  box-shadow: inset 3px 0 0 var(--acento);
+}
+
+/* ---------- pantalla de proyección ---------- */
+
+body.modo-proyeccion {
+  --escala-proyeccion: 1.25;
+  background: var(--papel);
+}
+body.modo-proyeccion #escenario {
+  display: flex; flex-direction: column;
+  height: 100vh; padding: 18px 26px; gap: 12px;
+}
+.proy-cabecera {
+  display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+  border-bottom: 2px solid var(--borde-fuerte); padding-bottom: 10px;
+}
+.proy-cabecera h1 {
+  margin: 0; font-family: var(--serif); flex: 1;
+  font-size: calc(1.5rem * var(--escala-proyeccion));
+}
+.proy-datos { display: flex; align-items: center; gap: 10px; color: var(--tinta-suave); font-size: 0.9rem; }
+
+.proy-texto {
+  flex: 1; overflow-y: auto; font-family: var(--serif);
+  font-size: calc(1rem * var(--escala-proyeccion));
+  line-height: 1.65; padding-right: 10px;
+}
+.proy-parte { margin: 0 0 0.85em; transition: background 0.4s ease; }
+.proy-parte.recien-llegada {
+  animation: llega-parte 2.4s ease-out;
+  border-radius: var(--radio-sm);
+}
+@keyframes llega-parte {
+  0% { background: var(--verde-suave); }
+  100% { background: transparent; }
+}
+.proy-capitulo {
+  font-family: var(--serif); text-align: center; margin: 1.1em 0 0.7em;
+  font-size: calc(1.2rem * var(--escala-proyeccion));
+  border-bottom: 1px solid var(--borde); padding-bottom: 0.25em;
+}
+.proy-vacia { color: var(--tinta-tenue); text-align: center; margin-top: 12vh; }
+.proy-pie { color: var(--tinta-suave); font-size: 0.85rem; border-top: 1px solid var(--borde); padding-top: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .proy-parte.recien-llegada { animation: none; }
+}
+
 @media print {
   .cabecera-app, .pie-app, .botonera, aside, .pestanas { display: none !important; }
   body { background: #fff; }

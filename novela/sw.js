@@ -10,7 +10,7 @@
 // resto de la web). IMPORTANTE: subir CACHE_NAME en cada cambio.
 // ============================================================
 
-const CACHE_NAME = "novela-cache-v1";
+const CACHE_NAME = "novela-cache-v2";
 
 const APP_SHELL = [
   "./",
@@ -18,6 +18,7 @@ const APP_SHELL = [
   "escribir.html",
   "docente.html",
   "tutorial.html",
+  "proyeccion.html",
   "manifest.json",
   "css/estilos.css",
   "js/comun.js",
@@ -25,6 +26,9 @@ const APP_SHELL = [
   "js/escribir.js",
   "js/docente.js",
   "js/tutorial.js",
+  "js/proyeccion.js",
+  "js/portada.js",
+  "js/voz.js",
   "js/proyectos.js",
   "js/firebase-init.js",
   "js/diccionario.js",

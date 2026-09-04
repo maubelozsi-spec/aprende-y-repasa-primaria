@@ -33,6 +33,35 @@ function frases(texto) {
     .filter((f) => f.length > 12);
 }
 
+// Resumen de un capítulo que se va a cerrar. Se propone al docente
+// ya escrito, para que solo tenga que retocarlo: la primera frase de
+// la primera parte sitúa, la última de la última cierra, y en medio
+// van los personajes y lugares que de verdad salen en el capítulo.
+export function resumenDeCapitulo(fragmentos, fichas) {
+  const partes = (fragmentos || []).filter((f) => f.estado !== "oculto");
+  if (!partes.length) return "";
+
+  const texto = partes.map((f) => f.texto).join("\n");
+  const todas = frases(texto);
+  const trozos = [];
+  if (todas.length) trozos.push(todas[0]);
+  if (todas.length > 2) trozos.push(todas[Math.floor(todas.length / 2)]);
+  if (todas.length > 1) trozos.push(todas[todas.length - 1]);
+
+  const bajo = texto.toLowerCase();
+  const salen = (tipo) => (fichas || [])
+    .filter((f) => f.tipo === tipo && bajo.includes(String(f.nombre).toLowerCase()))
+    .map((f) => f.nombre);
+
+  const personajes = salen("personaje");
+  const lugares = salen("lugar");
+  const cola = [];
+  if (personajes.length) cola.push("Salen: " + personajes.join(", ") + ".");
+  if (lugares.length) cola.push("Transcurre en: " + lugares.join(", ") + ".");
+
+  return trozos.join(" ") + (cola.length ? " " + cola.join(" ") : "");
+}
+
 export function construirResumen(proyecto, fragmentos, fichas) {
   const publicados = (fragmentos || []).filter((f) => f.estado !== "oculto");
   const texto = publicados.map((f) => f.texto).join("\n");

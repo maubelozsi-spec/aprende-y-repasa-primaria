@@ -19,8 +19,10 @@ import {
 import {
   escucharProyecto, escucharFragmentos, escucharFichas, escucharNotas,
   publicarFragmento, editarFragmento, crearFicha, marcarNotaLeida,
-  pedirTurno, soltarTurno, actualizarProyecto,
+  pedirTurno, soltarTurno, actualizarProyecto, guardarPortada,
 } from "./proyectos.js";
+import { dibujarPortada } from "./portada.js";
+import { hayVoz, leerFragmentos, pararVoz } from "./voz.js";
 import { revisarTexto, aplicarSugerencia } from "./corrector.js";
 import { anadirPalabrasDelProyecto } from "./diccionario.js";
 import { pedirFicha, verFicha, nombresFichados, buscarFicha, TIPOS } from "./fichas.js";
@@ -81,8 +83,10 @@ function arrancar() {
   });
 
   escucharFichas(estado.proyectoId, (lista) => {
-    estado.fichas = lista;
-    anadirPalabrasDelProyecto(nombresFichados(lista));
+    // Lo que el profe mandó a la papelera deja de contar: el nombre
+    // vuelve a ser desconocido y la ficha desaparece de la columna.
+    estado.fichas = lista.filter((f) => !f.borrada);
+    anadirPalabrasDelProyecto(nombresFichados(estado.fichas));
     pintarFichas();
     pintarResumen();
   });
@@ -105,7 +109,63 @@ function arrancar() {
   el("btn-revisar").addEventListener("click", () => revisarYPintar(true));
   el("btn-ideas").addEventListener("click", darIdeas);
   el("btn-cancelar-edicion").addEventListener("click", cancelarEdicion);
+  el("btn-portada").addEventListener("click", hacerPortada);
+  prepararVoz();
   actualizarContador();
+}
+
+// ---------- escuchar la novela ----------
+//
+// Oír lo que llevan escrito antes de escribir ayuda a engancharse
+// con lo anterior, y para quien lee con dificultad cambia la tarea
+// entera. Si el navegador no trae voz, el botón ni aparece.
+
+function prepararVoz() {
+  const btn = el("btn-escuchar");
+  if (!hayVoz()) { btn.classList.add("oculto"); return; }
+
+  btn.addEventListener("click", () => {
+    if (btn.dataset.leyendo === "1") { pararVoz(); pararDeLeer(); return; }
+    const lista = fragmentosVisibles();
+    if (!lista.length) { aviso("Todavía no hay nada que escuchar.", "error"); return; }
+
+    btn.dataset.leyendo = "1";
+    btn.textContent = "⏹ Parar";
+    leerFragmentos(lista.map((f) => f.texto), {
+      alEmpezarUno: (i) => {
+        document.querySelectorAll("#fragmentos .fragmento").forEach((d) => d.classList.remove("leyendo"));
+        const div = document.querySelectorAll("#fragmentos .fragmento")[i];
+        if (div) {
+          div.classList.add("leyendo");
+          div.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      },
+      alTerminar: pararDeLeer,
+    });
+  });
+}
+
+function pararDeLeer() {
+  const btn = el("btn-escuchar");
+  btn.dataset.leyendo = "";
+  btn.textContent = "🔊 Escuchar la novela";
+  document.querySelectorAll("#fragmentos .fragmento").forEach((d) => d.classList.remove("leyendo"));
+}
+
+// ---------- portada ----------
+
+async function hacerPortada() {
+  const imagen = await dibujarPortada({ titulo: estado.proyecto.titulo });
+  if (!imagen) return;
+  try {
+    await guardarPortada(estado.proyecto, {
+      autorCode: estado.sesion.code,
+      imagen: imagen,
+    });
+    aviso("¡Portada enviada! Tu profe verá el dibujo en su panel. 🎨", "exito");
+  } catch (e) {
+    aviso("No he podido guardar el dibujo. Comprueba el wifi.", "error");
+  }
 }
 
 // ---------- pintar la novela ----------

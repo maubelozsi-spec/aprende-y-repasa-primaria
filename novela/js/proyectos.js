@@ -15,7 +15,7 @@
 // ============================================================
 
 import {
-  collection, doc, addDoc, getDocs, updateDoc, deleteDoc,
+  collection, doc, addDoc, getDocs, updateDoc, deleteDoc, writeBatch,
   query, where, onSnapshot, serverTimestamp, runTransaction,
   arrayUnion, arrayRemove, increment,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
@@ -25,6 +25,7 @@ const PROYECTOS = "novProyectos";
 const FRAGMENTOS = "novFragmentos";
 const FICHAS = "novFichas";
 const NOTAS = "novNotas";
+const PORTADAS = "novPortadas";
 
 export const MAX_LINEAS = 10;
 
@@ -50,6 +51,9 @@ export async function crearProyecto(datos) {
     resumenManual: "",
     turnoDe: null,
     cerradorAutorizado: null,
+    capituloActual: 1,              // en qué capítulo se está escribiendo
+    capitulos: [],                  // los ya cerrados: {numero, titulo, resumen, hastaOrden}
+    portadaElegida: null,           // id de la portada del alumnado que va en el PDF
     creadoEn: serverTimestamp(),
     actualizadoEn: serverTimestamp(),
   });
@@ -94,8 +98,8 @@ export async function quitarAlumno(id, codigo) {
 }
 
 export async function borrarProyecto(id) {
-  // se borran también sus fragmentos, fichas y notas
-  for (const col of [FRAGMENTOS, FICHAS, NOTAS]) {
+  // se borran también sus fragmentos, fichas, notas y portadas
+  for (const col of [FRAGMENTOS, FICHAS, NOTAS, PORTADAS]) {
     const snap = await getDocs(query(collection(db, col), where("proyectoId", "==", id)));
     for (const d of snap.docs) await deleteDoc(d.ref);
   }
@@ -136,6 +140,7 @@ export async function publicarFragmento(proyecto, datos) {
       texto: datos.texto,
       textoOriginal: datos.texto,     // lo que escribió el alumno, intacto
       autorCode: datos.autorCode,
+      capitulo: p.capituloActual || 1,
       estado: p.moderacionPrevia ? "pendiente" : "publicado",
       entidades: datos.entidades || [],
       avisosAlPublicar: datos.avisos || 0,
@@ -172,8 +177,57 @@ export async function cambiarEstadoFragmento(id, estado) {
   await updateDoc(doc(db, FRAGMENTOS, id), { estado: estado });
 }
 
-export async function borrarFragmento(id) {
+// ---------- papelera ----------
+//
+// Borrar en un aula casi nunca significa "borrar": significa "quita
+// esto de en medio, que me he equivocado". Por eso el botón de borrar
+// manda a la papelera, donde la parte sigue entera y se puede
+// recuperar. Vaciarla del todo es un segundo gesto, deliberado.
+
+export async function fragmentoAPapelera(id, quien) {
+  await updateDoc(doc(db, FRAGMENTOS, id), {
+    estado: "papelera",
+    borradoEn: serverTimestamp(),
+    borradoPor: quien || null,
+  });
+}
+
+export async function restaurarFragmento(id) {
+  await updateDoc(doc(db, FRAGMENTOS, id), {
+    estado: "publicado",
+    borradoEn: null,
+    borradoPor: null,
+  });
+}
+
+export async function borrarFragmentoParaSiempre(id) {
   await deleteDoc(doc(db, FRAGMENTOS, id));
+}
+
+export async function fichaAPapelera(id) {
+  await updateDoc(doc(db, FICHAS, id), { borrada: true, borradaEn: serverTimestamp() });
+}
+
+export async function restaurarFicha(id) {
+  await updateDoc(doc(db, FICHAS, id), { borrada: false, borradaEn: null });
+}
+
+export async function borrarFichaParaSiempre(id) {
+  await deleteDoc(doc(db, FICHAS, id));
+}
+
+// ---------- reordenar ----------
+//
+// Mover una parte es intercambiar su número de orden con el de su
+// vecina. Las dos escrituras van en el mismo lote: o se mueven las
+// dos o no se mueve ninguna, así nunca quedan dos partes con el
+// mismo número ni un hueco en la numeración.
+
+export async function intercambiarOrden(unoId, unoOrden, otroId, otroOrden) {
+  const lote = writeBatch(db);
+  lote.update(doc(db, FRAGMENTOS, unoId), { orden: otroOrden });
+  lote.update(doc(db, FRAGMENTOS, otroId), { orden: unoOrden });
+  await lote.commit();
 }
 
 // ---------- fichas de personajes, lugares e inventos ----------
@@ -203,10 +257,6 @@ export async function crearFicha(proyecto, datos) {
 
 export async function actualizarFicha(id, cambios) {
   await updateDoc(doc(db, FICHAS, id), cambios);
-}
-
-export async function borrarFicha(id) {
-  await deleteDoc(doc(db, FICHAS, id));
 }
 
 // ---------- notas del docente ----------
@@ -263,6 +313,68 @@ export async function pedirTurno(proyectoId, codigo) {
 
 export async function soltarTurno(proyectoId) {
   await updateDoc(doc(db, PROYECTOS, proyectoId), { turnoDe: null, turnoDesde: null });
+}
+
+// ---------- capítulos ----------
+//
+// Un capítulo no es más que un corte: "de aquí para atrás ya está".
+// Se guardan en el propio proyecto (son cuatro datos y nunca serán
+// muchos), así no hace falta otra colección ni otra regla. Cada
+// fragmento recuerda en qué capítulo nació, de modo que cerrar uno
+// no toca ni una sola de las partes ya escritas.
+
+export async function cerrarCapitulo(proyecto, datos) {
+  const capitulos = (proyecto.capitulos || []).slice();
+  capitulos.push({
+    numero: proyecto.capituloActual || 1,
+    titulo: datos.titulo || "Capítulo " + (proyecto.capituloActual || 1),
+    resumen: datos.resumen || "",
+    hastaOrden: datos.hastaOrden || 0,
+    cerradoEn: Date.now(),
+  });
+  await updateDoc(doc(db, PROYECTOS, proyecto.id), {
+    capitulos: capitulos,
+    capituloActual: (proyecto.capituloActual || 1) + 1,
+    actualizadoEn: serverTimestamp(),
+  });
+}
+
+export async function reabrirUltimoCapitulo(proyecto) {
+  const capitulos = (proyecto.capitulos || []).slice();
+  if (!capitulos.length) return;
+  capitulos.pop();
+  await updateDoc(doc(db, PROYECTOS, proyecto.id), {
+    capitulos: capitulos,
+    capituloActual: Math.max(1, (proyecto.capituloActual || 2) - 1),
+    actualizadoEn: serverTimestamp(),
+  });
+}
+
+// ---------- portadas dibujadas por el alumnado ----------
+
+export function escucharPortadas(proyectoId, cb) {
+  const q = query(collection(db, PORTADAS), where("proyectoId", "==", proyectoId));
+  return onSnapshot(q, (snap) => {
+    const lista = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+    lista.sort((a, b) => (b.creadoEn?.seconds || 0) - (a.creadoEn?.seconds || 0));
+    cb(lista);
+  });
+}
+
+export async function guardarPortada(proyecto, datos) {
+  const ref = await addDoc(collection(db, PORTADAS), {
+    proyectoId: proyecto.id,
+    teacherId: proyecto.teacherId,
+    autorCode: datos.autorCode,
+    imagen: datos.imagen,          // JPEG en data URL, ya reducido
+    titulo: datos.titulo || "",
+    creadoEn: serverTimestamp(),
+  });
+  return ref.id;
+}
+
+export async function borrarPortada(id) {
+  await deleteDoc(doc(db, PORTADAS, id));
 }
 
 // ---------- alumnos de la clase (para el panel docente) ----------

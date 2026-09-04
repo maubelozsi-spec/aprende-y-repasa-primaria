@@ -16,13 +16,18 @@ import {
 } from "./comun.js";
 import {
   crearProyecto, escucharProyectosDelDocente, escucharProyecto, escucharFragmentos,
-  escucharFichas, escucharNotas, actualizarProyecto, borrarProyecto,
-  cambiarEstadoFragmento, borrarFragmento, crearNota, actualizarFicha,
-  borrarFicha, alumnosDelDocente, clasesDelDocente,
+  escucharFichas, escucharNotas, escucharPortadas, actualizarProyecto, borrarProyecto,
+  cambiarEstadoFragmento, crearNota, actualizarFicha,
+  alumnosDelDocente, clasesDelDocente,
+  fragmentoAPapelera, restaurarFragmento, borrarFragmentoParaSiempre,
+  fichaAPapelera, restaurarFicha, borrarFichaParaSiempre,
+  intercambiarOrden, cerrarCapitulo, reabrirUltimoCapitulo, borrarPortada,
 } from "./proyectos.js";
 import { indiceDeFaltas } from "./corrector.js";
 import { TIPOS, ESTADOS_NARRATIVOS } from "./fichas.js";
-import { descargarNovela, descargarCuadernoDocente } from "./exportar.js";
+import { descargarNovela, descargarCuadernoDocente, descargarInformeCSV } from "./exportar.js";
+import { resumenDeCapitulo } from "./resumen.js";
+import { hayVoz, leerFragmentos, pararVoz } from "./voz.js";
 import { MODELOS, ajustesIA, guardarAjustesIA, hayIA, revisarCoherenciaConIA, resumirConIA } from "./ia.js";
 
 const estado = {
@@ -32,10 +37,16 @@ const estado = {
   fragmentos: [],
   fichas: [],
   notas: [],
+  portadas: [],
   alumnos: [],
   clases: [],
   desuscribir: [],
 };
+
+// Lo que está en la papelera no cuenta para nada: ni se lee, ni se
+// exporta, ni suma en la participación. Sigue existiendo, sin más.
+function vivos(lista) { return lista.filter((f) => f.estado !== "papelera"); }
+function fichasVivas(lista) { return lista.filter((f) => !f.borrada); }
 
 // ---------- arranque ----------
 
@@ -73,9 +84,94 @@ async function arrancar() {
   el("btn-ninguno").addEventListener("click", () => marcarTodos(false));
   prepararIA();
   el("btn-pdf-novela").addEventListener("click", () =>
-    descargarNovela(estado.proyecto, estado.fragmentos, estado.fichas, estado.alumnos));
+    descargarNovela(estado.proyecto, vivos(estado.fragmentos), fichasVivas(estado.fichas),
+      estado.alumnos, portadaElegida()));
   el("btn-pdf-docente").addEventListener("click", () =>
-    descargarCuadernoDocente(estado.proyecto, estado.fragmentos, estado.fichas, estado.notas, estado.alumnos));
+    descargarCuadernoDocente(estado.proyecto, vivos(estado.fragmentos), fichasVivas(estado.fichas),
+      estado.notas, estado.alumnos));
+  el("btn-csv").addEventListener("click", () =>
+    descargarInformeCSV(estado.proyecto, vivos(estado.fragmentos), estado.notas, estado.alumnos));
+
+  el("btn-cerrar-capitulo").addEventListener("click", cerrarElCapitulo);
+  el("btn-reabrir-capitulo").addEventListener("click", async () => {
+    if (!(estado.proyecto.capitulos || []).length) return;
+    if (!await confirmar("Se deshace el cierre del último capítulo. Las partes no se tocan.", "Reabrir")) return;
+    await reabrirUltimoCapitulo(estado.proyecto);
+    aviso("Capítulo reabierto.", "info");
+  });
+
+  // Lectura en voz alta: si el navegador no la trae, el botón no aparece.
+  const btnVoz = el("btn-voz");
+  if (!hayVoz()) btnVoz.classList.add("oculto");
+  else btnVoz.addEventListener("click", () => {
+    const publicados = vivos(estado.fragmentos).filter((f) => f.estado === "publicado");
+    if (!publicados.length) { aviso("Todavía no hay nada que leer.", "error"); return; }
+    if (btnVoz.dataset.leyendo === "1") {
+      pararVoz();
+      btnVoz.dataset.leyendo = "";
+      btnVoz.textContent = "🔊 Leer la novela en voz alta";
+      return;
+    }
+    btnVoz.dataset.leyendo = "1";
+    btnVoz.textContent = "⏹ Parar la lectura";
+    leerFragmentos(publicados.map((f) => f.texto), {
+      alTerminar: () => { btnVoz.dataset.leyendo = ""; btnVoz.textContent = "🔊 Leer la novela en voz alta"; },
+    });
+  });
+}
+
+function portadaElegida() {
+  if (!estado.proyecto || !estado.proyecto.portadaElegida) return null;
+  return estado.portadas.find((p) => p.id === estado.proyecto.portadaElegida) || null;
+}
+
+// ---------- capítulos ----------
+
+async function cerrarElCapitulo() {
+  const p = estado.proyecto;
+  const actual = p.capituloActual || 1;
+  const delCapitulo = vivos(estado.fragmentos)
+    .filter((f) => (f.capitulo || 1) === actual && f.estado === "publicado");
+
+  if (!delCapitulo.length) {
+    aviso("Este capítulo todavía no tiene ninguna parte publicada.", "error");
+    return;
+  }
+
+  const propuesta = resumenDeCapitulo(delCapitulo, fichasVivas(estado.fichas));
+  const datos = await modal((caja, cerrar) => {
+    caja.innerHTML = `
+      <h2>Cerrar el capítulo ${actual}</h2>
+      <p class="texto-suave pequeno">Se cierran las ${delCapitulo.length} partes escritas hasta ahora.
+      Lo que se escriba a partir de aquí irá al capítulo ${actual + 1}. No se borra ni se cambia nada:
+      es solo un corte, y siempre puedes deshacerlo.</p>
+      <div class="campo">
+        <label for="cap-titulo">Título del capítulo</label>
+        <input type="text" id="cap-titulo" value="Capítulo ${actual}">
+      </div>
+      <div class="campo">
+        <label for="cap-resumen">Resumen (se propone uno hecho con las propias partes)</label>
+        <textarea id="cap-resumen" rows="4">${escapaHtml(propuesta)}</textarea>
+        <p class="pista">Aparece como entradilla del capítulo en la novela y en el PDF.</p>
+      </div>
+      <div class="modal-botones">
+        <button class="btn btn-secundario" id="cap-cancelar">Cancelar</button>
+        <button class="btn btn-principal" id="cap-cerrar">Cerrar el capítulo</button>
+      </div>`;
+    caja.querySelector("#cap-cancelar").addEventListener("click", () => cerrar(null));
+    caja.querySelector("#cap-cerrar").addEventListener("click", () => cerrar({
+      titulo: caja.querySelector("#cap-titulo").value.trim() || "Capítulo " + actual,
+      resumen: caja.querySelector("#cap-resumen").value.trim(),
+    }));
+  }, { cerrarFuera: false });
+
+  if (!datos) return;
+  await cerrarCapitulo(p, {
+    titulo: datos.titulo,
+    resumen: datos.resumen,
+    hastaOrden: delCapitulo[delCapitulo.length - 1].orden,
+  });
+  aviso("Capítulo cerrado. La clase empieza el " + (actual + 1) + ".", "exito");
 }
 
 // ---------- ayuda de IA (opcional) ----------
@@ -260,6 +356,7 @@ function abrirProyecto(id) {
     estado.proyecto = p;
     if (!p) return;
     el("titulo-novela").textContent = p.titulo;
+    el("enlace-proyeccion").href = "proyeccion.html?p=" + encodeURIComponent(p.id);
     pintarListaProyectos();
     pintarAjustes();
     pintarAutorizar();
@@ -270,13 +367,19 @@ function abrirProyecto(id) {
     pintarNovela();
     pintarParticipacion();
     pintarPendientes();
+    pintarPapelera();
   }));
   estado.desuscribir.push(escucharFichas(id, (lista) => {
     estado.fichas = lista;
     pintarFichas();
+    pintarPapelera();
   }));
   estado.desuscribir.push(escucharNotas(id, (lista) => {
     estado.notas = lista;
+  }));
+  estado.desuscribir.push(escucharPortadas(id, (lista) => {
+    estado.portadas = lista;
+    pintarPortadas();
   }));
 }
 
@@ -285,22 +388,40 @@ function abrirProyecto(id) {
 function pintarNovela() {
   if (!estado.proyecto) return;
   const cont = el("fragmentos");
+  const lista = vivos(estado.fragmentos);
   el("datos-novela").textContent =
-    estado.fragmentos.length + " partes · " + (estado.proyecto.numPalabras || 0) + " palabras · " +
-    new Set(estado.fragmentos.map((f) => f.autorCode)).size + " autores";
+    lista.length + " partes · " + (estado.proyecto.numPalabras || 0) + " palabras · " +
+    new Set(lista.map((f) => f.autorCode)).size + " autores";
 
-  if (!estado.fragmentos.length) {
+  if (!lista.length) {
     cont.innerHTML = '<p class="novela-vacia">Todavía no ha escrito nadie.</p>';
     return;
   }
-  cont.innerHTML = estado.fragmentos.map((f) => {
+
+  // Se pinta capítulo a capítulo: cada uno con su título y su
+  // resumen, y las partes que todavía no tienen capítulo cerrado al
+  // final, bajo el que se está escribiendo ahora mismo.
+  const cerrados = estado.proyecto.capitulos || [];
+  const trozos = [];
+  let anterior = null;
+  for (const f of lista) {
+    const cap = f.capitulo || 1;
+    if (cap !== anterior) {
+      anterior = cap;
+      const info = cerrados.find((c) => c.numero === cap);
+      trozos.push(`<div class="rotulo-capitulo">
+        <h3>${escapaHtml(info ? info.titulo : "Capítulo " + cap + " (en marcha)")}</h3>
+        ${info && info.resumen ? `<p>${escapaHtml(info.resumen)}</p>` : ""}
+      </div>`);
+    }
     const clases = ["fragmento"];
     if (f.estado === "pendiente") clases.push("pendiente");
     if (f.estado === "oculto") clases.push("oculto-docente");
     if (f.estado === "cambios") clases.push("necesita-cambios");
-    const color = colorDeCodigo(f.autorCode);
-    return `<div class="${clases.join(" ")}" data-id="${f.id}" style="border-left-color:${color}">${escapaHtml(f.texto)}</div>`;
-  }).join("");
+    trozos.push(`<div class="${clases.join(" ")}" data-id="${f.id}" ` +
+      `style="border-left-color:${colorDeCodigo(f.autorCode)}">${escapaHtml(f.texto)}</div>`);
+  }
+  cont.innerHTML = trozos.join("");
 
   cont.querySelectorAll(".fragmento").forEach((div) =>
     div.addEventListener("click", () => abrirDetalle(div, div.dataset.id)));
@@ -320,10 +441,17 @@ function abrirDetalle(div, id) {
   const alumno = estado.alumnos.find((a) => a.code === f.autorCode);
   const idx = indiceDeFaltas(f.textoOriginal || f.texto);
 
+  // Vecinas para poder moverla: la de justo antes y la de justo
+  // después dentro de lo que está vivo.
+  const lista = vivos(estado.fragmentos);
+  const pos = lista.findIndex((x) => x.id === f.id);
+  const anterior = pos > 0 ? lista[pos - 1] : null;
+  const siguienteF = pos >= 0 && pos < lista.length - 1 ? lista[pos + 1] : null;
+
   const caja = document.createElement("div");
   caja.className = "detalle-fragmento";
   caja.innerHTML =
-    `<span>Parte ${f.orden}</span>` +
+    `<span>Parte ${f.orden}${f.capitulo ? " · cap. " + f.capitulo : ""}</span>` +
     `<span class="autor" style="color:${colorDeCodigo(f.autorCode)}">${escapaHtml(alumno ? (alumno.nickname || f.autorCode) : f.autorCode)}</span>` +
     `<span class="codigo-alumno">${escapaHtml(f.autorCode)}</span>` +
     `<span>${escapaHtml(fechaCorta(f.creadoEn))}</span>` +
@@ -332,11 +460,13 @@ function abrirDetalle(div, id) {
     `<span class="botonera">
       ${f.estado === "pendiente" ? '<button class="btn btn-mini btn-exito" data-accion="aprobar">Aprobar</button>' : ""}
       ${hayIA() ? '<button class="btn btn-mini btn-secundario" data-accion="ia">🤖 Revisar con IA</button>' : ""}
+      <button class="btn btn-mini btn-secundario" data-accion="subir" ${anterior ? "" : "disabled"} title="Moverla antes">↑ Subir</button>
+      <button class="btn btn-mini btn-secundario" data-accion="bajar" ${siguienteF ? "" : "disabled"} title="Moverla después">↓ Bajar</button>
       <button class="btn btn-mini btn-secundario" data-accion="indicacion">Enviar indicación</button>
       <button class="btn btn-mini btn-secundario" data-accion="felicitar">Felicitar</button>
       <button class="btn btn-mini btn-secundario" data-accion="devolver">Devolver para corregir</button>
       <button class="btn btn-mini btn-secundario" data-accion="${f.estado === "oculto" ? "mostrar" : "ocultar"}">${f.estado === "oculto" ? "Recuperar" : "Quitar de la novela"}</button>
-      <button class="btn btn-mini btn-peligro" data-accion="borrar">Borrar</button>
+      <button class="btn btn-mini btn-peligro" data-accion="borrar">A la papelera</button>
     </span>`;
   div.after(caja);
 
@@ -347,10 +477,13 @@ function abrirDetalle(div, id) {
       if (accion === "aprobar") await cambiarEstadoFragmento(f.id, "publicado");
       else if (accion === "ocultar") await cambiarEstadoFragmento(f.id, "oculto");
       else if (accion === "mostrar") await cambiarEstadoFragmento(f.id, "publicado");
-      else if (accion === "borrar") {
-        if (await confirmar("¿Borrar del todo esta parte? No se puede deshacer. Si solo quieres que no aparezca, usa «Quitar de la novela».", "Borrar")) {
-          await borrarFragmento(f.id);
-        }
+      else if (accion === "subir" && anterior) {
+        await intercambiarOrden(f.id, f.orden, anterior.id, anterior.orden);
+      } else if (accion === "bajar" && siguienteF) {
+        await intercambiarOrden(f.id, f.orden, siguienteF.id, siguienteF.orden);
+      } else if (accion === "borrar") {
+        await fragmentoAPapelera(f.id, estado.docente.uid);
+        aviso("A la papelera. Puedes recuperarla desde la pestaña «Papelera».", "info");
       } else if (accion === "devolver") {
         await cambiarEstadoFragmento(f.id, "cambios");
         await mandarNota(f, "correccion", "Devuelta para corregir");
@@ -457,7 +590,7 @@ function pintarParticipacion() {
   const autorizados = (estado.proyecto && estado.proyecto.participantes) || [];
   const datos = new Map();
   for (const codigo of autorizados) datos.set(codigo, { partes: 0, palabras: 0, faltas: 0, total: 0, ultima: null });
-  for (const f of estado.fragmentos) {
+  for (const f of vivos(estado.fragmentos)) {
     const d = datos.get(f.autorCode) || { partes: 0, palabras: 0, faltas: 0, total: 0, ultima: null };
     const idx = indiceDeFaltas(f.textoOriginal || f.texto);
     d.partes++; d.palabras += idx.palabras; d.faltas += idx.faltas; d.total += idx.palabras;
@@ -487,11 +620,12 @@ function pintarParticipacion() {
 
 function pintarFichas() {
   const cont = el("fichas-docente");
-  if (!estado.fichas.length) {
+  const lista = fichasVivas(estado.fichas);
+  if (!lista.length) {
     cont.innerHTML = '<p class="texto-suave">Todavía no hay fichas.</p>';
     return;
   }
-  cont.innerHTML = estado.fichas.map((f) => {
+  cont.innerHTML = lista.map((f) => {
     const t = TIPOS[f.tipo] || TIPOS.personaje;
     const respuestas = (t.preguntas || []).map((p) => {
       const r = (f.respuestas || {})[p.id];
@@ -514,9 +648,119 @@ function pintarFichas() {
     sel.addEventListener("change", () => actualizarFicha(sel.dataset.estado, { estadoNarrativo: sel.value })));
   cont.querySelectorAll("[data-borrar]").forEach((b) =>
     b.addEventListener("click", async () => {
-      if (await confirmar("¿Borrar esta ficha? El nombre volverá a marcarse como palabra desconocida.", "Borrar")) {
-        await borrarFicha(b.dataset.borrar);
+      await fichaAPapelera(b.dataset.borrar);
+      aviso("Ficha a la papelera. El nombre vuelve a marcarse como desconocido.", "info");
+    }));
+}
+
+// ---------- papelera ----------
+
+function pintarPapelera() {
+  const cont = el("papelera");
+  if (!cont) return;
+  const partes = estado.fragmentos.filter((f) => f.estado === "papelera");
+  const fichas = estado.fichas.filter((f) => f.borrada);
+  const cuenta = partes.length + fichas.length;
+
+  const chip = el("cuenta-papelera");
+  if (chip) chip.textContent = cuenta ? String(cuenta) : "";
+
+  if (!cuenta) {
+    cont.innerHTML = '<p class="texto-suave">La papelera está vacía.</p>';
+    return;
+  }
+
+  const trozos = [];
+  if (partes.length) {
+    trozos.push("<h3>Partes de la novela</h3>");
+    trozos.push(partes.map((f) => `
+      <div class="nota">
+        <div class="cabecera-nota">Parte ${f.orden} · ${escapaHtml(f.autorCode)}
+          ${f.borradoEn ? `<span class="pequeno texto-suave">${escapaHtml(fechaCorta(f.borradoEn))}</span>` : ""}</div>
+        <div>${escapaHtml(f.texto.slice(0, 260))}${f.texto.length > 260 ? "…" : ""}</div>
+        <div class="botonera" style="margin-top:6px">
+          <button class="btn btn-mini btn-exito" data-recuperar="${f.id}">Recuperar</button>
+          <button class="btn btn-mini btn-peligro" data-siempre="${f.id}">Borrar para siempre</button>
+        </div>
+      </div>`).join(""));
+  }
+  if (fichas.length) {
+    trozos.push("<h3>Fichas</h3>");
+    trozos.push(fichas.map((f) => `
+      <div class="nota">
+        <div class="cabecera-nota">${(TIPOS[f.tipo] || TIPOS.personaje).icono} ${escapaHtml(f.nombre)}</div>
+        <div class="botonera" style="margin-top:6px">
+          <button class="btn btn-mini btn-exito" data-recuperar-ficha="${f.id}">Recuperar</button>
+          <button class="btn btn-mini btn-peligro" data-siempre-ficha="${f.id}">Borrar para siempre</button>
+        </div>
+      </div>`).join(""));
+  }
+  cont.innerHTML = trozos.join("");
+
+  cont.querySelectorAll("[data-recuperar]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      await restaurarFragmento(b.dataset.recuperar);
+      aviso("Recuperada: vuelve a estar en la novela.", "exito");
+    }));
+  cont.querySelectorAll("[data-recuperar-ficha]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      await restaurarFicha(b.dataset.recuperarFicha);
+      aviso("Ficha recuperada.", "exito");
+    }));
+  cont.querySelectorAll("[data-siempre]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      if (await confirmar("Esto sí es definitivo: la parte desaparece y no hay vuelta atrás.", "Borrar para siempre")) {
+        await borrarFragmentoParaSiempre(b.dataset.siempre);
+        aviso("Borrada definitivamente.", "info");
       }
+    }));
+  cont.querySelectorAll("[data-siempre-ficha]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      if (await confirmar("Esto sí es definitivo: la ficha desaparece y no hay vuelta atrás.", "Borrar para siempre")) {
+        await borrarFichaParaSiempre(b.dataset.siempreFicha);
+      }
+    }));
+}
+
+// ---------- portadas del alumnado ----------
+
+function pintarPortadas() {
+  const cont = el("portadas");
+  if (!cont || !estado.proyecto) return;
+  if (!estado.portadas.length) {
+    cont.innerHTML = '<p class="texto-suave">Todavía no ha dibujado nadie. ' +
+      "El alumnado tiene el botón «Dibujar la portada» en su pantalla de escribir.</p>";
+    return;
+  }
+  const elegida = estado.proyecto.portadaElegida;
+  cont.innerHTML = '<div class="rejilla-portadas">' + estado.portadas.map((p) => `
+    <figure class="portada-card ${p.id === elegida ? "elegida" : ""}">
+      <img src="${escapaHtml(p.imagen)}" alt="Portada de ${escapaHtml(p.autorCode)}">
+      <figcaption>
+        <span class="codigo-alumno">${escapaHtml(p.autorCode)}</span>
+        ${p.id === elegida ? '<span class="etiqueta verde">En el libro</span>' : ""}
+      </figcaption>
+      <div class="botonera">
+        <button class="btn btn-mini ${p.id === elegida ? "btn-secundario" : "btn-principal"}" data-elegir="${p.id}">
+          ${p.id === elegida ? "Quitarla del libro" : "Poner en el libro"}</button>
+        <button class="btn btn-mini btn-peligro" data-borrar-portada="${p.id}">Borrar</button>
+      </div>
+    </figure>`).join("") + "</div>";
+
+  cont.querySelectorAll("[data-elegir]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      const id = b.dataset.elegir;
+      const nueva = estado.proyecto.portadaElegida === id ? null : id;
+      await actualizarProyecto(estado.proyecto.id, { portadaElegida: nueva });
+      aviso(nueva ? "Esa portada irá en el PDF." : "El libro vuelve a salir sin portada dibujada.", "exito");
+    }));
+  cont.querySelectorAll("[data-borrar-portada]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      if (!await confirmar("¿Borrar este dibujo?", "Borrar")) return;
+      if (estado.proyecto.portadaElegida === b.dataset.borrarPortada) {
+        await actualizarProyecto(estado.proyecto.id, { portadaElegida: null });
+      }
+      await borrarPortada(b.dataset.borrarPortada);
     }));
 }
 
@@ -535,6 +779,12 @@ function pintarAjustes() {
   el("aj-lineas").value = p.maxLineas || 10;
   el("btn-cerrar-novela").textContent = p.estado === "cerrado"
     ? "Volver a abrir la novela" : "Dar por terminada la novela";
+
+  const cerrados = p.capitulos || [];
+  el("estado-capitulos").textContent = cerrados.length
+    ? cerrados.length + " capítulo(s) cerrado(s). Ahora se escribe el " + (p.capituloActual || 1) + "."
+    : "Todavía no has cerrado ningún capítulo: la novela va de corrido.";
+  el("btn-reabrir-capitulo").disabled = !cerrados.length;
 
   const sel = el("aj-cerrador");
   const autorizados = p.participantes || [];

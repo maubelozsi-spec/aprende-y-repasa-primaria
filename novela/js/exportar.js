@@ -21,8 +21,17 @@ function fechaLarga() {
   return new Date().toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
 }
 
-function portada(doc, proyecto, datos, subtitulo) {
-  doc.salto(150);
+function portada(doc, proyecto, datos, subtitulo, dibujo) {
+  // Si la clase ha elegido una portada dibujada, va arriba y el
+  // título debajo. Si no entra o no es un JPEG legible, el libro
+  // sale como siempre: la portada nunca puede impedir la descarga.
+  let conDibujo = false;
+  if (dibujo && dibujo.imagen) {
+    doc.salto(40);
+    conDibujo = doc.imagen(dibujo.imagen, { ancho: 300 });
+    if (conDibujo) doc.salto(24);
+  }
+  if (!conDibujo) doc.salto(150);
   doc.parrafo(proyecto.titulo, { fuente: "titular", tamano: 26, centrado: true, interlineado: 32 });
   doc.salto(10);
   doc.parrafo(subtitulo, { fuente: "cursiva", tamano: 13, centrado: true, gris: true });
@@ -73,7 +82,7 @@ function anexoFichas(doc, fichas) {
 
 // ---------- versión para leer ----------
 
-export function descargarNovela(proyecto, fragmentos, fichas, alumnos) {
+export function descargarNovela(proyecto, fragmentos, fichas, alumnos, dibujoPortada) {
   const publicados = fragmentos.filter((f) => f.estado === "publicado");
   const autores = Array.from(new Set(publicados.map((f) => f.autorCode)))
     .map((c) => nombreDe(alumnos, c));
@@ -83,25 +92,114 @@ export function descargarNovela(proyecto, fragmentos, fichas, alumnos) {
     autores: new Set(publicados.map((f) => f.autorCode)).size,
     fragmentos: publicados.length,
     palabras: publicados.reduce((s, f) => s + (f.palabras || 0), 0),
-  }, "Una novela escrita entre toda la clase");
+  }, "Una novela escrita entre toda la clase", dibujoPortada);
 
   doc.parrafo(proyecto.titulo, { fuente: "titular", tamano: 16, centrado: true });
   doc.salto(16);
+
+  // Con capítulos cerrados, cada uno abre con su título y su
+  // resumen; sin ellos, el texto va seguido como siempre.
+  const cerrados = proyecto.capitulos || [];
+  let capituloAnterior = null;
   for (const f of publicados) {
+    const cap = f.capitulo || 1;
+    if (cerrados.length && cap !== capituloAnterior) {
+      capituloAnterior = cap;
+      const info = cerrados.find((c) => c.numero === cap);
+      if (info) {
+        doc.salto(10);
+        doc.parrafo(info.titulo, { fuente: "titular", tamano: 14, centrado: true });
+        if (info.resumen) {
+          doc.salto(4);
+          doc.parrafo(info.resumen, { fuente: "cursiva", tamano: 10, centrado: true, gris: true, interlineado: 14 });
+        }
+        doc.salto(12);
+      }
+    }
     doc.parrafo(f.texto, { fuente: "normal", tamano: 11.5, interlineado: 17 });
     doc.salto(9);
   }
 
   anexoFichas(doc, fichas);
   creditos(doc, autores);
+  if (dibujoPortada && dibujoPortada.autorCode) {
+    doc.salto(10);
+    doc.parrafo("Portada dibujada por " + nombreDe(alumnos, dibujoPortada.autorCode) + ".",
+      { fuente: "cursiva", tamano: 10.5, gris: true });
+  }
   descargar(doc.aBlob(), nombreArchivo(proyecto, "novela"));
+}
+
+// ---------- informe de evaluación en CSV ----------
+//
+// Lo mismo que el cuaderno del docente, pero para abrirlo en la hoja
+// de cálculo y poner notas al lado. Se usa punto y coma y se pone el
+// BOM porque es lo que espera el Excel en español; con coma y sin
+// BOM, las tildes salen rotas y todo cae en una sola columna.
+
+function celda(valor) {
+  const t = String(valor == null ? "" : valor);
+  return /[";\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+}
+
+export function descargarInformeCSV(proyecto, fragmentos, notas, alumnos) {
+  const publicados = fragmentos.filter((f) => f.estado !== "oculto" && f.estado !== "papelera");
+  const porAlumno = new Map();
+  for (const a of alumnos || []) {
+    if ((proyecto.participantes || []).includes(a.code)) {
+      porAlumno.set(a.code, { partes: 0, palabras: 0, faltas: 0, total: 0, editadas: 0, primera: null, ultima: null });
+    }
+  }
+  for (const f of publicados) {
+    const d = porAlumno.get(f.autorCode) ||
+      { partes: 0, palabras: 0, faltas: 0, total: 0, editadas: 0, primera: null, ultima: null };
+    const idx = indiceDeFaltas(f.textoOriginal || f.texto);
+    d.partes++;
+    d.palabras += idx.palabras;
+    d.faltas += idx.faltas;
+    d.total += idx.palabras;
+    if (f.vecesEditado) d.editadas++;
+    const cuando = f.creadoEn && f.creadoEn.toDate ? f.creadoEn.toDate() : null;
+    if (cuando) {
+      if (!d.primera || cuando < d.primera) d.primera = cuando;
+      if (!d.ultima || cuando > d.ultima) d.ultima = cuando;
+    }
+    porAlumno.set(f.autorCode, d);
+  }
+
+  const notasPorAlumno = new Map();
+  for (const n of notas || []) {
+    notasPorAlumno.set(n.destinatarioCode, (notasPorAlumno.get(n.destinatarioCode) || 0) + 1);
+  }
+
+  const fecha = (d) => (d ? d.toLocaleDateString("es-ES") : "");
+  const filas = [[
+    "Alumno", "Código", "Partes", "Palabras", "Palabras por parte",
+    "Faltas", "Faltas por 100 palabras", "Partes corregidas",
+    "Indicaciones recibidas", "Primera vez", "Última vez",
+  ]];
+
+  const orden = Array.from(porAlumno.entries()).sort((a, b) => b[1].palabras - a[1].palabras);
+  for (const [codigo, d] of orden) {
+    const por100 = d.total ? Math.round((d.faltas * 1000) / d.total) / 10 : 0;
+    const porParte = d.partes ? Math.round(d.palabras / d.partes) : 0;
+    filas.push([
+      nombreDe(alumnos, codigo), codigo, d.partes, d.palabras, porParte,
+      d.faltas, String(por100).replace(".", ","), d.editadas,
+      notasPorAlumno.get(codigo) || 0, fecha(d.primera), fecha(d.ultima),
+    ]);
+  }
+
+  const texto = "﻿" + filas.map((f) => f.map(celda).join(";")).join("\r\n");
+  descargar(new Blob([texto], { type: "text/csv;charset=utf-8" }),
+    nombreArchivo(proyecto, "evaluacion").replace(/\.pdf$/, ".csv"));
 }
 
 // ---------- versión de trabajo para el docente ----------
 
 export function descargarCuadernoDocente(proyecto, fragmentos, fichas, notas, alumnos) {
   const doc = nuevoDocumento({ titulo: proyecto.titulo + " (cuaderno del docente)" });
-  const publicados = fragmentos.filter((f) => f.estado !== "oculto");
+  const publicados = fragmentos.filter((f) => f.estado !== "oculto" && f.estado !== "papelera");
 
   portada(doc, proyecto, {
     autores: new Set(publicados.map((f) => f.autorCode)).size,

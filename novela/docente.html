@@ -40,6 +40,8 @@
             <button class="pestana activa" data-vista="vista-novela">La novela</button>
             <button class="pestana" data-vista="vista-alumnos">Alumnado</button>
             <button class="pestana" data-vista="vista-fichas">Fichas</button>
+            <button class="pestana" data-vista="vista-portadas">Portadas</button>
+            <button class="pestana" data-vista="vista-papelera">Papelera <span class="chip-contador" id="cuenta-papelera"></span></button>
             <button class="pestana" data-vista="vista-ajustes">Ajustes</button>
             <button class="pestana" data-vista="vista-descargar">Descargar</button>
           </div>
@@ -49,7 +51,30 @@
             <div class="novela">
               <h2 class="titulo-novela" id="titulo-novela"></h2>
               <p class="subtitulo-novela" id="datos-novela"></p>
+              <div class="botonera" style="margin-bottom:10px">
+                <button class="btn btn-secundario btn-mini" id="btn-voz">🔊 Leer la novela en voz alta</button>
+                <a class="btn btn-secundario btn-mini" id="enlace-proyeccion" target="_blank" rel="noopener">📽️ Proyectar en la pizarra</a>
+              </div>
               <div id="fragmentos"></div>
+            </div>
+          </section>
+
+          <section class="vista" id="vista-portadas">
+            <div class="tarjeta">
+              <h2>Portadas dibujadas por el alumnado</h2>
+              <p class="texto-suave pequeno">Cada alumno puede dibujar la suya desde su pantalla.
+                Elige una y será la que salga en la primera página del PDF.</p>
+              <div id="portadas"></div>
+            </div>
+          </section>
+
+          <section class="vista" id="vista-papelera">
+            <div class="tarjeta">
+              <h2>Papelera</h2>
+              <p class="texto-suave pequeno">Lo que se borra viene aquí y sigue entero. No cuenta
+                para la novela, ni para la participación, ni sale en los PDF. Se puede recuperar
+                mientras no se vacíe.</p>
+              <div id="papelera"></div>
             </div>
           </section>
 
@@ -124,6 +149,18 @@
                 <button class="btn btn-peligro" id="btn-borrar">Borrar esta novela</button>
               </div>
             </div>
+
+            <div class="tarjeta">
+              <h2>Capítulos</h2>
+              <p class="texto-suave pequeno">Cerrar un capítulo es poner un corte: lo escrito hasta
+                ahora queda agrupado con su título y su resumen, y lo siguiente empieza capítulo
+                nuevo. No se borra ni se cambia ninguna parte, y se puede deshacer.</p>
+              <p class="pequeno" id="estado-capitulos"></p>
+              <div class="botonera">
+                <button class="btn btn-secundario" id="btn-cerrar-capitulo">Cerrar el capítulo actual</button>
+                <button class="btn btn-secundario" id="btn-reabrir-capitulo">Deshacer el último cierre</button>
+              </div>
+            </div>
             <div class="tarjeta">
               <h2>Ayuda de IA (opcional, y solo tuya)</h2>
               <p class="texto-suave pequeno">
@@ -163,11 +200,13 @@
               <div class="botonera">
                 <button class="btn btn-principal btn-grande" id="btn-pdf-novela">📕 La novela (para leer)</button>
                 <button class="btn btn-secundario btn-grande" id="btn-pdf-docente">📋 Cuaderno del docente</button>
+                <button class="btn btn-secundario btn-grande" id="btn-csv">📊 Informe en CSV</button>
               </div>
               <p class="texto-suave pequeno" style="margin-top:12px">
                 El cuaderno del docente incluye el autor de cada parte, las palabras escritas,
                 las faltas por cada cien palabras, el texto original antes de corregir y las
-                indicaciones que enviaste.
+                indicaciones que enviaste. El informe en CSV trae una fila por alumno para abrirlo
+                en la hoja de cálculo y poner las notas al lado.
               </p>
             </div>
           </section>

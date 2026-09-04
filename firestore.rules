@@ -424,5 +424,23 @@ service cloud.firestore {
       allow delete: if isOwnerTeacher(resource.data.teacherId);
     }
 
+    // Portadas dibujadas por el alumnado. Cada uno sube la suya y
+    // puede rehacerla; elegir cuál va en el libro es cosa del
+    // docente (lo guarda en portadaElegida, campo suyo del proyecto).
+    // El límite de tamaño evita que un dibujo enorme reviente el
+    // documento: el lienzo ya envía la imagen reducida.
+    match /novPortadas/{portadaId} {
+      allow read: if signedIn();
+      allow create: if esAlumno(request.resource.data.autorCode)
+                    && request.resource.data.imagen is string
+                    && request.resource.data.imagen.size() < 700000;
+      allow update: if isOwnerTeacher(resource.data.teacherId)
+                    || (esAlumno(resource.data.autorCode)
+                        && request.resource.data.autorCode == resource.data.autorCode
+                        && request.resource.data.imagen.size() < 700000);
+      allow delete: if isOwnerTeacher(resource.data.teacherId)
+                    || esAlumno(resource.data.autorCode);
+    }
+
   }
 }

@@ -55,9 +55,9 @@ autorizado en Ajustes) y descargar los dos PDF.
   propio equipo y aviso cuando entran partes nuevas mientras escribías.
 - **Orden transaccional**: si dos alumnos pulsan el botón a la vez, cada uno
   recibe su número de orden; nadie pisa a nadie.
-- **Corrector propio** (~26.600 formas) que distingue faltas seguras (con la
-  regla explicada) de palabras simplemente desconocidas, y ofrece la forma
-  correcta de un clic. Nunca impide publicar.
+- **Corrector propio** (35.548 formas a partir de 2.765 palabras base) que
+  distingue faltas seguras (con la regla explicada) de palabras simplemente
+  desconocidas, y ofrece la forma correcta de un clic. Nunca impide publicar.
 - **Fichas obligatorias** de personajes, lugares y palabras inventadas la
   primera vez que aparecen; los nombres de varias palabras se piden juntos.
 - **Motor de continuidad** local: personajes que reaparecen sin poder, cambios
@@ -79,6 +79,28 @@ autorizado en Ajustes) y descargar los dos PDF.
 - **IA opcional** (`js/ia.js`): solo en el panel docente y solo si el docente
   pega su clave de la API. Revisa la coherencia de una parte y redacta el
   resumen. Propone; nunca cambia el texto.
+- **Papelera con deshacer**: borrar manda a la papelera, donde la parte o la
+  ficha siguen enteras y se pueden recuperar. Lo que está allí no cuenta para
+  la novela, ni para la participación, ni sale en los PDF. Vaciarla es un
+  segundo gesto, deliberado.
+- **Reordenar partes** desde el panel docente con subir/bajar: las dos partes
+  intercambian su número de orden en un solo lote, así nunca quedan dos con el
+  mismo número.
+- **Capítulos**: cerrar el capítulo actual le pone título y resumen (se propone
+  uno hecho con las propias partes) y lo siguiente empieza capítulo nuevo. No
+  toca ninguna parte ya escrita y se puede deshacer.
+- **Pantalla de proyección** (`proyeccion.html`) para la pizarra digital: la
+  novela crece sola, la parte recién llegada se resalta y la pantalla baja
+  hasta ella. Cuatro tamaños de letra, que cada pizarra es distinta. Es solo
+  lectura: ahí no se toca nada.
+- **Lectura en voz alta** con la voz del propio navegador, en la vista del
+  alumno, en el panel y en la proyección. Va resaltando la parte que suena.
+- **Informe de evaluación en CSV** (una fila por alumno) para abrirlo en la
+  hoja de cálculo: punto y coma, BOM y decimales con coma, que es lo que
+  espera el Excel en español.
+- **Portada ilustrada por el alumnado**: un lienzo sencillo (seis colores,
+  tres grosores y goma), el docente elige una entre todas y esa se estampa en
+  la primera página del PDF.
 - **PWA**: instalable y utilizable con el wifi caído.
 
 ---
@@ -89,7 +111,9 @@ autorizado en Ajustes) y descargar los dos PDF.
 novela/
   index.html      portada y entrada del alumnado
   escribir.html   vista del alumno (novela, editor, resumen, fichas, mensajes)
-  docente.html    panel docente (novela, alumnado, fichas, ajustes, descargas)
+  docente.html    panel docente (novela, alumnado, fichas, portadas, papelera,
+                  ajustes, descargas)
+  proyeccion.html la novela en la pizarra digital, creciendo en directo
   tutorial.html   tutorial con recuadro de práctica
   manifest.json sw.js css/estilos.css
   js/
@@ -104,8 +128,11 @@ novela/
     coherencia.js    avisos de continuidad
     resumen.js       resumen extractivo e ideas para seguir
     moderacion.js    filtro de seguridad
-    pdf.js           escritor de PDF propio
-    exportar.js      los dos documentos finales
+    pdf.js           escritor de PDF propio (texto y portada en JPEG)
+    exportar.js      los dos PDF y el informe CSV
+    voz.js           lectura en voz alta
+    portada.js       lienzo para dibujar la portada
+    proyeccion.js    la pantalla de la pizarra
     ia.js            capa opcional de IA (solo panel docente)
 ```
 
@@ -114,14 +141,17 @@ novela/
 - `novProyectos/{id}`: `teacherId, classId, titulo, semilla, participantes[],
   estado, modoTurno, moderacionPrevia, autoriaVisible, maxLineas,
   escrituraAbierta, siguienteOrden, numFragmentos, numPalabras, resumenManual,
-  turnoDe, cerradorAutorizado`.
-- `novFragmentos/{id}`: `proyectoId, teacherId, orden, texto, textoOriginal,
-  autorCode, estado (publicado|pendiente|cambios|oculto), palabras, creadoEn,
-  editadoEn, vecesEditado`.
+  turnoDe, cerradorAutorizado, capituloActual, capitulos[], portadaElegida`.
+- `novFragmentos/{id}`: `proyectoId, teacherId, orden, capitulo, texto,
+  textoOriginal, autorCode, estado (publicado|pendiente|cambios|oculto|
+  papelera), palabras, creadoEn, editadoEn, vecesEditado, borradoEn`.
 - `novFichas/{id}`: `proyectoId, teacherId, tipo, nombre, respuestas{},
-  estadoNarrativo, autorCode`.
+  estadoNarrativo, autorCode, borrada`.
 - `novNotas/{id}`: `proyectoId, teacherId, fragmentoId, destinatarioCode, tipo,
   texto, leido, resuelto`.
+- `novPortadas/{id}`: `proyectoId, teacherId, autorCode, imagen` (JPEG en data
+  URL, reducido a 900 px de ancho: unas decenas de kB, muy por debajo del
+  límite de 1 MiB por documento de Firestore).
 
 Las reglas están en `firestore.rules` (raíz): cada uno solo publica en su
 nombre, solo corrige su parte, `textoOriginal` no se puede sobrescribir y solo
@@ -138,11 +168,10 @@ docente. Para no agotar la cuota gratuita de Firestore, cada pantalla escucha
 
 ## 6. Ideas pendientes
 
-- Pantalla de proyección para la pizarra digital, con la novela creciendo en
-  directo (patrón ya resuelto en `cifras-letras/proyeccion.html`).
-- Reordenar partes desde el panel docente (ahora solo se pueden ocultar).
-- Papelera con deshacer para lo borrado.
-- Capítulos: cerrar capítulo y generar su resumen.
-- Informe de evaluación exportable en CSV además del PDF.
-- Lectura en voz alta con la voz del navegador (accesibilidad).
-- Portada ilustrada por el alumnado.
+Las siete que había aquí (proyección, reordenar, papelera, capítulos, CSV,
+voz y portada) están hechas. Lo que queda apuntado:
+
+- Arrastrar para reordenar, además de los botones de subir y bajar.
+- Que el alumnado vea también los capítulos cerrados como índice.
+- Vaciar la papelera entera de una vez, con un aviso claro.
+- Varias portadas en el libro (una por capítulo).
