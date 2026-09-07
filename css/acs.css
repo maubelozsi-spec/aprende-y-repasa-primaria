@@ -915,6 +915,15 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  margin-bottom: 26px;
+}
+
+/* Etiqueta de cada grupo de piezas en la página de recortables del
+   examen (ver crearPaginaRecortables en js/acs-generador-ui.js). */
+.acs-recortables-etiqueta {
+  font-weight: 700;
+  font-size: 15px;
+  margin: 0 0 10px;
 }
 
 /* Cuadrado sencillo de recortar: siempre un recuadro recto, nunca la
@@ -1031,6 +1040,14 @@
 
   .acs-sheet.acs-examen-ejercicio:not(:last-child) {
     page-break-after: auto;
+  }
+
+  /* Página de recortables al final del examen: siempre en una página
+     nueva propia, para que no se mezcle con el final del último
+     ejercicio (así se recorta todo de una vez, sin ir buscando
+     piezas sueltas por el examen). */
+  .acs-sheet.acs-examen-recortables {
+    page-break-before: always;
   }
 
   /* Si una ficha tiene más ítems de los que caben en un folio, que

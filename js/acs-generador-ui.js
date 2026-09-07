@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("acs-gen-panel-respuestas").classList.toggle("active", btn.dataset.tab === "respuestas");
   });
 
-  document.getElementById("acs-gen-imprimir-btn").addEventListener("click", () => window.print());
+  document.getElementById("acs-gen-imprimir-btn").addEventListener("click", acsEsperarImagenesEImprimir);
 
   // ---------- generar ----------
 
@@ -156,6 +156,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // se quita el Nombre/Fecha y el título grande (ya están una vez en
   // la cabecera del examen) y la instrucción pasa a ser el enunciado
   // numerado ("1. ...", "2. ...").
+  //
+  // Si el ejercicio es de recortar y pegar, además se sacan las
+  // piezas de recortar de su sitio (y el aviso de "recorta cada
+  // cuadro..."): en un examen con varias actividades no tiene sentido
+  // dejarlas sueltas justo detrás de cada ejercicio, donde pueden caer
+  // en una página aparte en medio del examen. Se devuelven aquí para
+  // que quien llama las junte todas en una sola página al final.
   function convertirEnEjercicioExamen(sheetDiv, numero) {
     sheetDiv.classList.add("acs-examen-ejercicio");
     const nombreRow = sheetDiv.querySelector(".acs-sheet-nombre");
@@ -167,6 +174,44 @@ document.addEventListener("DOMContentLoaded", () => {
       instruccionEl.classList.add("acs-examen-enunciado");
       instruccionEl.textContent = `${numero}. ${instruccionEl.textContent}`;
     }
+
+    const avisoEl = sheetDiv.querySelector(".acs-recortar-aviso");
+    if (avisoEl) avisoEl.remove();
+    const piezasEl = sheetDiv.querySelector(".acs-recortar-piezas");
+    if (piezasEl) {
+      piezasEl.remove();
+      return piezasEl;
+    }
+    return null;
+  }
+
+  // Página final de recortables de un examen: junta las piezas de
+  // todos los ejercicios de recortar y pegar, cada grupo con su
+  // propia etiqueta ("Del ejercicio N"), para que se recorte todo de
+  // una vez en vez de ir buscando piezas sueltas por el examen.
+  function crearPaginaRecortables(grupos) {
+    const pagina = document.createElement("div");
+    pagina.className = "acs-sheet acs-examen-ejercicio acs-examen-recortables";
+
+    const titulo = document.createElement("h2");
+    titulo.className = "acs-examen-titulo";
+    titulo.textContent = "Recortables";
+    pagina.appendChild(titulo);
+
+    const nota = document.createElement("p");
+    nota.className = "acs-examen-enunciado";
+    nota.textContent = "✂ Recorta cada cuadro y pégalo junto a su pareja en el ejercicio correspondiente.";
+    pagina.appendChild(nota);
+
+    grupos.forEach(({ numero, piezasEl }) => {
+      const etiqueta = document.createElement("p");
+      etiqueta.className = "acs-recortables-etiqueta";
+      etiqueta.textContent = `Del ejercicio ${numero}:`;
+      pagina.appendChild(etiqueta);
+      pagina.appendChild(piezasEl);
+    });
+
+    return pagina;
   }
 
   generarBtn.addEventListener("click", () => {
@@ -215,13 +260,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const sheetRoot = document.getElementById("acs-gen-sheet");
     sheetRoot.innerHTML = "";
     if (modo === "examen") sheetRoot.appendChild(crearCabeceraExamen(secciones, curso));
+    const recortablesExamen = [];
     secciones.forEach((seccion, i) => {
       const temporal = document.createElement("div");
       ACS_RENDERERS[seccion.tipo].sheet(seccion, temporal);
       const sheetDiv = temporal.firstElementChild;
-      if (modo === "examen") convertirEnEjercicioExamen(sheetDiv, i + 1);
+      if (modo === "examen") {
+        const piezasEl = convertirEnEjercicioExamen(sheetDiv, i + 1);
+        if (piezasEl) recortablesExamen.push({ numero: i + 1, piezasEl });
+      }
       sheetRoot.appendChild(sheetDiv);
     });
+    if (modo === "examen" && recortablesExamen.length) {
+      sheetRoot.appendChild(crearPaginaRecortables(recortablesExamen));
+    }
 
     // Hoja de respuestas: solo en modo examen.
     const respuestasEl = document.getElementById("acs-gen-respuestas");

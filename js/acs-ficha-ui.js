@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
   recortarCheck.addEventListener("change", render);
 
   document.getElementById("acs-reiniciar-btn").addEventListener("click", render);
-  document.getElementById("acs-imprimir-btn").addEventListener("click", () => window.print());
+  document.getElementById("acs-imprimir-btn").addEventListener("click", acsEsperarImagenesEImprimir);
 
   const tabBtns = document.querySelectorAll(".acs-tab-btn");
   tabBtns.forEach((btn) => {

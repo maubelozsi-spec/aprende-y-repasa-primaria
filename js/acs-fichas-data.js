@@ -260,6 +260,17 @@ const ACS_FICHAS_REGISTRO = {
     generar: (curso) => generarClasificarFormas({ cantidad: 6, curso }),
     generarConCantidad: (cantidad, curso) => generarClasificarFormas({ cantidad, curso }),
   },
+  "matematicas-fracciones": {
+    area: "matematicas",
+    tipo: "elegir-opcion",
+    etiqueta: "Fracciones",
+    nivel: "Nivel funcional: 3º de Primaria (adaptado con apoyo visual)",
+    titulo: "Fracciones sencillas",
+    resumen: "Reconoce medios y cuartos (y tercios en 2º) con una tarta coloreada: sin comparar, ordenar ni operar.",
+    cantidadDefecto: 4,
+    generar: (curso) => generarFracciones({ cantidad: 4, curso }),
+    generarConCantidad: (cantidad, curso) => generarFracciones({ cantidad, curso }),
+  },
 };
 
 // Fichas listas para el catálogo (sin generar contenido todavía).

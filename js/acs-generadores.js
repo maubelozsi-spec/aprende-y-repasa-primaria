@@ -465,3 +465,78 @@ function generarSumaRestaNumerica(opciones) {
     items,
   };
 }
+
+// Fracciones sencillas y muy visuales (una "tarta" partida en trozos
+// iguales, con algunos coloreados): medios y cuartos, que se pueden
+// enseñar de forma muy concreta doblando un papel por la mitad y otra
+// vez por la mitad. Se añaden tercios en curso 2. Es contenido de
+// cursos posteriores a 1º-2º en el currículo (normalmente aparece en
+// el segundo ciclo), pero muy adaptable con apoyo visual: no se pide
+// comparar, ordenar ni operar con fracciones, solo reconocer y
+// representar las más básicas, sin escribir nada.
+const ACS_FRACCIONES_POR_CURSO = {
+  1: [
+    [1, 2],
+    [1, 4],
+    [2, 4],
+    [3, 4],
+  ],
+  2: [
+    [1, 2],
+    [1, 4],
+    [2, 4],
+    [3, 4],
+    [1, 3],
+    [2, 3],
+  ],
+};
+
+function acsClaveFraccion(par) {
+  return `fraccion:${par[0]}-${par[1]}`;
+}
+
+function acsEtiquetaFraccion(par) {
+  return `${par[0]}/${par[1]}`;
+}
+
+function generarFracciones(opciones) {
+  const { cantidad = 4, curso = "1" } = opciones || {};
+  const pool = ACS_FRACCIONES_POR_CURSO[curso === "2" ? 2 : 1];
+
+  const items = [];
+  for (let i = 0; i < cantidad; i++) {
+    const correcta = pool[Math.floor(Math.random() * pool.length)];
+    const distractores = acsElegirAlAzar(
+      pool.filter((p) => p[0] !== correcta[0] || p[1] !== correcta[1]),
+      2
+    );
+
+    if (Math.random() < 0.5) {
+      // Se ve la tarta coloreada: hay que elegir la fracción (texto).
+      items.push({
+        prompt: "¿Qué fracción está coloreada?",
+        conteo: { clave: acsClaveFraccion(correcta), cantidad: 1 },
+        opciones: acsBarajar([
+          { texto: acsEtiquetaFraccion(correcta), correcta: true },
+          ...distractores.map((d) => ({ texto: acsEtiquetaFraccion(d), correcta: false })),
+        ]),
+      });
+    } else {
+      // Se da la fracción en texto: hay que elegir la tarta que la representa.
+      items.push({
+        prompt: `¿Qué dibujo representa la fracción ${acsEtiquetaFraccion(correcta)}?`,
+        opciones: acsBarajar([
+          { clave: acsClaveFraccion(correcta), correcta: true },
+          ...distractores.map((d) => ({ clave: acsClaveFraccion(d), correcta: false })),
+        ]),
+      });
+    }
+  }
+
+  return {
+    tipo: "elegir-opcion",
+    titulo: "Fracciones sencillas",
+    instruccion: "Mira cada tarta. Elige la fracción o el dibujo que corresponde.",
+    items,
+  };
+}

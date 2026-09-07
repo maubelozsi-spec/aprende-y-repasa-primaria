@@ -187,6 +187,7 @@ const NAV = [
           { id: "acs-ficha-matematicas-reparto", label: "Reparto en partes iguales", href: "acs/ficha.html?id=matematicas-reparto", available: true },
           { id: "acs-ficha-matematicas-clasificar-lineas", label: "Clasifica las líneas", href: "acs/ficha.html?id=matematicas-clasificar-lineas", available: true },
           { id: "acs-ficha-matematicas-clasificar-formas", label: "Clasifica las formas", href: "acs/ficha.html?id=matematicas-clasificar-formas", available: true },
+          { id: "acs-ficha-matematicas-fracciones", label: "Fracciones sencillas", href: "acs/ficha.html?id=matematicas-fracciones", available: true },
         ],
       },
     ],

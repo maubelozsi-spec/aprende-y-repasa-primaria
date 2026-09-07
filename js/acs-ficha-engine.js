@@ -25,6 +25,25 @@ function acsBarajar(array) {
   return array;
 }
 
+// Antes de imprimir, espera a que terminen de resolverse los
+// pictogramas pendientes: mientras se busca su id en ARASAAC, el
+// <img> no tiene "src" (ver arasaacCrearImagen en js/arasaac.js), así
+// que imprimir en ese momento deja el cuadro vacío en vez de mostrar
+// el pictograma o, si ha fallado, el recuadro alternativo con la
+// palabra. Tope de 6s: mejor imprimir con algún pictograma sin
+// resolver (solo pasaría con una conexión muy lenta) que dejar a
+// quien imprime esperando si algo se queda colgado.
+function acsEsperarImagenesEImprimir() {
+  const limite = Date.now() + 6000;
+  (function comprobar() {
+    if (document.querySelectorAll(".acs-pic-cargando").length === 0 || Date.now() > limite) {
+      window.print();
+      return;
+    }
+    setTimeout(comprobar, 150);
+  })();
+}
+
 function acsCrearSheetBase(ficha) {
   const sheet = document.createElement("div");
   sheet.className = "acs-sheet";
@@ -111,20 +130,58 @@ function acsCrearIconoSvg(nombre, roto) {
   return svg;
 }
 
+// "Tarta" dividida en partes iguales, con las N primeras coloreadas:
+// representación visual de una fracción sencilla (numerador/
+// denominador), sin depender de ARASAAC (no hay pictograma para "2
+// de 4 partes coloreadas"). Los sectores se numeran siempre a partir
+// de arriba, en el sentido de las agujas del reloj, para que la misma
+// fracción salga siempre con el mismo dibujo (fácil de reconocer).
+function acsCrearIconoFraccion(numerador, denominador) {
+  const svg = acsCrearElementoSvg("svg", { viewBox: "0 0 100 100", width: "100%", height: "100%" });
+  const cx = 50;
+  const cy = 50;
+  const r = 42;
+  for (let i = 0; i < denominador; i++) {
+    const a0 = (i / denominador) * 2 * Math.PI - Math.PI / 2;
+    const a1 = ((i + 1) / denominador) * 2 * Math.PI - Math.PI / 2;
+    const x0 = (cx + r * Math.cos(a0)).toFixed(2);
+    const y0 = (cy + r * Math.sin(a0)).toFixed(2);
+    const x1 = (cx + r * Math.cos(a1)).toFixed(2);
+    const y1 = (cy + r * Math.sin(a1)).toFixed(2);
+    const arcoGrande = a1 - a0 > Math.PI ? 1 : 0;
+    const d = `M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${arcoGrande} 1 ${x1},${y1} Z`;
+    svg.appendChild(
+      acsCrearElementoSvg("path", {
+        d,
+        fill: i < numerador ? "#33363f" : "none",
+        stroke: "#33363f",
+        "stroke-width": "4",
+        "stroke-linejoin": "round",
+      })
+    );
+  }
+  return svg;
+}
+
 function acsEsClaveSvg(clave) {
-  return typeof clave === "string" && (clave.indexOf("svg:") === 0 || clave.indexOf("svgroto:") === 0);
+  return typeof clave === "string" && (clave.indexOf("svg:") === 0 || clave.indexOf("svgroto:") === 0 || clave.indexOf("fraccion:") === 0);
 }
 
 // Sustituye a arasaacCrearImagen allí donde una "clave" puede ser
 // tanto una palabra real (pictograma de ARASAAC) como una forma o
-// línea abstracta ("svg:circulo", "svg:recta"...) o su versión
-// incompleta ("svgroto:circulo").
+// línea abstracta ("svg:circulo", "svg:recta"...), su versión
+// incompleta ("svgroto:circulo") o una fracción ("fraccion:1-2").
 function acsCrearImagenOSvg(clave, opts) {
   if (acsEsClaveSvg(clave)) {
-    const roto = clave.indexOf("svgroto:") === 0;
     const wrap = document.createElement("span");
     wrap.className = "acs-pic acs-pic-svg";
-    wrap.appendChild(acsCrearIconoSvg(clave.slice(roto ? 8 : 4), roto));
+    if (clave.indexOf("fraccion:") === 0) {
+      const [numerador, denominador] = clave.slice(9).split("-").map(Number);
+      wrap.appendChild(acsCrearIconoFraccion(numerador, denominador));
+    } else {
+      const roto = clave.indexOf("svgroto:") === 0;
+      wrap.appendChild(acsCrearIconoSvg(clave.slice(roto ? 8 : 4), roto));
+    }
     return wrap;
   }
   return arasaacCrearImagen(clave, opts);
@@ -148,6 +205,9 @@ const ACS_ETIQUETAS_FORMA = {
 
 function acsEtiquetaClave(clave) {
   if (typeof clave !== "string") return clave;
+  if (clave.indexOf("fraccion:") === 0) {
+    return clave.slice(9).replace("-", "/");
+  }
   if (clave.indexOf("svgroto:") === 0) {
     const forma = clave.slice(8);
     return (ACS_ETIQUETAS_FORMA[forma] || forma) + " (incompleto)";
@@ -297,7 +357,13 @@ function renderUnirParejasDigital(ficha, container) {
 // dibujo) y se pegan junto a su pareja. Mismo dato (ficha.pares), la
 // ficha solo marca ficha.imprimirComo = "recortar" para pedir esta
 // disposición en vez de las dos columnas con puntos.
-function renderUnirParejasSheetRecortar(ficha, sheet) {
+//
+// Separado en dos funciones (objetivos / piezas) para que el
+// generador de cuaderno (acs/generador.html) pueda, en modo examen,
+// sacar las piezas de su sitio y juntarlas todas en una sola página
+// de "Recortables" al final en vez de dejarlas sueltas después de
+// cada ejercicio.
+function crearRecortarObjetivos(ficha) {
   const objetivos = document.createElement("div");
   objetivos.className = "acs-recortar-objetivos";
   ficha.pares.forEach((par, i) => {
@@ -315,14 +381,10 @@ function renderUnirParejasSheetRecortar(ficha, sheet) {
     fila.appendChild(hueco);
     objetivos.appendChild(fila);
   });
-  sheet.appendChild(objetivos);
+  return objetivos;
+}
 
-  const aviso = document.createElement("p");
-  aviso.className = "acs-sheet-instruccion";
-  aviso.style.marginTop = "24px";
-  aviso.textContent = "✂ Recorta cada cuadro de abajo y pégalo junto a su pareja.";
-  sheet.appendChild(aviso);
-
+function crearRecortarPiezas(ficha) {
   const piezas = document.createElement("div");
   piezas.className = "acs-recortar-piezas";
   acsOrdenBarajadoPares(ficha.pares).forEach((parIndex) => {
@@ -332,7 +394,19 @@ function renderUnirParejasSheetRecortar(ficha, sheet) {
     pieza.appendChild(acsCrearContenidoDerecha(ficha, par, false));
     piezas.appendChild(pieza);
   });
-  sheet.appendChild(piezas);
+  return piezas;
+}
+
+function renderUnirParejasSheetRecortar(ficha, sheet) {
+  sheet.appendChild(crearRecortarObjetivos(ficha));
+
+  const aviso = document.createElement("p");
+  aviso.className = "acs-sheet-instruccion acs-recortar-aviso";
+  aviso.style.marginTop = "24px";
+  aviso.textContent = "✂ Recorta cada cuadro de abajo y pégalo junto a su pareja.";
+  sheet.appendChild(aviso);
+
+  sheet.appendChild(crearRecortarPiezas(ficha));
 }
 
 function renderUnirParejasSheet(ficha, container) {
@@ -427,7 +501,7 @@ function renderElegirOpcionDigital(ficha, container) {
       const fila = document.createElement("div");
       fila.className = "acs-opcion-conteo";
       for (let i = 0; i < item.conteo.cantidad; i++) {
-        fila.appendChild(arasaacCrearImagen(item.conteo.clave, { color: true, alt: item.conteo.clave }));
+        fila.appendChild(acsCrearImagenOSvg(item.conteo.clave, { color: true, alt: item.conteo.clave }));
       }
       bloque.appendChild(fila);
     }
@@ -481,7 +555,7 @@ function renderElegirOpcionSheet(ficha, container) {
       fila.className = "acs-opcion-conteo";
       fila.style.justifyContent = "flex-start";
       for (let i = 0; i < item.conteo.cantidad; i++) {
-        fila.appendChild(arasaacCrearImagen(item.conteo.clave, { color: false, alt: item.conteo.clave }));
+        fila.appendChild(acsCrearImagenOSvg(item.conteo.clave, { color: false, alt: item.conteo.clave }));
       }
       bloque.appendChild(fila);
     }
