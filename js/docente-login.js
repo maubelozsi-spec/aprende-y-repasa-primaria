@@ -62,11 +62,12 @@ document.addEventListener("DOMContentLoaded", () => {
   signupForm.addEventListener("submit", (e) => {
     e.preventDefault();
     signupError.textContent = "";
+    const passcode = document.getElementById("signup-passcode").value;
     const name = document.getElementById("signup-name").value.trim();
     const email = document.getElementById("signup-email").value.trim();
     const password = document.getElementById("signup-password").value;
     withAuth(() => {
-      window.Auth.signUpTeacher(email, password, name)
+      window.Auth.signUpTeacher(email, password, name, passcode)
         .then(() => {
           window.location.href = "dashboard.html";
         })

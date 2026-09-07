@@ -25,6 +25,8 @@
   --color-sky-tint: #e0f2fe;
   --color-rose: #be185d;
   --color-rose-tint: #fce7f3;
+  --color-slate: #475569;
+  --color-slate-tint: #eef1f5;
 
   --color-success: #15803d;
   --color-success-tint: #e6f6ec;
@@ -2662,23 +2664,14 @@ table.rules-table tr:last-child td {
   gap: 10px;
 }
 
-/* ---------- Acceso: enlaces del panel principal ---------- */
+/* ---------- Acceso: paneles del panel principal ---------- */
 
-.index-access-links {
-  text-align: center;
-  margin-top: 28px;
-  font-size: 14px;
-  color: var(--text-soft);
-}
-
-.index-access-links a {
-  color: var(--color-indigo);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.index-access-links a:hover {
-  text-decoration: underline;
+.access-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 480px;
+  margin: 32px auto 0;
 }
 
 /* ---------- Formularios de acceso (docente/alumno) ---------- */

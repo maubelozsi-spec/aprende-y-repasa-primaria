@@ -31,6 +31,14 @@ const TEACHER_SESSION_KEY = "ar_docente";
 const STUDENT_SESSION_KEY = "ar_estudiante";
 const VISIBILITY_STORAGE_KEY = "ar_visibilidad";
 
+// Clave compartida para poder crear una cuenta de docente: solo sirve
+// para que no se registre cualquiera que llegue a la página por
+// casualidad, compartiéndola con el profesorado del centro. No es un
+// secreto real: al comprobarse en el navegador, cualquiera que mire
+// el código fuente de esta página puede leerla. Si se filtra, basta
+// con cambiar este valor (las cuentas ya creadas no se ven afectadas).
+const TEACHER_SIGNUP_PASSCODE = "5an1ñdalecio.26-27";
+
 function saveTeacherSession(profile) {
   try {
     localStorage.setItem(TEACHER_SESSION_KEY, JSON.stringify(profile));
@@ -82,7 +90,10 @@ function clearStudentSession() {
   }
 }
 
-async function signUpTeacher(email, password, displayName) {
+async function signUpTeacher(email, password, displayName, claveCentro) {
+  if (String(claveCentro || "").trim() !== TEACHER_SIGNUP_PASSCODE) {
+    throw new Error("La clave del centro no es correcta.");
+  }
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   await setDoc(doc(db, "teachers", cred.user.uid), {
     displayName: displayName,
