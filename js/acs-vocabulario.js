@@ -65,3 +65,35 @@ function acsElegirAlAzar(array, cantidad) {
   acsBarajar(copia);
   return copia.slice(0, Math.min(cantidad, copia.length));
 }
+
+// Nombre legible de cada categoría de ACS_CATEGORIAS_PALABRAS, para
+// el generador de "clasificar" (reutiliza el mismo banco de palabras
+// en vez de mantener uno aparte).
+const ACS_CATEGORIA_ETIQUETAS = {
+  animales: "Animales",
+  casa: "Casa y objetos",
+  comida: "Comida",
+  cuerpo: "Cuerpo",
+  ropa: "Ropa",
+  naturaleza: "Naturaleza",
+  transportes: "Transportes",
+};
+
+// Palabras agrupadas por su vocal inicial, para "clasificar por
+// sonido inicial" (fonética, nivel 1º).
+const ACS_PALABRAS_POR_INICIAL = {
+  a: ["avión", "árbol", "araña", "anillo"],
+  e: ["estrella", "escoba", "elefante"],
+  i: ["iglú", "isla"],
+  o: ["oso", "oreja", "ojo"],
+  u: ["uva", "uña", "unicornio"],
+};
+
+// Secuencias de rutinas (orden correcto) para "ordenar-secuencia".
+// Palabras de acción sencillas, más fiables de encontrar en ARASAAC
+// que una frase completa ("levantarse de la cama").
+const ACS_SECUENCIAS = [
+  ["despertar", "lavar", "desayunar", "vestir"],
+  ["cocinar", "comer", "recoger", "lavar"],
+  ["jugar", "cansar", "bañar", "dormir"],
+];

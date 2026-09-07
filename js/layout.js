@@ -164,6 +164,10 @@ const NAV = [
           { id: "acs-ficha-lengua-une-silabas", label: "Une las sílabas", href: "acs/ficha.html?id=lengua-une-silabas", available: true },
           { id: "acs-ficha-lengua-lee-y-elige", label: "Lee y elige el dibujo", href: "acs/ficha.html?id=lengua-lee-y-elige", available: true },
           { id: "acs-ficha-lengua-ordenar-letras", label: "Ordena las letras", href: "acs/ficha.html?id=lengua-ordenar-letras", available: true },
+          { id: "acs-ficha-lengua-clasificar-categoria", label: "Clasifica en su grupo", href: "acs/ficha.html?id=lengua-clasificar-categoria", available: true },
+          { id: "acs-ficha-lengua-clasificar-inicial", label: "Clasifica por sonido inicial", href: "acs/ficha.html?id=lengua-clasificar-inicial", available: true },
+          { id: "acs-ficha-lengua-ordenar-secuencia", label: "Ordena la secuencia", href: "acs/ficha.html?id=lengua-ordenar-secuencia", available: true },
+          { id: "acs-ficha-lengua-encontrar-diferente", label: "Encuentra el diferente", href: "acs/ficha.html?id=lengua-encontrar-diferente", available: true },
         ],
       },
       {
@@ -171,7 +175,12 @@ const NAV = [
         items: [
           { id: "acs-ficha-matematicas-mayor-menor-igual", label: "Mayor, menor o igual", href: "acs/ficha.html?id=matematicas-mayor-menor-igual", available: true },
           { id: "acs-ficha-matematicas-cuenta-y-elige", label: "Cuenta y elige el número", href: "acs/ficha.html?id=matematicas-cuenta-y-elige", available: true },
+          { id: "acs-ficha-matematicas-suma-visual", label: "Sumas con dibujos", href: "acs/ficha.html?id=matematicas-suma-visual", available: true },
           { id: "acs-ficha-matematicas-resta-visual", label: "Restas con dibujos", href: "acs/ficha.html?id=matematicas-resta-visual", available: true },
+          { id: "acs-ficha-matematicas-completar-a-10", label: "Amigos del 10", href: "acs/ficha.html?id=matematicas-completar-a-10", available: true },
+          { id: "acs-ficha-matematicas-antes-despues", label: "¿Qué viene después?", href: "acs/ficha.html?id=matematicas-antes-despues", available: true },
+          { id: "acs-ficha-matematicas-grupos-iguales", label: "Grupos iguales", href: "acs/ficha.html?id=matematicas-grupos-iguales", available: true },
+          { id: "acs-ficha-matematicas-reparto", label: "Reparto en partes iguales", href: "acs/ficha.html?id=matematicas-reparto", available: true },
         ],
       },
     ],

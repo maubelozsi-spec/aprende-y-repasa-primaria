@@ -630,6 +630,193 @@
   visibility: hidden;
 }
 
+/* ---------- Actividad: grupos-iguales (multiplicación) ---------- */
+
+.acs-grupos-fila {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Actividad: reparto (división) ---------- */
+
+.acs-reparto-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.acs-reparto-cestas {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.acs-reparto-cesta {
+  width: 90px;
+  height: 70px;
+  border: 3px dashed var(--text-faint);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+/* ---------- Actividad: clasificar (TEACCH) ---------- */
+
+.acs-clasificar-banco {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  margin-bottom: 30px;
+  padding-bottom: 24px;
+  border-bottom: 2px dashed var(--border-strong);
+}
+
+.acs-clasificar-item {
+  width: 90px;
+  height: 90px;
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.acs-clasificar-item.selected {
+  border-color: var(--color-amber);
+  background: var(--color-amber-tint);
+}
+
+.acs-clasificar-item.matched {
+  cursor: default;
+  width: 64px;
+  height: 64px;
+}
+
+.acs-clasificar-item-impreso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 8px;
+  background: #fff;
+}
+
+.acs-clasificar-categorias {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.acs-clasificar-categoria {
+  flex: 1;
+  min-width: 200px;
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  cursor: pointer;
+}
+
+.acs-clasificar-categoria.error {
+  border-color: var(--color-error);
+  background: var(--color-error-tint);
+}
+
+.acs-clasificar-categoria-titulo {
+  font-weight: 800;
+  font-size: 17px;
+  text-align: center;
+  margin: 0 0 12px;
+}
+
+.acs-clasificar-categoria-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 76px;
+  justify-content: center;
+}
+
+.acs-clasificar-categoria-area-impresa {
+  border: 2px dashed var(--text-faint);
+  border-radius: var(--radius-md);
+  min-height: 90px;
+}
+
+/* ---------- Actividad: ordenar-secuencia ---------- */
+
+.acs-secuencia-slots {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.acs-secuencia-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.acs-secuencia-hueco {
+  width: 100px;
+  height: 100px;
+  border: 3px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.acs-secuencia-hueco.correcta {
+  border-style: solid;
+  border-color: var(--color-success);
+  background: var(--color-success-tint);
+  cursor: default;
+}
+
+.acs-secuencia-hueco.error {
+  border-color: var(--color-error);
+  background: var(--color-error-tint);
+}
+
+.acs-secuencia-hueco-impreso {
+  cursor: default;
+}
+
+.acs-secuencia-banco {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
+.acs-secuencia-item {
+  width: 90px;
+  height: 90px;
+  border: 3px solid var(--color-amber);
+  border-radius: var(--radius-md);
+  background: var(--color-amber-tint);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.acs-secuencia-item.usada {
+  visibility: hidden;
+}
+
 /* ---------- Pictogramas ARASAAC ---------- */
 
 .acs-pic {
@@ -712,7 +899,8 @@
      el salto de página caiga entre dos ítems, nunca partiendo uno
      por la mitad (por ejemplo, una pregunta con sus dos dibujos de
      "lee y elige" separados en dos páginas distintas). */
-  .acs-pareja-item, .acs-opcion-bloque, .acs-mmi-bloque, .acs-resta-bloque, .acs-letras-bloque {
+  .acs-pareja-item, .acs-opcion-bloque, .acs-mmi-bloque, .acs-resta-bloque, .acs-letras-bloque,
+  .acs-clasificar-categoria, .acs-secuencia-slot {
     page-break-inside: avoid;
     break-inside: avoid;
   }
