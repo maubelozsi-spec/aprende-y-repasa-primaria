@@ -1,0 +1,499 @@
+/* =========================================================
+   Apoyo ACS — estilos de las fichas visuales
+   Pensado para alumnado con necesidades motrices/cognitivas:
+   objetivos grandes, alto contraste, poca escritura, misma
+   ficha en dos salidas (practicar en pantalla / imprimir).
+   ========================================================= */
+
+:root {
+  --acs-font: "Atkinson Hyperlegible", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --acs-target-min: 64px;
+}
+
+.acs-shell {
+  font-family: var(--acs-font);
+}
+
+/* ---------- Atribución ARASAAC (obligatoria por licencia) ---------- */
+
+.acs-atribucion {
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.acs-atribucion a {
+  color: inherit;
+}
+
+/* ---------- Catálogo (acs/index.html) ---------- */
+
+.acs-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0 24px;
+}
+
+.acs-filtro-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.acs-filtro-grupo-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-soft);
+  margin-right: 4px;
+}
+
+.acs-filtro-chip {
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.acs-filtro-chip.active {
+  border-color: var(--color-amber);
+  background: var(--color-amber-tint);
+  color: var(--color-amber);
+}
+
+.acs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.acs-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border-top: 5px solid var(--card-color, var(--color-amber));
+}
+
+.acs-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.acs-card p {
+  margin: 0 0 12px;
+  color: var(--text-soft);
+  font-size: 14px;
+}
+
+.acs-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.acs-tag {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--card-tint, var(--color-amber-tint));
+  color: var(--card-color, var(--color-amber));
+}
+
+.acs-card-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-soft);
+  padding: 40px 0;
+}
+
+/* ---------- Visor de ficha (acs/ficha.html) ---------- */
+
+.acs-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.acs-tab-btn {
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--text-soft);
+}
+
+.acs-tab-btn.active {
+  border-color: var(--color-amber);
+  background: var(--color-amber);
+  color: #fff;
+}
+
+.acs-panel {
+  display: none;
+}
+
+.acs-panel.active {
+  display: block;
+}
+
+/* Hoja imprimible: se muestra siempre como vista previa en pantalla,
+   con aspecto de folio A4, para que quien la usa vea exactamente lo
+   que va a salir por la impresora antes de imprimir. */
+.acs-sheet {
+  background: #fff;
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 16mm;
+  font-family: var(--acs-font);
+  color: #111;
+}
+
+.acs-sheet-titulo {
+  font-size: 30px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  text-align: center;
+}
+
+.acs-sheet-instruccion {
+  font-size: 19px;
+  text-align: center;
+  margin: 0 0 26px;
+  color: #333;
+}
+
+.acs-sheet-nombre {
+  display: flex;
+  gap: 24px;
+  font-size: 16px;
+  margin-bottom: 24px;
+  border-bottom: 2px dashed #999;
+  padding-bottom: 10px;
+}
+
+.acs-sheet-nombre span {
+  flex: 1;
+  border-bottom: 1px solid #999;
+  padding-bottom: 2px;
+}
+
+.acs-actions-row {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0;
+  flex-wrap: wrap;
+}
+
+/* ---------- Bloque digital interactivo ---------- */
+
+.acs-digital {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  font-size: 19px;
+}
+
+.acs-digital-instruccion {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 22px;
+}
+
+.acs-feedback {
+  min-height: 28px;
+  font-weight: 700;
+  margin-top: 16px;
+}
+
+.acs-feedback.ok { color: var(--color-success); }
+.acs-feedback.ko { color: var(--color-error); }
+
+/* ---------- Actividad: unir-parejas ---------- */
+
+.acs-parejas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.acs-parejas-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.acs-pareja-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font-size: 20px;
+  font-weight: 700;
+  min-height: var(--acs-target-min);
+  background: #fff;
+}
+
+.acs-digital .acs-pareja-item {
+  cursor: pointer;
+}
+
+.acs-digital .acs-pareja-item.selected {
+  border-color: var(--color-amber);
+  background: var(--color-amber-tint);
+}
+
+.acs-digital .acs-pareja-item.matched {
+  border-color: var(--color-success);
+  background: var(--color-success-tint);
+  cursor: default;
+}
+
+.acs-digital .acs-pareja-item.error {
+  border-color: var(--color-error);
+  background: var(--color-error-tint);
+}
+
+.acs-pareja-num {
+  font-weight: 800;
+  color: var(--text-faint);
+  min-width: 22px;
+}
+
+.acs-sheet .acs-pareja-item {
+  justify-content: space-between;
+}
+
+.acs-sheet .acs-parejas-col:first-child .acs-pareja-item::after,
+.acs-sheet .acs-parejas-col:last-child .acs-pareja-item::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #111;
+  flex-shrink: 0;
+}
+
+/* ---------- Actividad: elegir-opcion ---------- */
+
+.acs-opcion-bloque {
+  margin-bottom: 32px;
+}
+
+.acs-opcion-bloque:last-child {
+  margin-bottom: 0;
+}
+
+.acs-opcion-prompt {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.acs-opciones {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.acs-opcion-item {
+  border: 4px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  min-width: 140px;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.acs-digital .acs-opcion-item {
+  cursor: pointer;
+}
+
+.acs-digital .acs-opcion-item.correcta {
+  border-color: var(--color-success);
+  background: var(--color-success-tint);
+}
+
+.acs-digital .acs-opcion-item.incorrecta {
+  border-color: var(--color-error);
+  background: var(--color-error-tint);
+}
+
+.acs-opcion-conteo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+
+/* ---------- Actividad: mayor-menor-igual ---------- */
+
+.acs-mmi-bloque {
+  margin-bottom: 26px;
+}
+
+.acs-mmi-bloque:last-child {
+  margin-bottom: 0;
+}
+
+.acs-mmi-fila {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.acs-mmi-num {
+  font-size: 40px;
+  font-weight: 800;
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 10px 28px;
+  background: #fff;
+}
+
+.acs-mmi-hueco {
+  width: 70px;
+  height: 70px;
+  border: 3px dashed #999;
+  border-radius: var(--radius-md);
+}
+
+.acs-mmi-botones {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+
+.acs-mmi-btn {
+  font-size: 30px;
+  font-weight: 800;
+  min-width: var(--acs-target-min);
+  min-height: var(--acs-target-min);
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: #fff;
+  cursor: pointer;
+}
+
+.acs-mmi-btn.correcta {
+  border-color: var(--color-success);
+  background: var(--color-success-tint);
+  color: var(--color-success);
+}
+
+.acs-mmi-btn.incorrecta {
+  border-color: var(--color-error);
+  background: var(--color-error-tint);
+  color: var(--color-error);
+}
+
+/* ---------- Pictogramas ARASAAC ---------- */
+
+.acs-pic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+}
+
+.acs-pic img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.acs-pic-cargando {
+  background: repeating-linear-gradient(45deg, #f0f0f0, #f0f0f0 10px, #e6e6e6 10px, #e6e6e6 20px);
+  border-radius: 8px;
+}
+
+.acs-pic-alternativa {
+  border: 2px dashed var(--text-faint);
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.acs-pic-alternativa-texto {
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-soft);
+}
+
+/* ---------- Impresión ---------- */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  /* La ficha para imprimir sale siempre, aunque en pantalla esté
+     activa la pestaña "Practicar en pantalla" al pulsar Ctrl+P. */
+  .acs-panel {
+    display: block !important;
+  }
+
+  #acs-panel-digital {
+    display: none !important;
+  }
+
+  .acs-sheet, .acs-sheet * {
+    visibility: visible;
+  }
+
+  .acs-sheet {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  /* La hoja impresa siempre sale en blanco, aunque en pantalla se
+     haya practicado antes: se reutiliza el mismo marcado pero se
+     anula cualquier estado de "ya resuelto". */
+  .acs-sheet .matched,
+  .acs-sheet .correcta,
+  .acs-sheet .incorrecta,
+  .acs-sheet .selected {
+    border-color: var(--border-strong) !important;
+    background: #fff !important;
+    color: inherit !important;
+  }
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apoyo ACS · Fichas visuales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/acs.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "acs-index";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content acs-shell">
+      <header class="content-header">
+        <p class="eyebrow">Apoyo ACS</p>
+        <h1>Fichas visuales para adaptación curricular</h1>
+        <p class="content-subtitle">
+          Fichas de lengua y matemáticas pensadas para alumnado con adaptación curricular significativa:
+          poca escritura, actividades de unir, elegir y comparar con pictogramas, y letra grande.
+          Cada ficha tiene dos versiones: para practicar en pantalla con clics (sin arrastrar) y para imprimir en papel.
+        </p>
+      </header>
+
+      <div class="acs-filtros">
+        <div class="acs-filtro-grupo">
+          <span class="acs-filtro-grupo-label">Área</span>
+          <button type="button" class="acs-filtro-chip active" data-filtro="area" data-valor="todas">Todas</button>
+          <button type="button" class="acs-filtro-chip" data-filtro="area" data-valor="lengua">Lengua</button>
+          <button type="button" class="acs-filtro-chip" data-filtro="area" data-valor="matematicas">Matemáticas</button>
+        </div>
+        <div class="acs-filtro-grupo">
+          <span class="acs-filtro-grupo-label">Tipo de actividad</span>
+          <button type="button" class="acs-filtro-chip active" data-filtro="tipo" data-valor="todas">Todas</button>
+          <button type="button" class="acs-filtro-chip" data-filtro="tipo" data-valor="unir-parejas">Unir con línea</button>
+          <button type="button" class="acs-filtro-chip" data-filtro="tipo" data-valor="elegir-opcion">Elegir</button>
+          <button type="button" class="acs-filtro-chip" data-filtro="tipo" data-valor="mayor-menor-igual">Comparar</button>
+        </div>
+      </div>
+
+      <div class="acs-grid" id="acs-grid"></div>
+
+      <p class="acs-atribucion">
+        Los pictogramas de estas fichas son de
+        <a href="https://arasaac.org" target="_blank" rel="noopener">ARASAAC</a>
+        (Gobierno de Aragón, autor: Sergio Palao), bajo licencia Creative Commons BY-NC-SA.
+      </p>
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/acs-fichas-data.js"></script>
+<script src="../js/acs-index-ui.js"></script>
+</body>
+</html>

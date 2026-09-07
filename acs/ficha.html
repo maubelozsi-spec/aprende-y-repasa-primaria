@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha · Apoyo ACS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/acs.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "acs-ficha-" + (new URLSearchParams(location.search).get("id") || "");
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content acs-shell">
+      <header class="content-header">
+        <p class="eyebrow"><a href="index.html">Apoyo ACS</a></p>
+        <h1 id="acs-ficha-titulo">Ficha</h1>
+        <p class="content-subtitle" id="acs-ficha-instruccion"></p>
+      </header>
+
+      <div id="acs-ficha-no-encontrada" style="display:none;">
+        <p>No se ha encontrado esta ficha. <a href="index.html">Volver al catálogo</a>.</p>
+      </div>
+
+      <div id="acs-ficha-contenido" style="display:none;">
+        <div class="acs-tabs">
+          <button type="button" class="acs-tab-btn active" data-tab="digital">Practicar en pantalla</button>
+          <button type="button" class="acs-tab-btn" data-tab="sheet">Ficha para imprimir</button>
+        </div>
+
+        <div class="acs-panel active" id="acs-panel-digital">
+          <div class="acs-actions-row">
+            <button type="button" class="btn btn-secondary" id="acs-reiniciar-btn">Volver a intentarlo</button>
+          </div>
+          <div id="acs-digital"></div>
+        </div>
+
+        <div class="acs-panel" id="acs-panel-sheet">
+          <div class="acs-actions-row">
+            <button type="button" class="btn btn-primary" id="acs-imprimir-btn">Imprimir / Guardar como PDF</button>
+          </div>
+          <div id="acs-sheet"></div>
+        </div>
+
+        <p class="acs-atribucion">
+          Los pictogramas de esta ficha son de
+          <a href="https://arasaac.org" target="_blank" rel="noopener">ARASAAC</a>
+          (Gobierno de Aragón, autor: Sergio Palao), bajo licencia Creative Commons BY-NC-SA.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/arasaac.js"></script>
+<script src="../js/acs-fichas-data.js"></script>
+<script src="../js/acs-ficha-engine.js"></script>
+<script src="../js/acs-ficha-ui.js"></script>
+</body>
+</html>
