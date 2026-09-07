@@ -38,6 +38,14 @@
       </div>
 
       <div id="acs-ficha-contenido" style="display:none;">
+        <div class="generator-field acs-curso-field">
+          <label>Curso</label>
+          <div class="choice-row" id="acs-curso-picker">
+            <button type="button" class="btn btn-secondary active" data-curso="1">1º de Primaria</button>
+            <button type="button" class="btn btn-secondary" data-curso="2">2º de Primaria</button>
+          </div>
+        </div>
+
         <div class="acs-tabs">
           <button type="button" class="acs-tab-btn active" data-tab="digital">Practicar en pantalla</button>
           <button type="button" class="acs-tab-btn" data-tab="sheet">Ficha para imprimir</button>
@@ -52,6 +60,10 @@
 
         <div class="acs-panel" id="acs-panel-sheet">
           <div class="acs-actions-row">
+            <label class="acs-recortar-toggle" id="acs-recortar-toggle" style="display:none;">
+              <input type="checkbox" id="acs-recortar-check">
+              ✂ Recortar y pegar en vez de unir con línea
+            </label>
             <button type="button" class="btn btn-primary" id="acs-imprimir-btn">Imprimir / Guardar como PDF</button>
           </div>
           <div id="acs-sheet"></div>

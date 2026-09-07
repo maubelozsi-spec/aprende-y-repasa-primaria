@@ -39,6 +39,14 @@
 
       <div class="game-card generator-card">
         <div class="generator-field">
+          <label>Curso</label>
+          <div class="choice-row" id="acs-gen-curso-picker">
+            <button type="button" class="btn btn-secondary active" data-curso="1">1º de Primaria</button>
+            <button type="button" class="btn btn-secondary" data-curso="2">2º de Primaria</button>
+          </div>
+        </div>
+
+        <div class="generator-field">
           <label>Modo</label>
           <div class="choice-row" id="acs-gen-modo-picker">
             <button type="button" class="btn btn-secondary active" data-modo="repaso">Repaso</button>
@@ -50,6 +58,11 @@
           <label>Actividades a incluir</label>
           <div id="acs-gen-lista" class="acs-gen-lista"></div>
         </div>
+
+        <label class="acs-recortar-toggle">
+          <input type="checkbox" id="acs-gen-recortar-check">
+          ✂ En las actividades de unir con línea: recortar y pegar en vez de unir con línea
+        </label>
 
         <p class="generator-resumen" id="acs-gen-resumen">Marca al menos una actividad.</p>
 

@@ -47,6 +47,58 @@ function acsCrearSheetBase(ficha) {
   return sheet;
 }
 
+// ---------- iconos SVG propios (líneas y formas geométricas) ----------
+//
+// Para líneas y formas no hace falta ARASAAC: son formas abstractas
+// que se dibujan igual de bien (y sin depender de la red) con SVG
+// propio. Una "clave" que empieza por "svg:" (p. ej. "svg:circulo")
+// se resuelve aquí en vez de buscarse como pictograma.
+
+const ACS_SVG_TRAZO = { fill: "none", stroke: "#33363f", "stroke-width": "6", "stroke-linecap": "round", "stroke-linejoin": "round" };
+
+function acsCrearElementoSvg(tag, attrs) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  Object.keys(attrs).forEach((k) => el.setAttribute(k, attrs[k]));
+  return el;
+}
+
+const ACS_SVG_FORMAS = {
+  circulo: () => acsCrearElementoSvg("circle", { cx: 50, cy: 50, r: 38, ...ACS_SVG_TRAZO }),
+  cuadrado: () => acsCrearElementoSvg("rect", { x: 15, y: 15, width: 70, height: 70, ...ACS_SVG_TRAZO }),
+  rectangulo: () => acsCrearElementoSvg("rect", { x: 6, y: 28, width: 88, height: 44, ...ACS_SVG_TRAZO }),
+  triangulo: () => acsCrearElementoSvg("polygon", { points: "50,10 92,88 8,88", ...ACS_SVG_TRAZO }),
+  pentagono: () => acsCrearElementoSvg("polygon", { points: "50,6 92,37 76,90 24,90 8,37", ...ACS_SVG_TRAZO }),
+  hexagono: () => acsCrearElementoSvg("polygon", { points: "27,8 73,8 94,50 73,92 27,92 6,50", ...ACS_SVG_TRAZO }),
+  recta: () => acsCrearElementoSvg("line", { x1: 8, y1: 82, x2: 92, y2: 18, ...ACS_SVG_TRAZO }),
+  curva: () => acsCrearElementoSvg("path", { d: "M8,70 Q50,5 92,70", ...ACS_SVG_TRAZO }),
+  quebrada: () => acsCrearElementoSvg("polyline", { points: "8,85 32,35 55,70 92,15", ...ACS_SVG_TRAZO }),
+  mixta: () => acsCrearElementoSvg("path", { d: "M6,55 Q26,10 46,55 T86,55 L94,80", ...ACS_SVG_TRAZO }),
+};
+
+function acsCrearIconoSvg(nombre) {
+  const svg = acsCrearElementoSvg("svg", { viewBox: "0 0 100 100", width: "100%", height: "100%" });
+  const fabricante = ACS_SVG_FORMAS[nombre];
+  if (fabricante) svg.appendChild(fabricante());
+  return svg;
+}
+
+function acsEsClaveSvg(clave) {
+  return typeof clave === "string" && clave.indexOf("svg:") === 0;
+}
+
+// Sustituye a arasaacCrearImagen allí donde una "clave" puede ser
+// tanto una palabra real (pictograma de ARASAAC) como una forma o
+// línea abstracta ("svg:circulo", "svg:recta"...).
+function acsCrearImagenOSvg(clave, opts) {
+  if (acsEsClaveSvg(clave)) {
+    const wrap = document.createElement("span");
+    wrap.className = "acs-pic acs-pic-svg";
+    wrap.appendChild(acsCrearIconoSvg(clave.slice(4)));
+    return wrap;
+  }
+  return arasaacCrearImagen(clave, opts);
+}
+
 // ---------- unir-parejas ----------
 // ficha.pares = [{ izquierda: "gato", derecha: "gato" }, ...]
 // ficha.modoDerecha = "imagen" (por defecto: busca "derecha" como
@@ -64,7 +116,7 @@ function acsCrearContenidoDerecha(ficha, par, digital) {
     span.textContent = par.derecha;
     return span;
   }
-  return arasaacCrearImagen(par.derecha, { color: digital });
+  return acsCrearImagenOSvg(par.derecha, { color: digital });
 }
 
 function renderUnirParejasDigital(ficha, container) {
@@ -180,9 +232,58 @@ function renderUnirParejasDigital(ficha, container) {
   });
 }
 
+// Variante de impresión "recortar y pegar": en vez de unir con una
+// línea, se recortan cuadrados sencillos (nunca la silueta del
+// dibujo) y se pegan junto a su pareja. Mismo dato (ficha.pares), la
+// ficha solo marca ficha.imprimirComo = "recortar" para pedir esta
+// disposición en vez de las dos columnas con puntos.
+function renderUnirParejasSheetRecortar(ficha, sheet) {
+  const objetivos = document.createElement("div");
+  objetivos.className = "acs-recortar-objetivos";
+  ficha.pares.forEach((par, i) => {
+    const fila = document.createElement("div");
+    fila.className = "acs-recortar-objetivo";
+    const num = document.createElement("span");
+    num.className = "acs-pareja-num";
+    num.textContent = i + 1 + ".";
+    const texto = document.createElement("span");
+    texto.textContent = par.izquierda;
+    const hueco = document.createElement("span");
+    hueco.className = "acs-recortar-hueco";
+    fila.appendChild(num);
+    fila.appendChild(texto);
+    fila.appendChild(hueco);
+    objetivos.appendChild(fila);
+  });
+  sheet.appendChild(objetivos);
+
+  const aviso = document.createElement("p");
+  aviso.className = "acs-sheet-instruccion";
+  aviso.style.marginTop = "24px";
+  aviso.textContent = "✂ Recorta cada cuadro de abajo y pégalo junto a su pareja.";
+  sheet.appendChild(aviso);
+
+  const piezas = document.createElement("div");
+  piezas.className = "acs-recortar-piezas";
+  acsOrdenBarajadoPares(ficha.pares).forEach((parIndex) => {
+    const par = ficha.pares[parIndex];
+    const pieza = document.createElement("div");
+    pieza.className = "acs-recortar-pieza";
+    pieza.appendChild(acsCrearContenidoDerecha(ficha, par, false));
+    piezas.appendChild(pieza);
+  });
+  sheet.appendChild(piezas);
+}
+
 function renderUnirParejasSheet(ficha, container) {
   container.innerHTML = "";
   const sheet = acsCrearSheetBase(ficha);
+
+  if (ficha.imprimirComo === "recortar") {
+    renderUnirParejasSheetRecortar(ficha, sheet);
+    container.appendChild(sheet);
+    return;
+  }
 
   const grid = document.createElement("div");
   grid.className = "acs-parejas";
@@ -240,7 +341,7 @@ function acsCrearOpcionContenido(op) {
     span.textContent = op.texto;
     return span;
   }
-  return arasaacCrearImagen(op.clave, { color: true });
+  return acsCrearImagenOSvg(op.clave, { color: true });
 }
 
 function renderElegirOpcionDigital(ficha, container) {
@@ -332,7 +433,7 @@ function renderElegirOpcionSheet(ficha, container) {
     item.opciones.forEach((op) => {
       const caja = document.createElement("div");
       caja.className = "acs-opcion-item";
-      caja.appendChild(op.texto ? acsCrearOpcionContenido(op) : arasaacCrearImagen(op.clave, { color: false }));
+      caja.appendChild(op.texto ? acsCrearOpcionContenido(op) : acsCrearImagenOSvg(op.clave, { color: false }));
       opciones.appendChild(caja);
     });
 
@@ -552,15 +653,129 @@ function renderOperacionVisualSheet(ficha, container) {
   container.appendChild(sheet);
 }
 
-// ---------- ordenar-letras ----------
-// ficha.items = [{ palabra: "sol" }, ...]
+// ---------- operacion-numerica (suma/resta con números de 2 cifras) ----------
+// ficha.items = [{ a: 34, b: 12, operador: "+" | "−" }]
+// Pensada para 2º sin volver a la escritura por casillas: los mismos
+// números que una suma en columna, pero se elige el resultado entre
+// varias opciones en vez de escribir cada cifra.
 
-function acsBarajarLetras(palabra) {
-  let letras;
+function acsResultadoOperacionNumerica(item) {
+  return item.operador === "+" ? item.a + item.b : item.a - item.b;
+}
+
+function acsOpcionesNumericasCercanasAmplio(resultado) {
+  const distancias = acsBarajar([1, 2, 5, 10]).slice(0, 2);
+  const opciones = new Set([resultado]);
+  distancias.forEach((d) => {
+    const candidato = Math.random() < 0.5 && resultado - d >= 0 ? resultado - d : resultado + d;
+    opciones.add(candidato);
+  });
+  while (opciones.size < 3) opciones.add(resultado + opciones.size * 3);
+  return acsBarajar(Array.from(opciones).slice(0, 3));
+}
+
+function acsCrearFilaOperacionNumerica(item, huecoClase) {
+  const fila = document.createElement("div");
+  fila.className = "acs-mmi-fila";
+  const numA = document.createElement("span");
+  numA.className = "acs-mmi-num";
+  numA.textContent = String(item.a);
+  const signo = document.createElement("span");
+  signo.className = "acs-resta-signo";
+  signo.textContent = item.operador;
+  const numB = document.createElement("span");
+  numB.className = "acs-mmi-num";
+  numB.textContent = String(item.b);
+  const signoIgual = document.createElement("span");
+  signoIgual.className = "acs-resta-signo";
+  signoIgual.textContent = "=";
+  const hueco = document.createElement("span");
+  hueco.className = huecoClase;
+  fila.appendChild(numA);
+  fila.appendChild(signo);
+  fila.appendChild(numB);
+  fila.appendChild(signoIgual);
+  fila.appendChild(hueco);
+  return { fila, hueco };
+}
+
+function renderOperacionNumericaDigital(ficha, container) {
+  container.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "acs-digital";
+
+  const instr = document.createElement("p");
+  instr.className = "acs-digital-instruccion";
+  instr.textContent = ficha.instruccion;
+  wrap.appendChild(instr);
+
+  ficha.items.forEach((item) => {
+    const correcta = acsResultadoOperacionNumerica(item);
+    const bloque = document.createElement("div");
+    bloque.className = "acs-mmi-bloque";
+
+    const { fila, hueco } = acsCrearFilaOperacionNumerica(item, "acs-mmi-num");
+    hueco.style.minWidth = "80px";
+    hueco.style.textAlign = "center";
+    bloque.appendChild(fila);
+
+    const opciones = document.createElement("div");
+    opciones.className = "acs-opciones";
+    acsOpcionesNumericasCercanasAmplio(correcta).forEach((valor) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "acs-opcion-item";
+      const span = document.createElement("span");
+      span.style.fontSize = "34px";
+      span.style.fontWeight = "800";
+      span.textContent = String(valor);
+      btn.appendChild(span);
+      btn.addEventListener("click", () => {
+        if (opciones.querySelector(".correcta")) return;
+        if (valor === correcta) {
+          hueco.textContent = String(valor);
+          btn.classList.add("correcta");
+          opciones.querySelectorAll("button").forEach((b) => {
+            b.disabled = true;
+          });
+        } else {
+          btn.classList.add("incorrecta");
+          setTimeout(() => btn.classList.remove("incorrecta"), 500);
+        }
+      });
+      opciones.appendChild(btn);
+    });
+    bloque.appendChild(opciones);
+    wrap.appendChild(bloque);
+  });
+
+  container.appendChild(wrap);
+}
+
+function renderOperacionNumericaSheet(ficha, container) {
+  container.innerHTML = "";
+  const sheet = acsCrearSheetBase(ficha);
+
+  ficha.items.forEach((item) => {
+    const { fila } = acsCrearFilaOperacionNumerica(item, "acs-mmi-hueco");
+    sheet.appendChild(fila);
+  });
+
+  container.appendChild(sheet);
+}
+
+// ---------- ordenar-letras ----------
+// ficha.items = [{ piezas: ["s","o","l"] }, ...] (o piezas de más de
+// una letra, p. ej. ["va","so"], para ordenar sílabas con el mismo
+// motor: solo cambia el tamaño de cada trozo, no la mecánica).
+
+function acsBarajarPiezas(piezas) {
+  const objetivo = piezas.join("");
+  let barajadas;
   do {
-    letras = acsBarajar(palabra.split(""));
-  } while (letras.join("") === palabra && palabra.length > 1);
-  return letras;
+    barajadas = acsBarajar(piezas.slice());
+  } while (barajadas.join("") === objetivo && piezas.length > 1);
+  return barajadas;
 }
 
 function renderOrdenarLetrasDigital(ficha, container) {
@@ -574,7 +789,8 @@ function renderOrdenarLetrasDigital(ficha, container) {
   wrap.appendChild(instr);
 
   ficha.items.forEach((item) => {
-    const palabra = item.palabra;
+    const piezas = item.piezas;
+    const palabra = piezas.join("");
     const bloque = document.createElement("div");
     bloque.className = "acs-letras-bloque";
 
@@ -583,7 +799,7 @@ function renderOrdenarLetrasDigital(ficha, container) {
     const slotsWrap = document.createElement("div");
     slotsWrap.className = "acs-letras-slots";
     const slots = [];
-    for (let i = 0; i < palabra.length; i++) {
+    for (let i = 0; i < piezas.length; i++) {
       const slot = document.createElement("button");
       slot.type = "button";
       slot.className = "acs-letra-slot";
@@ -597,15 +813,15 @@ function renderOrdenarLetrasDigital(ficha, container) {
     bloque.appendChild(bancoWrap);
 
     // Cada hueco de "slots" guarda, mientras está lleno, el botón del
-    // banco que puso esa letra (slot._origen), para poder devolverla
+    // banco que puso esa pieza (slot._origen), para poder devolverla
     // con un clic si se ha ordenado mal, sin esperar ni arrastrar.
-    function letrasActuales() {
+    function piezasActuales() {
       return slots.map((s) => s.textContent).join("");
     }
 
     function comprobarCompleto() {
       if (!slots.every((s) => s.textContent)) return;
-      if (letrasActuales() === palabra) {
+      if (piezasActuales() === palabra) {
         slots.forEach((s) => {
           s.classList.remove("error");
           s.classList.add("correcta");
@@ -628,15 +844,15 @@ function renderOrdenarLetrasDigital(ficha, container) {
       });
     });
 
-    acsBarajarLetras(palabra).forEach((letra) => {
+    acsBarajarPiezas(piezas).forEach((pieza) => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "acs-letra-banco";
-      btn.textContent = letra;
+      btn.textContent = pieza;
       btn.addEventListener("click", () => {
         const libre = slots.find((s) => !s.textContent);
         if (!libre) return;
-        libre.textContent = letra;
+        libre.textContent = pieza;
         libre._origen = btn;
         btn.disabled = true;
         btn.classList.add("usada");
@@ -656,7 +872,8 @@ function renderOrdenarLetrasSheet(ficha, container) {
   const sheet = acsCrearSheetBase(ficha);
 
   ficha.items.forEach((item) => {
-    const palabra = item.palabra;
+    const piezas = item.piezas;
+    const palabra = piezas.join("");
     const bloque = document.createElement("div");
     bloque.className = "acs-letras-bloque";
 
@@ -664,17 +881,17 @@ function renderOrdenarLetrasSheet(ficha, container) {
 
     const letrasWrap = document.createElement("div");
     letrasWrap.className = "acs-letras-slots";
-    acsBarajarLetras(palabra).forEach((letra) => {
+    acsBarajarPiezas(piezas).forEach((pieza) => {
       const caja = document.createElement("span");
       caja.className = "acs-letra-slot acs-letra-slot-impresa";
-      caja.textContent = letra;
+      caja.textContent = pieza;
       letrasWrap.appendChild(caja);
     });
     bloque.appendChild(letrasWrap);
 
     const huecos = document.createElement("div");
     huecos.className = "acs-letras-slots";
-    for (let i = 0; i < palabra.length; i++) {
+    for (let i = 0; i < piezas.length; i++) {
       const hueco = document.createElement("span");
       hueco.className = "acs-letra-slot";
       huecos.appendChild(hueco);
@@ -1078,7 +1295,7 @@ function renderClasificarDigital(ficha, container) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "acs-clasificar-item";
-    btn.appendChild(arasaacCrearImagen(item.clave, { color: true }));
+    btn.appendChild(acsCrearImagenOSvg(item.clave, { color: true }));
     btn._item = item;
     btn.addEventListener("click", () => {
       if (btn.classList.contains("matched")) return;
@@ -1123,7 +1340,7 @@ function renderClasificarSheet(ficha, container) {
   ficha.items.forEach((item, i) => {
     const casilla = document.createElement("div");
     casilla.className = "acs-clasificar-item-impreso";
-    casilla.appendChild(arasaacCrearImagen(item.clave, { color: false }));
+    casilla.appendChild(acsCrearImagenOSvg(item.clave, { color: false }));
     const letra = document.createElement("span");
     letra.className = "acs-pareja-num";
     letra.textContent = String.fromCharCode(65 + i);
@@ -1290,6 +1507,7 @@ const ACS_RENDERERS = {
   "reparto": { digital: renderRepartoDigital, sheet: renderRepartoSheet },
   "clasificar": { digital: renderClasificarDigital, sheet: renderClasificarSheet },
   "ordenar-secuencia": { digital: renderOrdenarSecuenciaDigital, sheet: renderOrdenarSecuenciaSheet },
+  "operacion-numerica": { digital: renderOperacionNumericaDigital, sheet: renderOperacionNumericaSheet },
 };
 
 function initAcsFicha(ficha, digitalEl, sheetEl) {
@@ -1321,7 +1539,7 @@ function acsClaveRespuestas(ficha) {
     case "operacion-visual":
       return ficha.items.map((item, i) => `${i + 1}. ${item.a} ${item.operador} ${item.b} = ${acsResultadoOperacion(item)}`);
     case "ordenar-letras":
-      return ficha.items.map((item, i) => `${i + 1}. ${item.palabra}`);
+      return ficha.items.map((item, i) => `${i + 1}. ${item.piezas.join("")}`);
     case "completar-a-10":
       return ficha.items.map((item, i) => `${i + 1}. ${item.a} + ${10 - item.a} = 10`);
     case "antes-despues":
@@ -1337,6 +1555,8 @@ function acsClaveRespuestas(ficha) {
       });
     case "ordenar-secuencia":
       return ficha.pasos.map((paso, i) => `${i + 1}. ${paso.clave}`);
+    case "operacion-numerica":
+      return ficha.items.map((item, i) => `${i + 1}. ${item.a} ${item.operador} ${item.b} = ${acsResultadoOperacionNumerica(item)}`);
     default:
       return [];
   }

@@ -298,6 +298,30 @@
   gap: 10px;
   margin: 18px 0;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.acs-curso-field {
+  max-width: 420px;
+  margin: 0 auto 24px;
+  text-align: center;
+}
+
+.acs-recortar-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  margin-right: auto;
+  cursor: pointer;
+}
+
+.acs-recortar-toggle input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
 }
 
 /* ---------- Bloque digital interactivo ---------- */
@@ -574,8 +598,9 @@
 }
 
 .acs-letra-slot {
-  width: 56px;
+  min-width: 56px;
   height: 56px;
+  padding: 0 8px;
   border: 3px solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: #fff;
@@ -614,8 +639,9 @@
 }
 
 .acs-letra-banco {
-  width: 56px;
+  min-width: 56px;
   height: 56px;
+  padding: 0 8px;
   border: 3px solid var(--color-amber);
   border-radius: var(--radius-sm);
   background: var(--color-amber-tint);
@@ -817,6 +843,63 @@
   visibility: hidden;
 }
 
+/* ---------- Recortar y pegar (variante de impresión) ---------- */
+
+.acs-recortar-objetivos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.acs-recortar-objetivo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.acs-recortar-objetivo > span:nth-child(2) {
+  flex: 1;
+}
+
+.acs-recortar-hueco {
+  width: 70px;
+  height: 70px;
+  border: 3px dashed var(--text-faint);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.acs-recortar-piezas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Cuadrado sencillo de recortar: siempre un recuadro recto, nunca la
+   silueta del dibujo, para que el corte con tijera sea lo más fácil
+   posible (línea recta, no una forma). */
+.acs-recortar-pieza {
+  width: 90px;
+  height: 90px;
+  border: 2px dashed #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+/* ---------- Iconos SVG propios (líneas y formas) ---------- */
+
+.acs-pic-svg {
+  padding: 6px;
+}
+
 /* ---------- Pictogramas ARASAAC ---------- */
 
 .acs-pic {
@@ -900,7 +983,7 @@
      por la mitad (por ejemplo, una pregunta con sus dos dibujos de
      "lee y elige" separados en dos páginas distintas). */
   .acs-pareja-item, .acs-opcion-bloque, .acs-mmi-bloque, .acs-resta-bloque, .acs-letras-bloque,
-  .acs-clasificar-categoria, .acs-secuencia-slot {
+  .acs-clasificar-categoria, .acs-secuencia-slot, .acs-recortar-objetivo, .acs-recortar-pieza {
     page-break-inside: avoid;
     break-inside: avoid;
   }

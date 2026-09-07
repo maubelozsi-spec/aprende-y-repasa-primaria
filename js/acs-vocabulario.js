@@ -97,3 +97,29 @@ const ACS_SECUENCIAS = [
   ["cocinar", "comer", "recoger", "lavar"],
   ["jugar", "cansar", "bañar", "dormir"],
 ];
+
+// Palabras más largas (5-7 letras) para "ordenar letras" en 2º: mismo
+// tipo de actividad que ACS_PALABRAS_ORDENAR_LETRAS, un peldaño más
+// difícil.
+const ACS_PALABRAS_ORDENAR_LETRAS_2 = [
+  "cohete", "dragón", "cuchara", "ventana", "paraguas", "escalera", "tijeras", "camisa",
+];
+
+// Palabras con su número real de sílabas, para "cuenta las sílabas".
+// No se reutiliza ACS_PALABRAS_SILABAS porque esa lista es siempre de
+// dos sílabas (para unirlas); aquí hace falta variedad (1, 2 y 3)
+// para que la pregunta tenga sentido.
+const ACS_PALABRAS_CONTEO_SILABAS = [
+  { palabra: "sol", silabas: 1 },
+  { palabra: "pan", silabas: 1 },
+  { palabra: "pez", silabas: 1 },
+  { palabra: "flor", silabas: 1 },
+  { palabra: "gato", silabas: 2 },
+  { palabra: "casa", silabas: 2 },
+  { palabra: "mesa", silabas: 2 },
+  { palabra: "perro", silabas: 2 },
+  { palabra: "manzana", silabas: 3 },
+  { palabra: "mariposa", silabas: 4 },
+  { palabra: "elefante", silabas: 4 },
+  { palabra: "bicicleta", silabas: 4 },
+];

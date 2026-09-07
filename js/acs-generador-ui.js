@@ -15,10 +15,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusEl = document.getElementById("acs-gen-status");
   const generarBtn = document.getElementById("acs-gen-generar-btn");
   const modoBtns = document.querySelectorAll("#acs-gen-modo-picker [data-modo]");
+  const cursoBtns = document.querySelectorAll("#acs-gen-curso-picker [data-curso]");
+  const recortarCheck = document.getElementById("acs-gen-recortar-check");
   const resultadoEl = document.getElementById("acs-gen-resultado");
   const tabRespuestasBtn = document.getElementById("acs-gen-tab-respuestas");
 
   let modo = "repaso";
+  let curso = "1";
 
   // ---------- lista de actividades ----------
 
@@ -96,6 +99,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // ---------- curso ----------
+
+  cursoBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      cursoBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      curso = btn.dataset.curso;
+    });
+  });
+
   // ---------- pestañas del resultado ----------
   //
   // Solo se imprime la pestaña activa: las inactivas ya quedan en
@@ -142,7 +155,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const secciones = seleccion.map(({ id, cantidad }) => {
       const entry = ACS_FICHAS_REGISTRO[id];
-      return Object.assign({ tituloSeccion: entry.titulo }, entry.generarConCantidad(cantidad));
+      const seccion = Object.assign({ tituloSeccion: entry.titulo }, entry.generarConCantidad(cantidad, curso));
+      if (seccion.tipo === "unir-parejas" && recortarCheck.checked) {
+        seccion.imprimirComo = "recortar";
+      }
+      return seccion;
     });
 
     // Digital: una sección tras otra, cada una con su propio título.

@@ -33,13 +33,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const digitalEl = document.getElementById("acs-digital");
   const sheetEl = document.getElementById("acs-sheet");
   const instruccionEl = document.getElementById("acs-ficha-instruccion");
+  const cursoBtns = document.querySelectorAll("#acs-curso-picker [data-curso]");
+  const recortarToggle = document.getElementById("acs-recortar-toggle");
+  const recortarCheck = document.getElementById("acs-recortar-check");
+
+  let curso = "1";
 
   function render() {
-    const ficha = acsGenerarFichaPorId(id);
+    const ficha = acsGenerarFichaPorId(id, curso);
     instruccionEl.textContent = ficha.instruccion;
+
+    // El recorte solo tiene sentido en "unir-parejas" (parejas que se
+    // pueden recortar como cuadros sencillos). Para otros tipos se
+    // oculta la casilla en vez de dejarla sin efecto.
+    recortarToggle.style.display = ficha.tipo === "unir-parejas" ? "" : "none";
+    if (ficha.tipo === "unir-parejas" && recortarCheck.checked) {
+      ficha.imprimirComo = "recortar";
+    }
+
     initAcsFicha(ficha, digitalEl, sheetEl);
   }
   render();
+
+  cursoBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      cursoBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      curso = btn.dataset.curso;
+      render();
+    });
+  });
+
+  recortarCheck.addEventListener("change", render);
 
   document.getElementById("acs-reiniciar-btn").addEventListener("click", render);
   document.getElementById("acs-imprimir-btn").addEventListener("click", () => window.print());

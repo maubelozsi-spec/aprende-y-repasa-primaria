@@ -11,6 +11,13 @@
 // que repetir esos valores en cada sitio.
 // ============================================================
 
+// Elige un valor u otro según el curso ("1" o "2"), para escalar la
+// dificultad de un generador sin duplicar su lógica. Por defecto (sin
+// curso o curso desconocido) se usa el valor de 1º.
+function acsPorCurso(curso, valor1, valor2) {
+  return curso === "2" ? valor2 : valor1;
+}
+
 function generarUnirPalabraDibujo(opciones) {
   const { categoria = "todas", cantidad = 6 } = opciones || {};
   const pool = categoria === "todas" ? Object.values(ACS_CATEGORIAS_PALABRAS).flat() : ACS_CATEGORIAS_PALABRAS[categoria] || [];
@@ -57,7 +64,8 @@ function generarLeeYElige(opciones) {
 }
 
 function generarCuentaYElige(opciones) {
-  const { cantidad = 4, maximo = 10 } = opciones || {};
+  const { cantidad = 4, curso = "1" } = opciones || {};
+  const maximo = acsPorCurso(curso, 10, 15);
   const objetos = acsElegirAlAzar(ACS_OBJETOS_CONTABLES, cantidad);
 
   return {
@@ -76,7 +84,8 @@ function generarCuentaYElige(opciones) {
 }
 
 function generarMayorMenorIgual(opciones) {
-  const { cantidad = 6, maximo = 10 } = opciones || {};
+  const { cantidad = 6, curso = "1" } = opciones || {};
+  const maximo = acsPorCurso(curso, 10, 30);
   const pares = [];
   for (let i = 0; i < cantidad; i++) {
     const a = Math.floor(Math.random() * (maximo + 1));
@@ -93,7 +102,8 @@ function generarMayorMenorIgual(opciones) {
 }
 
 function generarOperacionVisual(operador, opciones) {
-  const { cantidad = 4, maximo = 8 } = opciones || {};
+  const { cantidad = 4, curso = "1" } = opciones || {};
+  const maximo = acsPorCurso(curso, 8, 10);
   const objetos = acsElegirAlAzar(ACS_OBJETOS_CONTABLES, cantidad);
   const esSuma = operador === "+";
 
@@ -125,14 +135,31 @@ function generarRestaVisual(opciones) {
 }
 
 function generarOrdenarLetras(opciones) {
-  const { cantidad = 5 } = opciones || {};
-  const palabras = acsElegirAlAzar(ACS_PALABRAS_ORDENAR_LETRAS, cantidad);
+  const { cantidad = 5, curso = "1" } = opciones || {};
+  const banco = acsPorCurso(curso, ACS_PALABRAS_ORDENAR_LETRAS, ACS_PALABRAS_ORDENAR_LETRAS_2);
+  const palabras = acsElegirAlAzar(banco, cantidad);
 
   return {
     tipo: "ordenar-letras",
     titulo: "Ordena las letras",
     instruccion: "Ordena las letras y forma la palabra.",
-    items: palabras.map((palabra) => ({ palabra })),
+    items: palabras.map((palabra) => ({ piezas: palabra.split("") })),
+  };
+}
+
+// Mismo tipo de actividad que "ordenar letras" pero con las piezas ya
+// agrupadas en sílabas en vez de en letras sueltas: un peldaño más
+// fácil de manipular (menos piezas) y centrado en conciencia silábica
+// en vez de ortografía letra a letra.
+function generarOrdenarSilabas(opciones) {
+  const { cantidad = 5 } = opciones || {};
+  const palabras = acsElegirAlAzar(ACS_PALABRAS_SILABAS, cantidad);
+
+  return {
+    tipo: "ordenar-letras",
+    titulo: "Ordena las sílabas",
+    instruccion: "Ordena las sílabas y forma la palabra.",
+    items: palabras.map((p) => ({ piezas: p.silabas.slice() })),
   };
 }
 
@@ -156,7 +183,8 @@ function generarCompletarA10(opciones) {
 }
 
 function generarAntesDespues(opciones) {
-  const { cantidad = 6, modo = "despues", maximo = 20 } = opciones || {};
+  const { cantidad = 6, modo = "despues", curso = "1" } = opciones || {};
+  const maximo = acsPorCurso(curso, 20, 100);
   const items = [];
   for (let i = 0; i < cantidad; i++) {
     const rango = modo === "antes" ? [1, maximo] : [0, maximo - 1];
@@ -173,42 +201,45 @@ function generarAntesDespues(opciones) {
 }
 
 function generarGruposIguales(opciones) {
-  const { cantidad = 4 } = opciones || {};
+  const { cantidad = 4, curso = "1" } = opciones || {};
   const objetos = acsElegirAlAzar(ACS_OBJETOS_CONTABLES, cantidad);
+  const totalMaximo = acsPorCurso(curso, 10, 20);
 
   return {
     tipo: "grupos-iguales",
     titulo: "Grupos iguales",
     instruccion: "Cuenta los grupos. ¿Cuántos hay en total?",
     items: objetos.map((clave) => {
-      const grupos = 2 + Math.floor(Math.random() * 2);
-      const porGrupo = 2 + Math.floor(Math.random() * (Math.floor(10 / grupos) - 1));
+      const grupos = 2 + Math.floor(Math.random() * 3);
+      const porGrupo = 2 + Math.floor(Math.random() * (Math.floor(totalMaximo / grupos) - 1));
       return { clave, grupos, porGrupo };
     }),
   };
 }
 
 function generarReparto(opciones) {
-  const { cantidad = 4 } = opciones || {};
+  const { cantidad = 4, curso = "1" } = opciones || {};
   const objetos = acsElegirAlAzar(ACS_OBJETOS_CONTABLES, cantidad);
+  const totalMaximo = acsPorCurso(curso, 10, 20);
 
   return {
     tipo: "reparto",
     titulo: "Reparto en partes iguales",
     instruccion: "Reparte los dibujos en partes iguales. ¿Cuántos hay en cada una?",
     items: objetos.map((clave) => {
-      const grupos = 2 + Math.floor(Math.random() * 2);
-      const porGrupo = 1 + Math.floor(Math.random() * Math.floor(10 / grupos));
+      const grupos = 2 + Math.floor(Math.random() * 3);
+      const porGrupo = 1 + Math.floor(Math.random() * Math.floor(totalMaximo / grupos));
       return { clave, total: grupos * porGrupo, grupos };
     }),
   };
 }
 
 function generarClasificar(opciones) {
-  const { modo = "categoria", cantidad = 6 } = opciones || {};
+  const { modo = "categoria", cantidad = 6, curso = "1" } = opciones || {};
+  const numGrupos = acsPorCurso(curso, 2, 3);
 
   if (modo === "inicial") {
-    const vocales = acsElegirAlAzar(Object.keys(ACS_PALABRAS_POR_INICIAL), 2);
+    const vocales = acsElegirAlAzar(Object.keys(ACS_PALABRAS_POR_INICIAL), numGrupos);
     const items = [];
     vocales.forEach((vocal) => {
       acsElegirAlAzar(ACS_PALABRAS_POR_INICIAL[vocal], Math.ceil(cantidad / vocales.length)).forEach((clave) => {
@@ -224,7 +255,7 @@ function generarClasificar(opciones) {
     };
   }
 
-  const categoriasDisponibles = acsElegirAlAzar(Object.keys(ACS_CATEGORIAS_PALABRAS), 2);
+  const categoriasDisponibles = acsElegirAlAzar(Object.keys(ACS_CATEGORIAS_PALABRAS), numGrupos);
   const items = [];
   categoriasDisponibles.forEach((catId) => {
     acsElegirAlAzar(ACS_CATEGORIAS_PALABRAS[catId], Math.ceil(cantidad / categoriasDisponibles.length)).forEach((clave) => {
@@ -274,6 +305,138 @@ function generarEncontrarDiferente(opciones) {
     tipo: "elegir-opcion",
     titulo: "Encuentra el diferente",
     instruccion: "Mira los dibujos. Elige el que no es igual que los demás.",
+    items,
+  };
+}
+
+// Reutiliza "unir-parejas" (modoDerecha texto) para un puzle de unir
+// cada operación con su resultado: mismo clic-clic que unir palabra
+// con dibujo, pero con contenido de cálculo en vez de vocabulario.
+function generarOperacionesUnir(opciones) {
+  const { cantidad = 6, curso = "1" } = opciones || {};
+  const maximo = acsPorCurso(curso, 10, 20);
+  const usadas = new Set();
+  const pares = [];
+  while (pares.length < cantidad) {
+    const operador = Math.random() < 0.5 ? "+" : "−";
+    let a, b, resultado;
+    if (operador === "+") {
+      a = 1 + Math.floor(Math.random() * (maximo - 1));
+      b = 1 + Math.floor(Math.random() * (maximo - a));
+      resultado = a + b;
+    } else {
+      a = 2 + Math.floor(Math.random() * (maximo - 1));
+      b = 1 + Math.floor(Math.random() * a);
+      resultado = a - b;
+    }
+    const clave = a + operador + b;
+    if (usadas.has(clave)) continue;
+    usadas.add(clave);
+    pares.push({ izquierda: `${a} ${operador} ${b}`, derecha: String(resultado) });
+  }
+
+  return {
+    tipo: "unir-parejas",
+    modoDerecha: "texto",
+    titulo: "Une la operación con su resultado",
+    instruccion: "Calcula cada operación. Únela con su resultado.",
+    pares,
+  };
+}
+
+// Reutiliza "elegir-opcion": la pista es el pictograma de la palabra
+// (conteo con cantidad 1, para mostrar un solo dibujo grande) y las
+// opciones son números de sílabas, sin necesidad de escribir nada.
+function generarCuentaSilabas(opciones) {
+  const { cantidad = 5 } = opciones || {};
+  const palabras = acsElegirAlAzar(ACS_PALABRAS_CONTEO_SILABAS, cantidad);
+
+  return {
+    tipo: "elegir-opcion",
+    titulo: "Cuenta las sílabas",
+    instruccion: "Mira el dibujo, di la palabra en voz alta y cuenta sus sílabas. Elige el número correcto.",
+    items: palabras.map((p) => {
+      const opcionesNumericas = new Set([p.silabas]);
+      while (opcionesNumericas.size < 3) {
+        opcionesNumericas.add(1 + Math.floor(Math.random() * 4));
+      }
+      return {
+        prompt: "¿Cuántas sílabas tiene?",
+        conteo: { clave: p.palabra, cantidad: 1 },
+        opciones: acsBarajar(Array.from(opcionesNumericas)).map((valor) => ({ texto: String(valor), correcta: valor === p.silabas })),
+      };
+    }),
+  };
+}
+
+// Etiquetas de las claves "svg:" que sirven de categoría en
+// "clasificar-lineas" y "clasificar-formas" (ver ACS_SVG_FORMAS en
+// js/acs-ficha-engine.js: la clave y el id de categoría coinciden).
+const ACS_LINEAS_ETIQUETAS = { recta: "Recta", curva: "Curva", quebrada: "Quebrada" };
+const ACS_FORMAS_ETIQUETAS = { circulo: "Círculo", cuadrado: "Cuadrado", triangulo: "Triángulo", rectangulo: "Rectángulo" };
+
+// Reutiliza "clasificar" con iconos SVG propios en vez de pictogramas:
+// discriminación visual de líneas rectas/curvas/quebradas.
+function generarClasificarLineas(opciones) {
+  const { cantidad = 6, curso = "1" } = opciones || {};
+  const tipos = acsPorCurso(curso, ["recta", "curva"], ["recta", "curva", "quebrada"]);
+  const items = [];
+  for (let i = 0; i < cantidad; i++) {
+    const tipo = tipos[i % tipos.length];
+    items.push({ clave: `svg:${tipo}`, categoria: tipo });
+  }
+
+  return {
+    tipo: "clasificar",
+    titulo: "Clasifica las líneas",
+    instruccion: "Clica cada línea y luego el grupo al que pertenece.",
+    categorias: tipos.map((id) => ({ id, etiqueta: ACS_LINEAS_ETIQUETAS[id] })),
+    items: acsBarajar(items),
+  };
+}
+
+// Igual que generarClasificarLineas pero con formas geométricas
+// básicas, para reconocimiento de figuras (contenido de geometría de
+// 1º-2º: círculo, cuadrado, triángulo y, en 2º, rectángulo).
+function generarClasificarFormas(opciones) {
+  const { cantidad = 6, curso = "1" } = opciones || {};
+  const disponibles = acsPorCurso(curso, ["circulo", "cuadrado", "triangulo"], ["circulo", "cuadrado", "triangulo", "rectangulo"]);
+  const tipos = acsElegirAlAzar(disponibles, acsPorCurso(curso, 2, 3));
+  const items = [];
+  for (let i = 0; i < cantidad; i++) {
+    const tipo = tipos[i % tipos.length];
+    items.push({ clave: `svg:${tipo}`, categoria: tipo });
+  }
+
+  return {
+    tipo: "clasificar",
+    titulo: "Clasifica las formas",
+    instruccion: "Clica cada forma y luego el grupo al que pertenece.",
+    categorias: tipos.map((id) => ({ id, etiqueta: ACS_FORMAS_ETIQUETAS[id] })),
+    items: acsBarajar(items),
+  };
+}
+
+// tipo "operacion-numerica": los mismos números que una cuenta en
+// columna, pero se elige el resultado entre varias opciones en vez de
+// escribir cifra a cifra. Pensado sobre todo para 2º (números de dos
+// cifras); en 1º se queda en números más bajos, sin dejar de ser una
+// versión más numérica (menos dibujos) de las sumas/restas.
+function generarSumaRestaNumerica(opciones) {
+  const { cantidad = 5, curso = "1" } = opciones || {};
+  const maximo = acsPorCurso(curso, 30, 99);
+  const items = [];
+  for (let i = 0; i < cantidad; i++) {
+    const operador = Math.random() < 0.5 ? "+" : "−";
+    const a = 10 + Math.floor(Math.random() * (maximo - 10));
+    const b = operador === "+" ? 1 + Math.floor(Math.random() * (maximo - a)) : 1 + Math.floor(Math.random() * a);
+    items.push({ a, b, operador });
+  }
+
+  return {
+    tipo: "operacion-numerica",
+    titulo: "Sumas y restas",
+    instruccion: "Calcula el resultado y elige la opción correcta.",
     items,
   };
 }
