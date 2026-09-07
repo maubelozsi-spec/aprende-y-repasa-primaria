@@ -154,12 +154,24 @@ const NAV = [
     color: "amber",
     groups: [
       {
-        label: "Fichas disponibles",
+        label: "Herramientas",
+        items: [{ id: "acs-generador", label: "Generador de cuaderno", href: "acs/generador.html", available: true }],
+      },
+      {
+        label: "Lengua",
         items: [
           { id: "acs-ficha-lengua-une-palabra-dibujo", label: "Une la palabra con su dibujo", href: "acs/ficha.html?id=lengua-une-palabra-dibujo", available: true },
+          { id: "acs-ficha-lengua-une-silabas", label: "Une las sílabas", href: "acs/ficha.html?id=lengua-une-silabas", available: true },
           { id: "acs-ficha-lengua-lee-y-elige", label: "Lee y elige el dibujo", href: "acs/ficha.html?id=lengua-lee-y-elige", available: true },
+          { id: "acs-ficha-lengua-ordenar-letras", label: "Ordena las letras", href: "acs/ficha.html?id=lengua-ordenar-letras", available: true },
+        ],
+      },
+      {
+        label: "Matemáticas",
+        items: [
           { id: "acs-ficha-matematicas-mayor-menor-igual", label: "Mayor, menor o igual", href: "acs/ficha.html?id=matematicas-mayor-menor-igual", available: true },
           { id: "acs-ficha-matematicas-cuenta-y-elige", label: "Cuenta y elige el número", href: "acs/ficha.html?id=matematicas-cuenta-y-elige", available: true },
+          { id: "acs-ficha-matematicas-resta-visual", label: "Restas con dibujos", href: "acs/ficha.html?id=matematicas-resta-visual", available: true },
         ],
       },
     ],

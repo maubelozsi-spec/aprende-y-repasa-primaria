@@ -28,6 +28,60 @@
 
 /* ---------- Catálogo (acs/index.html) ---------- */
 
+.acs-cuaderno-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  text-decoration: none;
+  color: inherit;
+  background: var(--color-amber-tint);
+  border: 2px solid var(--color-amber);
+  border-radius: var(--radius-lg);
+  padding: 22px 26px;
+  margin: 20px 0;
+}
+
+.acs-cuaderno-cta h2 {
+  margin: 0 0 6px;
+  color: var(--color-amber);
+  font-size: 20px;
+}
+
+.acs-cuaderno-cta p {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.acs-cuaderno-cta-flecha {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-amber);
+  flex-shrink: 0;
+}
+
+.acs-area-seccion {
+  margin-top: 30px;
+}
+
+.acs-area-titulo {
+  font-size: 20px;
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 3px solid var(--area-color, var(--border-strong));
+}
+
+.acs-area-titulo-lengua {
+  --area-color: var(--color-indigo);
+  color: var(--color-indigo);
+}
+
+.acs-area-titulo-matematicas {
+  --area-color: var(--color-teal);
+  color: var(--color-teal);
+}
+
 .acs-filtros {
   display: flex;
   flex-wrap: wrap;
@@ -115,6 +169,51 @@
   text-align: center;
   color: var(--text-soft);
   padding: 40px 0;
+}
+
+/* ---------- Generador de cuaderno (acs/generador.html) ---------- */
+
+.acs-gen-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.acs-gen-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.acs-gen-fila {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.acs-gen-fila-texto {
+  flex: 1;
+  font-size: 15px;
+}
+
+.acs-gen-fila-cantidad {
+  width: 70px;
+}
+
+.acs-gen-seccion-digital {
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.acs-gen-seccion-digital:last-child {
+  border-bottom: none;
+}
+
+.acs-gen-seccion-digital h3 {
+  color: var(--color-amber);
+  margin-bottom: 16px;
 }
 
 /* ---------- Visor de ficha (acs/ficha.html) ---------- */
@@ -414,6 +513,123 @@
   color: var(--color-error);
 }
 
+.acs-pareja-texto-derecha {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* ---------- Actividad: resta-visual ---------- */
+
+.acs-resta-bloque {
+  margin-bottom: 30px;
+}
+
+.acs-resta-bloque:last-child {
+  margin-bottom: 0;
+}
+
+.acs-resta-fila {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.acs-resta-caja {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  min-height: 80px;
+  align-items: center;
+  background: #fff;
+}
+
+.acs-resta-signo {
+  font-size: 34px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* ---------- Actividad: ordenar-letras ---------- */
+
+.acs-letras-bloque {
+  margin-bottom: 34px;
+  text-align: center;
+}
+
+.acs-letras-bloque:last-child {
+  margin-bottom: 0;
+}
+
+.acs-letras-slots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 14px 0;
+  flex-wrap: wrap;
+}
+
+.acs-letra-slot {
+  width: 56px;
+  height: 56px;
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-size: 28px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.acs-letra-slot:empty {
+  cursor: default;
+}
+
+.acs-letra-slot.correcta {
+  border-color: var(--color-success);
+  background: var(--color-success-tint);
+  color: var(--color-success);
+  cursor: default;
+}
+
+.acs-letra-slot.error {
+  border-color: var(--color-error);
+  background: var(--color-error-tint);
+}
+
+.acs-letra-slot-impresa {
+  border-style: dashed;
+  cursor: default;
+}
+
+.acs-letras-banco {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.acs-letra-banco {
+  width: 56px;
+  height: 56px;
+  border: 3px solid var(--color-amber);
+  border-radius: var(--radius-sm);
+  background: var(--color-amber-tint);
+  color: var(--color-amber);
+  font-size: 28px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.acs-letra-banco.usada {
+  visibility: hidden;
+}
+
 /* ---------- Pictogramas ARASAAC ---------- */
 
 .acs-pic {
@@ -455,34 +671,50 @@
     margin: 12mm;
   }
 
-  body * {
-    visibility: hidden;
+  html, body {
+    background: #fff !important;
   }
 
-  /* La ficha para imprimir sale siempre, aunque en pantalla esté
-     activa la pestaña "Practicar en pantalla" al pulsar Ctrl+P. */
-  .acs-panel {
-    display: block !important;
-  }
-
-  #acs-panel-digital {
+  /* Se oculta con display:none (no con visibility) para que el hueco
+     que ocupan también desaparezca: .app-shell y .content-wrap tienen
+     min-height:100vh, así que si esta barra y estos bloques se
+     quedaran solo invisibles, ese alto seguiría reservado y añadiría
+     página(s) en blanco al final del documento impreso. */
+  .sidebar, .sidebar-backdrop, .topbar, .site-footer, .a11y-widget,
+  .content-header, .acs-filtros, .acs-cuaderno-cta, .acs-atribucion,
+  .acs-tabs, .acs-actions-row, .generator-card, #acs-gen-status,
+  #acs-ficha-no-encontrada {
     display: none !important;
   }
 
-  .acs-sheet, .acs-sheet * {
-    visibility: visible;
+  .app-shell, .content-wrap {
+    min-height: 0 !important;
   }
 
+  /* Se imprime lo que esté activo en pantalla en ese momento (la
+     pestaña de "Ficha para imprimir" o, en el cuaderno, también
+     "Hoja de respuestas"): las demás pestañas ya están en display:none
+     por la regla base ".acs-panel { display:none } .acs-panel.active
+     { display:block }", así que no hace falta forzar nada más aquí. */
   .acs-sheet {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
     max-width: none;
     border: none;
     box-shadow: none;
     border-radius: 0;
     padding: 0;
+  }
+
+  .acs-sheet:not(:last-child) {
+    page-break-after: always;
+  }
+
+  /* Si una ficha tiene más ítems de los que caben en un folio, que
+     el salto de página caiga entre dos ítems, nunca partiendo uno
+     por la mitad (por ejemplo, una pregunta con sus dos dibujos de
+     "lee y elige" separados en dos páginas distintas). */
+  .acs-pareja-item, .acs-opcion-bloque, .acs-mmi-bloque, .acs-resta-bloque, .acs-letras-bloque {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   /* La hoja impresa siempre sale en blanco, aunque en pantalla se

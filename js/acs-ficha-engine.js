@@ -48,11 +48,23 @@ function acsCrearSheetBase(ficha) {
 }
 
 // ---------- unir-parejas ----------
-// ficha.pares = [{ texto: "gato" }, ...]
-// La palabra también se usa como palabra clave para ARASAAC.
+// ficha.pares = [{ izquierda: "gato", derecha: "gato" }, ...]
+// ficha.modoDerecha = "imagen" (por defecto: busca "derecha" como
+// palabra clave en ARASAAC) | "texto" (escribe "derecha" tal cual,
+// para unir sílabas o unir con la segunda mitad de una palabra).
 
 function acsOrdenBarajadoPares(pares) {
   return acsBarajar(pares.map((_, i) => i));
+}
+
+function acsCrearContenidoDerecha(ficha, par, digital) {
+  if (ficha.modoDerecha === "texto") {
+    const span = document.createElement("span");
+    span.className = "acs-pareja-texto-derecha";
+    span.textContent = par.derecha;
+    return span;
+  }
+  return arasaacCrearImagen(par.derecha, { color: digital });
 }
 
 function renderUnirParejasDigital(ficha, container) {
@@ -84,7 +96,7 @@ function renderUnirParejasDigital(ficha, container) {
     num.className = "acs-pareja-num";
     num.textContent = i + 1 + ".";
     const texto = document.createElement("span");
-    texto.textContent = par.texto;
+    texto.textContent = par.izquierda;
     item.appendChild(num);
     item.appendChild(texto);
     colIzq.appendChild(item);
@@ -102,7 +114,7 @@ function renderUnirParejasDigital(ficha, container) {
     letra.className = "acs-pareja-num";
     letra.textContent = String.fromCharCode(65 + posicion) + ".";
     item.appendChild(letra);
-    item.appendChild(arasaacCrearImagen(par.texto, { color: true }));
+    item.appendChild(acsCrearContenidoDerecha(ficha, par, true));
     colDer.appendChild(item);
     itemsDer.push(item);
   });
@@ -186,7 +198,7 @@ function renderUnirParejasSheet(ficha, container) {
     num.className = "acs-pareja-num";
     num.textContent = i + 1 + ".";
     const texto = document.createElement("span");
-    texto.textContent = par.texto;
+    texto.textContent = par.izquierda;
     item.appendChild(num);
     item.appendChild(texto);
     colIzq.appendChild(item);
@@ -201,7 +213,7 @@ function renderUnirParejasSheet(ficha, container) {
     letra.className = "acs-pareja-num";
     letra.textContent = String.fromCharCode(65 + posicion) + ".";
     item.appendChild(letra);
-    item.appendChild(arasaacCrearImagen(par.texto, { color: false }));
+    item.appendChild(acsCrearContenidoDerecha(ficha, par, false));
     colDer.appendChild(item);
   });
 
@@ -435,12 +447,258 @@ function renderMayorMenorIgualSheet(ficha, container) {
   container.appendChild(sheet);
 }
 
+// ---------- resta-visual ----------
+// ficha.items = [{ clave: "manzana", total: 5, resta: 2 }]
+// (resultado = total - resta, siempre en objetos de 0 a 10)
+
+function acsCrearCajaConteo(clave, cantidad, digital) {
+  const caja = document.createElement("div");
+  caja.className = "acs-resta-caja";
+  for (let i = 0; i < cantidad; i++) {
+    caja.appendChild(arasaacCrearImagen(clave, { color: digital, alt: clave }));
+  }
+  return caja;
+}
+
+function acsOpcionesNumericasCercanas(resultado) {
+  const opciones = [resultado];
+  if (resultado > 0) opciones.push(resultado - 1);
+  opciones.push(resultado + 1);
+  while (opciones.length < 3) opciones.push(resultado + opciones.length);
+  return acsBarajar(opciones.slice(0, 3));
+}
+
+function renderRestaVisualDigital(ficha, container) {
+  container.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "acs-digital";
+
+  const instr = document.createElement("p");
+  instr.className = "acs-digital-instruccion";
+  instr.textContent = ficha.instruccion;
+  wrap.appendChild(instr);
+
+  ficha.items.forEach((item) => {
+    const resultado = item.total - item.resta;
+
+    const bloque = document.createElement("div");
+    bloque.className = "acs-resta-bloque";
+
+    const fila = document.createElement("div");
+    fila.className = "acs-resta-fila";
+    fila.appendChild(acsCrearCajaConteo(item.clave, item.total, true));
+    const signoMenos = document.createElement("span");
+    signoMenos.className = "acs-resta-signo";
+    signoMenos.textContent = "−";
+    fila.appendChild(signoMenos);
+    fila.appendChild(acsCrearCajaConteo(item.clave, item.resta, true));
+    const signoIgual = document.createElement("span");
+    signoIgual.className = "acs-resta-signo";
+    signoIgual.textContent = "=";
+    fila.appendChild(signoIgual);
+    bloque.appendChild(fila);
+
+    const opciones = document.createElement("div");
+    opciones.className = "acs-opciones";
+    acsOpcionesNumericasCercanas(resultado).forEach((valor) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "acs-opcion-item";
+      const span = document.createElement("span");
+      span.style.fontSize = "34px";
+      span.style.fontWeight = "800";
+      span.textContent = String(valor);
+      btn.appendChild(span);
+      btn.addEventListener("click", () => {
+        if (opciones.querySelector(".correcta")) return;
+        if (valor === resultado) {
+          btn.classList.add("correcta");
+          opciones.querySelectorAll("button").forEach((b) => {
+            b.disabled = true;
+          });
+        } else {
+          btn.classList.add("incorrecta");
+          setTimeout(() => btn.classList.remove("incorrecta"), 500);
+        }
+      });
+      opciones.appendChild(btn);
+    });
+    bloque.appendChild(opciones);
+    wrap.appendChild(bloque);
+  });
+
+  container.appendChild(wrap);
+}
+
+function renderRestaVisualSheet(ficha, container) {
+  container.innerHTML = "";
+  const sheet = acsCrearSheetBase(ficha);
+
+  ficha.items.forEach((item) => {
+    const fila = document.createElement("div");
+    fila.className = "acs-resta-fila";
+    fila.appendChild(acsCrearCajaConteo(item.clave, item.total, false));
+    const signoMenos = document.createElement("span");
+    signoMenos.className = "acs-resta-signo";
+    signoMenos.textContent = "−";
+    fila.appendChild(signoMenos);
+    fila.appendChild(acsCrearCajaConteo(item.clave, item.resta, false));
+    const signoIgual = document.createElement("span");
+    signoIgual.className = "acs-resta-signo";
+    signoIgual.textContent = "=";
+    fila.appendChild(signoIgual);
+    const hueco = document.createElement("span");
+    hueco.className = "acs-mmi-hueco";
+    fila.appendChild(hueco);
+    sheet.appendChild(fila);
+  });
+
+  container.appendChild(sheet);
+}
+
+// ---------- ordenar-letras ----------
+// ficha.items = [{ palabra: "sol" }, ...]
+
+function acsBarajarLetras(palabra) {
+  let letras;
+  do {
+    letras = acsBarajar(palabra.split(""));
+  } while (letras.join("") === palabra && palabra.length > 1);
+  return letras;
+}
+
+function renderOrdenarLetrasDigital(ficha, container) {
+  container.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "acs-digital";
+
+  const instr = document.createElement("p");
+  instr.className = "acs-digital-instruccion";
+  instr.textContent = ficha.instruccion;
+  wrap.appendChild(instr);
+
+  ficha.items.forEach((item) => {
+    const palabra = item.palabra;
+    const bloque = document.createElement("div");
+    bloque.className = "acs-letras-bloque";
+
+    bloque.appendChild(arasaacCrearImagen(palabra, { color: true }));
+
+    const slotsWrap = document.createElement("div");
+    slotsWrap.className = "acs-letras-slots";
+    const slots = [];
+    for (let i = 0; i < palabra.length; i++) {
+      const slot = document.createElement("button");
+      slot.type = "button";
+      slot.className = "acs-letra-slot";
+      slots.push(slot);
+      slotsWrap.appendChild(slot);
+    }
+    bloque.appendChild(slotsWrap);
+
+    const bancoWrap = document.createElement("div");
+    bancoWrap.className = "acs-letras-banco";
+    bloque.appendChild(bancoWrap);
+
+    // Cada hueco de "slots" guarda, mientras está lleno, el botón del
+    // banco que puso esa letra (slot._origen), para poder devolverla
+    // con un clic si se ha ordenado mal, sin esperar ni arrastrar.
+    function letrasActuales() {
+      return slots.map((s) => s.textContent).join("");
+    }
+
+    function comprobarCompleto() {
+      if (!slots.every((s) => s.textContent)) return;
+      if (letrasActuales() === palabra) {
+        slots.forEach((s) => {
+          s.classList.remove("error");
+          s.classList.add("correcta");
+          s.disabled = true;
+        });
+      } else {
+        slots.forEach((s) => s.classList.add("error"));
+        setTimeout(() => slots.forEach((s) => s.classList.remove("error")), 600);
+      }
+    }
+
+    slots.forEach((slot) => {
+      slot.addEventListener("click", () => {
+        if (!slot.textContent || slot.classList.contains("correcta")) return;
+        slot._origen.disabled = false;
+        slot._origen.classList.remove("usada");
+        slot._origen = null;
+        slot.textContent = "";
+        slot.classList.remove("error");
+      });
+    });
+
+    acsBarajarLetras(palabra).forEach((letra) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "acs-letra-banco";
+      btn.textContent = letra;
+      btn.addEventListener("click", () => {
+        const libre = slots.find((s) => !s.textContent);
+        if (!libre) return;
+        libre.textContent = letra;
+        libre._origen = btn;
+        btn.disabled = true;
+        btn.classList.add("usada");
+        comprobarCompleto();
+      });
+      bancoWrap.appendChild(btn);
+    });
+
+    wrap.appendChild(bloque);
+  });
+
+  container.appendChild(wrap);
+}
+
+function renderOrdenarLetrasSheet(ficha, container) {
+  container.innerHTML = "";
+  const sheet = acsCrearSheetBase(ficha);
+
+  ficha.items.forEach((item) => {
+    const palabra = item.palabra;
+    const bloque = document.createElement("div");
+    bloque.className = "acs-letras-bloque";
+
+    bloque.appendChild(arasaacCrearImagen(palabra, { color: false }));
+
+    const letrasWrap = document.createElement("div");
+    letrasWrap.className = "acs-letras-slots";
+    acsBarajarLetras(palabra).forEach((letra) => {
+      const caja = document.createElement("span");
+      caja.className = "acs-letra-slot acs-letra-slot-impresa";
+      caja.textContent = letra;
+      letrasWrap.appendChild(caja);
+    });
+    bloque.appendChild(letrasWrap);
+
+    const huecos = document.createElement("div");
+    huecos.className = "acs-letras-slots";
+    for (let i = 0; i < palabra.length; i++) {
+      const hueco = document.createElement("span");
+      hueco.className = "acs-letra-slot";
+      huecos.appendChild(hueco);
+    }
+    bloque.appendChild(huecos);
+
+    sheet.appendChild(bloque);
+  });
+
+  container.appendChild(sheet);
+}
+
 // ---------- registro de tipos y arranque ----------
 
 const ACS_RENDERERS = {
   "unir-parejas": { digital: renderUnirParejasDigital, sheet: renderUnirParejasSheet },
   "elegir-opcion": { digital: renderElegirOpcionDigital, sheet: renderElegirOpcionSheet },
   "mayor-menor-igual": { digital: renderMayorMenorIgualDigital, sheet: renderMayorMenorIgualSheet },
+  "resta-visual": { digital: renderRestaVisualDigital, sheet: renderRestaVisualSheet },
+  "ordenar-letras": { digital: renderOrdenarLetrasDigital, sheet: renderOrdenarLetrasSheet },
 };
 
 function initAcsFicha(ficha, digitalEl, sheetEl) {
@@ -451,4 +709,29 @@ function initAcsFicha(ficha, digitalEl, sheetEl) {
   }
   renderer.digital(ficha, digitalEl);
   renderer.sheet(ficha, sheetEl);
+}
+
+// Devuelve la clave de respuestas de una ficha como líneas de texto,
+// para el Generador de cuaderno (acs/generador.html) en modo examen.
+// No hace falta cargar pictogramas: es solo para que quien corrija
+// compruebe rápido, así que se apoya en las palabras/números tal
+// cual, sin ir a buscar la imagen a ARASAAC.
+function acsClaveRespuestas(ficha) {
+  switch (ficha.tipo) {
+    case "unir-parejas":
+      return ficha.pares.map((par, i) => `${i + 1}. ${par.izquierda} → ${par.derecha}`);
+    case "elegir-opcion":
+      return ficha.items.map((item, i) => {
+        const correcta = item.opciones.find((op) => op.correcta);
+        return `${i + 1}. ${item.prompt || "¿Cuántos hay?"} → ${correcta.texto || correcta.clave}`;
+      });
+    case "mayor-menor-igual":
+      return ficha.pares.map((par, i) => `${i + 1}. ${par[0]} ${acsComparar(par[0], par[1])} ${par[1]}`);
+    case "resta-visual":
+      return ficha.items.map((item, i) => `${i + 1}. ${item.total} − ${item.resta} = ${item.total - item.resta}`);
+    case "ordenar-letras":
+      return ficha.items.map((item, i) => `${i + 1}. ${item.palabra}`);
+    default:
+      return [];
+  }
 }

@@ -1,6 +1,7 @@
 // ============================================================
-// Catálogo de fichas de Apoyo ACS: pinta las tarjetas a partir de
-// ACS_FICHAS y filtra por área y tipo de actividad.
+// Catálogo de fichas de Apoyo ACS: pinta las tarjetas de cada área
+// (Lengua / Matemáticas) por separado a partir de ACS_FICHAS, y
+// filtra por tipo de actividad.
 // ============================================================
 
 const ACS_AREA_COLOR = {
@@ -9,23 +10,26 @@ const ACS_AREA_COLOR = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const grid = document.getElementById("acs-grid");
+  // Ver comentario equivalente en js/acs-ficha-ui.js.
+  window.scrollTo(0, 0);
+
+  const grids = {
+    lengua: document.getElementById("acs-grid-lengua"),
+    matematicas: document.getElementById("acs-grid-matematicas"),
+  };
   const chips = document.querySelectorAll(".acs-filtro-chip");
 
-  const filtro = { area: "todas", tipo: "todas" };
+  let tipoActivo = "todas";
 
-  function pintar() {
+  function pintarArea(area) {
+    const grid = grids[area];
     grid.innerHTML = "";
-    const visibles = ACS_FICHAS.filter(
-      (f) =>
-        (filtro.area === "todas" || f.area === filtro.area) &&
-        (filtro.tipo === "todas" || f.tipo === filtro.tipo)
-    );
+    const visibles = ACS_FICHAS.filter((f) => f.area === area && (tipoActivo === "todas" || f.tipo === tipoActivo));
 
     if (!visibles.length) {
       const vacio = document.createElement("p");
       vacio.className = "acs-card-empty";
-      vacio.textContent = "No hay fichas con estos filtros todavía.";
+      vacio.textContent = "No hay fichas de este tipo en esta área todavía.";
       grid.appendChild(vacio);
       return;
     }
@@ -48,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const tags = document.createElement("div");
       tags.className = "acs-card-tags";
-      [ficha.area === "lengua" ? "Lengua" : "Matemáticas", ficha.etiqueta, ficha.nivel].forEach((texto) => {
+      [ficha.etiqueta, ficha.nivel].forEach((texto) => {
         const tag = document.createElement("span");
         tag.className = "acs-tag";
         tag.textContent = texto;
@@ -60,15 +64,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function pintarTodo() {
+    pintarArea("lengua");
+    pintarArea("matematicas");
+  }
+
   chips.forEach((chip) => {
     chip.addEventListener("click", () => {
-      const grupo = chip.dataset.filtro;
-      document.querySelectorAll(`.acs-filtro-chip[data-filtro="${grupo}"]`).forEach((c) => c.classList.remove("active"));
+      chips.forEach((c) => c.classList.remove("active"));
       chip.classList.add("active");
-      filtro[grupo] = chip.dataset.valor;
-      pintar();
+      tipoActivo = chip.dataset.valor;
+      pintarTodo();
     });
   });
 
-  pintar();
+  pintarTodo();
 });

@@ -1,30 +1,42 @@
 // ============================================================
 // Interfaz del visor de una ficha de Apoyo ACS: lee el id de la
-// URL, la busca en ACS_FICHAS, la renderiza con el motor
-// (js/acs-ficha-engine.js) y gestiona las pestañas y los botones.
+// URL, genera su contenido (js/acs-fichas-data.js), la renderiza con
+// el motor (js/acs-ficha-engine.js) y gestiona las pestañas y los
+// botones. Cada ficha tira de un generador, así que "Generar otra
+// ficha" no solo reinicia el estado: cambia las palabras/números.
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
+  // js/layout.js hace scrollIntoView del enlace activo del sidebar,
+  // y "Apoyo ACS" queda al final de una barra lateral muy larga: sin
+  // esto la página se abriría desplazada hacia abajo en vez de mostrar
+  // el título de la ficha. Se registra después de layout.js, así que
+  // corre después de su scrollIntoView.
+  window.scrollTo(0, 0);
+
   const params = new URLSearchParams(window.location.search);
-  const ficha = acsBuscarFicha(params.get("id"));
+  const id = params.get("id");
+  const entry = ACS_FICHAS_REGISTRO[id];
 
   const noEncontrada = document.getElementById("acs-ficha-no-encontrada");
   const contenido = document.getElementById("acs-ficha-contenido");
 
-  if (!ficha) {
+  if (!entry) {
     noEncontrada.style.display = "";
     return;
   }
 
-  document.title = ficha.titulo + " · Apoyo ACS";
-  document.getElementById("acs-ficha-titulo").textContent = ficha.titulo;
-  document.getElementById("acs-ficha-instruccion").textContent = ficha.instruccion;
+  document.title = entry.titulo + " · Apoyo ACS";
+  document.getElementById("acs-ficha-titulo").textContent = entry.titulo;
   contenido.style.display = "";
 
   const digitalEl = document.getElementById("acs-digital");
   const sheetEl = document.getElementById("acs-sheet");
+  const instruccionEl = document.getElementById("acs-ficha-instruccion");
 
   function render() {
+    const ficha = acsGenerarFichaPorId(id);
+    instruccionEl.textContent = ficha.instruccion;
     initAcsFicha(ficha, digitalEl, sheetEl);
   }
   render();

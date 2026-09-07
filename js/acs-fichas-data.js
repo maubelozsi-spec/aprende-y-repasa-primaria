@@ -1,148 +1,104 @@
 // ============================================================
-// Biblioteca de fichas de Apoyo ACS.
+// Registro de fichas de Apoyo ACS: fuente única para el catálogo
+// (acs/index.html), el visor individual (acs/ficha.html) y el
+// Generador de cuaderno (acs/generador.html).
 //
-// Cada ficha es un objeto de datos fijo (no se genera al vuelo):
-// se ha elegido así para empezar, con la idea de convertir en
-// plantillas generadoras los tipos de actividad que más se repitan
-// una vez haya varias fichas reales en uso.
-//
-// Campos comunes a toda ficha:
-//   id        -> usado en la URL (acs/ficha.html?id=...)
-//   area      -> "lengua" | "matematicas"
-//   tipo      -> ver js/acs-ficha-engine.js (ACS_RENDERERS)
-//   etiqueta  -> nombre corto del tipo de actividad, para el catálogo
-//   nivel     -> nivel funcional al que está dirigida
-//   titulo, instruccion, resumen -> texto visible
-// El resto de campos depende del tipo (ver acs-ficha-engine.js).
+// Cada entrada NO guarda contenido fijo: guarda qué generador llamar
+// (ver js/acs-generadores.js) y con qué opciones. Cada vez que se
+// abre la ficha —o se pulsa "Generar otra ficha"— sale un conjunto
+// distinto de palabras/números, tirando del banco de vocabulario
+// (js/acs-vocabulario.js). El título de cada entrada se repite aquí
+// a propósito (en vez de generar una ficha solo para leerlo) porque
+// no cambia entre variantes, solo el contenido.
 // ============================================================
 
-const ACS_FICHAS = [
-  {
-    id: "lengua-une-palabra-dibujo",
+const ACS_FICHAS_REGISTRO = {
+  "lengua-une-palabra-dibujo": {
     area: "lengua",
     tipo: "unir-parejas",
     etiqueta: "Unir con línea",
     nivel: "Nivel funcional: 1º de Primaria",
     titulo: "Une la palabra con su dibujo",
-    instruccion: "Lee cada palabra. Únela con el dibujo que le corresponde.",
-    resumen: "Vocabulario básico: 6 palabras para unir con su imagen.",
-    pares: [
-      { texto: "gato" },
-      { texto: "pelota" },
-      { texto: "libro" },
-      { texto: "casa" },
-      { texto: "sol" },
-      { texto: "flor" },
-    ],
+    resumen: "Vocabulario básico: 6 palabras para unir con su imagen. Cambia cada vez.",
+    cantidadDefecto: 6,
+    generar: () => generarUnirPalabraDibujo({ categoria: "todas", cantidad: 6 }),
+    generarConCantidad: (cantidad) => generarUnirPalabraDibujo({ categoria: "todas", cantidad }),
   },
-  {
-    id: "lengua-lee-y-elige",
+  "lengua-une-silabas": {
+    area: "lengua",
+    tipo: "unir-parejas",
+    etiqueta: "Unir con línea",
+    nivel: "Nivel funcional: 1º de Primaria",
+    titulo: "Une las sílabas",
+    resumen: "6 palabras de dos sílabas para formar uniendo la primera con la segunda.",
+    cantidadDefecto: 6,
+    generar: () => generarUnirSilabas({ cantidad: 6 }),
+    generarConCantidad: (cantidad) => generarUnirSilabas({ cantidad }),
+  },
+  "lengua-lee-y-elige": {
     area: "lengua",
     tipo: "elegir-opcion",
     etiqueta: "Leer y elegir",
     nivel: "Nivel funcional: 1º de Primaria",
     titulo: "Lee y elige el dibujo",
-    instruccion: "Lee la frase. Elige el dibujo correcto.",
     resumen: "4 frases cortas con dos dibujos para elegir en cada una.",
-    items: [
-      {
-        prompt: "El sol es amarillo.",
-        opciones: [
-          { clave: "sol", correcta: true },
-          { clave: "luna", correcta: false },
-        ],
-      },
-      {
-        prompt: "La flor es roja.",
-        opciones: [
-          { clave: "flor", correcta: true },
-          { clave: "árbol", correcta: false },
-        ],
-      },
-      {
-        prompt: "El pez nada en el agua.",
-        opciones: [
-          { clave: "pez", correcta: true },
-          { clave: "pájaro", correcta: false },
-        ],
-      },
-      {
-        prompt: "La mesa es de madera.",
-        opciones: [
-          { clave: "mesa", correcta: true },
-          { clave: "silla", correcta: false },
-        ],
-      },
-    ],
+    cantidadDefecto: 4,
+    generar: () => generarLeeYElige({ cantidad: 4 }),
+    generarConCantidad: (cantidad) => generarLeeYElige({ cantidad }),
   },
-  {
-    id: "matematicas-mayor-menor-igual",
+  "lengua-ordenar-letras": {
+    area: "lengua",
+    tipo: "ordenar-letras",
+    etiqueta: "Ordenar letras",
+    nivel: "Nivel funcional: 1º de Primaria",
+    titulo: "Ordena las letras",
+    resumen: "5 palabras cortas con pictograma de apoyo para ordenar sus letras.",
+    cantidadDefecto: 5,
+    generar: () => generarOrdenarLetras({ cantidad: 5 }),
+    generarConCantidad: (cantidad) => generarOrdenarLetras({ cantidad }),
+  },
+  "matematicas-mayor-menor-igual": {
     area: "matematicas",
     tipo: "mayor-menor-igual",
     etiqueta: "Comparar números",
     nivel: "Nivel funcional: 1º de Primaria",
     titulo: "Mayor, menor o igual",
-    instruccion: "Compara los dos números. Elige el símbolo correcto.",
     resumen: "6 parejas de números del 0 al 10 para comparar.",
-    pares: [
-      [3, 7],
-      [5, 5],
-      [8, 2],
-      [6, 9],
-      [10, 4],
-      [1, 1],
-    ],
+    cantidadDefecto: 6,
+    generar: () => generarMayorMenorIgual({ cantidad: 6, maximo: 10 }),
+    generarConCantidad: (cantidad) => generarMayorMenorIgual({ cantidad, maximo: 10 }),
   },
-  {
-    id: "matematicas-cuenta-y-elige",
+  "matematicas-cuenta-y-elige": {
     area: "matematicas",
     tipo: "elegir-opcion",
     etiqueta: "Contar y elegir",
     nivel: "Nivel funcional: 1º de Primaria",
     titulo: "Cuenta y elige el número",
-    instruccion: "Cuenta los dibujos. Elige el número correcto.",
-    resumen: "4 conteos del 1 al 10 con tres números para elegir en cada uno.",
-    items: [
-      {
-        prompt: "¿Cuántas manzanas hay?",
-        conteo: { clave: "manzana", cantidad: 3 },
-        opciones: [
-          { texto: "2", correcta: false },
-          { texto: "3", correcta: true },
-          { texto: "4", correcta: false },
-        ],
-      },
-      {
-        prompt: "¿Cuántas pelotas hay?",
-        conteo: { clave: "pelota", cantidad: 5 },
-        opciones: [
-          { texto: "4", correcta: false },
-          { texto: "5", correcta: true },
-          { texto: "6", correcta: false },
-        ],
-      },
-      {
-        prompt: "¿Cuántas estrellas hay?",
-        conteo: { clave: "estrella", cantidad: 7 },
-        opciones: [
-          { texto: "6", correcta: false },
-          { texto: "7", correcta: true },
-          { texto: "8", correcta: false },
-        ],
-      },
-      {
-        prompt: "¿Cuántas flores hay?",
-        conteo: { clave: "flor", cantidad: 4 },
-        opciones: [
-          { texto: "3", correcta: false },
-          { texto: "4", correcta: true },
-          { texto: "5", correcta: false },
-        ],
-      },
-    ],
+    resumen: "4 conteos del 2 al 10 con tres números para elegir en cada uno.",
+    cantidadDefecto: 4,
+    generar: () => generarCuentaYElige({ cantidad: 4, maximo: 10 }),
+    generarConCantidad: (cantidad) => generarCuentaYElige({ cantidad, maximo: 10 }),
   },
-];
+  "matematicas-resta-visual": {
+    area: "matematicas",
+    tipo: "resta-visual",
+    etiqueta: "Restar",
+    nivel: "Nivel funcional: 1º de Primaria",
+    titulo: "Restas con dibujos",
+    resumen: "4 restas contando dibujos, del 0 al 8, eligiendo el resultado.",
+    cantidadDefecto: 4,
+    generar: () => generarRestaVisual({ cantidad: 4, maximo: 8 }),
+    generarConCantidad: (cantidad) => generarRestaVisual({ cantidad, maximo: 8 }),
+  },
+};
 
-function acsBuscarFicha(id) {
-  return ACS_FICHAS.find((f) => f.id === id) || null;
+// Fichas listas para el catálogo (sin generar contenido todavía).
+const ACS_FICHAS = Object.keys(ACS_FICHAS_REGISTRO).map((id) => Object.assign({ id }, ACS_FICHAS_REGISTRO[id]));
+
+// Genera el contenido de una ficha (palabras/números nuevos) a partir
+// de su id de registro. Devuelve null si el id no existe.
+function acsGenerarFichaPorId(id) {
+  const entry = ACS_FICHAS_REGISTRO[id];
+  if (!entry) return null;
+  return Object.assign({ id, area: entry.area, etiqueta: entry.etiqueta, nivel: entry.nivel }, entry.generar());
 }

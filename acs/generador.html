@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de cuaderno · Apoyo ACS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/acs.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "acs-generador";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content acs-shell">
+      <header class="content-header">
+        <p class="eyebrow"><a href="index.html">Apoyo ACS</a></p>
+        <h1>Generador de cuaderno</h1>
+        <p class="content-subtitle">
+          Marca las actividades que quieres incluir y cuántas de cada una. Elige si es para
+          repasar (con corrección al momento en pantalla) o para examen (ficha en blanco con
+          casilla de nota, más una hoja de respuestas aparte para corregir).
+        </p>
+      </header>
+
+      <div class="game-card generator-card">
+        <div class="generator-field">
+          <label>Modo</label>
+          <div class="choice-row" id="acs-gen-modo-picker">
+            <button type="button" class="btn btn-secondary active" data-modo="repaso">Repaso</button>
+            <button type="button" class="btn btn-secondary" data-modo="examen">Examen</button>
+          </div>
+        </div>
+
+        <div class="generator-field">
+          <label>Actividades a incluir</label>
+          <div id="acs-gen-lista" class="acs-gen-lista"></div>
+        </div>
+
+        <p class="generator-resumen" id="acs-gen-resumen">Marca al menos una actividad.</p>
+
+        <div class="actions-row">
+          <button type="button" class="btn btn-primary" id="acs-gen-generar-btn">Generar cuaderno</button>
+        </div>
+
+        <div id="acs-gen-status" class="feedback-box"></div>
+      </div>
+
+      <div id="acs-gen-resultado" style="display:none;">
+        <div class="acs-tabs" id="acs-gen-tabs">
+          <button type="button" class="acs-tab-btn active" data-tab="digital">Practicar en pantalla</button>
+          <button type="button" class="acs-tab-btn" data-tab="sheet">Cuaderno para imprimir</button>
+          <button type="button" class="acs-tab-btn" data-tab="respuestas" id="acs-gen-tab-respuestas" style="display:none;">Hoja de respuestas</button>
+        </div>
+
+        <div class="acs-panel active" id="acs-gen-panel-digital">
+          <div id="acs-gen-digital"></div>
+        </div>
+
+        <div class="acs-panel" id="acs-gen-panel-sheet">
+          <div class="acs-actions-row">
+            <button type="button" class="btn btn-primary" id="acs-gen-imprimir-btn">Imprimir / Guardar como PDF</button>
+          </div>
+          <div id="acs-gen-sheet"></div>
+        </div>
+
+        <div class="acs-panel" id="acs-gen-panel-respuestas">
+          <div class="acs-sheet" id="acs-gen-respuestas"></div>
+        </div>
+
+        <p class="acs-atribucion">
+          Los pictogramas de este cuaderno son de
+          <a href="https://arasaac.org" target="_blank" rel="noopener">ARASAAC</a>
+          (Gobierno de Aragón, autor: Sergio Palao), bajo licencia Creative Commons BY-NC-SA.
+        </p>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+<script src="../js/arasaac.js"></script>
+<script src="../js/acs-ficha-engine.js"></script>
+<script src="../js/acs-vocabulario.js"></script>
+<script src="../js/acs-generadores.js"></script>
+<script src="../js/acs-fichas-data.js"></script>
+<script src="../js/acs-generador-ui.js"></script>
+</body>
+</html>

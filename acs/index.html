@@ -37,23 +37,33 @@
         </p>
       </header>
 
+      <a href="generador.html" class="acs-cuaderno-cta">
+        <div>
+          <h2>Generador de cuaderno de repaso o examen</h2>
+          <p>Elige qué actividades incluir, cuántas de cada una y si es para repasar (con corrección al momento) o para examen (se corrige al final). Junta varias en un solo documento para imprimir o practicar en pantalla.</p>
+        </div>
+        <span class="acs-cuaderno-cta-flecha">→</span>
+      </a>
+
       <div class="acs-filtros">
-        <div class="acs-filtro-grupo">
-          <span class="acs-filtro-grupo-label">Área</span>
-          <button type="button" class="acs-filtro-chip active" data-filtro="area" data-valor="todas">Todas</button>
-          <button type="button" class="acs-filtro-chip" data-filtro="area" data-valor="lengua">Lengua</button>
-          <button type="button" class="acs-filtro-chip" data-filtro="area" data-valor="matematicas">Matemáticas</button>
-        </div>
-        <div class="acs-filtro-grupo">
-          <span class="acs-filtro-grupo-label">Tipo de actividad</span>
-          <button type="button" class="acs-filtro-chip active" data-filtro="tipo" data-valor="todas">Todas</button>
-          <button type="button" class="acs-filtro-chip" data-filtro="tipo" data-valor="unir-parejas">Unir con línea</button>
-          <button type="button" class="acs-filtro-chip" data-filtro="tipo" data-valor="elegir-opcion">Elegir</button>
-          <button type="button" class="acs-filtro-chip" data-filtro="tipo" data-valor="mayor-menor-igual">Comparar</button>
-        </div>
+        <span class="acs-filtro-grupo-label">Filtrar por tipo de actividad</span>
+        <button type="button" class="acs-filtro-chip active" data-valor="todas">Todas</button>
+        <button type="button" class="acs-filtro-chip" data-valor="unir-parejas">Unir con línea</button>
+        <button type="button" class="acs-filtro-chip" data-valor="elegir-opcion">Elegir</button>
+        <button type="button" class="acs-filtro-chip" data-valor="mayor-menor-igual">Comparar</button>
+        <button type="button" class="acs-filtro-chip" data-valor="resta-visual">Restar</button>
+        <button type="button" class="acs-filtro-chip" data-valor="ordenar-letras">Ordenar letras</button>
       </div>
 
-      <div class="acs-grid" id="acs-grid"></div>
+      <section class="acs-area-seccion">
+        <h2 class="acs-area-titulo acs-area-titulo-lengua">Lengua</h2>
+        <div class="acs-grid" id="acs-grid-lengua"></div>
+      </section>
+
+      <section class="acs-area-seccion">
+        <h2 class="acs-area-titulo acs-area-titulo-matematicas">Matemáticas</h2>
+        <div class="acs-grid" id="acs-grid-matematicas"></div>
+      </section>
 
       <p class="acs-atribucion">
         Los pictogramas de estas fichas son de
