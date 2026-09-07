@@ -51,9 +51,12 @@ La etapa se organiza en **tres ciclos de dos cursos**: 1er ciclo (1º-2º), 2º 
 | — | **Perfil de salida** al término de la Enseñanza Básica: el referente último al que deben contribuir las competencias específicas de todas las áreas |
 | — | **situación de aprendizaje**: unidad de programación que moviliza saberes básicos y competencias específicas de forma contextualizada |
 
-### Perfil competencial de tercer ciclo (verificado, texto oficial)
+### Contenido oficial verificado en esta carpeta
 
-`perfil-competencial-tercer-ciclo.md`, en esta misma carpeta, transcribe literalmente los descriptores operativos de las 8 competencias clave al completar el tercer ciclo (Decreto 101/2023, Anexo "Perfil competencial"), a partir del texto consolidado del BOJA aportado por el usuario. Cuando una skill de este proyecto necesite referenciar una competencia clave con su descriptor oficial para 5º-6º (por ejemplo, para justificar por qué una actividad "trabaja CCL2" o "trabaja STEM3"), usa ese archivo — no reconstruyas el descriptor de memoria.
+- `perfil-competencial-tercer-ciclo.md`: descriptores operativos de las 8 competencias clave al completar el tercer ciclo (Decreto 101/2023, Anexo "Perfil competencial"), transcritos literalmente.
+- `anexo-ii-criterios-tercer-ciclo.md`: competencias específicas, criterios de evaluación (5º y 6º) y códigos de saberes básicos de **Matemáticas**, **Lengua Castellana y Literatura** y **Primera Lengua Extranjera**, tercer ciclo, transcritos literalmente del Anexo II de la Orden de 30 de mayo de 2023 (documento completo con los 6 anexos, aportado por el usuario). Incluye además el texto completo de los saberes básicos de Lengua Castellana y Literatura; los de Matemáticas y Primera Lengua Extranjera están solo por código.
+
+Cuando otra skill de este proyecto necesite citar un criterio de evaluación, un saber básico o un descriptor de competencia clave de 5º-6º para Matemáticas, Lengua o Inglés, usa estos dos archivos — no reconstruyas ni parafrasees el contenido de memoria.
 
 ## Cómo aplicarla
 
@@ -63,10 +66,10 @@ La etapa se organiza en **tres ciclos de dos cursos**: 1er ciclo (1º-2º), 2º 
 
 ## Límite explícito — léelo antes de generar un criterio de evaluación o saber básico
 
-**Esta skill fija el marco y el vocabulario; el contenido literal solo está verificado donde se indica explícitamente.** El Perfil competencial de tercer ciclo (arriba) SÍ es texto oficial verbatim. Pero no contiene, y no debe inventarse, el texto exacto de las **competencias específicas, criterios de evaluación o saberes básicos de cada área** (Matemáticas, Lengua Castellana y Literatura, Primera Lengua Extranjera...) — eso vive en el **Anexo II de la Orden de 30 de mayo de 2023**, que a fecha de esta skill no se ha aportado ni verificado. Ese texto es largo, específico por área, y generar un criterio "con aspecto oficial" pero no verificado es peor que no darlo, porque el profesorado puede usarlo tal cual en una programación didáctica.
+**Esta skill fija el marco y el vocabulario; el contenido literal solo está verificado donde se indica explícitamente.** El Perfil competencial y el Anexo II de Matemáticas, Lengua Castellana y Literatura y Primera Lengua Extranjera (arriba) SÍ son texto oficial verbatim para tercer ciclo. Fuera de esas tres áreas (Conocimiento del Medio, Educación Artística, Educación Física, Valores Cívicos y Éticos, Segunda Lengua Extranjera) o fuera de tercer ciclo, no hay texto verificado — no lo inventes.
 
-Cuando se necesite el texto literal de un criterio de evaluación o saber básico de un área:
-- Pide al usuario que pegue el fragmento del Anexo II correspondiente (área + ciclo), o
+Cuando se necesite el texto literal de un criterio de evaluación o saber básico que no esté en `anexo-ii-criterios-tercer-ciclo.md` (otra área, otro ciclo, o el texto completo de un saber básico de Matemáticas/Inglés que aquí solo tiene código):
+- Pide al usuario que pegue el fragmento del Anexo II correspondiente, o
 - Indica explícitamente que el criterio propuesto es una **formulación orientativa, no el texto oficial**, y que debe contrastarse con el Anexo II antes de usarse en documentación oficial (programación didáctica, informes de evaluación, etc.).
 
 ## Fuera de alcance de esta skill
