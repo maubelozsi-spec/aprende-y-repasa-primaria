@@ -273,6 +273,24 @@ function buildSidebar(base, current) {
       esDocenteSinSerAlumno()
         ? `<a href="${base}docente/dashboard.html" class="sidebar-progress-link">Panel docente</a>`
         : `<a href="${base}mi-progreso.html" class="sidebar-progress-link${current === "mi-progreso" ? " active" : ""}">Mi progreso</a>`
+    }
+    ${
+      // Nadie ha entrado todavía en este dispositivo ni como docente
+      // ni como alumno: se ofrecen los dos accesos con una frase de
+      // qué hace cada uno (antes eran dos cajas en el panel
+      // principal; ahora solo aparecen aquí, en la barra lateral).
+      !getTeacherSessionCache() && !getStudentSessionCache()
+        ? `
+          <div class="sidebar-access-item">
+            <a href="${base}docente/login.html" class="sidebar-access-link">Panel docente</a>
+            <p class="sidebar-access-desc">Inicia sesión o crea tu cuenta con tu correo. Crea tus clases, genera una clave para cada alumno/a y decide qué contenidos ve cada uno.</p>
+          </div>
+          <div class="sidebar-access-item">
+            <a href="${base}alumno-login.html" class="sidebar-access-link">Acceso alumnado</a>
+            <p class="sidebar-access-desc">Introduce la clave que te ha dado tu profesor o profesora para guardar tu progreso y que pueda verlo.</p>
+          </div>
+        `
+        : ""
     }`;
   html += `
     <div class="sidebar-search-wrap">
