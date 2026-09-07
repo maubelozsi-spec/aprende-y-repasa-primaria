@@ -12,6 +12,12 @@ Se activan solas cuando la conversación con Claude Code encaja con su descripci
 
 ## Importante — qué NO es esto
 
-Esta librería está basada en evidencia educativa internacional (Hattie, Wiggins & McTighe, Rosenshine, EEF, etc.), pero **no está alineada con el currículo LOMLOE ni con las instrucciones de la Consejería de Educación de la Junta de Andalucía**. Los ejemplos y convenciones (cursos "Year 8", IB MYP, etc.) son de sistemas anglosajones. Sirve como apoyo pedagógico general (estructura de unidades, evaluación formativa, práctica de recuperación espaciada, andamiaje...), pero cualquier referencia a criterios de evaluación, saberes básicos o competencias específicas debe contrastarse y adaptarse al currículo andaluz vigente antes de usarla con el alumnado.
+Esta librería está basada en evidencia educativa internacional (Hattie, Wiggins & McTighe, Rosenshine, EEF, etc.) y usa vocabulario y ejemplos de sistemas anglosajones ("Year 8", IB MYP, etc.). La mayor parte de las skills (repaso espaciado, carga cognitiva, calidad del feedback, andamiaje, bienestar...) describen **métodos pedagógicos independientes del currículo de cualquier país** y no necesitan adaptación. Solo las skills de diseño/estructura curricular (`backwards-design-unit-planner`, `competency-unpacker`, `kud-knowledge-type-mapper`, `criterion-referenced-rubric-generator`, `curriculum-crosswalk`, `coverage-audit`, `learning-progression-builder`, `scope-and-sequence-designer`, `developmental-band-translator`) hacen referencia directa a currículo, y ahí es donde importa la falta de alineación.
+
+## Alineación LOMLOE-Andalucía
+
+Se añadió `curriculo-lomloe-andalucia/SKILL.md` (no forma parte de la librería original) para fijar el vocabulario y la estructura oficiales — competencias clave, competencias específicas, criterios de evaluación, saberes básicos, ciclos — que deben usarse cuando las skills de diseño curricular de arriba se apliquen a este proyecto (3er ciclo de Primaria, 5º-6º), con las referencias legales exactas (RD 157/2022, Decreto 101/2023, Orden de 30 de mayo de 2023).
+
+Esa skill fija el marco, no el contenido: no incluye el texto literal de los criterios de evaluación ni de los saberes básicos por área (Anexo II de la Orden), porque no se ha verificado ese texto palabra por palabra en esta instalación y presentarlo como oficial sin verificar sería peor que no darlo. Léela para saber cuándo y cómo pedir/contrastar ese texto.
 
 Instalado el 2026-09-07 a petición del usuario.
