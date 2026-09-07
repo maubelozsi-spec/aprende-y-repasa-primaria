@@ -51,6 +51,10 @@ La etapa se organiza en **tres ciclos de dos cursos**: 1er ciclo (1º-2º), 2º 
 | — | **Perfil de salida** al término de la Enseñanza Básica: el referente último al que deben contribuir las competencias específicas de todas las áreas |
 | — | **situación de aprendizaje**: unidad de programación que moviliza saberes básicos y competencias específicas de forma contextualizada |
 
+### Perfil competencial de tercer ciclo (verificado, texto oficial)
+
+`perfil-competencial-tercer-ciclo.md`, en esta misma carpeta, transcribe literalmente los descriptores operativos de las 8 competencias clave al completar el tercer ciclo (Decreto 101/2023, Anexo "Perfil competencial"), a partir del texto consolidado del BOJA aportado por el usuario. Cuando una skill de este proyecto necesite referenciar una competencia clave con su descriptor oficial para 5º-6º (por ejemplo, para justificar por qué una actividad "trabaja CCL2" o "trabaja STEM3"), usa ese archivo — no reconstruyas el descriptor de memoria.
+
 ## Cómo aplicarla
 
 1. Cuando otra skill de este proyecto genere una unidad, rúbrica, progresión o mapeo curricular, sustituye su terminología genérica por la tabla de arriba antes de presentar el resultado al usuario.
@@ -59,9 +63,9 @@ La etapa se organiza en **tres ciclos de dos cursos**: 1er ciclo (1º-2º), 2º 
 
 ## Límite explícito — léelo antes de generar un criterio de evaluación o saber básico
 
-**Esta skill fija el marco y el vocabulario, no el contenido literal.** No contiene, y no debe inventar, el texto exacto de los criterios de evaluación o los saberes básicos de cada área y ciclo (Anexo II de la Orden de 30 de mayo de 2023): ese texto es largo, específico por área, y cambia de redacción entre versiones. Generar un criterio de evaluación "con aspecto oficial" pero no verificado es peor que no darlo, porque el profesorado puede usarlo tal cual en una programación didáctica.
+**Esta skill fija el marco y el vocabulario; el contenido literal solo está verificado donde se indica explícitamente.** El Perfil competencial de tercer ciclo (arriba) SÍ es texto oficial verbatim. Pero no contiene, y no debe inventarse, el texto exacto de las **competencias específicas, criterios de evaluación o saberes básicos de cada área** (Matemáticas, Lengua Castellana y Literatura, Primera Lengua Extranjera...) — eso vive en el **Anexo II de la Orden de 30 de mayo de 2023**, que a fecha de esta skill no se ha aportado ni verificado. Ese texto es largo, específico por área, y generar un criterio "con aspecto oficial" pero no verificado es peor que no darlo, porque el profesorado puede usarlo tal cual en una programación didáctica.
 
-Cuando se necesite el texto literal de un criterio de evaluación o saber básico:
+Cuando se necesite el texto literal de un criterio de evaluación o saber básico de un área:
 - Pide al usuario que pegue el fragmento del Anexo II correspondiente (área + ciclo), o
 - Indica explícitamente que el criterio propuesto es una **formulación orientativa, no el texto oficial**, y que debe contrastarse con el Anexo II antes de usarse en documentación oficial (programación didáctica, informes de evaluación, etc.).
 
