@@ -293,6 +293,42 @@
   padding-bottom: 2px;
 }
 
+/* Cabecera única de un examen generado (ver crearCabeceraExamen en
+   js/acs-generador-ui.js): sustituye a la portada aparte y al
+   Nombre/Fecha repetido en cada actividad, para parecerse a un examen
+   en papel real (una cabecera arriba, ejercicios numerados debajo). */
+.acs-examen-header {
+  max-width: 210mm;
+  margin: 0 auto 10px;
+  padding: 16mm 16mm 0;
+  font-family: var(--acs-font);
+  color: #111;
+}
+
+.acs-examen-titulo {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+.acs-examen-curso {
+  margin: 10px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Enunciado numerado de un ejercicio dentro de un examen (sustituye
+   al título grande + instrucción centrada de una ficha suelta). */
+.acs-examen-enunciado {
+  text-align: left;
+  font-weight: 700;
+  font-size: 17px;
+  color: #111;
+  margin: 0 0 16px;
+}
+
 .acs-actions-row {
   display: flex;
   gap: 10px;
@@ -978,12 +1014,36 @@
     page-break-after: always;
   }
 
+  /* Un examen generado es UN documento con ejercicios numerados, no
+     una ficha por página: varios ejercicios caben en el mismo folio,
+     como en un examen en papel real. Selector con dos clases a
+     propósito (más específico que ".acs-sheet") para ganar siempre a
+     las reglas de arriba sin depender del orden en el archivo.
+     A propósito SIN "page-break-inside: avoid" aquí: un ejercicio
+     entero es demasiado grande para forzar que quepa entero en la
+     página que quede libre (eso es lo que provocaba una página casi
+     en blanco tras la cabecera). Cada ítem dentro del ejercicio ya
+     tiene su propio "avoid" más abajo, así que el corte, si hace
+     falta, cae entre dos ítems, nunca partiendo uno por la mitad. */
+  .acs-sheet.acs-examen-ejercicio {
+    padding: 6mm 16mm;
+  }
+
+  .acs-sheet.acs-examen-ejercicio:not(:last-child) {
+    page-break-after: auto;
+  }
+
   /* Si una ficha tiene más ítems de los que caben en un folio, que
      el salto de página caiga entre dos ítems, nunca partiendo uno
      por la mitad (por ejemplo, una pregunta con sus dos dibujos de
-     "lee y elige" separados en dos páginas distintas). */
+     "lee y elige" separados en dos páginas distintas). ".acs-mmi-fila"
+     y ".acs-resta-fila" son la fila suelta que usan mayor-menor-igual,
+     completar-a-10, antes-después, operación-numérica y operación-
+     visual al imprimir (sin el envoltorio ".acs-mmi-bloque"/".acs-
+     resta-bloque", que solo se usa en la versión digital). */
   .acs-pareja-item, .acs-opcion-bloque, .acs-mmi-bloque, .acs-resta-bloque, .acs-letras-bloque,
-  .acs-clasificar-categoria, .acs-secuencia-slot, .acs-recortar-objetivo, .acs-recortar-pieza {
+  .acs-clasificar-categoria, .acs-secuencia-slot, .acs-recortar-objetivo, .acs-recortar-pieza,
+  .acs-mmi-fila, .acs-resta-fila {
     page-break-inside: avoid;
     break-inside: avoid;
   }

@@ -250,6 +250,7 @@ function generarClasificar(opciones) {
       tipo: "clasificar",
       titulo: "Clasifica por sonido inicial",
       instruccion: "Clica cada dibujo y luego la letra por la que empieza su nombre.",
+      instruccionImpresion: "Mira cada dibujo y escribe su letra en la casilla de la vocal por la que empieza.",
       categorias: vocales.map((v) => ({ id: v, etiqueta: v.toUpperCase() })),
       items: acsBarajar(items),
     };
@@ -267,6 +268,7 @@ function generarClasificar(opciones) {
     tipo: "clasificar",
     titulo: "Clasifica en su grupo",
     instruccion: "Clica cada dibujo y luego el grupo al que pertenece.",
+    instruccionImpresion: "Mira cada dibujo y escribe su letra en la casilla del grupo al que pertenece.",
     categorias: categoriasDisponibles.map((id) => ({ id, etiqueta: ACS_CATEGORIA_ETIQUETAS[id] })),
     items: acsBarajar(items),
   };
@@ -283,12 +285,33 @@ function generarOrdenarSecuencia() {
   };
 }
 
+// Formas que se pueden dibujar "rotas" (con un lado o un trozo del
+// trazo que falta) para la variante más difícil de "encuentra el
+// diferente": ver ACS_SVG_FORMAS_ROTAS en js/acs-ficha-engine.js.
+const ACS_FORMAS_ENCONTRAR_INCOMPLETO = ["circulo", "cuadrado", "triangulo", "rectangulo", "pentagono", "hexagono"];
+
 function generarEncontrarDiferente(opciones) {
   const { cantidad = 4 } = opciones || {};
   const categoriasDisponibles = Object.keys(ACS_CATEGORIAS_PALABRAS);
 
   const items = [];
   for (let i = 0; i < cantidad; i++) {
+    // En vez de "3 de una categoría + 1 de otra" siempre, parte de
+    // los items son más difíciles: 3 veces la MISMA forma y una
+    // cuarta idéntica pero con un trozo borrado, así que no basta con
+    // reconocer una categoría distinta, hay que fijarse en el detalle.
+    if (Math.random() < 0.35) {
+      const forma = ACS_FORMAS_ENCONTRAR_INCOMPLETO[Math.floor(Math.random() * ACS_FORMAS_ENCONTRAR_INCOMPLETO.length)];
+      const elecciones = acsBarajar([
+        { clave: `svg:${forma}`, correcta: false },
+        { clave: `svg:${forma}`, correcta: false },
+        { clave: `svg:${forma}`, correcta: false },
+        { clave: `svgroto:${forma}`, correcta: true },
+      ]);
+      items.push({ prompt: "¿Cuál está incompleta?", opciones: elecciones });
+      continue;
+    }
+
     const [catIgual, catDistinta] = acsElegirAlAzar(categoriasDisponibles, 2);
     const [claveIgual] = acsElegirAlAzar(ACS_CATEGORIAS_PALABRAS[catIgual], 1);
     const [claveDistinta] = acsElegirAlAzar(ACS_CATEGORIAS_PALABRAS[catDistinta], 1);
@@ -390,6 +413,7 @@ function generarClasificarLineas(opciones) {
     tipo: "clasificar",
     titulo: "Clasifica las líneas",
     instruccion: "Clica cada línea y luego el grupo al que pertenece.",
+    instruccionImpresion: "Mira cada línea y escribe su letra en la casilla del grupo al que pertenece.",
     categorias: tipos.map((id) => ({ id, etiqueta: ACS_LINEAS_ETIQUETAS[id] })),
     items: acsBarajar(items),
   };
@@ -412,6 +436,7 @@ function generarClasificarFormas(opciones) {
     tipo: "clasificar",
     titulo: "Clasifica las formas",
     instruccion: "Clica cada forma y luego el grupo al que pertenece.",
+    instruccionImpresion: "Mira cada forma y escribe su letra en la casilla del grupo al que pertenece.",
     categorias: tipos.map((id) => ({ id, etiqueta: ACS_FORMAS_ETIQUETAS[id] })),
     items: acsBarajar(items),
   };

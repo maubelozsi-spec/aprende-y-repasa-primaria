@@ -130,16 +130,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- generar ----------
 
-  function crearPortadaExamen() {
-    const portada = document.createElement("div");
-    portada.className = "acs-sheet";
-    portada.innerHTML = `
+  // Cabecera única del examen (no una portada aparte): un título, y
+  // Nombre/Fecha/Curso una sola vez arriba de todo, como en los
+  // exámenes en papel reales que usa la profesora (no una ficha de
+  // colores por actividad, cada una con su propia cabecera repetida).
+  function crearCabeceraExamen(secciones, curso) {
+    const areas = new Set(secciones.map((s) => s.area));
+    let titulo = "Examen adaptado";
+    if (areas.size === 1) {
+      titulo = (ACS_GEN_AREA_LABEL[secciones[0].area] || "Examen") + " — Examen adaptado";
+    }
+
+    const cabecera = document.createElement("div");
+    cabecera.className = "acs-examen-header";
+    cabecera.innerHTML = `
+      <h2 class="acs-examen-titulo">${titulo}</h2>
       <div class="acs-sheet-nombre"><span>Nombre:</span><span>Fecha:</span></div>
-      <h2 class="acs-sheet-titulo">Examen</h2>
-      <p class="acs-sheet-instruccion">Responde con calma. No hay tiempo límite.</p>
-      <p class="acs-sheet-instruccion" style="margin-top:40px; text-align:right; font-size:18px;">Nota: _______ / _______</p>
+      <p class="acs-examen-curso">Curso: ${curso === "2" ? "2º de Primaria" : "1º de Primaria"}</p>
     `;
-    return portada;
+    return cabecera;
+  }
+
+  // En modo examen, cada actividad se convierte de "ficha con su
+  // propia cabecera" a "ejercicio numerado" dentro del mismo examen:
+  // se quita el Nombre/Fecha y el título grande (ya están una vez en
+  // la cabecera del examen) y la instrucción pasa a ser el enunciado
+  // numerado ("1. ...", "2. ...").
+  function convertirEnEjercicioExamen(sheetDiv, numero) {
+    sheetDiv.classList.add("acs-examen-ejercicio");
+    const nombreRow = sheetDiv.querySelector(".acs-sheet-nombre");
+    if (nombreRow) nombreRow.remove();
+    const tituloEl = sheetDiv.querySelector(".acs-sheet-titulo");
+    if (tituloEl) tituloEl.remove();
+    const instruccionEl = sheetDiv.querySelector(".acs-sheet-instruccion");
+    if (instruccionEl) {
+      instruccionEl.classList.add("acs-examen-enunciado");
+      instruccionEl.textContent = `${numero}. ${instruccionEl.textContent}`;
+    }
   }
 
   generarBtn.addEventListener("click", () => {
@@ -155,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const secciones = seleccion.map(({ id, cantidad }) => {
       const entry = ACS_FICHAS_REGISTRO[id];
-      const seccion = Object.assign({ tituloSeccion: entry.titulo }, entry.generarConCantidad(cantidad, curso));
+      const seccion = Object.assign({ area: entry.area, tituloSeccion: entry.titulo }, entry.generarConCantidad(cantidad, curso));
       if (seccion.tipo === "unir-parejas" && recortarCheck.checked) {
         seccion.imprimirComo = "recortar";
       }
@@ -180,14 +207,20 @@ document.addEventListener("DOMContentLoaded", () => {
     // Imprimir: cada sección genera su propio ".acs-sheet"; se anexan
     // como hermanos directos (no dentro de envoltorios) para que la
     // regla de impresión ".acs-sheet:not(:last-child)" meta un salto
-    // de página entre cada una.
+    // de página entre cada una (en modo repaso: una ficha por hoja,
+    // con su propio título y colores). En modo examen es al revés: se
+    // parece a un examen en papel real, con una sola cabecera arriba
+    // y los ejercicios numerados uno detrás de otro sin saltar de
+    // página entre ellos (ver ".acs-examen-ejercicio" en css/acs.css).
     const sheetRoot = document.getElementById("acs-gen-sheet");
     sheetRoot.innerHTML = "";
-    if (modo === "examen") sheetRoot.appendChild(crearPortadaExamen());
-    secciones.forEach((seccion) => {
+    if (modo === "examen") sheetRoot.appendChild(crearCabeceraExamen(secciones, curso));
+    secciones.forEach((seccion, i) => {
       const temporal = document.createElement("div");
       ACS_RENDERERS[seccion.tipo].sheet(seccion, temporal);
-      sheetRoot.appendChild(temporal.firstElementChild);
+      const sheetDiv = temporal.firstElementChild;
+      if (modo === "examen") convertirEnEjercicioExamen(sheetDiv, i + 1);
+      sheetRoot.appendChild(sheetDiv);
     });
 
     // Hoja de respuestas: solo en modo examen.

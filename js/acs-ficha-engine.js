@@ -41,7 +41,11 @@ function acsCrearSheetBase(ficha) {
 
   const instruccion = document.createElement("p");
   instruccion.className = "acs-sheet-instruccion";
-  instruccion.textContent = ficha.instruccion;
+  // Algunas actividades se explican distinto en pantalla ("clica...")
+  // que en papel ("escribe la letra..."): si la ficha trae una
+  // instrucción propia para imprimir, se usa esa; si no, la misma de
+  // siempre sirve para las dos.
+  instruccion.textContent = ficha.instruccionImpresion || ficha.instruccion;
   sheet.appendChild(instruccion);
 
   return sheet;
@@ -62,41 +66,97 @@ function acsCrearElementoSvg(tag, attrs) {
   return el;
 }
 
+// Formas basadas en polígono: los mismos puntos sirven para la forma
+// completa (<polygon>, que cierra el último lado sola) y para la
+// versión "rota" que usa "encuentra el diferente" (<polyline> con los
+// mismos puntos: al no cerrarse sola, falta justo un lado).
+const ACS_SVG_PUNTOS_FORMA = {
+  cuadrado: "15,15 85,15 85,85 15,85",
+  rectangulo: "6,28 94,28 94,72 6,72",
+  triangulo: "50,10 92,88 8,88",
+  pentagono: "50,6 92,37 76,90 24,90 8,37",
+  hexagono: "27,8 73,8 94,50 73,92 27,92 6,50",
+};
+
 const ACS_SVG_FORMAS = {
   circulo: () => acsCrearElementoSvg("circle", { cx: 50, cy: 50, r: 38, ...ACS_SVG_TRAZO }),
-  cuadrado: () => acsCrearElementoSvg("rect", { x: 15, y: 15, width: 70, height: 70, ...ACS_SVG_TRAZO }),
-  rectangulo: () => acsCrearElementoSvg("rect", { x: 6, y: 28, width: 88, height: 44, ...ACS_SVG_TRAZO }),
-  triangulo: () => acsCrearElementoSvg("polygon", { points: "50,10 92,88 8,88", ...ACS_SVG_TRAZO }),
-  pentagono: () => acsCrearElementoSvg("polygon", { points: "50,6 92,37 76,90 24,90 8,37", ...ACS_SVG_TRAZO }),
-  hexagono: () => acsCrearElementoSvg("polygon", { points: "27,8 73,8 94,50 73,92 27,92 6,50", ...ACS_SVG_TRAZO }),
+  cuadrado: () => acsCrearElementoSvg("polygon", { points: ACS_SVG_PUNTOS_FORMA.cuadrado, ...ACS_SVG_TRAZO }),
+  rectangulo: () => acsCrearElementoSvg("polygon", { points: ACS_SVG_PUNTOS_FORMA.rectangulo, ...ACS_SVG_TRAZO }),
+  triangulo: () => acsCrearElementoSvg("polygon", { points: ACS_SVG_PUNTOS_FORMA.triangulo, ...ACS_SVG_TRAZO }),
+  pentagono: () => acsCrearElementoSvg("polygon", { points: ACS_SVG_PUNTOS_FORMA.pentagono, ...ACS_SVG_TRAZO }),
+  hexagono: () => acsCrearElementoSvg("polygon", { points: ACS_SVG_PUNTOS_FORMA.hexagono, ...ACS_SVG_TRAZO }),
   recta: () => acsCrearElementoSvg("line", { x1: 8, y1: 82, x2: 92, y2: 18, ...ACS_SVG_TRAZO }),
   curva: () => acsCrearElementoSvg("path", { d: "M8,70 Q50,5 92,70", ...ACS_SVG_TRAZO }),
   quebrada: () => acsCrearElementoSvg("polyline", { points: "8,85 32,35 55,70 92,15", ...ACS_SVG_TRAZO }),
   mixta: () => acsCrearElementoSvg("path", { d: "M6,55 Q26,10 46,55 T86,55 L94,80", ...ACS_SVG_TRAZO }),
 };
 
-function acsCrearIconoSvg(nombre) {
+// Versión "incompleta" (con un trozo borrado) de las formas de
+// ACS_SVG_PUNTOS_FORMA, para "encuentra el diferente": 3 formas
+// completas e iguales + 1 con un lado que falta, en vez de 3 dibujos
+// de una categoría + 1 de otra. El círculo no es un polígono, así que
+// se deja un hueco en el trazo con stroke-dasharray en vez de con
+// polyline.
+const ACS_SVG_FORMAS_ROTAS = {
+  circulo: () => acsCrearElementoSvg("circle", { cx: 50, cy: 50, r: 38, ...ACS_SVG_TRAZO, "stroke-dasharray": "170 70" }),
+};
+Object.keys(ACS_SVG_PUNTOS_FORMA).forEach((nombre) => {
+  ACS_SVG_FORMAS_ROTAS[nombre] = () => acsCrearElementoSvg("polyline", { points: ACS_SVG_PUNTOS_FORMA[nombre], ...ACS_SVG_TRAZO });
+});
+
+function acsCrearIconoSvg(nombre, roto) {
   const svg = acsCrearElementoSvg("svg", { viewBox: "0 0 100 100", width: "100%", height: "100%" });
-  const fabricante = ACS_SVG_FORMAS[nombre];
+  const fabricante = (roto ? ACS_SVG_FORMAS_ROTAS : ACS_SVG_FORMAS)[nombre];
   if (fabricante) svg.appendChild(fabricante());
   return svg;
 }
 
 function acsEsClaveSvg(clave) {
-  return typeof clave === "string" && clave.indexOf("svg:") === 0;
+  return typeof clave === "string" && (clave.indexOf("svg:") === 0 || clave.indexOf("svgroto:") === 0);
 }
 
 // Sustituye a arasaacCrearImagen allí donde una "clave" puede ser
 // tanto una palabra real (pictograma de ARASAAC) como una forma o
-// línea abstracta ("svg:circulo", "svg:recta"...).
+// línea abstracta ("svg:circulo", "svg:recta"...) o su versión
+// incompleta ("svgroto:circulo").
 function acsCrearImagenOSvg(clave, opts) {
   if (acsEsClaveSvg(clave)) {
+    const roto = clave.indexOf("svgroto:") === 0;
     const wrap = document.createElement("span");
     wrap.className = "acs-pic acs-pic-svg";
-    wrap.appendChild(acsCrearIconoSvg(clave.slice(4)));
+    wrap.appendChild(acsCrearIconoSvg(clave.slice(roto ? 8 : 4), roto));
     return wrap;
   }
   return arasaacCrearImagen(clave, opts);
+}
+
+// Etiqueta legible para una clave "svg:"/"svgroto:" en la hoja de
+// respuestas (donde antes se imprimía literalmente "svg:recta"). Una
+// clave que no es SVG (una palabra real) se devuelve tal cual.
+const ACS_ETIQUETAS_FORMA = {
+  circulo: "círculo",
+  cuadrado: "cuadrado",
+  rectangulo: "rectángulo",
+  triangulo: "triángulo",
+  pentagono: "pentágono",
+  hexagono: "hexágono",
+  recta: "línea recta",
+  curva: "línea curva",
+  quebrada: "línea quebrada",
+  mixta: "línea mixta",
+};
+
+function acsEtiquetaClave(clave) {
+  if (typeof clave !== "string") return clave;
+  if (clave.indexOf("svgroto:") === 0) {
+    const forma = clave.slice(8);
+    return (ACS_ETIQUETAS_FORMA[forma] || forma) + " (incompleto)";
+  }
+  if (clave.indexOf("svg:") === 0) {
+    const forma = clave.slice(4);
+    return ACS_ETIQUETAS_FORMA[forma] || forma;
+  }
+  return clave;
 }
 
 // ---------- unir-parejas ----------
@@ -1532,7 +1592,7 @@ function acsClaveRespuestas(ficha) {
     case "elegir-opcion":
       return ficha.items.map((item, i) => {
         const correcta = item.opciones.find((op) => op.correcta);
-        return `${i + 1}. ${item.prompt || "¿Cuántos hay?"} → ${correcta.texto || correcta.clave}`;
+        return `${i + 1}. ${item.prompt || "¿Cuántos hay?"} → ${correcta.texto || acsEtiquetaClave(correcta.clave)}`;
       });
     case "mayor-menor-igual":
       return ficha.pares.map((par, i) => `${i + 1}. ${par[0]} ${acsComparar(par[0], par[1])} ${par[1]}`);
@@ -1551,7 +1611,7 @@ function acsClaveRespuestas(ficha) {
     case "clasificar":
       return ficha.items.map((item, i) => {
         const etiqueta = ficha.categorias.find((c) => c.id === item.categoria);
-        return `${String.fromCharCode(65 + i)}. ${item.clave} → ${etiqueta ? etiqueta.etiqueta : item.categoria}`;
+        return `${String.fromCharCode(65 + i)}. ${acsEtiquetaClave(item.clave)} → ${etiqueta ? etiqueta.etiqueta : item.categoria}`;
       });
     case "ordenar-secuencia":
       return ficha.pasos.map((paso, i) => `${i + 1}. ${paso.clave}`);
