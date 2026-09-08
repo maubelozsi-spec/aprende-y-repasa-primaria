@@ -2918,6 +2918,76 @@ table.rules-table tr:last-child td {
   border-top: 1px dashed var(--border-strong);
 }
 
+/* ---------- Imprimir claves de acceso del alumnado ---------- */
+/* Oculta en pantalla (ver imprimirClaves() en js/docente-dashboard.js);
+   solo se muestra mientras se imprime, ver @media print más abajo. */
+
+.claves-imprimir {
+  display: none;
+}
+
+.claves-imprimir-titulo {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.claves-imprimir-aviso {
+  font-size: 14px;
+  color: var(--text-soft);
+  margin: 0 0 22px;
+}
+
+.claves-imprimir-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 4px;
+  border-bottom: 2px dashed var(--border-strong);
+  font-size: 18px;
+}
+
+.claves-imprimir-nombre {
+  font-weight: 700;
+}
+
+.claves-imprimir-clave {
+  font-family: "Courier New", monospace;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+@media print {
+  body.printing-claves {
+    background: #fff !important;
+  }
+
+  body.printing-claves .sidebar-backdrop,
+  body.printing-claves .sidebar,
+  body.printing-claves .topbar,
+  body.printing-claves .content-header,
+  body.printing-claves .actions-row,
+  body.printing-claves .docente-layout,
+  body.printing-claves .site-footer,
+  body.printing-claves .a11y-widget {
+    display: none !important;
+  }
+
+  body.printing-claves .app-shell,
+  body.printing-claves .content-wrap {
+    min-height: 0 !important;
+  }
+
+  body.printing-claves .claves-imprimir {
+    display: block;
+  }
+
+  .claves-imprimir-fila {
+    break-inside: avoid;
+  }
+}
+
 /* ---------- Registro de actividad ---------- */
 
 .activity-card {

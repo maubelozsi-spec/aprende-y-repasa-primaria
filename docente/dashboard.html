@@ -64,6 +64,9 @@
 
             <h3>Alumnos</h3>
             <p class="content-subtitle">La clave de cada alumno queda siempre visible aquí, por si la pierde. Con ella puede entrar tanto en clase como en casa desde su propio ordenador, y su progreso se guarda en el mismo sitio.</p>
+            <div class="actions-row">
+              <button type="button" class="btn btn-secondary" id="imprimir-claves-btn">Imprimir claves de la clase</button>
+            </div>
             <div id="student-list" class="student-list"></div>
             <form id="new-student-form" class="docente-inline-form">
               <input type="text" id="new-student-nickname" class="generator-select" placeholder="Nombre o apodo del alumno/a" required>
@@ -81,6 +84,15 @@
             <div id="class-topic-list" class="exm-topic-list"></div>
           </div>
         </div>
+      </div>
+
+      <!-- Hoja de claves para imprimir (ver imprimirClaves() en
+           js/docente-dashboard.js): oculta en pantalla, solo visible
+           mientras se imprime (body.printing-claves, ver css/style.css). -->
+      <div class="claves-imprimir" id="claves-imprimir">
+        <h2 class="claves-imprimir-titulo">Claves de acceso — <span id="claves-imprimir-clase"></span></h2>
+        <p class="claves-imprimir-aviso">✂ Recorta por la línea de puntos y reparte cada clave a su alumno/a.</p>
+        <div id="claves-imprimir-lista"></div>
       </div>
     </main>
 

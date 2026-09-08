@@ -543,6 +543,51 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    // ---------------- Imprimir claves de acceso ----------------
+    //
+    // Una fila por alumno/a activo (nombre + clave), con una línea de
+    // puntos entre filas para recortar y repartir. Se construye con
+    // textContent (no innerHTML con el nickname interpolado, como hace
+    // el resto del panel) porque aquí no hace falta ningún HTML dentro
+    // del nombre, y así no se hereda el riesgo de que un apodo con
+    // caracteres especiales rompa el marcado.
+    function crearFilaClave(nombre, clave) {
+      const fila = document.createElement("div");
+      fila.className = "claves-imprimir-fila";
+      const nombreEl = document.createElement("span");
+      nombreEl.className = "claves-imprimir-nombre";
+      nombreEl.textContent = nombre;
+      const claveEl = document.createElement("span");
+      claveEl.className = "claves-imprimir-clave";
+      claveEl.textContent = clave;
+      fila.appendChild(nombreEl);
+      fila.appendChild(claveEl);
+      return fila;
+    }
+
+    function imprimirClaves() {
+      if (!currentClass) return;
+      const filas = Array.from(studentListEl.querySelectorAll(".student-row:not(.inactive)")).map((row) => ({
+        nombre: row.querySelector("strong").textContent,
+        clave: row.querySelector(".student-code").textContent,
+      }));
+      if (!filas.length) {
+        window.alert("No hay alumnos activos con clave para imprimir en esta clase.");
+        return;
+      }
+
+      document.getElementById("claves-imprimir-clase").textContent = currentClass.data.name;
+      const listaEl = document.getElementById("claves-imprimir-lista");
+      listaEl.innerHTML = "";
+      filas.forEach((f) => listaEl.appendChild(crearFilaClave(f.nombre, f.clave)));
+
+      document.body.classList.add("printing-claves");
+      window.print();
+    }
+
+    window.addEventListener("afterprint", () => document.body.classList.remove("printing-claves"));
+    document.getElementById("imprimir-claves-btn").addEventListener("click", imprimirClaves);
+
     document.getElementById("new-class-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const input = document.getElementById("new-class-name");
