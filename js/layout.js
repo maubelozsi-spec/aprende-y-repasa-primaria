@@ -397,7 +397,16 @@ function initLayout() {
   }
 
   const activeLink = sidebar ? sidebar.querySelector(".nav-children a.active") : null;
-  if (activeLink) activeLink.scrollIntoView({ block: "center" });
+  const sidebarNav = document.getElementById("sidebar-nav");
+  if (activeLink && sidebarNav) {
+    // Centramos el enlace activo solo dentro del panel lateral (que tiene
+    // su propio scroll interno). Usar scrollIntoView aquí arrastraría
+    // también el scroll de la página, porque .sidebar es "sticky" y por
+    // tanto sigue siendo un ancestro con scroll para el navegador.
+    const linkRect = activeLink.getBoundingClientRect();
+    const navRect = sidebarNav.getBoundingClientRect();
+    sidebarNav.scrollTop += (linkRect.top + linkRect.height / 2) - (navRect.top + navRect.height / 2);
+  }
 
   initSidebarSearch();
 }
