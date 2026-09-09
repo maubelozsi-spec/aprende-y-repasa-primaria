@@ -182,20 +182,31 @@ function generarCompletarA10(opciones) {
   };
 }
 
+// modo "antes" | "despues" | "mezcla" (cada ítem sale al azar de una
+// clase o de la otra, que es como aparecen juntos en los exámenes en
+// papel: unos números piden el anterior y otros el posterior).
 function generarAntesDespues(opciones) {
   const { cantidad = 6, modo = "despues", curso = "1" } = opciones || {};
   const maximo = acsPorCurso(curso, 20, 100);
   const items = [];
   for (let i = 0; i < cantidad; i++) {
-    const rango = modo === "antes" ? [1, maximo] : [0, maximo - 1];
+    const modoItem = modo === "mezcla" ? (Math.random() < 0.5 ? "antes" : "despues") : modo;
+    const rango = modoItem === "antes" ? [1, maximo] : [0, maximo - 1];
     const n = rango[0] + Math.floor(Math.random() * (rango[1] - rango[0] + 1));
-    items.push({ n, modo });
+    items.push({ n, modo: modoItem });
   }
+
+  const titulos = { antes: "¿Qué viene antes?", despues: "¿Qué viene después?", mezcla: "Anterior y posterior" };
+  const instrucciones = {
+    antes: "Escribe o elige el número que viene antes.",
+    despues: "Escribe o elige el número que viene después.",
+    mezcla: "Fíjate en la flecha: escribe o elige el número que falta, antes o después.",
+  };
 
   return {
     tipo: "antes-despues",
-    titulo: modo === "antes" ? "¿Qué viene antes?" : "¿Qué viene después?",
-    instruccion: modo === "antes" ? "Escribe o elige el número que viene antes." : "Escribe o elige el número que viene después.",
+    titulo: titulos[modo] || titulos.despues,
+    instruccion: instrucciones[modo] || instrucciones.despues,
     items,
   };
 }
@@ -463,6 +474,96 @@ function generarSumaRestaNumerica(opciones) {
     titulo: "Sumas y restas",
     instruccion: "Calcula el resultado y elige la opción correcta.",
     items,
+  };
+}
+
+// Numeración del 1 al número que se elija: la serie sale con algunos
+// números ya escritos, repartidos a lo largo de toda la fila, para
+// que el alumnado no pierda el hilo si falla uno. Siempre se ven el
+// primero y el último, y luego uno de cada cinco (1, 5, 10, 15, 20...),
+// que es como aparece en las plantillas de papel.
+function generarSerieNumerica(opciones) {
+  const { hasta = 20, desde = 1 } = opciones || {};
+  const visibles = [desde];
+  for (let n = desde; n <= hasta; n++) {
+    if (n !== desde && n % 5 === 0) visibles.push(n);
+  }
+  if (visibles[visibles.length - 1] !== hasta) visibles.push(hasta);
+
+  return {
+    tipo: "serie-numerica",
+    desde,
+    hasta,
+    visibles,
+    titulo: `Numeración del ${desde} al ${hasta}`,
+    instruccion: "Observa y completa la serie: escribe los números que faltan.",
+    instruccionImpresion: "Observa la serie y escribe en cada casilla vacía el número que falta.",
+  };
+}
+
+// Ordenar números sueltos de menor a mayor o al revés. Reutiliza el
+// motor de "ordenar-letras" (piezas que se colocan por clic), pero sin
+// pictograma: aquí las piezas son números, no una palabra.
+function generarOrdenarNumeros(opciones) {
+  const { cantidad = 4, curso = "1", modo = "asc" } = opciones || {};
+  const maximo = acsPorCurso(curso, 20, 99);
+  const cuantos = Math.max(3, Math.min(6, cantidad));
+
+  const elegidos = [];
+  while (elegidos.length < cuantos) {
+    const n = 1 + Math.floor(Math.random() * maximo);
+    if (elegidos.indexOf(n) === -1) elegidos.push(n);
+  }
+  elegidos.sort((a, b) => (modo === "desc" ? b - a : a - b));
+
+  return {
+    tipo: "ordenar-letras",
+    mostrarImagen: false,
+    titulo: modo === "desc" ? "Ordena de mayor a menor" : "Ordena de menor a mayor",
+    instruccion:
+      modo === "desc"
+        ? "Coloca los números empezando por el más grande."
+        : "Coloca los números empezando por el más pequeño.",
+    items: [{ piezas: elegidos.map((n) => String(n)) }],
+  };
+}
+
+// Decenas y unidades: se ven los objetos sueltos y hay que decir
+// cuántas decenas (grupos de diez) y cuántas unidades sobran. Reutiliza
+// "elegir-opcion" con opciones de texto, así que no hace falta escribir.
+function acsTextoDecenas(decenas, unidades) {
+  const d = decenas === 1 ? "1 decena" : decenas + " decenas";
+  const u = unidades === 1 ? "1 unidad" : unidades + " unidades";
+  return d + " y " + u;
+}
+
+function generarDecenas(opciones) {
+  const { cantidad = 4, curso = "1" } = opciones || {};
+  const maxDecenas = acsPorCurso(curso, 1, 3);
+  const objetos = acsElegirAlAzar(ACS_OBJETOS_CONTABLES, cantidad);
+
+  return {
+    tipo: "elegir-opcion",
+    titulo: "Decenas y unidades",
+    instruccion: "Agrupa los dibujos de diez en diez. Elige cuántas decenas y cuántas unidades hay.",
+    instruccionImpresion: "Rodea grupos de diez dibujos. Después marca cuántas decenas y cuántas unidades hay.",
+    items: objetos.map((clave) => {
+      const decenas = 1 + Math.floor(Math.random() * maxDecenas);
+      const unidades = 1 + Math.floor(Math.random() * 9);
+      const correcta = acsTextoDecenas(decenas, unidades);
+      const alternativas = new Set([correcta]);
+      // Distractores cercanos: cambiar una decena o una unidad, que es
+      // justo el error típico al contar de diez en diez.
+      alternativas.add(acsTextoDecenas(decenas + 1, unidades));
+      if (unidades > 1) alternativas.add(acsTextoDecenas(decenas, unidades - 1));
+      else alternativas.add(acsTextoDecenas(decenas, unidades + 1));
+
+      return {
+        prompt: "¿Cuántas decenas y unidades hay?",
+        conteo: { clave, cantidad: decenas * 10 + unidades },
+        opciones: acsBarajar(Array.from(alternativas)).map((texto) => ({ texto, correcta: texto === correcta })),
+      };
+    }),
   };
 }
 

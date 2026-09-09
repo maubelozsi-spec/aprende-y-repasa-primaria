@@ -902,13 +902,24 @@ function renderOperacionNumericaSheet(ficha, container) {
 // ficha.items = [{ piezas: ["s","o","l"] }, ...] (o piezas de más de
 // una letra, p. ej. ["va","so"], para ordenar sílabas con el mismo
 // motor: solo cambia el tamaño de cada trozo, no la mecánica).
+//
+// ficha.mostrarImagen = false para ordenar piezas que no son una
+// palabra (números, p. ej. ["3","7","9"]): no hay pictograma que
+// buscar y pedirlo daría un recuadro vacío.
+//
+// La comparación se hace uniendo las piezas con "|" y no pegándolas
+// sin más: con números de varias cifras, ["1","11"] y ["11","1"]
+// darían las dos "111" y cualquier orden se daría por bueno.
+function acsClavePiezas(piezas) {
+  return piezas.join("|");
+}
 
 function acsBarajarPiezas(piezas) {
-  const objetivo = piezas.join("");
+  const objetivo = acsClavePiezas(piezas);
   let barajadas;
   do {
     barajadas = acsBarajar(piezas.slice());
-  } while (barajadas.join("") === objetivo && piezas.length > 1);
+  } while (acsClavePiezas(barajadas) === objetivo && piezas.length > 1);
   return barajadas;
 }
 
@@ -924,11 +935,13 @@ function renderOrdenarLetrasDigital(ficha, container) {
 
   ficha.items.forEach((item) => {
     const piezas = item.piezas;
-    const palabra = piezas.join("");
+    const objetivo = acsClavePiezas(piezas);
     const bloque = document.createElement("div");
     bloque.className = "acs-letras-bloque";
 
-    bloque.appendChild(arasaacCrearImagen(palabra, { color: true }));
+    if (ficha.mostrarImagen !== false) {
+      bloque.appendChild(arasaacCrearImagen(piezas.join(""), { color: true }));
+    }
 
     const slotsWrap = document.createElement("div");
     slotsWrap.className = "acs-letras-slots";
@@ -950,12 +963,12 @@ function renderOrdenarLetrasDigital(ficha, container) {
     // banco que puso esa pieza (slot._origen), para poder devolverla
     // con un clic si se ha ordenado mal, sin esperar ni arrastrar.
     function piezasActuales() {
-      return slots.map((s) => s.textContent).join("");
+      return acsClavePiezas(slots.map((s) => s.textContent));
     }
 
     function comprobarCompleto() {
       if (!slots.every((s) => s.textContent)) return;
-      if (piezasActuales() === palabra) {
+      if (piezasActuales() === objetivo) {
         slots.forEach((s) => {
           s.classList.remove("error");
           s.classList.add("correcta");
@@ -1007,11 +1020,12 @@ function renderOrdenarLetrasSheet(ficha, container) {
 
   ficha.items.forEach((item) => {
     const piezas = item.piezas;
-    const palabra = piezas.join("");
     const bloque = document.createElement("div");
     bloque.className = "acs-letras-bloque";
 
-    bloque.appendChild(arasaacCrearImagen(palabra, { color: false }));
+    if (ficha.mostrarImagen !== false) {
+      bloque.appendChild(arasaacCrearImagen(piezas.join(""), { color: false }));
+    }
 
     const letrasWrap = document.createElement("div");
     letrasWrap.className = "acs-letras-slots";
@@ -1034,6 +1048,123 @@ function renderOrdenarLetrasSheet(ficha, container) {
 
     sheet.appendChild(bloque);
   });
+
+  container.appendChild(sheet);
+}
+
+// ---------- serie-numerica (numeración del 1 al N con huecos) ----------
+// ficha.desde / ficha.hasta = extremos de la serie (p. ej. 1 y 20)
+// ficha.visibles = [1, 5, 10, 20] -> números ya escritos, para que no
+// se pierda el orden. El resto son casillas que hay que completar.
+
+function acsNumerosDeLaSerie(ficha) {
+  const numeros = [];
+  for (let n = ficha.desde; n <= ficha.hasta; n++) numeros.push(n);
+  return numeros;
+}
+
+function acsFaltantesDeLaSerie(ficha) {
+  const visibles = new Set(ficha.visibles);
+  return acsNumerosDeLaSerie(ficha).filter((n) => !visibles.has(n));
+}
+
+function renderSerieNumericaDigital(ficha, container) {
+  container.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "acs-digital";
+
+  const instr = document.createElement("p");
+  instr.className = "acs-digital-instruccion";
+  instr.textContent = ficha.instruccion;
+  wrap.appendChild(instr);
+
+  const visibles = new Set(ficha.visibles);
+  const grid = document.createElement("div");
+  grid.className = "acs-serie-grid";
+
+  // Cada hueco recuerda qué número le toca (slot._numero) para poder
+  // comprobar en el momento si el número que se acaba de pulsar es el
+  // que va ahí.
+  const slots = [];
+  acsNumerosDeLaSerie(ficha).forEach((n) => {
+    if (visibles.has(n)) {
+      const celda = document.createElement("span");
+      celda.className = "acs-serie-celda acs-serie-celda-fija";
+      celda.textContent = String(n);
+      grid.appendChild(celda);
+      return;
+    }
+    const slot = document.createElement("button");
+    slot.type = "button";
+    slot.className = "acs-serie-celda";
+    slot._numero = n;
+    slots.push(slot);
+    grid.appendChild(slot);
+  });
+  wrap.appendChild(grid);
+
+  const bancoWrap = document.createElement("div");
+  bancoWrap.className = "acs-letras-banco";
+  wrap.appendChild(bancoWrap);
+
+  const feedback = document.createElement("p");
+  feedback.className = "acs-feedback";
+  wrap.appendChild(feedback);
+
+  // Se comprueba número a número, no al final: en una serie larga,
+  // enterarse del fallo después de colocar setenta casillas no sirve
+  // de nada. Cada número va al primer hueco libre (se rellena en
+  // orden, que es justo lo que se está aprendiendo).
+  acsBarajar(acsFaltantesDeLaSerie(ficha)).forEach((n) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "acs-letra-banco";
+    btn.textContent = String(n);
+    btn.addEventListener("click", () => {
+      const libre = slots.find((s) => !s.textContent);
+      if (!libre) return;
+
+      if (n !== libre._numero) {
+        libre.classList.add("error");
+        btn.classList.add("incorrecta");
+        setTimeout(() => {
+          libre.classList.remove("error");
+          btn.classList.remove("incorrecta");
+        }, 600);
+        return;
+      }
+
+      libre.textContent = String(n);
+      libre.classList.add("correcta");
+      libre.disabled = true;
+      btn.disabled = true;
+      btn.classList.add("usada");
+
+      if (slots.every((s) => s.textContent)) {
+        feedback.textContent = "Muy bien: la serie está completa.";
+        feedback.className = "acs-feedback ok";
+      }
+    });
+    bancoWrap.appendChild(btn);
+  });
+
+  container.appendChild(wrap);
+}
+
+function renderSerieNumericaSheet(ficha, container) {
+  container.innerHTML = "";
+  const sheet = acsCrearSheetBase(ficha);
+
+  const visibles = new Set(ficha.visibles);
+  const grid = document.createElement("div");
+  grid.className = "acs-serie-grid";
+  acsNumerosDeLaSerie(ficha).forEach((n) => {
+    const celda = document.createElement("span");
+    celda.className = "acs-serie-celda" + (visibles.has(n) ? " acs-serie-celda-fija" : "");
+    if (visibles.has(n)) celda.textContent = String(n);
+    grid.appendChild(celda);
+  });
+  sheet.appendChild(grid);
 
   container.appendChild(sheet);
 }
@@ -1146,11 +1277,20 @@ function acsCrearFilaAntesDespues(item, huecoClase) {
   numConocido.textContent = String(item.n);
   const hueco = document.createElement("span");
   hueco.className = huecoClase;
+  // La flecha señala hacia el hueco: es lo que hace que se entienda
+  // qué se pide cuando en la misma ficha hay filas de "anterior" y de
+  // "posterior" mezcladas (como en los exámenes en papel).
+  const flecha = document.createElement("span");
+  flecha.className = "acs-flecha";
   if (item.modo === "despues") {
+    flecha.textContent = "►";
     fila.appendChild(numConocido);
+    fila.appendChild(flecha);
     fila.appendChild(hueco);
   } else {
+    flecha.textContent = "◄";
     fila.appendChild(hueco);
+    fila.appendChild(flecha);
     fila.appendChild(numConocido);
   }
   return { fila, hueco };
@@ -1642,6 +1782,7 @@ const ACS_RENDERERS = {
   "clasificar": { digital: renderClasificarDigital, sheet: renderClasificarSheet },
   "ordenar-secuencia": { digital: renderOrdenarSecuenciaDigital, sheet: renderOrdenarSecuenciaSheet },
   "operacion-numerica": { digital: renderOperacionNumericaDigital, sheet: renderOperacionNumericaSheet },
+  "serie-numerica": { digital: renderSerieNumericaDigital, sheet: renderSerieNumericaSheet },
 };
 
 function initAcsFicha(ficha, digitalEl, sheetEl) {
@@ -1691,6 +1832,8 @@ function acsClaveRespuestas(ficha) {
       return ficha.pasos.map((paso, i) => `${i + 1}. ${paso.clave}`);
     case "operacion-numerica":
       return ficha.items.map((item, i) => `${i + 1}. ${item.a} ${item.operador} ${item.b} = ${acsResultadoOperacionNumerica(item)}`);
+    case "serie-numerica":
+      return ["Faltan: " + acsFaltantesDeLaSerie(ficha).join(", ")];
     default:
       return [];
   }

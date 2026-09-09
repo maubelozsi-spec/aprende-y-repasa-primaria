@@ -175,7 +175,12 @@ const NAV = [
       {
         label: "Matemáticas",
         items: [
+          { id: "acs-ficha-matematicas-serie-numerica", label: "Numeración con huecos", href: "acs/ficha.html?id=matematicas-serie-numerica", available: true },
           { id: "acs-ficha-matematicas-mayor-menor-igual", label: "Mayor, menor o igual", href: "acs/ficha.html?id=matematicas-mayor-menor-igual", available: true },
+          { id: "acs-ficha-matematicas-ordenar-numeros-asc", label: "Ordena de menor a mayor", href: "acs/ficha.html?id=matematicas-ordenar-numeros-asc", available: true },
+          { id: "acs-ficha-matematicas-ordenar-numeros-desc", label: "Ordena de mayor a menor", href: "acs/ficha.html?id=matematicas-ordenar-numeros-desc", available: true },
+          { id: "acs-ficha-matematicas-anterior-posterior", label: "Anterior y posterior", href: "acs/ficha.html?id=matematicas-anterior-posterior", available: true },
+          { id: "acs-ficha-matematicas-decenas", label: "Decenas y unidades", href: "acs/ficha.html?id=matematicas-decenas", available: true },
           { id: "acs-ficha-matematicas-cuenta-y-elige", label: "Cuenta y elige el número", href: "acs/ficha.html?id=matematicas-cuenta-y-elige", available: true },
           { id: "acs-ficha-matematicas-suma-visual", label: "Sumas con dibujos", href: "acs/ficha.html?id=matematicas-suma-visual", available: true },
           { id: "acs-ficha-matematicas-resta-visual", label: "Restas con dibujos", href: "acs/ficha.html?id=matematicas-resta-visual", available: true },

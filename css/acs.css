@@ -692,6 +692,14 @@
   visibility: hidden;
 }
 
+/* Número del banco que no era el que tocaba en la serie numérica: se
+   marca un momento y se queda donde estaba, sin colocarse. */
+.acs-letra-banco.incorrecta {
+  border-color: var(--color-error);
+  background: var(--color-error-tint);
+  color: var(--color-error);
+}
+
 /* ---------- Actividad: grupos-iguales (multiplicación) ---------- */
 
 .acs-grupos-fila {
@@ -879,6 +887,62 @@
   visibility: hidden;
 }
 
+/* ---------- Serie numérica con huecos ---------- */
+
+.acs-serie-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.acs-serie-celda {
+  min-width: 58px;
+  height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-family: var(--acs-font);
+  font-size: 24px;
+  font-weight: 800;
+  color: #111;
+}
+
+/* Los números que ya vienen escritos se distinguen del hueco vacío:
+   son la referencia para no perder el orden, no algo que rellenar. */
+.acs-serie-celda-fija {
+  background: var(--color-amber-tint);
+  border-style: solid;
+  border-color: var(--color-amber);
+}
+
+button.acs-serie-celda {
+  cursor: pointer;
+}
+
+button.acs-serie-celda.correcta {
+  border-color: var(--color-success);
+  background: var(--color-success-tint);
+  color: var(--color-success);
+}
+
+button.acs-serie-celda.error {
+  border-color: var(--color-error);
+  background: var(--color-error-tint);
+}
+
+/* Flecha de "anterior / posterior": señala hacia el hueco que hay que
+   completar (ver acsCrearFilaAntesDespues). */
+.acs-flecha {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-soft);
+}
+
 /* ---------- Recortar y pegar (variante de impresión) ---------- */
 
 .acs-recortar-objetivos {
@@ -1060,7 +1124,7 @@
      resta-bloque", que solo se usa en la versión digital). */
   .acs-pareja-item, .acs-opcion-bloque, .acs-mmi-bloque, .acs-resta-bloque, .acs-letras-bloque,
   .acs-clasificar-categoria, .acs-secuencia-slot, .acs-recortar-objetivo, .acs-recortar-pieza,
-  .acs-mmi-fila, .acs-resta-fila {
+  .acs-mmi-fila, .acs-resta-fila, .acs-serie-celda {
     page-break-inside: avoid;
     break-inside: avoid;
   }

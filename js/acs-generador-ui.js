@@ -45,11 +45,15 @@ document.addEventListener("DOMContentLoaded", () => {
       texto.className = "acs-gen-fila-texto";
       texto.textContent = ficha.titulo;
 
+      // Casi todas las fichas usan "cantidad" como número de ejercicios
+      // (2-10), pero alguna la usa para otra cosa y necesita otro tope:
+      // en la serie numérica es el número final ("del 1 al 30").
       const cantidad = document.createElement("input");
       cantidad.type = "number";
       cantidad.className = "number-input acs-gen-fila-cantidad";
-      cantidad.min = "2";
-      cantidad.max = "10";
+      cantidad.min = String(ficha.cantidadMin || 2);
+      cantidad.max = String(ficha.cantidadMax || 10);
+      cantidad.title = ficha.cantidadEtiqueta || "Número de ejercicios";
       cantidad.value = String(ficha.cantidadDefecto);
       cantidad.disabled = true;
 
@@ -74,7 +78,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const checkbox = fila.querySelector("input[type=checkbox]");
       const cantidadInput = fila.querySelector(".acs-gen-fila-cantidad");
       if (checkbox.checked) {
-        const cantidad = Math.min(10, Math.max(2, Number(cantidadInput.value) || 2));
+        const min = Number(cantidadInput.min) || 2;
+        const max = Number(cantidadInput.max) || 10;
+        const cantidad = Math.min(max, Math.max(min, Number(cantidadInput.value) || min));
         cantidadInput.value = cantidad;
         seleccion.push({ id: checkbox.dataset.id, cantidad });
       }
