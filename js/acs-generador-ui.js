@@ -7,6 +7,7 @@
 
 const ACS_GEN_AREA_LABEL = { lengua: "Lengua", matematicas: "Matemáticas" };
 
+
 document.addEventListener("DOMContentLoaded", () => {
   window.scrollTo(0, 0);
 
@@ -220,6 +221,63 @@ document.addEventListener("DOMContentLoaded", () => {
     return pagina;
   }
 
+  // ---------- que cada ejercicio quepa en un folio ----------
+
+  // Monta una sección (los datos de la actividad) a partir de su
+  // entrada del registro.
+  function crearSeccion(id, cantidad) {
+    const entry = ACS_FICHAS_REGISTRO[id];
+    return Object.assign(
+      { area: entry.area, tituloSeccion: entry.titulo },
+      entry.generarConCantidad(cantidad, curso)
+    );
+  }
+
+  // Dibuja la hoja de una sección tal y como va a salir impresa (en
+  // examen, ya convertida en ejercicio numerado). Devuelve aparte las
+  // piezas de recortar: van a su propia página al final, así que no
+  // cuentan para el alto del ejercicio.
+  function crearHojaDeSeccion(seccion, numero) {
+    const temporal = document.createElement("div");
+    if (seccion.tipo === "unir-parejas" && recortarCheck.checked) {
+      seccion.imprimirComo = "recortar";
+    }
+    ACS_RENDERERS[seccion.tipo].sheet(seccion, temporal);
+    const sheetDiv = temporal.firstElementChild;
+    const piezasEl = modo === "examen" ? convertirEnEjercicioExamen(sheetDiv, numero) : null;
+    return { sheetDiv, piezasEl };
+  }
+
+  // Ajusta una actividad para que su ejercicio quepa en un folio (el
+  // bucle de medir y quitar ítems está en acsBuscarVersionQueQuepa,
+  // en js/acs-ficha-engine.js, porque la ficha suelta necesita
+  // exactamente lo mismo).
+  function ajustarSeccionAlFolio(id, cantidadPedida, numero) {
+    const entry = ACS_FICHAS_REGISTRO[id];
+    const resultado = acsBuscarVersionQueQuepa(
+      (cantidad) => {
+        const seccion = crearSeccion(id, cantidad);
+        return { ficha: seccion, hoja: crearHojaDeSeccion(seccion, numero).sheetDiv };
+      },
+      cantidadPedida,
+      entry.cantidadMin || 2,
+      // En casi todas las fichas "cantidad" es el número de ítems y
+      // quitar uno es la forma natural de que quepa. En alguna no lo
+      // es (en la serie numérica es hasta dónde llega la serie), y
+      // ahí recortar cambiaría el ejercicio pedido, no su tamaño.
+      entry.cantidadEsItems !== false
+    );
+
+    return {
+      seccion: resultado.ficha,
+      quitados: resultado.quitados,
+      cabe: resultado.cabe,
+      // La hoja buena se vuelve a dibujar, ya con los pictogramas:
+      // las que se midieron venían a propósito sin ellos.
+      hoja: crearHojaDeSeccion(resultado.ficha, numero),
+    };
+  }
+
   generarBtn.addEventListener("click", () => {
     statusEl.classList.remove("show", "ok", "ko");
     statusEl.innerHTML = "";
@@ -231,14 +289,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const secciones = seleccion.map(({ id, cantidad }) => {
-      const entry = ACS_FICHAS_REGISTRO[id];
-      const seccion = Object.assign({ area: entry.area, tituloSeccion: entry.titulo }, entry.generarConCantidad(cantidad, curso));
-      if (seccion.tipo === "unir-parejas" && recortarCheck.checked) {
-        seccion.imprimirComo = "recortar";
-      }
-      return seccion;
-    });
+    // Cada actividad se genera, se mide y, si no cabe en un folio, se
+    // regenera con menos ítems (ver ajustarSeccionAlFolio). La hoja
+    // que sale de aquí es la definitiva: se reutiliza tal cual más
+    // abajo en vez de volver a dibujarla.
+    const ajustes = seleccion.map(({ id, cantidad }, i) => ajustarSeccionAlFolio(id, cantidad, i + 1));
+    const secciones = ajustes.map((a) => a.seccion);
 
     // Digital: una sección tras otra, cada una con su propio título.
     const digitalEl = document.getElementById("acs-gen-digital");
@@ -267,15 +323,9 @@ document.addEventListener("DOMContentLoaded", () => {
     sheetRoot.innerHTML = "";
     if (modo === "examen") sheetRoot.appendChild(crearCabeceraExamen(secciones, curso));
     const recortablesExamen = [];
-    secciones.forEach((seccion, i) => {
-      const temporal = document.createElement("div");
-      ACS_RENDERERS[seccion.tipo].sheet(seccion, temporal);
-      const sheetDiv = temporal.firstElementChild;
-      if (modo === "examen") {
-        const piezasEl = convertirEnEjercicioExamen(sheetDiv, i + 1);
-        if (piezasEl) recortablesExamen.push({ numero: i + 1, piezasEl });
-      }
-      sheetRoot.appendChild(sheetDiv);
+    ajustes.forEach(({ hoja }, i) => {
+      if (hoja.piezasEl) recortablesExamen.push({ numero: i + 1, piezasEl: hoja.piezasEl });
+      sheetRoot.appendChild(hoja.sheetDiv);
     });
     if (modo === "examen" && recortablesExamen.length) {
       sheetRoot.appendChild(crearPaginaRecortables(recortablesExamen));
@@ -314,7 +364,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     statusEl.classList.add("show", "ok");
-    statusEl.innerHTML = `<p class="feedback-title">¡Listo!</p><p>Cuaderno de ${secciones.length} actividad${secciones.length === 1 ? "" : "es"} generado en modo ${modo === "examen" ? "examen" : "repaso"}.</p>`;
+    const partes = [
+      "<p class=\"feedback-title\">¡Listo!</p>",
+      `<p>Cuaderno de ${secciones.length} actividad${secciones.length === 1 ? "" : "es"} generado en modo ${modo === "examen" ? "examen" : "repaso"}.</p>`,
+    ];
+
+    // Si ha habido que quitar ítems para que un ejercicio no se
+    // partiera entre dos folios, se dice cuáles y cuántos: la maestra
+    // pidió una cantidad y tiene derecho a saber que no es la que va
+    // a imprimir, por si prefiere partir esa actividad en dos fichas.
+    const recortados = ajustes
+      .map((a, i) => ({ numero: i + 1, titulo: a.seccion.tituloSeccion, quitados: a.quitados }))
+      .filter((a) => a.quitados > 0);
+    if (recortados.length) {
+      partes.push(
+        "<p>Para que ningún ejercicio se parta entre dos hojas se han quitado ítems de: " +
+          recortados
+            .map((a) => `<strong>${a.numero}. ${a.titulo}</strong> (${a.quitados} menos)`)
+            .join(", ") +
+          ".</p>"
+      );
+    }
+
+    // Caso raro: un solo ítem que ya no cabe en un folio entero (por
+    // ejemplo decenas con muchos dibujos). No se puede quitar más, así
+    // que se avisa en vez de dejar que se corte sin más.
+    const noCaben = ajustes
+      .map((a, i) => ({ numero: i + 1, titulo: a.seccion.tituloSeccion, cabe: a.cabe }))
+      .filter((a) => !a.cabe);
+    if (noCaben.length) {
+      partes.push(
+        "<p>Aun así no cabe en un folio: " +
+          noCaben.map((a) => `<strong>${a.numero}. ${a.titulo}</strong>`).join(", ") +
+          ". Genera esa actividad como ficha suelta o baja la cantidad.</p>"
+      );
+    }
+
+    statusEl.innerHTML = partes.join("");
 
     resultadoEl.style.display = "";
     resultadoEl.scrollIntoView({ behavior: "smooth", block: "start" });

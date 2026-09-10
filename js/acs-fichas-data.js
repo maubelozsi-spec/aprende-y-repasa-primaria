@@ -205,6 +205,12 @@ const ACS_FICHAS_REGISTRO = {
     cantidadMin: 10,
     cantidadMax: 100,
     cantidadEtiqueta: "Número final de la serie",
+    // Aquí "cantidad" no cuenta ítems: es hasta dónde llega la serie.
+    // El ajuste automático del cuaderno recorta ítems para que un
+    // ejercicio quepa en el folio, y hacerlo aquí cambiaría el
+    // ejercicio pedido ("del 1 al 100" no es "del 1 al 60"), no su
+    // tamaño. Cien casillas ocupan media hoja, así que no hace falta.
+    cantidadEsItems: false,
     generar: (curso) => generarSerieNumerica({ hasta: acsPorCurso(curso, 20, 50) }),
     generarConCantidad: (cantidad) => generarSerieNumerica({ hasta: cantidad }),
   },
@@ -254,8 +260,14 @@ const ACS_FICHAS_REGISTRO = {
     nivel: "Nivel funcional: 1º-2º de Primaria",
     titulo: "Decenas y unidades",
     resumen: "Agrupar dibujos de diez en diez y decir cuántas decenas y unidades hay. Hasta 3 decenas en 2º.",
-    cantidadDefecto: 4,
-    generar: (curso) => generarDecenas({ cantidad: 4, curso }),
+    // La ficha con más dibujos de todo el catálogo: un solo ítem de
+    // 2º puede llevar 39 objetos que hay que rodear de diez en diez.
+    // Por eso baja a 1 y por defecto trae 2: con 4 no cabía en el
+    // folio y el ajuste automático los quitaba igualmente.
+    cantidadDefecto: 2,
+    cantidadMin: 1,
+    cantidadMax: 4,
+    generar: (curso) => generarDecenas({ cantidad: 2, curso }),
     generarConCantidad: (cantidad, curso) => generarDecenas({ cantidad, curso }),
   },
   "matematicas-completar-a-10": {
@@ -266,6 +278,9 @@ const ACS_FICHAS_REGISTRO = {
     titulo: "Amigos del 10",
     resumen: "6 sumas a las que falta un número para llegar a 10.",
     cantidadDefecto: 6,
+    // Nueve como mucho: solo hay nueve amigos del diez distintos
+    // (1+9 ... 9+1) y pedir más solo repetiría sumas.
+    cantidadMax: 9,
     generar: () => generarCompletarA10({ cantidad: 6 }),
     generarConCantidad: (cantidad) => generarCompletarA10({ cantidad }),
   },
@@ -343,8 +358,14 @@ const ACS_FICHAS = Object.keys(ACS_FICHAS_REGISTRO).map((id) => Object.assign({ 
 // Genera el contenido de una ficha (palabras/números nuevos) a partir
 // de su id de registro. "curso" es "1" (por defecto) o "2". Devuelve
 // null si el id no existe.
-function acsGenerarFichaPorId(id, curso) {
+// Con "cantidad" se pide una versión con ese número de ítems (lo usa
+// el ajuste al folio de la ficha suelta); sin ella, la de por defecto.
+function acsGenerarFichaPorId(id, curso, cantidad) {
   const entry = ACS_FICHAS_REGISTRO[id];
   if (!entry) return null;
-  return Object.assign({ id, area: entry.area, etiqueta: entry.etiqueta, nivel: entry.nivel }, entry.generar(curso || "1"));
+  const contenido =
+    cantidad === undefined
+      ? entry.generar(curso || "1")
+      : entry.generarConCantidad(cantidad, curso || "1");
+  return Object.assign({ id, area: entry.area, etiqueta: entry.etiqueta, nivel: entry.nivel }, contenido);
 }

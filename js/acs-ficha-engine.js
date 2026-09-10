@@ -458,6 +458,83 @@ function renderUnirParejasSheet(ficha, container) {
   container.appendChild(sheet);
 }
 
+// ============================================================
+// Que una ficha quepa en UN folio
+// ============================================================
+//
+// Regla de oro del cuaderno impreso: un ejercicio no se parte entre
+// dos hojas. Para una alumna que pierde el hilo al pasar de página,
+// media tarea aquí y media allí es una tarea distinta y más difícil
+// que la que se le ha puesto. El CSS lo impide (page-break-inside en
+// css/acs.css), pero eso solo funciona si el ejercicio cabe: si no,
+// el navegador lo parte igual. Así que antes de imprimir hay que
+// comprobarlo de verdad, midiendo.
+
+// Alto útil de un folio A4 con los márgenes de @page (12mm arriba y
+// abajo): 297 - 24 = 273mm, en px CSS a 96 ppp.
+const ACS_ALTO_FOLIO_PX = ((297 - 24) / 25.4) * 96;
+
+// Colchón (unos 10mm) para los redondeos del navegador al paginar y
+// para el área no imprimible, que no es igual en todas las
+// impresoras. Con 4mm ya hubo una ficha que medía "justo" y aun así
+// se partía en el PDF.
+const ACS_COLCHON_FOLIO_PX = 40;
+
+// Contenedor oculto donde se dibujan las hojas para medirlas. Tiene
+// que estar en el documento (si no, el navegador no lo maqueta y
+// devuelve altura cero) pero fuera de la vista y sin que lo lea un
+// lector de pantalla. El ancho es el del folio, fijo: si heredara el
+// de la pantalla, en un móvil estrecho todo mediría más alto que en
+// el papel y se recortarían ejercicios sin motivo.
+function acsMedidorDeFolio() {
+  let medidor = document.getElementById("acs-medidor-folio");
+  if (!medidor) {
+    medidor = document.createElement("div");
+    medidor.id = "acs-medidor-folio";
+    medidor.setAttribute("aria-hidden", "true");
+    document.body.appendChild(medidor);
+  }
+  return medidor;
+}
+
+// Busca la versión más completa de una ficha que quepa en un folio.
+// "fabricar(cantidad)" tiene que devolver { ficha, hoja }: los datos
+// y la hoja ya dibujada tal y como va a salir impresa. Se empieza por
+// la cantidad pedida y se va quitando un ítem mientras no quepa,
+// hasta el mínimo de esa ficha.
+//
+// Devuelve la ficha elegida, cuántos ítems se han quitado (para
+// poder avisarlo: recortar en silencio lo que ha pedido la maestra
+// sería peor que el problema que se arregla) y si al final cabe.
+//
+// Las versiones que se van a tirar se dibujan SIN ir a buscar los
+// pictogramas a ARASAAC: solo hacen falta para medir, y el hueco del
+// pictograma mide lo mismo con dibujo y sin él. Sin esto, montar un
+// cuaderno entero lanzaba cientos de búsquedas a la basura. Quien
+// llama tiene que volver a dibujar la hoja buena, ya con imágenes.
+function acsBuscarVersionQueQuepa(fabricar, cantidadPedida, minimo, ajustable) {
+  const medidor = acsMedidorDeFolio();
+  const limite = ACS_ALTO_FOLIO_PX - ACS_COLCHON_FOLIO_PX;
+  let cantidad = Math.max(minimo, cantidadPedida);
+
+  arasaacMedirSinDescargar(true);
+  try {
+    for (;;) {
+      const { ficha, hoja } = fabricar(cantidad);
+      medidor.appendChild(hoja);
+      const alto = hoja.getBoundingClientRect().height;
+      medidor.removeChild(hoja);
+
+      if (alto <= limite || !ajustable || cantidad <= minimo) {
+        return { ficha, cantidad, quitados: cantidadPedida - cantidad, cabe: alto <= limite };
+      }
+      cantidad--;
+    }
+  } finally {
+    arasaacMedirSinDescargar(false);
+  }
+}
+
 // ---------- elegir-opcion ----------
 // ficha.items = [{
 //   prompt: "El sol es amarillo.",
@@ -466,12 +543,40 @@ function renderUnirParejasSheet(ficha, container) {
 //     u opciones de solo texto: [{ texto: "4", correcta: true }, ...]
 // }]
 
+// Los dibujos que hay que contar se colocan en filas de diez (no en
+// un montón que se reparte según el ancho que sobre): así se pueden
+// rodear las decenas de un vistazo —que es justo lo que pide la ficha
+// de decenas y unidades— y de paso el bloque ocupa un alto
+// predecible, imprescindible para saber si el ejercicio cabe en un
+// folio antes de imprimirlo. El tope de diez por fila se fija en CSS
+// (.acs-opcion-conteo), no aquí.
+function acsCrearConteo(conteo, { color, alinearIzquierda }) {
+  const fila = document.createElement("div");
+  fila.className = "acs-opcion-conteo";
+  if (alinearIzquierda) fila.classList.add("acs-opcion-conteo-izq");
+  for (let i = 0; i < conteo.cantidad; i++) {
+    fila.appendChild(acsCrearImagenOSvg(conteo.clave, { color, alt: conteo.clave }));
+  }
+  return fila;
+}
+
+// Una opción de respuesta puede ser un dibujo, un número suelto ("7")
+// o una frase corta ("2 decenas y 7 unidades"). Las dos primeras caben
+// en una caja cuadrada; la frase, no: metida en un cuadrado se parte
+// en cuatro líneas, la caja crece a lo alto y el ejercicio deja de
+// caber en el folio. Se marcan aparte para darles una caja alargada
+// de una sola línea (ver .acs-opcion-item-frase en css/acs.css).
+function acsEsOpcionFrase(op) {
+  return typeof op.texto === "string" && op.texto.length > 4;
+}
+
 function acsCrearOpcionContenido(op) {
   if (op.texto) {
     const span = document.createElement("span");
+    // El tamaño va en CSS (.acs-opcion-texto), no aquí: en estilo
+    // en línea ganaría siempre y la hoja para imprimir no podría
+    // usar un cuerpo más pequeño que la pantalla.
     span.className = "acs-opcion-texto";
-    span.style.fontSize = "34px";
-    span.style.fontWeight = "800";
     span.textContent = op.texto;
     return span;
   }
@@ -498,12 +603,7 @@ function renderElegirOpcionDigital(ficha, container) {
     bloque.appendChild(prompt);
 
     if (item.conteo) {
-      const fila = document.createElement("div");
-      fila.className = "acs-opcion-conteo";
-      for (let i = 0; i < item.conteo.cantidad; i++) {
-        fila.appendChild(acsCrearImagenOSvg(item.conteo.clave, { color: true, alt: item.conteo.clave }));
-      }
-      bloque.appendChild(fila);
+      bloque.appendChild(acsCrearConteo(item.conteo, { color: true }));
     }
 
     const opciones = document.createElement("div");
@@ -513,6 +613,7 @@ function renderElegirOpcionDigital(ficha, container) {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "acs-opcion-item";
+      if (acsEsOpcionFrase(op)) btn.classList.add("acs-opcion-item-frase");
       btn.appendChild(acsCrearOpcionContenido(op));
       btn.addEventListener("click", () => {
         if (opciones.querySelector(".correcta")) return;
@@ -551,13 +652,7 @@ function renderElegirOpcionSheet(ficha, container) {
     bloque.appendChild(prompt);
 
     if (item.conteo) {
-      const fila = document.createElement("div");
-      fila.className = "acs-opcion-conteo";
-      fila.style.justifyContent = "flex-start";
-      for (let i = 0; i < item.conteo.cantidad; i++) {
-        fila.appendChild(acsCrearImagenOSvg(item.conteo.clave, { color: false, alt: item.conteo.clave }));
-      }
-      bloque.appendChild(fila);
+      bloque.appendChild(acsCrearConteo(item.conteo, { color: false, alinearIzquierda: true }));
     }
 
     const opciones = document.createElement("div");
@@ -567,6 +662,7 @@ function renderElegirOpcionSheet(ficha, container) {
     item.opciones.forEach((op) => {
       const caja = document.createElement("div");
       caja.className = "acs-opcion-item";
+      if (acsEsOpcionFrase(op)) caja.classList.add("acs-opcion-item-frase");
       caja.appendChild(op.texto ? acsCrearOpcionContenido(op) : acsCrearImagenOSvg(op.clave, { color: false }));
       opciones.appendChild(caja);
     });

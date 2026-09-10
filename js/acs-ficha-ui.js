@@ -39,17 +39,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let curso = "1";
 
+  // En casi todas las fichas "cantidad" es el número de ítems y se
+  // puede quitar uno para que quepa en el folio. En la serie numérica
+  // no: ahí es hasta dónde llega la serie, así que se pide la versión
+  // por defecto, que además escala sola con el curso (hasta el 20 en
+  // 1º, hasta el 50 en 2º).
+  const ajustable = entry.cantidadEsItems !== false;
+
+  // Genera la ficha con N ítems y dibuja su hoja de imprimir, para
+  // que el ajuste al folio pueda medirla. El modo "recortar y pegar"
+  // se aplica aquí y no después: cambia bastante el alto de la hoja,
+  // así que medir sin él daría una medida que no es la que se imprime.
+  function fabricar(cantidad) {
+    const ficha = acsGenerarFichaPorId(id, curso, ajustable ? cantidad : undefined);
+    if (ficha.tipo === "unir-parejas" && recortarCheck.checked) {
+      ficha.imprimirComo = "recortar";
+    }
+    const temporal = document.createElement("div");
+    ACS_RENDERERS[ficha.tipo].sheet(ficha, temporal);
+    return { ficha, hoja: temporal.firstElementChild };
+  }
+
   function render() {
-    const ficha = acsGenerarFichaPorId(id, curso);
+    // La ficha se recorta si hace falta para que quepa entera en un
+    // folio: partida entre dos hojas no se puede usar en clase (ver
+    // acsBuscarVersionQueQuepa en js/acs-ficha-engine.js).
+    const { ficha } = acsBuscarVersionQueQuepa(
+      fabricar,
+      entry.cantidadDefecto,
+      entry.cantidadMin || 2,
+      ajustable
+    );
     instruccionEl.textContent = ficha.instruccion;
 
     // El recorte solo tiene sentido en "unir-parejas" (parejas que se
     // pueden recortar como cuadros sencillos). Para otros tipos se
     // oculta la casilla en vez de dejarla sin efecto.
     recortarToggle.style.display = ficha.tipo === "unir-parejas" ? "" : "none";
-    if (ficha.tipo === "unir-parejas" && recortarCheck.checked) {
-      ficha.imprimirComo = "recortar";
-    }
 
     initAcsFicha(ficha, digitalEl, sheetEl);
   }

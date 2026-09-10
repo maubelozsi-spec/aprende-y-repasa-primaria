@@ -97,6 +97,20 @@ function arasaacUrlImagen(id, { color = true } = {}) {
   return `${ARASAAC_IMG_URL}${id}?color=${color ? "true" : "false"}`;
 }
 
+// Con el modo "solo medir" activado, arasaacCrearImagen devuelve el
+// hueco del pictograma pero NO va a buscarlo a la red. Lo usa el
+// generador de cuaderno mientras comprueba si un ejercicio cabe en el
+// folio: descarta muchas versiones antes de quedarse con una, y
+// buscar los pictogramas de todas ellas son cientos de peticiones
+// tiradas a la basura y el navegador bloqueado un buen rato. El hueco
+// mide lo mismo con dibujo y sin él (.acs-pic tiene el tamaño fijado
+// en CSS), así que la medida sale igual de buena.
+let arasaacSoloMedir = false;
+
+function arasaacMedirSinDescargar(activado) {
+  arasaacSoloMedir = !!activado;
+}
+
 // Crea un <img> para una palabra clave y lo resuelve de forma
 // asíncrona. Mientras se busca el pictograma muestra un marcador de
 // carga; si no se encuentra o falla, sustituye la imagen por un
@@ -109,6 +123,8 @@ function arasaacCrearImagen(palabra, { color = true, alt } = {}) {
   img.alt = alt || palabra;
   img.loading = "lazy";
   wrap.appendChild(img);
+
+  if (arasaacSoloMedir) return wrap;
 
   arasaacBuscarId(palabra).then((id) => {
     wrap.classList.remove("acs-pic-cargando");

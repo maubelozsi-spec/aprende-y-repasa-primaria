@@ -201,6 +201,19 @@
   width: 70px;
 }
 
+/* Banco de pruebas donde se dibuja una hoja para medirla antes de
+   imprimirla (lo crea acsMedidorDeFolio en js/acs-ficha-engine.js).
+   Fuera de la vista pero maquetado, y con el ancho de un folio fijo:
+   los comentarios de por qué están en el JS. */
+#acs-medidor-folio {
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  width: 210mm;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .acs-gen-seccion-digital {
   margin-bottom: 40px;
   padding-bottom: 32px;
@@ -259,7 +272,13 @@
   border-radius: var(--radius-md);
   max-width: 210mm;
   margin: 0 auto;
-  padding: 16mm;
+  /* El margen de arriba y abajo es el MISMO aquí y al imprimir (ver
+     @media print), porque el generador mide en esta vista previa
+     para decidir si la ficha cabe en un folio: si la caja midiera
+     distinto en pantalla y en papel, la medida no valdría de nada.
+     A los lados son 16mm en pantalla y 12mm de @page + 4mm de
+     padding en papel, que dan el mismo ancho útil. */
+  padding: 8mm 16mm;
   font-family: var(--acs-font);
   color: #111;
 }
@@ -300,7 +319,10 @@
 .acs-examen-header {
   max-width: 210mm;
   margin: 0 auto 10px;
-  padding: 16mm 16mm 0;
+  /* Sin margen vertical propio, igual que al imprimir: arriba ya lo
+     pone @page y el título trae el suyo. Así la vista previa mide lo
+     mismo que el folio (ver el comentario de .acs-sheet). */
+  padding: 0 16mm;
   font-family: var(--acs-font);
   color: #111;
 }
@@ -327,6 +349,17 @@
   font-size: 17px;
   color: #111;
   margin: 0 0 16px;
+}
+
+/* Un ejercicio de examen lleva menos margen arriba y abajo que una
+   ficha suelta: en un examen van varios seguidos en el mismo folio,
+   y ese margen es justo el sitio que hace falta para que un
+   ejercicio más no se caiga a la página siguiente. Mismo valor en
+   pantalla y al imprimir a propósito: la vista previa tiene que
+   medir lo mismo que el folio, porque el generador mide en pantalla
+   para decidir si el ejercicio cabe. */
+.acs-sheet.acs-examen-ejercicio {
+  padding: 6mm 16mm;
 }
 
 .acs-actions-row {
@@ -502,12 +535,55 @@
   background: var(--color-error-tint);
 }
 
+/* Opción de respuesta escrita (un número, "7", o una frase). */
+.acs-opcion-texto {
+  font-size: 34px;
+  font-weight: 800;
+}
+
+/* Opción de respuesta que es una frase ("2 decenas y 7 unidades") y
+   no un dibujo ni un número: caja alargada de una línea en vez de
+   cuadrada. En cuadrado la frase se parte en cuatro renglones, la
+   caja crece a lo alto y el ejercicio se sale del folio. La altura no
+   baja de 56px para que siga siendo cómoda de marcar a lápiz. */
+.acs-opcion-item-frase {
+  min-width: 0;
+  min-height: 56px;
+  padding: 10px 16px;
+  white-space: nowrap;
+}
+
+.acs-opcion-item-frase .acs-opcion-texto {
+  font-size: 20px;
+}
+
+/* Rejilla de objetos para contar. Tope de DIEZ por fila: no es una
+   decisión estética, es lo que permite rodear las decenas (ficha de
+   decenas y unidades) y contar de diez en diez sin recontar desde el
+   principio. El ancho máximo es exactamente el de diez dibujos con
+   sus huecos, así que el flex-wrap corta siempre en el décimo.
+   Los dibujos de contar van más pequeños que los de elegir: aquí solo
+   hay que contarlos, mientras que las opciones de respuesta son la
+   diana que tiene que marcar y esas se quedan grandes. */
 .acs-opcion-conteo {
+  --acs-conteo-pic: 62px;
+  --acs-conteo-gap: 6px;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--acs-conteo-gap);
   justify-content: center;
-  margin-bottom: 22px;
+  max-width: calc(10 * var(--acs-conteo-pic) + 9 * var(--acs-conteo-gap));
+  margin: 0 auto 22px;
+}
+
+.acs-opcion-conteo-izq {
+  justify-content: flex-start;
+  margin-left: 0;
+}
+
+.acs-opcion-conteo .acs-pic {
+  width: var(--acs-conteo-pic);
+  height: var(--acs-conteo-pic);
 }
 
 /* ---------- Actividad: mayor-menor-igual ---------- */
@@ -1042,6 +1118,241 @@ button.acs-serie-celda.error {
   color: var(--text-soft);
 }
 
+/* =========================================================
+   HOJA PARA IMPRIMIR: VERSIÓN COMPACTA
+   =========================================================
+   Regla que manda en el cuaderno: un ejercicio no se parte entre
+   dos folios. Para eso hace falta que quepa, y con los tamaños de
+   la versión digital (pensados para tocar con el dedo en pantalla)
+   casi la mitad de las actividades se pasaban de folio.
+
+   Aquí se encoge SOLO lo que se lee o se cuenta, nunca la diana:
+   las cajas que la alumna tiene que marcar con el lápiz siguen
+   siendo grandes (no baja de 100px ≈ 26 mm, muy por encima del
+   mínimo cómodo con dificultades motrices), y ningún texto baja de
+   16px ≈ 12 pt. Lo que se recorta de verdad son los huecos muertos:
+   márgenes entre bloques, separaciones y dibujos que solo sirven de
+   apoyo visual.
+
+   Va en ".acs-sheet" y no dentro de "@media print" a propósito: la
+   pestaña "para imprimir" es la vista previa del folio, así que
+   pantalla e impresora tienen que enseñar exactamente lo mismo. De
+   paso, el generador puede medir en pantalla si un ejercicio cabe
+   (ver acsCabeEnUnFolio en js/acs-generador-ui.js), cosa imposible
+   si los tamaños solo existieran al imprimir. */
+
+.acs-sheet .acs-pic {
+  width: 76px;
+  height: 76px;
+}
+
+.acs-sheet .acs-sheet-instruccion {
+  margin-bottom: 14px;
+}
+
+.acs-sheet .acs-sheet-nombre {
+  margin-bottom: 14px;
+}
+
+.acs-sheet .acs-examen-enunciado {
+  margin-bottom: 10px;
+}
+
+/* elegir-opcion */
+.acs-sheet .acs-opcion-bloque {
+  margin-bottom: 18px;
+}
+
+.acs-sheet .acs-opcion-prompt {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.acs-sheet .acs-opciones {
+  gap: 12px;
+}
+
+.acs-sheet .acs-opcion-item {
+  min-width: 100px;
+  min-height: 100px;
+  padding: 8px;
+  border-width: 3px;
+}
+
+.acs-sheet .acs-opcion-texto {
+  font-size: 26px;
+}
+
+.acs-sheet .acs-opcion-item-frase {
+  min-height: 48px;
+  padding: 8px 12px;
+}
+
+.acs-sheet .acs-opcion-item-frase .acs-opcion-texto {
+  font-size: 18px;
+}
+
+.acs-sheet .acs-opcion-conteo {
+  --acs-conteo-pic: 52px;
+  --acs-conteo-gap: 5px;
+  margin-bottom: 12px;
+}
+
+/* unir-parejas */
+.acs-sheet .acs-parejas {
+  gap: 28px;
+}
+
+.acs-sheet .acs-parejas-col {
+  gap: 10px;
+}
+
+.acs-sheet .acs-pareja-item {
+  padding: 6px 12px;
+  font-size: 18px;
+}
+
+/* operación visual (suma y resta con dibujos) */
+.acs-sheet .acs-resta-bloque {
+  margin-bottom: 16px;
+}
+
+.acs-sheet .acs-resta-fila {
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.acs-sheet .acs-resta-caja {
+  padding: 6px;
+  min-height: 56px;
+  gap: 4px;
+}
+
+.acs-sheet .acs-resta-caja .acs-pic {
+  width: 46px;
+  height: 46px;
+}
+
+.acs-sheet .acs-resta-signo {
+  font-size: 26px;
+}
+
+/* ordenar letras y sílabas */
+.acs-sheet .acs-letras-bloque {
+  margin-bottom: 18px;
+}
+
+.acs-sheet .acs-letras-slots {
+  margin: 8px 0;
+}
+
+.acs-sheet .acs-letra-slot,
+.acs-sheet .acs-letra-banco {
+  min-width: 46px;
+  height: 46px;
+  font-size: 24px;
+}
+
+/* grupos iguales y reparto */
+.acs-sheet .acs-grupos-fila {
+  gap: 10px;
+}
+
+.acs-sheet .acs-grupos-fila .acs-pic,
+.acs-sheet .acs-reparto-wrap .acs-pic {
+  width: 52px;
+  height: 52px;
+}
+
+.acs-sheet .acs-reparto-wrap {
+  gap: 10px;
+}
+
+.acs-sheet .acs-reparto-cestas {
+  gap: 12px;
+}
+
+.acs-sheet .acs-reparto-cesta {
+  width: 74px;
+  height: 56px;
+}
+
+/* clasificar (TEACCH) */
+.acs-sheet .acs-clasificar-banco {
+  gap: 10px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+}
+
+.acs-sheet .acs-clasificar-item-impreso {
+  padding: 5px;
+}
+
+.acs-sheet .acs-clasificar-categorias {
+  gap: 14px;
+}
+
+.acs-sheet .acs-clasificar-categoria {
+  padding: 10px;
+  min-width: 170px;
+}
+
+.acs-sheet .acs-clasificar-categoria-titulo {
+  margin-bottom: 8px;
+}
+
+.acs-sheet .acs-clasificar-categoria-area-impresa {
+  min-height: 70px;
+}
+
+/* ordenar secuencia */
+.acs-sheet .acs-secuencia-slots {
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.acs-sheet .acs-secuencia-hueco {
+  width: 84px;
+  height: 84px;
+}
+
+.acs-sheet .acs-secuencia-item {
+  width: 76px;
+  height: 76px;
+}
+
+/* serie numérica */
+.acs-sheet .acs-serie-grid {
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.acs-sheet .acs-serie-celda {
+  min-width: 50px;
+  height: 50px;
+  font-size: 22px;
+}
+
+/* recortar y pegar */
+.acs-sheet .acs-recortar-objetivos {
+  gap: 8px;
+}
+
+.acs-sheet .acs-recortar-objetivo {
+  padding: 6px 12px;
+  font-size: 18px;
+}
+
+.acs-sheet .acs-recortar-hueco {
+  width: 60px;
+  height: 60px;
+}
+
+.acs-sheet .acs-recortar-piezas {
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
 /* ---------- Impresión ---------- */
 
 @media print {
@@ -1061,8 +1372,8 @@ button.acs-serie-celda.error {
      página(s) en blanco al final del documento impreso. */
   .sidebar, .sidebar-backdrop, .topbar, .site-footer, .a11y-widget,
   .content-header, .acs-filtros, .acs-cuaderno-cta, .acs-atribucion,
-  .acs-tabs, .acs-actions-row, .generator-card, #acs-gen-status,
-  #acs-ficha-no-encontrada {
+  .acs-tabs, .acs-actions-row, .acs-curso-field, .generator-card,
+  #acs-gen-status, #acs-ficha-no-encontrada, #acs-medidor-folio {
     display: none !important;
   }
 
@@ -1070,17 +1381,33 @@ button.acs-serie-celda.error {
     min-height: 0 !important;
   }
 
+  /* En pantalla el contenido va centrado en una columna de 860px con
+     44px de aire a los lados; en papel ese aire sobra (ya lo pone
+     @page) y además estrechaba la hoja hasta 615px, con lo que todo
+     salía impreso más alto que en la vista previa y las fichas se
+     desbordaban de folio. Sin este reajuste, medir la hoja antes de
+     imprimir no sirve de nada. */
+  main.content {
+    max-width: none;
+    padding: 0;
+  }
+
   /* Se imprime lo que esté activo en pantalla en ese momento (la
      pestaña de "Ficha para imprimir" o, en el cuaderno, también
      "Hoja de respuestas"): las demás pestañas ya están en display:none
      por la regla base ".acs-panel { display:none } .acs-panel.active
      { display:block }", así que no hace falta forzar nada más aquí. */
+  /* El ancho útil tiene que ser EL MISMO en la vista previa y en el
+     papel, o la vista previa miente y el generador mide mal: en
+     pantalla el folio son 210mm con 16mm de margen interior (178mm
+     útiles), y al imprimir 12mm los pone @page y estos 4mm el
+     padding, que suman los mismos 16mm. */
   .acs-sheet {
     max-width: none;
     border: none;
     box-shadow: none;
     border-radius: 0;
-    padding: 0;
+    padding: 8mm 4mm;
   }
 
   .acs-sheet:not(:last-child) {
@@ -1092,18 +1419,39 @@ button.acs-serie-celda.error {
      como en un examen en papel real. Selector con dos clases a
      propósito (más específico que ".acs-sheet") para ganar siempre a
      las reglas de arriba sin depender del orden en el archivo.
-     A propósito SIN "page-break-inside: avoid" aquí: un ejercicio
-     entero es demasiado grande para forzar que quepa entero en la
-     página que quede libre (eso es lo que provocaba una página casi
-     en blanco tras la cabecera). Cada ítem dentro del ejercicio ya
-     tiene su propio "avoid" más abajo, así que el corte, si hace
-     falta, cae entre dos ítems, nunca partiendo uno por la mitad. */
+
+     "page-break-inside: avoid" es la regla importante de todo este
+     archivo: un ejercicio que no cabe en lo que queda de folio baja
+     ENTERO al siguiente en vez de partirse por la mitad. Para una
+     alumna que pierde el hilo al cambiar de hoja, media tarea al
+     final de una página y la otra media al principio de la siguiente
+     es una tarea distinta, más difícil, y encima una que no se le ha
+     pedido.
+
+     Esto costó una página casi en blanco la primera vez que se
+     intentó: los ejercicios eran tan altos que casi ninguno cabía en
+     el hueco libre. Por eso ahora va acompañado de dos cosas sin las
+     cuales no funciona: la hoja compacta (ver "HOJA PARA IMPRIMIR:
+     VERSIÓN COMPACTA" más arriba) y el ajuste automático de ítems
+     del generador (acsAjustarSeccionAlFolio en
+     js/acs-generador-ui.js), que recorta los ejercicios que siguen
+     sin caber en un folio entero. */
   .acs-sheet.acs-examen-ejercicio {
-    padding: 6mm 16mm;
+    padding: 6mm 4mm;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   .acs-sheet.acs-examen-ejercicio:not(:last-child) {
     page-break-after: auto;
+  }
+
+  /* La cabecera no se queda sola al final de una página: si el primer
+     ejercicio no cabe debajo, bajan los dos juntos. */
+  .acs-examen-header {
+    padding: 0 4mm;
+    page-break-after: avoid;
+    break-after: avoid;
   }
 
   /* Página de recortables al final del examen: siempre en una página

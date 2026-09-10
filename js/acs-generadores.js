@@ -165,14 +165,13 @@ function generarOrdenarSilabas(opciones) {
 
 function generarCompletarA10(opciones) {
   const { cantidad = 6 } = opciones || {};
-  const usados = new Set();
-  const items = [];
-  while (items.length < cantidad && usados.size < 10) {
-    const a = 1 + Math.floor(Math.random() * 9);
-    if (usados.has(a)) continue;
-    usados.add(a);
-    items.push({ a });
-  }
+  // Solo hay NUEVE amigos del diez distintos (1+9, 2+8 ... 9+1): el
+  // 0 y el 10 no se trabajan aquí. Se barajan y se cogen los que
+  // quepan, en vez de sortear números sueltos hasta que no se
+  // repitan: con cantidad 10 aquel bucle no terminaba nunca, porque
+  // pedía diez números distintos de una lista de nueve, y dejaba el
+  // navegador colgado.
+  const items = acsElegirAlAzar([1, 2, 3, 4, 5, 6, 7, 8, 9], cantidad).map((a) => ({ a }));
 
   return {
     tipo: "completar-a-10",
@@ -349,25 +348,31 @@ function generarEncontrarDiferente(opciones) {
 function generarOperacionesUnir(opciones) {
   const { cantidad = 6, curso = "1" } = opciones || {};
   const maximo = acsPorCurso(curso, 10, 20);
-  const usadas = new Set();
-  const pares = [];
-  while (pares.length < cantidad) {
-    const operador = Math.random() < 0.5 ? "+" : "−";
-    let a, b, resultado;
-    if (operador === "+") {
-      a = 1 + Math.floor(Math.random() * (maximo - 1));
-      b = 1 + Math.floor(Math.random() * (maximo - a));
-      resultado = a + b;
-    } else {
-      a = 2 + Math.floor(Math.random() * (maximo - 1));
-      b = 1 + Math.floor(Math.random() * a);
-      resultado = a - b;
-    }
-    const clave = a + operador + b;
-    if (usadas.has(clave)) continue;
-    usadas.add(clave);
-    pares.push({ izquierda: `${a} ${operador} ${b}`, derecha: String(resultado) });
+
+  // Se enumeran todas las operaciones posibles y se barajan, en lugar
+  // de sortear al azar hasta que no se repitan: si se piden más
+  // parejas de las que existen, aquel bucle no terminaba nunca y
+  // dejaba el navegador colgado.
+  const posibles = [];
+  for (let a = 1; a < maximo; a++) {
+    for (let b = 1; a + b <= maximo; b++) posibles.push({ a, b, operador: "+", resultado: a + b });
   }
+  for (let a = 2; a <= maximo; a++) {
+    for (let b = 1; b <= a; b++) posibles.push({ a, b, operador: "−", resultado: a - b });
+  }
+  acsBarajar(posibles);
+
+  const usados = new Set();
+  const pares = [];
+  posibles.forEach((op) => {
+    if (pares.length >= cantidad) return;
+    // Cada resultado, una sola vez: dos operaciones que dan el mismo
+    // número dejarían el ejercicio sin solución única (dos líneas
+    // llegando a la misma casilla) y no se puede corregir.
+    if (usados.has(op.resultado)) return;
+    usados.add(op.resultado);
+    pares.push({ izquierda: `${op.a} ${op.operador} ${op.b}`, derecha: String(op.resultado) });
+  });
 
   return {
     tipo: "unir-parejas",
