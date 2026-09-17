@@ -21,6 +21,24 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { db } from "./firebase-init.js";
 
+// Firestore devuelve los documentos ordenados por su id, y el id de un
+// alumno es su clave aleatoria de seis letras ("K7M2QP"). Por eso la
+// lista salía en un orden que no significaba nada: ni el de la lista de
+// clase, ni el orden en que se dieron de alta.
+//
+// Se ordena por nombre con comparación numérica, que es la que hace
+// falta cuando los nombres llevan el número delante ("1. Ana",
+// "2. Luis"): con la comparación normal, "10." se colaría entre "1." y
+// "2.", porque compara letra a letra. Con nombres sin número, ordena
+// alfabéticamente, tildes y mayúsculas incluidas.
+const COMPARADOR_NOMBRES = new Intl.Collator("es", { numeric: true, sensitivity: "base" });
+
+function ordenarPorNombre(docs, campo) {
+  return docs.slice().sort((a, b) =>
+    COMPARADOR_NOMBRES.compare(String(a.data()[campo] || ""), String(b.data()[campo] || ""))
+  );
+}
+
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function genCode() {
@@ -314,8 +332,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      // Mismo motivo que con los alumnos: las clases también venían en
+      // el orden del id que les pone Firestore, que es aleatorio.
+      const clasesSnap = [];
+      snap.forEach((docSnap) => clasesSnap.push(docSnap));
+
       const primeras = [];
-      snap.forEach((docSnap) => {
+      ordenarPorNombre(clasesSnap, "name").forEach((docSnap) => {
         const data = docSnap.data();
         const fila = document.createElement("div");
         fila.className = "class-row";
@@ -374,7 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
       snap.forEach((d) => {
         if (d.data().classId === classId) lista.push(d);
       });
-      return lista;
+      return ordenarPorNombre(lista, "nickname");
     }
 
     async function renombrarClase(classId, data) {
@@ -517,10 +540,11 @@ document.addEventListener("DOMContentLoaded", () => {
       // entera se rechaza. Por eso se pide por docente y se filtra la
       // clase aquí (son pocos alumnos).
       const snap = await getDocs(query(collection(db, "students"), where("teacherId", "==", teacher.uid)));
-      const deLaClase = [];
+      const sinOrdenar = [];
       snap.forEach((docSnap) => {
-        if (docSnap.data().classId === currentClass.id) deLaClase.push(docSnap);
+        if (docSnap.data().classId === currentClass.id) sinOrdenar.push(docSnap);
       });
+      const deLaClase = ordenarPorNombre(sinOrdenar, "nickname");
 
       studentListEl.innerHTML = "";
       if (!deLaClase.length) {
