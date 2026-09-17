@@ -331,10 +331,15 @@ document.addEventListener("DOMContentLoaded", () => {
       sheetRoot.appendChild(crearPaginaRecortables(recortablesExamen));
     }
 
-    // Hoja de respuestas: solo en modo examen.
+    // Hoja de respuestas: solo en modo examen y solo si quien está
+    // usando la app puede ver las soluciones. En una clase que no las
+    // tiene marcadas, el alumnado se queda con el examen y nada más
+    // (ver __puedeVerSoluciones en js/layout.js); ni siquiera se monta
+    // la hoja, para que no esté escondida en la página.
+    const verSoluciones = !window.__puedeVerSoluciones || window.__puedeVerSoluciones();
     const respuestasEl = document.getElementById("acs-gen-respuestas");
     respuestasEl.innerHTML = "";
-    if (modo === "examen") {
+    if (modo === "examen" && verSoluciones) {
       const titulo = document.createElement("h2");
       titulo.className = "acs-sheet-titulo";
       titulo.textContent = "Hoja de respuestas";
@@ -353,13 +358,13 @@ document.addEventListener("DOMContentLoaded", () => {
         respuestasEl.appendChild(lista);
       });
     }
-    tabRespuestasBtn.style.display = modo === "examen" ? "" : "none";
+    tabRespuestasBtn.style.display = modo === "examen" && verSoluciones ? "" : "none";
 
     // Si se estaba en la pestaña de respuestas y se genera de nuevo en
     // modo repaso (esa pestaña desaparece), se vuelve a la digital para
     // no dejar la pantalla en una pestaña que ya no existe.
     const tabActivaBtn = document.querySelector("#acs-gen-tabs .acs-tab-btn.active");
-    if (modo === "repaso" && tabActivaBtn && tabActivaBtn.dataset.tab === "respuestas") {
+    if ((modo === "repaso" || !verSoluciones) && tabActivaBtn && tabActivaBtn.dataset.tab === "respuestas") {
       document.querySelector('#acs-gen-tabs [data-tab="digital"]').click();
     }
 

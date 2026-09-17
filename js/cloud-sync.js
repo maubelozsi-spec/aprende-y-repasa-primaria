@@ -22,6 +22,7 @@ import {
 import { db } from "./firebase-init.js";
 
 const VISIBILITY_STORAGE_KEY = "ar_visibilidad";
+const SOLUCIONES_STORAGE_KEY = "ar_soluciones";
 const FLUSH_INTERVAL_MS = 15000;
 const FLUSH_EVERY_N = 10;
 
@@ -89,6 +90,14 @@ function initCloudSync() {
       const data = snap.data() || {};
       classHiddenCache = Array.isArray(data.hiddenTopics) ? data.hiddenTopics : [];
       updateVisibilityCache(window.__studentHiddenCache || []);
+      // Si su clase le deja ver las hojas de soluciones. Va en vivo,
+      // igual que los contenidos: la maestra lo marca en el panel y
+      // en la pantalla del alumno cambia sin recargar nada.
+      try {
+        localStorage.setItem(SOLUCIONES_STORAGE_KEY, data.verSoluciones === true ? "1" : "0");
+      } catch (e) {
+        // localStorage no disponible.
+      }
     });
   }
 

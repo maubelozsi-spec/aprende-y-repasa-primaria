@@ -63,6 +63,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let showColors = false;
   let popoverEl = null;
 
+  // "Mostrar corrección" colorea las palabras según su regla: es la
+  // solución del dictado. La clase decide si su alumnado puede verla
+  // (ver __puedeVerSoluciones en js/layout.js).
+  if (window.__puedeVerSoluciones && !window.__puedeVerSoluciones() && toggleBtn) {
+    toggleBtn.style.display = "none";
+  }
+
   const diff = initDifficultySelector("difficulty-select", (value) => {
     renderDifficultyBox("difficulty-box", value, DICTADO_DIFFICULTY_EXPLANATIONS);
     applyDifficultyUI();

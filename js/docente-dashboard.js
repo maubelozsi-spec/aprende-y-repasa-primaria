@@ -268,6 +268,27 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnTodo) btnTodo.addEventListener("click", () => classTopicCtrl && classTopicCtrl.marcarTodo(true));
     if (btnNada) btnNada.addEventListener("click", () => classTopicCtrl && classTopicCtrl.marcarTodo(false));
 
+    // Si el alumnado de la clase puede ver las hojas de soluciones de
+    // los generadores. Se guarda en el momento de marcarla, como el
+    // resto del panel: no hay "guardar cambios" que se pueda olvidar.
+    const solucionesCheck = document.getElementById("class-soluciones-check");
+    if (solucionesCheck) {
+      solucionesCheck.addEventListener("change", async () => {
+        if (!currentClass) return;
+        const valor = solucionesCheck.checked;
+        currentClass.data.verSoluciones = valor;
+        try {
+          await updateDoc(doc(db, "classes", currentClass.id), { verSoluciones: valor });
+        } catch (err) {
+          // Se devuelve la casilla a donde estaba: dejarla marcada
+          // haría creer que se ha guardado algo que no se ha guardado.
+          solucionesCheck.checked = !valor;
+          currentClass.data.verSoluciones = !valor;
+          window.alert("No se ha podido guardar el cambio: " + err.message);
+        }
+      });
+    }
+
     const btnVerClase = document.getElementById("ver-como-clase-btn");
     if (btnVerClase) {
       btnVerClase.addEventListener("click", () => {
@@ -278,6 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
           className: currentClass.data.name,
           code: null,
           hiddenTopics: temasOcultosFusionados(currentClass.data, null),
+          verSoluciones: currentClass.data.verSoluciones === true,
         });
       });
     }
@@ -410,6 +432,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function openClass(classId, data) {
       currentClass = { id: classId, data: data };
       recordarClase(classId);
+      if (solucionesCheck) solucionesCheck.checked = data.verSoluciones === true;
       classPlaceholderEl.style.display = "none";
       classDetailEl.style.display = "";
       classDetailTitle.textContent = data.name;
@@ -591,6 +614,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Lo que ve este alumno es lo de su clase MÁS lo que se le
             // haya ocultado a él en particular.
             hiddenTopics: temasOcultosFusionados(currentClass.data, data),
+            verSoluciones: currentClass.data.verSoluciones === true,
           });
         });
 
@@ -665,6 +689,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const name = input.value.trim();
       if (!name) return;
       await addDoc(collection(db, "classes"), {
+        // Por defecto el alumnado NO ve las hojas de soluciones: es lo
+        // que hay que pedir a propósito, no lo que pasa por descuido.
+        verSoluciones: false,
         teacherId: teacher.uid,
         name: name,
         createdAt: serverTimestamp(),

@@ -19,7 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const topicId = window.CURRENT_PAGE;
 
+  // La clase decide si su alumnado ve las hojas de soluciones (ver
+  // __puedeVerSoluciones en js/layout.js). Aquí solo hay que cambiar
+  // el texto del botón: quien descarga de verdad es
+  // generarFichaYSoluciones, que ya no manda el solucionario cuando no
+  // toca. Con el rótulo puesto a mano en 71 páginas, cambiarlo aquí
+  // evita tener que tocarlas una a una.
+  const verSoluciones = !window.__puedeVerSoluciones || window.__puedeVerSoluciones();
+
   buttons.forEach((btn) => {
+    if (!verSoluciones) btn.textContent = "Descargar ficha (Word)";
     const originalText = btn.textContent;
     btn.addEventListener("click", () => {
       const curso = btn.dataset.fichaCurso;

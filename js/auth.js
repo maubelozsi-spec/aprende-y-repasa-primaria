@@ -30,6 +30,10 @@ import { db, auth } from "./firebase-init.js";
 const TEACHER_SESSION_KEY = "ar_docente";
 const STUDENT_SESSION_KEY = "ar_estudiante";
 const VISIBILITY_STORAGE_KEY = "ar_visibilidad";
+// Si su clase le deja ver las hojas de soluciones de los generadores
+// (lo sincroniza js/cloud-sync.js; lo lee __puedeVerSoluciones en
+// js/layout.js).
+const SOLUCIONES_STORAGE_KEY = "ar_soluciones";
 
 // Vista previa: el docente mira la app tal y como la ve una clase o un
 // alumno concreto, sin entrar con su clave.
@@ -99,6 +103,7 @@ function clearStudentSession() {
   try {
     localStorage.removeItem(STUDENT_SESSION_KEY);
     localStorage.removeItem(VISIBILITY_STORAGE_KEY);
+    localStorage.removeItem(SOLUCIONES_STORAGE_KEY);
   } catch (e) {
     // localStorage no disponible.
   }

@@ -2457,7 +2457,14 @@ function generarFichaYSoluciones(topicId, curso, count, dificultad = "none", opt
   if (options.download === false) return { ficha: fichaFile, soluciones: solucionesFile };
 
   downloadBlob(fichaBlob, fichaFile.filename);
-  setTimeout(() => downloadBlob(solucionesBlob, solucionesFile.filename), 400);
+  // El solucionario solo si quien está usando la app puede verlo: un
+  // alumno cuya clase no lo tiene marcado se lleva la ficha y nada
+  // más (ver __puedeVerSoluciones en js/layout.js). Quien llama con
+  // download:false —el Generador de Unidad Didáctica, que empaqueta
+  // los documentos— recibe los dos igual: ahí decide quien empaqueta.
+  if (!window.__puedeVerSoluciones || window.__puedeVerSoluciones()) {
+    setTimeout(() => downloadBlob(solucionesBlob, solucionesFile.filename), 400);
+  }
   return { ficha: fichaFile, soluciones: solucionesFile };
 }
 

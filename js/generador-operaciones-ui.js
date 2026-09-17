@@ -19,6 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const toggleSolutionsBtn = document.getElementById("opgen-toggle-solutions");
   const downloadBtn = document.getElementById("opgen-download-btn");
 
+  // La clase decide si su alumnado ve las soluciones (ver
+  // __puedeVerSoluciones en js/layout.js). Si no puede, el botón de
+  // mostrarlas desaparece del todo: dejarlo puesto y que no haga nada
+  // solo invita a insistir.
+  const verSoluciones = !window.__puedeVerSoluciones || window.__puedeVerSoluciones();
+  if (!verSoluciones) {
+    if (toggleSolutionsBtn) toggleSolutionsBtn.style.display = "none";
+    if (downloadBtn) downloadBtn.textContent = "Descargar en Word";
+  }
+
   let curso = "5";
   let currentResult = null;
   let showSolutions = false;
@@ -211,6 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
   downloadBtn.addEventListener("click", () => {
     if (!currentResult) return;
     downloadBlob(currentResult.fichaBlob, `operaciones_basicas_${curso}.docx`);
+    if (!verSoluciones) return;
     setTimeout(() => downloadBlob(currentResult.solucionesBlob, `soluciones_operaciones_basicas_${curso}.docx`), 400);
   });
 });

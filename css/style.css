@@ -2730,6 +2730,23 @@ table.rules-table tr:last-child td {
   font-weight: 700;
 }
 
+.soluciones-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 18px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.soluciones-toggle input {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
 /* ---------- Vista del alumnado (vista previa del docente) ---------- */
 /*
    Barra pegada arriba del contenido, no en la barra lateral: en móvil

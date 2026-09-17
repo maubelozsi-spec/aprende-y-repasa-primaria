@@ -141,7 +141,9 @@ const NAV = [
         items: [
           { id: "generador-fichas", label: "Generador de fichas de problemas", href: "matematicas/generador-fichas.html", available: true },
           { id: "generador-operaciones", label: "Generador de operaciones básicas", href: "matematicas/generador-operaciones.html", available: true },
-          { id: "examen-mixto", label: "Generador de exámenes mixtos", href: "matematicas/examen-mixto.html", available: true },
+          // Exclusivo del profesorado: genera el examen Y su hoja de
+          // soluciones, así que no es una herramienta de practicar.
+          { id: "examen-mixto", label: "Generador de exámenes mixtos", href: "matematicas/examen-mixto.html", available: true, soloDocente: true },
           { id: "generador-udi", label: "Generador de Unidad Didáctica", href: "lengua/generador-udi.html", available: true, soloDocente: true },
         ],
       },
@@ -563,6 +565,37 @@ function getHiddenTopics() {
 
 window.__navFilter = function (topicId) {
   return getHiddenTopics().indexOf(topicId) === -1;
+};
+
+// ============================================================
+// ¿Puede ver las soluciones quien está usando la app?
+// ============================================================
+//
+// Los generadores de fichas sacan la ficha Y su hoja de soluciones.
+// Para preparar material está bien; para un alumno que entra a
+// practicar, tener el solucionario al lado se carga el ejercicio. Cada
+// clase lo decide en el panel docente (campo verSoluciones), y por
+// defecto NO se ven: es lo que hay que pedir a propósito, no lo que
+// pasa por descuido.
+//
+// Solo afecta a quien se ha identificado como alumno. La maestra, y
+// cualquiera que use la app sin clave (que es como la usaba todo el
+// mundo hasta ahora), las sigue viendo igual que siempre.
+const SOLUCIONES_STORAGE_KEY = "ar_soluciones";
+
+window.__puedeVerSoluciones = function () {
+  if (!esAlumnoSinSerDocente()) return true;
+
+  const preview = getPreviewSessionCache();
+  if (preview) return preview.verSoluciones === true;
+
+  try {
+    return localStorage.getItem(SOLUCIONES_STORAGE_KEY) === "1";
+  } catch (e) {
+    // Sin localStorage no se puede saber qué ha marcado la maestra:
+    // se elige lo prudente, que es no enseñarlas.
+    return false;
+  }
 };
 
 // ============================================================

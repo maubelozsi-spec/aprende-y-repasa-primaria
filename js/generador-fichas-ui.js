@@ -88,11 +88,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // La clase decide si su alumnado ve las soluciones (ver
+  // __puedeVerSoluciones en js/layout.js). La maestra y quien use la
+  // app sin clave las ven siempre.
+  const verSoluciones = !window.__puedeVerSoluciones || window.__puedeVerSoluciones();
+
   function showPreview(problem) {
     document.getElementById("gen-preview-enunciado").textContent = problem.enunciado;
     document.getElementById("gen-preview-datos").innerHTML = problem.datos.join("<br>");
     document.getElementById("gen-preview-operacion").textContent = problem.operacion;
-    document.getElementById("gen-preview-solucion").textContent = problem.solucion;
+    const cajaSolucion = document.getElementById("gen-preview-solucion-box");
+    if (verSoluciones) {
+      document.getElementById("gen-preview-solucion").textContent = problem.solucion;
+    } else if (cajaSolucion) {
+      cajaSolucion.style.display = "none";
+    }
     previewEl.style.display = "";
   }
 
@@ -113,7 +123,9 @@ document.addEventListener("DOMContentLoaded", () => {
       generarFichaYSoluciones(topicId, curso, count, dificultad);
 
       statusEl.classList.add("show", "ok");
-      statusEl.innerHTML = `<p class="feedback-title">¡Listo!</p><p>Se han descargado la ficha y la hoja de soluciones (${count} problema${count === 1 ? "" : "s"}, ${curso}º de Primaria).</p>`;
+      statusEl.innerHTML = verSoluciones
+        ? `<p class="feedback-title">¡Listo!</p><p>Se han descargado la ficha y la hoja de soluciones (${count} problema${count === 1 ? "" : "s"}, ${curso}º de Primaria).</p>`
+        : `<p class="feedback-title">¡Listo!</p><p>Se ha descargado la ficha (${count} problema${count === 1 ? "" : "s"}, ${curso}º de Primaria).</p>`;
     } catch (err) {
       statusEl.classList.add("show", "ko");
       statusEl.innerHTML = `<p class="feedback-title">Ha ocurrido un error</p><p>${err.message}</p>`;

@@ -5,6 +5,11 @@
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Si el contenido de la página ya no está, no hay nada que montar:
+  // pasa cuando requireDocente() lo ha sustituido por el aviso de
+  // "herramienta solo para el profesorado" (ver js/layout.js).
+  if (!document.getElementById("exm-topic-list")) return;
+
   const listEl = document.getElementById("exm-topic-list");
   const cursoBtns = document.querySelectorAll("#exm-curso-picker [data-curso]");
   const resumenEl = document.getElementById("exm-resumen");

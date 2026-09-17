@@ -53,6 +53,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const previewEl = document.getElementById("lectgen-preview");
   const downloadBtn = document.getElementById("lectgen-download-btn");
 
+  // La clase decide si su alumnado ve las soluciones (ver
+  // __puedeVerSoluciones en js/layout.js).
+  const verSoluciones = !window.__puedeVerSoluciones || window.__puedeVerSoluciones();
+  if (!verSoluciones && downloadBtn) downloadBtn.textContent = "Descargar en Word";
+
   let curso = "5";
   let tipoId = TIPOS_TEXTO_LECTURA[0].id;
   let currentResult = null;
@@ -228,6 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
   downloadBtn.addEventListener("click", () => {
     if (!currentResult) return;
     downloadBlob(currentResult.fichaBlob, `lectura_comprensiva_${tipoId}_${curso}.docx`);
+    if (!verSoluciones) return;
     setTimeout(() => downloadBlob(currentResult.solucionesBlob, `soluciones_lectura_comprensiva_${tipoId}_${curso}.docx`), 400);
   });
 });
