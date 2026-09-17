@@ -55,7 +55,10 @@
             </div>
             <div class="generator-field">
               <label for="login-password">Contraseña</label>
-              <input type="password" id="login-password" class="generator-select" required autocomplete="current-password">
+              <div class="password-field">
+                <input type="password" id="login-password" class="generator-select" required autocomplete="current-password">
+                <button type="button" class="password-toggle" data-password-toggle="login-password" aria-controls="login-password" aria-pressed="false" aria-label="Mostrar la contraseña">Ver</button>
+              </div>
             </div>
             <p class="auth-error" id="login-error"></p>
             <button type="submit" class="btn btn-primary">Iniciar sesión</button>
@@ -78,7 +81,11 @@
             </div>
             <div class="generator-field">
               <label for="signup-password">Contraseña (mínimo 6 caracteres)</label>
-              <input type="password" id="signup-password" class="generator-select" required minlength="6" autocomplete="new-password">
+              <div class="password-field">
+                <input type="password" id="signup-password" class="generator-select" required minlength="6" autocomplete="new-password">
+                <button type="button" class="password-toggle" data-password-toggle="signup-password" aria-controls="signup-password" aria-pressed="false" aria-label="Mostrar la contraseña">Ver</button>
+              </div>
+              <p class="password-aviso">Compruébala con «Ver» antes de crear la cuenta: si se cuela una errata, la cuenta se crea con la contraseña equivocada.</p>
             </div>
             <p class="auth-error" id="signup-error"></p>
             <button type="submit" class="btn btn-primary">Crear cuenta</button>

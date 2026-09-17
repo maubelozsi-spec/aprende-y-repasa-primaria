@@ -2730,6 +2730,61 @@ table.rules-table tr:last-child td {
   font-weight: 700;
 }
 
+/* ---------- Contraseña con botón "Ver / Ocultar" ---------- */
+/*
+   El botón va DENTRO del recuadro del campo, a la derecha, y el campo
+   reserva ese hueco con su padding: si fuera al lado, en el móvil se
+   caería a la línea de abajo y quedaría lejos de lo que muestra. */
+.password-field {
+  position: relative;
+}
+
+.password-field .generator-select {
+  padding-right: 84px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  /* Un pelín más alto de lo que pide el texto: es un botón que en el
+     aula se pulsa con el dedo en una tablet. */
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  border-color: var(--color-indigo);
+  color: var(--color-indigo);
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid var(--color-indigo);
+  outline-offset: 2px;
+}
+
+/* Mientras la contraseña está a la vista, el botón se marca: en una
+   pantalla de aula conviene que cante que está destapada. */
+.password-toggle[aria-pressed="true"] {
+  border-color: var(--color-amber);
+  background: var(--color-amber-tint);
+  color: var(--color-amber);
+}
+
+.password-aviso {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
 .soluciones-toggle {
   display: flex;
   align-items: center;
