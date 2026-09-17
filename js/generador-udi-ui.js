@@ -52,6 +52,13 @@ function udiPreviewProblem(doc, dificultad) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Si el contenido de la página ya no está, no hay nada que montar:
+  // pasa cuando requireDocente() lo ha sustituido por el aviso de
+  // "herramienta solo para el profesorado" (ver js/layout.js). Sin
+  // esta salida, el resto de la función petaba contra elementos que
+  // ya no existen.
+  if (!document.getElementById("udi-titulo")) return;
+
   const registry = window.UDI_REGISTRY || {};
   const ids = Object.keys(registry);
   const params = new URLSearchParams(window.location.search);

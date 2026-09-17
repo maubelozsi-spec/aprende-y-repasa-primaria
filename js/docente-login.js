@@ -36,6 +36,43 @@ function friendlyError(err) {
   return (code && map[code]) || (err && err.message) || "Ha ocurrido un error. Inténtalo de nuevo.";
 }
 
+// Al volver de la vista del alumnado no se pide el correo otra vez:
+// ya se sabe quién estaba dentro, así que se rellena y el foco va a la
+// contraseña. La contraseña SÍ se pide, y no es un adorno: al entrar
+// en la vista previa se cerró la sesión de verdad (Firebase incluido),
+// de modo que desde esa pantalla nadie —tampoco un alumno que
+// escribiera la dirección del panel— puede volver sin saberla.
+function prepararVueltaDeVistaPrevia() {
+  // Se lee localStorage directamente en vez de esperar a window.Auth:
+  // ese módulo necesita descargar Firebase, y si la red del centro va
+  // lenta o lo bloquea, el aviso y el correo no aparecerían nunca.
+  // Para escribir la contraseña no hace falta Firebase; solo para
+  // comprobarla al enviar el formulario.
+  let preview = null;
+  try {
+    const raw = localStorage.getItem("ar_vista_alumno");
+    preview = raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    preview = null;
+  }
+  if (!preview) return;
+
+  const aviso = document.getElementById("volver-aviso");
+  const texto = document.getElementById("volver-texto");
+  if (aviso && texto) {
+    texto.textContent =
+      "Estabas viendo la app como " +
+      (preview.nombre || "tu alumnado") +
+      ". Escribe tu contraseña para volver al panel.";
+    aviso.style.display = "";
+  }
+
+  const emailEl = document.getElementById("login-email");
+  const passEl = document.getElementById("login-password");
+  if (emailEl && preview.teacherEmail) emailEl.value = preview.teacherEmail;
+  if (passEl) passEl.focus();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
 
@@ -76,6 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
   });
+
+  prepararVueltaDeVistaPrevia();
 
   withAuth(() => {
     const existing = window.Auth.loadTeacherSession();

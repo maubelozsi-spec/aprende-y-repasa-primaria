@@ -31,6 +31,20 @@ const TEACHER_SESSION_KEY = "ar_docente";
 const STUDENT_SESSION_KEY = "ar_estudiante";
 const VISIBILITY_STORAGE_KEY = "ar_visibilidad";
 
+// Vista previa: el docente mira la app tal y como la ve una clase o un
+// alumno concreto, sin entrar con su clave.
+//
+// Es a propósito una sesión APARTE de la del alumno y NO pasa por
+// claimStudentCode(). Entrar con la clave de un alumno para "ver lo
+// que ve" tendría dos efectos que no se ven hasta que es tarde:
+// reescribe su authUid —y, por las reglas de firestore.rules, su
+// tablet dejaría de poder guardar el progreso hasta que volviera a
+// teclear la clave— y le añade un acceso falso al registro de
+// actividad, que es justo donde la maestra mira quién ha entrado.
+// La vista previa no escribe NADA en Firestore: se lleva la lista de
+// temas ocultos ya calculada y se limita a leerla.
+const PREVIEW_SESSION_KEY = "ar_vista_alumno";
+
 // Clave compartida para poder crear una cuenta de docente: solo sirve
 // para que no se registre cualquiera que llegue a la página por
 // casualidad, compartiéndola con el profesorado del centro. No es un
@@ -90,6 +104,59 @@ function clearStudentSession() {
   }
 }
 
+function savePreviewSession(preview) {
+  try {
+    localStorage.setItem(PREVIEW_SESSION_KEY, JSON.stringify(preview));
+  } catch (e) {
+    // localStorage no disponible.
+  }
+}
+
+function loadPreviewSession() {
+  try {
+    const raw = localStorage.getItem(PREVIEW_SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function clearPreviewSession() {
+  try {
+    localStorage.removeItem(PREVIEW_SESSION_KEY);
+  } catch (e) {
+    // localStorage no disponible.
+  }
+}
+
+// Entra en la vista del alumnado. Cierra la sesión de docente DE
+// VERDAD (Firebase incluido), no solo de cara a la galería: si se
+// quedara abierta, pedir la contraseña para volver sería puro teatro,
+// porque bastaría con escribir la dirección del panel para entrar. A
+// cambio se guarda el correo, para que al volver solo haya que
+// escribir la contraseña.
+//
+// Las configuraciones no se tocan: viven en Firestore (hiddenTopics de
+// la clase y de cada alumno) y nada de esto las escribe.
+async function startStudentPreview(preview) {
+  const teacher = loadTeacherSession();
+  savePreviewSession(
+    Object.assign(
+      {
+        teacherEmail: teacher ? teacher.email : "",
+        teacherName: teacher ? teacher.displayName : "",
+      },
+      preview
+    )
+  );
+  try {
+    await signOut(auth);
+  } catch (e) {
+    // Sin conexión: la sesión local se cierra igualmente más abajo.
+  }
+  clearTeacherSession();
+}
+
 async function signUpTeacher(email, password, displayName, claveCentro) {
   if (String(claveCentro || "").trim() !== TEACHER_SIGNUP_PASSCODE) {
     throw new Error("La clave del centro no es correcta.");
@@ -111,12 +178,17 @@ async function loginTeacher(email, password) {
   const data = snap.exists() ? snap.data() : {};
   const profile = { uid: cred.user.uid, email: email, displayName: data.displayName || email };
   saveTeacherSession(profile);
+  // No se puede estar mirando la app como alumno y ser docente a la
+  // vez: entrar con la contraseña es exactamente lo que cierra la
+  // vista previa.
+  clearPreviewSession();
   return profile;
 }
 
 async function logoutTeacher() {
   await signOut(auth);
   clearTeacherSession();
+  clearPreviewSession();
 }
 
 function normalizeCode(code) {
@@ -194,6 +266,9 @@ window.Auth = {
   logoutStudent: logoutStudent,
   loadStudentSession: loadStudentSession,
   refreshStudentDevice: refreshStudentDevice,
+  startStudentPreview: startStudentPreview,
+  loadPreviewSession: loadPreviewSession,
+  clearPreviewSession: clearPreviewSession,
 };
 
 document.dispatchEvent(new CustomEvent("ar:auth-ready"));

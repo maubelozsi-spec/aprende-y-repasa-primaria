@@ -182,6 +182,48 @@ function buildTopicChecklist(container, hiddenSet, onToggle) {
   };
 }
 
+// Clase que estaba abierta la última vez. Se guarda aquí (y no en
+// Firestore) porque es una comodidad de este equipo, no configuración:
+// al volver de la vista del alumnado se reabre la misma clase en vez
+// de la primera de la lista, que es lo que hacía perder el sitio.
+const ULTIMA_CLASE_KEY = "ar_docente_ultima_clase";
+
+function recordarClase(classId) {
+  try {
+    localStorage.setItem(ULTIMA_CLASE_KEY, classId);
+  } catch (e) {
+    // localStorage no disponible.
+  }
+}
+
+function claseRecordada() {
+  try {
+    return localStorage.getItem(ULTIMA_CLASE_KEY) || "";
+  } catch (e) {
+    return "";
+  }
+}
+
+// Entra en la vista del alumnado. Lo que se lleva es la lista de temas
+// ocultos YA CALCULADA (clase, o clase ∪ alumno, igual que la fusión
+// que hace js/cloud-sync.js en el dispositivo del alumno), porque al
+// entrar se cierra la sesión de docente y desde ahí ya no se puede
+// leer Firestore.
+async function entrarEnVistaPrevia(preview) {
+  try {
+    await window.Auth.startStudentPreview(preview);
+    window.location.href = "../index.html";
+  } catch (err) {
+    window.alert("No se ha podido abrir la vista del alumnado: " + err.message);
+  }
+}
+
+function temasOcultosFusionados(claseData, alumnoData) {
+  return Array.from(
+    new Set([...(claseData.hiddenTopics || []), ...((alumnoData && alumnoData.hiddenTopics) || [])])
+  );
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   function withAuth(fn) {
     if (window.Auth) return fn();
@@ -225,6 +267,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnNada = document.getElementById("class-topic-none");
     if (btnTodo) btnTodo.addEventListener("click", () => classTopicCtrl && classTopicCtrl.marcarTodo(true));
     if (btnNada) btnNada.addEventListener("click", () => classTopicCtrl && classTopicCtrl.marcarTodo(false));
+
+    const btnVerClase = document.getElementById("ver-como-clase-btn");
+    if (btnVerClase) {
+      btnVerClase.addEventListener("click", () => {
+        if (!currentClass) return;
+        entrarEnVistaPrevia({
+          nombre: currentClass.data.name,
+          classId: currentClass.id,
+          className: currentClass.data.name,
+          code: null,
+          hiddenTopics: temasOcultosFusionados(currentClass.data, null),
+        });
+      });
+    }
 
     async function refreshClasses() {
       const snap = await getDocs(query(collection(db, "classes"), where("teacherId", "==", teacher.uid)));
@@ -272,11 +328,12 @@ document.addEventListener("DOMContentLoaded", () => {
         primeras.push({ id: docSnap.id, data: data });
       });
 
-      // Abre automáticamente la clase que ya estaba seleccionada (o la
-      // primera): así el panel de contenidos se ve sin tener que
-      // descubrir que hay que pulsar la clase.
+      // Abre automáticamente la clase que ya estaba seleccionada, o la
+      // última que se abrió en este equipo (para volver al mismo sitio
+      // después de mirar la app como el alumnado), o la primera.
       const previa = currentClass && primeras.find((c) => c.id === currentClass.id);
-      const aAbrir = previa || primeras[0];
+      const recordada = primeras.find((c) => c.id === claseRecordada());
+      const aAbrir = previa || recordada || primeras[0];
       if (aAbrir) await openClass(aAbrir.id, aAbrir.data);
     }
 
@@ -352,6 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function openClass(classId, data) {
       currentClass = { id: classId, data: data };
+      recordarClase(classId);
       classPlaceholderEl.style.display = "none";
       classDetailEl.style.display = "";
       classDetailTitle.textContent = data.name;
@@ -468,6 +526,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <button type="button" class="btn btn-secondary" data-action="toggle">${data.active === false ? "Reactivar" : "Desactivar"}</button>
             <button type="button" class="btn btn-secondary" data-action="regen">Nueva clave</button>
             <button type="button" class="btn btn-secondary" data-action="visibility">Contenidos individuales</button>
+            <button type="button" class="btn btn-secondary" data-action="vista">Ver como este alumno/a</button>
             <button type="button" class="btn btn-secondary" data-action="delete">Eliminar</button>
           </div>
           <div class="student-progress-panel" style="display:none;"></div>
@@ -521,6 +580,18 @@ document.addEventListener("DOMContentLoaded", () => {
           if (!window.confirm("¿Eliminar a " + data.nickname + " de esta clase? Esta acción no se puede deshacer.")) return;
           await deleteDoc(doc(db, "students", code));
           refreshStudents();
+        });
+
+        row.querySelector('[data-action="vista"]').addEventListener("click", () => {
+          entrarEnVistaPrevia({
+            nombre: data.nickname,
+            classId: currentClass.id,
+            className: currentClass.data.name,
+            code: code,
+            // Lo que ve este alumno es lo de su clase MÁS lo que se le
+            // haya ocultado a él en particular.
+            hiddenTopics: temasOcultosFusionados(currentClass.data, data),
+          });
         });
 
         const visPanel = row.querySelector(".student-visibility-panel");

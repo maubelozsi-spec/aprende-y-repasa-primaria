@@ -2730,6 +2730,51 @@ table.rules-table tr:last-child td {
   font-weight: 700;
 }
 
+/* ---------- Vista del alumnado (vista previa del docente) ---------- */
+/*
+   Barra pegada arriba del contenido, no en la barra lateral: en móvil
+   la lateral está cerrada casi siempre y el fallo que de verdad pasa
+   es olvidarse de que se está en la vista previa y creer que la app se
+   ha roto (faltan contenidos, no está el panel docente...). Por eso
+   está siempre a la vista y en ámbar, que es el color de aviso del
+   resto de la app. */
+.vista-previa-barra {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 18px;
+  background: var(--color-amber-tint);
+  border-bottom: 3px solid var(--color-amber);
+}
+
+.vista-previa-texto {
+  /* Que el texto pueda encogerse para compartir fila con el botón:
+     si no, ocupa todo el ancho que pide y tira el botón a una segunda
+     línea aunque haya sitio de sobra. */
+  flex: 1 1 320px;
+  min-width: 0;
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-amber);
+  font-weight: 600;
+}
+
+.vista-previa-volver {
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+@media print {
+  .vista-previa-barra {
+    display: none !important;
+  }
+}
+
 /* ---------- Panel docente ---------- */
 
 .docente-layout {

@@ -217,11 +217,28 @@ function getTeacherSessionCache() {
   }
 }
 
+// Vista previa del alumnado: el docente está mirando la app como la ve
+// una clase o un alumno concreto (ver startStudentPreview en
+// js/auth.js). Mientras dura, la app tiene que comportarse como si
+// quien navega fuera ese alumno —si no, no sirve para comprobar nada—
+// y por eso la sesión de docente se ha cerrado al entrar.
+function getPreviewSessionCache() {
+  try {
+    const raw = localStorage.getItem("ar_vista_alumno");
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 // Es habitual que el docente pruebe una clave de alumno en su propio
 // navegador y se quede con las dos sesiones abiertas a la vez. En ese
 // caso manda la de docente: si no, las herramientas del profesorado se
-// le bloquearían a sí mismo.
+// le bloquearían a sí mismo. En la vista previa es justo al revés: lo
+// que se quiere es verlo TODO como el alumnado, herramientas
+// escondidas incluidas.
 function esAlumnoSinSerDocente() {
+  if (getPreviewSessionCache()) return true;
   return !!getStudentSessionCache() && !getTeacherSessionCache();
 }
 
@@ -230,6 +247,7 @@ function esAlumnoSinSerDocente() {
 // sueltos sin saber de quién son—, así que se le oculta y se le manda
 // al panel, donde ve el progreso de cada alumno con su nombre.
 function esDocenteSinSerAlumno() {
+  if (getPreviewSessionCache()) return false;
   return !!getTeacherSessionCache() && !getStudentSessionCache();
 }
 
@@ -262,6 +280,7 @@ function cargarSincronizacionDelAlumno() {
 
 function buildSidebar(base, current) {
   const student = getStudentSessionCache();
+  const preview = getPreviewSessionCache();
   let html = `
     <div class="sidebar-header">
       <a href="${base}index.html" class="sidebar-brand">
@@ -270,7 +289,10 @@ function buildSidebar(base, current) {
       </a>
     </div>
     ${
-      student
+      // En la vista previa no se enseña la chapa del alumno que pueda
+      // haber entrado en este equipo: quien navega es el docente
+      // mirando, y confundir las dos cosas sería peor que no avisar.
+      student && !preview
         ? `<div class="sidebar-student-badge">👤 ${student.nickname} · <a href="#" id="sidebar-student-logout">Salir</a></div>`
         : ""
     }
@@ -284,7 +306,7 @@ function buildSidebar(base, current) {
       // ni como alumno: se ofrecen los dos accesos con una frase de
       // qué hace cada uno (antes eran dos cajas en el panel
       // principal; ahora solo aparecen aquí, en la barra lateral).
-      !getTeacherSessionCache() && !getStudentSessionCache()
+      !getTeacherSessionCache() && !getStudentSessionCache() && !preview
         ? `
           <div class="sidebar-access-item">
             <a href="${base}docente/login.html" class="sidebar-access-link">Panel docente</a>
@@ -340,6 +362,54 @@ function buildSidebar(base, current) {
   return html;
 }
 
+// Páginas del panel docente (window.CURRENT_PAGE de docente/*.html).
+const PAGINAS_DEL_PANEL = ["docente-dashboard", "docente-actividad"];
+
+// Aviso permanente de que se está mirando la app como el alumnado.
+// Va pegado arriba del contenido y no en la barra lateral porque en
+// móvil la barra está cerrada casi siempre: el riesgo real de esta
+// función es olvidarse de que se está dentro y pensar que la app se
+// ha estropeado.
+function pintarBarraDeVistaPrevia(base, current) {
+  const preview = getPreviewSessionCache();
+  if (!preview) return;
+  // En la propia pantalla de acceso docente sobra: es justo el sitio
+  // al que lleva el botón, y allí ya hay un aviso propio explicando
+  // que se vuelve escribiendo la contraseña.
+  if (current === "docente-login") return;
+
+  const wrap = document.querySelector(".content-wrap");
+  if (!wrap || document.getElementById("vista-previa-barra")) return;
+
+  const barra = document.createElement("div");
+  barra.className = "vista-previa-barra";
+  barra.id = "vista-previa-barra";
+
+  const texto = document.createElement("p");
+  texto.className = "vista-previa-texto";
+  const etiqueta = document.createElement("strong");
+  etiqueta.textContent = "Vista del alumnado";
+  texto.appendChild(etiqueta);
+  // textContent y no innerHTML: el nombre lo escribe el propio docente
+  // en el panel, pero eso no lo convierte en HTML de fiar.
+  texto.appendChild(
+    document.createTextNode(
+      " · Estás viendo la app como " +
+        (preview.nombre || "tu alumnado") +
+        ". Nada de lo que hagas aquí se guarda en el progreso de tu alumnado."
+    )
+  );
+
+  const volver = document.createElement("a");
+  volver.className = "btn btn-primary vista-previa-volver";
+  volver.href = base + "docente/login.html";
+  volver.textContent = "Volver al panel docente";
+
+  barra.appendChild(texto);
+  barra.appendChild(volver);
+  wrap.insertBefore(barra, wrap.firstChild);
+}
+
 function initLayout() {
   const base = typeof window.BASE_PATH === "string" ? window.BASE_PATH : "";
   const current = typeof window.CURRENT_PAGE === "string" ? window.CURRENT_PAGE : "";
@@ -349,8 +419,21 @@ function initLayout() {
     return;
   }
 
+  // Mirando la app como el alumnado no hay sesión de docente abierta,
+  // así que las páginas del panel llevan al acceso, a escribir la
+  // contraseña. El aviso va aquí, en layout.js, y no en el módulo del
+  // panel: ese módulo importa Firebase desde gstatic y, si la red del
+  // centro lo bloquea o va lenta, no llega a ejecutarse nunca y el
+  // panel se quedaría abierto y vacío en vez de mandar al acceso.
+  if (PAGINAS_DEL_PANEL.indexOf(current) !== -1 && getPreviewSessionCache()) {
+    window.location.replace(base + "docente/login.html");
+    return;
+  }
+
   const sidebarEl = document.getElementById("sidebar");
   if (sidebarEl) sidebarEl.innerHTML = buildSidebar(base, current);
+
+  pintarBarraDeVistaPrevia(base, current);
 
   loadScriptOnce(base + "js/gamification.js");
   registerServiceWorker(base);
@@ -461,6 +544,13 @@ function initSidebarSearch() {
 const VISIBILITY_STORAGE_KEY = "ar_visibilidad";
 
 function getHiddenTopics() {
+  // En la vista previa mandan los temas que se llevó el docente al
+  // entrar, no la caché del alumno que pueda haber en este equipo: son
+  // dos cosas distintas y mezclarlas daría una vista que no es la de
+  // nadie.
+  const preview = getPreviewSessionCache();
+  if (preview) return Array.isArray(preview.hiddenTopics) ? preview.hiddenTopics : [];
+
   try {
     const raw = localStorage.getItem(VISIBILITY_STORAGE_KEY);
     if (!raw) return [];
@@ -487,7 +577,11 @@ window.__navFilter = function (topicId) {
 
 function requireDocente() {
   if (!esAlumnoSinSerDocente()) return true;
-  const student = getStudentSessionCache();
+  // En la vista previa no hay sesión de alumno de la que sacar el
+  // nombre: se usa el de la clase o alumno que se está mirando.
+  const preview = getPreviewSessionCache();
+  const student = preview ? null : getStudentSessionCache();
+  const saludo = student ? `Hola, ${student.nickname}. ` : "";
 
   const base = typeof window.BASE_PATH === "string" ? window.BASE_PATH : "";
   document.addEventListener("DOMContentLoaded", () => {
@@ -497,7 +591,7 @@ function requireDocente() {
       <header class="content-header">
         <p class="eyebrow">Zona del profesorado</p>
         <h1>Esta herramienta es solo para el profesorado</h1>
-        <p class="content-subtitle">Hola, ${student.nickname}. Esta página sirve para preparar el material de clase, así que no forma parte de tus contenidos.</p>
+        <p class="content-subtitle">${saludo}Esta página sirve para preparar el material de clase, así que no forma parte de tus contenidos.</p>
       </header>
       <div class="game-card generator-card">
         <p>Puedes volver a tus contenidos desde aquí:</p>

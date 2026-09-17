@@ -32,6 +32,15 @@
         <p class="content-subtitle">Cada docente tiene su propia cuenta y sus propias clases: nadie más ve tus alumnos ni tú los de otros docentes.</p>
       </header>
 
+      <!-- Aviso que aparece solo al volver de la vista del alumnado
+           (ver js/docente-login.js): el correo ya viene puesto y solo
+           hay que escribir la contraseña. -->
+      <div class="game-card generator-card auth-card" id="volver-aviso" style="display:none;">
+        <h2 id="volver-titulo">Volver al panel docente</h2>
+        <p class="content-subtitle" id="volver-texto"></p>
+        <p class="content-subtitle">Tus clases y los contenidos que has marcado siguen guardados tal y como los dejaste: mirar la app como el alumnado no cambia nada.</p>
+      </div>
+
       <div class="game-card generator-card auth-card">
         <div class="tabs">
           <button class="tab-btn active" data-tab="login">Iniciar sesión</button>
