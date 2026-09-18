@@ -652,6 +652,11 @@ function renderElegirOpcionSheet(ficha, container) {
     bloque.appendChild(prompt);
 
     if (item.conteo) {
+      // Se marca el bloque para poder poner los dibujos que hay que
+      // contar AL LADO de las opciones en la hoja impresa (ver
+      // .acs-opcion-bloque-conteo en css/acs.css). Los bloques sin
+      // dibujos no lo llevan: ahí no hay nada que poner al lado.
+      bloque.classList.add("acs-opcion-bloque-conteo");
       bloque.appendChild(acsCrearConteo(item.conteo, { color: false, alinearIzquierda: true }));
     }
 

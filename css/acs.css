@@ -1237,6 +1237,70 @@ button.acs-serie-celda.error {
   font-size: 26px;
 }
 
+/* Un último apretón en las fichas que se quedaban a un dedo de caber
+   dos por cara (Mayor/menor/igual, Restas con dibujos, Une las
+   sílabas, Une la operación con su resultado). Son recortes de
+   márgenes y de números muy grandes, no de las casillas: la caja que
+   la alumna tiene que marcar o unir no baja de 56px (unos 15mm), y
+   ningún número baja de 30px. Las fichas que ni con esto caben dos
+   por cara simplemente salen un poco más apretadas, que no estorba. */
+.acs-sheet .acs-mmi-fila {
+  margin-bottom: 4px;
+}
+
+.acs-sheet .acs-mmi-num {
+  font-size: 32px;
+  padding: 6px 18px;
+}
+
+.acs-sheet .acs-mmi-hueco {
+  width: 56px;
+  height: 56px;
+}
+
+.acs-sheet .acs-mmi-btn {
+  font-size: 26px;
+  min-width: 56px;
+  min-height: 56px;
+}
+
+.acs-sheet .acs-resta-fila {
+  margin-bottom: 4px;
+}
+
+.acs-sheet .acs-parejas-col {
+  gap: 6px;
+}
+
+.acs-sheet .acs-pareja-item {
+  min-height: 56px;
+  padding: 4px 12px;
+}
+
+/* Los dibujos que hay que contar, AL LADO de las opciones y no
+   encima. Un "cuenta y elige" tenía el montón de dibujos arriba y las
+   tres cajas con los números debajo, y entre las dos cosas se comía
+   un tercio del folio por cada pregunta, con la mitad derecha en
+   blanco. Puestos uno al lado del otro ocupan la mitad de alto y el
+   ejercicio entero cabe en media cara.
+   Si no caben al lado (muchos dibujos que contar), el flex-wrap los
+   vuelve a poner debajo solo: no hay que decidirlo por ficha. */
+.acs-sheet .acs-opcion-bloque-conteo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 24px;
+}
+
+.acs-sheet .acs-opcion-bloque-conteo .acs-opcion-prompt {
+  flex: 1 0 100%;
+  margin-bottom: 0;
+}
+
+.acs-sheet .acs-opcion-bloque-conteo .acs-opcion-conteo {
+  margin-bottom: 0;
+}
+
 /* Filas cortas en DOS columnas.
    "3 + ☐ = 10", "17 ► ☐" o "5 ☐ 8" ocupan un tercio del ancho del
    folio y dejaban los otros dos tercios en blanco, una fila debajo de
@@ -1252,7 +1316,12 @@ button.acs-serie-celda.error {
 .acs-sheet .acs-resta-fila {
   display: inline-flex;
   vertical-align: top;
-  margin-right: 28px;
+  /* El hueco ENTRE las dos columnas tiene que ser bastante mayor que
+     el hueco DENTRO de cada fila. Si no, "... = 10   8 + ..." se lee
+     de corrido y parece un solo ejercicio. Por eso la fila aprieta lo
+     suyo por dentro (gap 8px) y deja 24px por fuera. */
+  gap: 8px;
+  margin-right: 24px;
 }
 
 /* ordenar letras y sílabas */
