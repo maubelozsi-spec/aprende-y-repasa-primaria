@@ -2801,6 +2801,39 @@ table.rules-table tr:last-child td {
 
 /* ---------- Panel docente ---------- */
 
+/* El panel docente es una pantalla de DATOS, no de lectura. El tope
+   de 860px de main.content está para que un texto no se lea en
+   líneas larguísimas, pero aquí lo único que conseguía era que la
+   tabla del resumen no cupiera: en un portátil de 1440px la tabla
+   necesitaba 671px y solo tenía 414px, así que había que moverla con
+   una barra horizontal para llegar a "% acierto". */
+main.content.content-ancha {
+  max-width: 1320px;
+}
+
+/* Y con más sitio, las tarjetas no necesitan tanto margen interior:
+   esos 36px por lado salían del ancho de la tabla. */
+.content-ancha .game-card {
+  padding: 22px 24px;
+}
+
+/* .generator-card está pensada para formularios (un campo detrás de
+   otro, que en una línea muy larga se leen mal) y por eso se queda en
+   640px centrada. En el panel no vale: dejaba la tarjeta de la clase
+   en 640px aunque su columna midiera 900, y la tabla seguía apretada
+   con el hueco al lado. */
+.content-ancha .generator-card {
+  max-width: none;
+}
+
+/* Las filas de botones van centradas en toda la web, que con 860px de
+   ancho queda bien. Aquí, con el panel más ancho, los botones se
+   quedaban flotando en mitad de la página, lejos del título al que
+   pertenecen: se alinean a la izquierda, como el resto del panel. */
+.content-ancha .actions-row {
+  justify-content: flex-start;
+}
+
 .docente-layout {
   display: flex;
   gap: 24px;
@@ -2808,14 +2841,36 @@ table.rules-table tr:last-child td {
   flex-wrap: wrap;
 }
 
+/* La columna de la izquierda solo lleva la lista de clases (nombres
+   cortos): se le pone tope para que todo lo que sobre se lo quede la
+   de la derecha, que es la que lleva la tabla, los alumnos y el
+   listado de contenidos. */
 .docente-column {
   flex: 1;
-  min-width: 260px;
+  min-width: 240px;
+  max-width: 340px;
 }
 
+/* Ojo: en el HTML la columna ancha lleva las DOS clases
+   ("docente-column docente-column-wide"), así que hay que anular
+   aquí el tope de arriba o se queda igual de estrecha que la otra. */
 .docente-column-wide {
-  flex: 2;
+  flex: 3;
   min-width: 320px;
+  max-width: none;
+}
+
+/* Por debajo de portátil grande no hay sitio para dos columnas: con
+   la barra lateral puesta, a la de la derecha le quedarían 300px y
+   la tabla del resumen volvería a necesitar barra horizontal. Se
+   ponen una debajo de otra y la clase abierta se queda con todo el
+   ancho, que es lo que necesita. */
+@media (max-width: 1200px) {
+  .docente-column,
+  .docente-column-wide {
+    flex: 1 1 100%;
+    max-width: none;
+  }
 }
 
 .docente-inline-form {
@@ -2867,16 +2922,30 @@ table.rules-table tr:last-child td {
 .class-summary-table th,
 .class-summary-table td {
   text-align: left;
-  padding: 8px 10px;
+  padding: 7px 8px;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
 
+/* Los encabezados SÍ pueden partirse en dos renglones ("Última /
+   conexión", "% / acierto"). Son los que marcaban el ancho de cada
+   columna, porque van en mayúsculas y los datos de debajo son
+   números cortos. Los datos siguen en una sola línea. */
 .class-summary-table th {
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   color: var(--text-soft);
+  white-space: normal;
+  vertical-align: bottom;
+}
+
+/* El nombre puede ocupar dos renglones si hace falta: un "3. María
+   del Carmen Ruiz" en una sola línea se comía él solo un tercio de
+   la tabla. */
+.class-summary-table td:first-child {
+  white-space: normal;
+  min-width: 120px;
 }
 
 .class-summary-table td.ok { color: var(--color-success); font-weight: 700; }
