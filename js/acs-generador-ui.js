@@ -158,6 +158,27 @@ document.addEventListener("DOMContentLoaded", () => {
     return cabecera;
   }
 
+  // Cabecera del cuaderno de repaso: un Nombre/Fecha para todo el
+  // cuaderno, no uno por ficha. Repetirlo 28 veces no solo sobra
+  // —es el mismo niño el que hace todas—, es que esas 28 líneas se
+  // comían un folio y medio de papel.
+  function crearCabeceraCuaderno(secciones, curso) {
+    const areas = new Set(secciones.map((s) => s.area));
+    let titulo = "Cuaderno de repaso";
+    if (areas.size === 1) {
+      titulo = (ACS_GEN_AREA_LABEL[secciones[0].area] || "Cuaderno") + " — Cuaderno de repaso";
+    }
+
+    const cabecera = document.createElement("div");
+    cabecera.className = "acs-examen-header";
+    cabecera.innerHTML = `
+      <h2 class="acs-examen-titulo">${titulo}</h2>
+      <div class="acs-sheet-nombre"><span>Nombre:</span><span>Fecha:</span></div>
+      <p class="acs-examen-curso">Curso: ${curso === "2" ? "2º de Primaria" : "1º de Primaria"}</p>
+    `;
+    return cabecera;
+  }
+
   // En modo examen, cada actividad se convierte de "ficha con su
   // propia cabecera" a "ejercicio numerado" dentro del mismo examen:
   // se quita el Nombre/Fecha y el título grande (ya están una vez en
@@ -321,10 +342,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // página entre ellos (ver ".acs-examen-ejercicio" en css/acs.css).
     const sheetRoot = document.getElementById("acs-gen-sheet");
     sheetRoot.innerHTML = "";
-    if (modo === "examen") sheetRoot.appendChild(crearCabeceraExamen(secciones, curso));
+    sheetRoot.appendChild(
+      modo === "examen" ? crearCabeceraExamen(secciones, curso) : crearCabeceraCuaderno(secciones, curso)
+    );
     const recortablesExamen = [];
     ajustes.forEach(({ hoja }, i) => {
       if (hoja.piezasEl) recortablesExamen.push({ numero: i + 1, piezasEl: hoja.piezasEl });
+      if (modo !== "examen") {
+        // El Nombre/Fecha ya está arriba, una vez para todo el cuaderno.
+        const nombreRow = hoja.sheetDiv.querySelector(".acs-sheet-nombre");
+        if (nombreRow) nombreRow.remove();
+      }
       sheetRoot.appendChild(hoja.sheetDiv);
     });
     if (modo === "examen" && recortablesExamen.length) {

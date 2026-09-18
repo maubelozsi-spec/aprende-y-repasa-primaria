@@ -278,7 +278,7 @@
      distinto en pantalla y en papel, la medida no valdría de nada.
      A los lados son 16mm en pantalla y 12mm de @page + 4mm de
      padding en papel, que dan el mismo ancho útil. */
-  padding: 8mm 16mm;
+  padding: 4mm 16mm;
   font-family: var(--acs-font);
   color: #111;
 }
@@ -1237,6 +1237,24 @@ button.acs-serie-celda.error {
   font-size: 26px;
 }
 
+/* Filas cortas en DOS columnas.
+   "3 + ☐ = 10", "17 ► ☐" o "5 ☐ 8" ocupan un tercio del ancho del
+   folio y dejaban los otros dos tercios en blanco, una fila debajo de
+   otra. Puestas en línea (inline-flex) fluyen como el texto: donde
+   caben dos por renglón van dos, y la fila que sea ancha —las cajas
+   de dibujos de sumar y restar, por ejemplo— se queda ella sola en su
+   renglón. No hace falta decidir nada por ficha: lo decide el ancho
+   real de cada fila.
+   Con esto, "Anterior y posterior" o "¿Qué viene después?" pasan de
+   ocupar tres cuartos de folio a ocupar la mitad, sin quitar ni un
+   ejercicio. */
+.acs-sheet .acs-mmi-fila,
+.acs-sheet .acs-resta-fila {
+  display: inline-flex;
+  vertical-align: top;
+  margin-right: 28px;
+}
+
 /* ordenar letras y sílabas */
 .acs-sheet .acs-letras-bloque {
   margin-bottom: 18px;
@@ -1407,11 +1425,29 @@ button.acs-serie-celda.error {
     border: none;
     box-shadow: none;
     border-radius: 0;
-    padding: 8mm 4mm;
+    padding: 4mm 4mm;
   }
 
-  .acs-sheet:not(:last-child) {
-    page-break-after: always;
+  /* Antes cada ficha se llevaba un folio entero ("page-break-after:
+     always"), y como la mayoría ocupa un tercio o media cara, un
+     cuaderno de 27 fichas eran 27 folios con medio folio en blanco
+     cada uno. Ahora van una detrás de otra y caben las que quepan,
+     sin partirse: eso lo garantiza el "avoid" de aquí abajo más el
+     ajuste al folio del generador (acsBuscarVersionQueQuepa en
+     js/acs-ficha-engine.js), que ya se encarga de que ninguna ficha
+     sea más alta que una cara. */
+  .acs-sheet {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Con dos o tres fichas en la misma cara hace falta ver dónde acaba
+     una y empieza la siguiente: línea de puntos y aire, que además
+     sirve de guía si se quiere recortar. */
+  .acs-sheet + .acs-sheet {
+    margin-top: 4mm;
+    padding-top: 4mm;
+    border-top: 2px dashed #999;
   }
 
   /* Un examen generado es UN documento con ejercicios numerados, no
