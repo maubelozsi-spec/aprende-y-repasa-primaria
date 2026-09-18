@@ -18,42 +18,6 @@ function initTabs() {
   });
 }
 
-// Botón "Ver / Ocultar" de cada contraseña. Una errata al crear la
-// cuenta no se ve hasta el día siguiente, cuando ya no se puede
-// entrar, y en el teclado del móvil o de una tablet de aula se falla
-// más de lo que parece.
-//
-// Se cambia el TIPO del campo (password <-> text), no se sustituye el
-// campo: así no se pierde lo escrito, ni el autocompletado del
-// navegador, ni el minlength del formulario.
-function initVerContrasena() {
-  document.querySelectorAll("[data-password-toggle]").forEach((btn) => {
-    const campo = document.getElementById(btn.dataset.passwordToggle);
-    if (!campo) return;
-
-    btn.addEventListener("click", () => {
-      const estabaVisible = campo.type === "text";
-      // Cambiar el tipo manda el cursor al final en algunos
-      // navegadores: se guarda dónde estaba y se devuelve, para poder
-      // corregir una letra de en medio sin volver a colocarse.
-      const posicion = campo.selectionStart;
-
-      campo.type = estabaVisible ? "password" : "text";
-      btn.textContent = estabaVisible ? "Ver" : "Ocultar";
-      btn.setAttribute("aria-pressed", estabaVisible ? "false" : "true");
-      btn.setAttribute("aria-label", estabaVisible ? "Mostrar la contraseña" : "Ocultar la contraseña");
-
-      campo.focus();
-      try {
-        campo.setSelectionRange(posicion, posicion);
-      } catch (e) {
-        // Algún navegador no deja mover el cursor en este tipo de
-        // campo: se queda donde lo ponga él, que no rompe nada.
-      }
-    });
-  });
-}
-
 function withAuth(fn) {
   if (window.Auth) return fn();
   document.addEventListener("ar:auth-ready", fn, { once: true });
@@ -111,7 +75,6 @@ function prepararVueltaDeVistaPrevia() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
-  initVerContrasena();
 
   const loginForm = document.getElementById("login-form");
   const loginError = document.getElementById("login-error");
