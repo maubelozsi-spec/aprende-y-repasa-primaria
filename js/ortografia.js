@@ -1,109 +1,26 @@
 // ============================================================
-// Ortografía: banco de palabras + lógica del artefacto interactivo
+// Acentuación: lógica del artefacto interactivo de 4 pasos.
+// El banco de palabras está en js/acentuacion-banco.js.
 // ============================================================
 
-const WORDS = [
-  // ---- Agudas con tilde ----
-  { plain: "camion",   syllables: ["ca","mion"],        stress: 1, tilde: true,  accented: "camión",   vowelGroup: "diptongo", groupLetters: "io" },
-  { plain: "jardin",   syllables: ["jar","din"],        stress: 1, tilde: true,  accented: "jardín",   vowelGroup: "ninguno" },
-  { plain: "cafe",     syllables: ["ca","fe"],          stress: 1, tilde: true,  accented: "café",     vowelGroup: "ninguno" },
-  { plain: "sofa",     syllables: ["so","fa"],          stress: 1, tilde: true,  accented: "sofá",     vowelGroup: "ninguno" },
-  { plain: "autobus",  syllables: ["au","to","bus"],    stress: 2, tilde: true,  accented: "autobús",  vowelGroup: "diptongo", groupLetters: "au" },
-  { plain: "corazon",  syllables: ["co","ra","zon"],    stress: 2, tilde: true,  accented: "corazón",  vowelGroup: "ninguno" },
-  { plain: "compas",   syllables: ["com","pas"],        stress: 1, tilde: true,  accented: "compás",   vowelGroup: "ninguno" },
-  { plain: "maletin",  syllables: ["ma","le","tin"],    stress: 2, tilde: true,  accented: "maletín",  vowelGroup: "ninguno" },
+// El banco de palabras vive en js/acentuacion-banco.js, compartido con
+// lengua/juego-acentuacion.html. Para añadir palabras, edita ese archivo:
+// esta ficha las recoge automáticamente.
+const WORDS = window.ACENTUACION_BANCO.WORDS;
 
-  // ---- Agudas sin tilde ----
-  { plain: "reloj",    syllables: ["re","loj"],         stress: 1, tilde: false, accented: "reloj",    vowelGroup: "ninguno" },
-  { plain: "papel",    syllables: ["pa","pel"],         stress: 1, tilde: false, accented: "papel",    vowelGroup: "ninguno" },
-  { plain: "verdad",   syllables: ["ver","dad"],        stress: 1, tilde: false, accented: "verdad",   vowelGroup: "ninguno" },
-  { plain: "feliz",    syllables: ["fe","liz"],         stress: 1, tilde: false, accented: "feliz",    vowelGroup: "ninguno" },
-  { plain: "comer",    syllables: ["co","mer"],         stress: 1, tilde: false, accented: "comer",    vowelGroup: "ninguno" },
-  { plain: "ciudad",   syllables: ["ciu","dad"],        stress: 1, tilde: false, accented: "ciudad",   vowelGroup: "diptongo", groupLetters: "iu" },
+const computeType = window.ACENTUACION_BANCO.computeType;
 
-  // ---- Agudas con hiato acentual (rompen la regla general) ----
-  { plain: "raiz",     syllables: ["ra","iz"],          stress: 1, tilde: true,  accented: "raíz",     vowelGroup: "hiato_acentual", groupLetters: "aí" },
-  { plain: "baul",     syllables: ["ba","ul"],          stress: 1, tilde: true,  accented: "baúl",     vowelGroup: "hiato_acentual", groupLetters: "aú" },
-  { plain: "oir",      syllables: ["o","ir"],           stress: 1, tilde: true,  accented: "oír",      vowelGroup: "hiato_acentual", groupLetters: "oí" },
-
-  // ---- Llanas con tilde ----
-  { plain: "arbol",    syllables: ["ar","bol"],         stress: 0, tilde: true,  accented: "árbol",    vowelGroup: "ninguno" },
-  { plain: "lapiz",    syllables: ["la","piz"],         stress: 0, tilde: true,  accented: "lápiz",    vowelGroup: "ninguno" },
-  { plain: "azucar",   syllables: ["a","zu","car"],     stress: 1, tilde: true,  accented: "azúcar",   vowelGroup: "ninguno" },
-  { plain: "futbol",   syllables: ["fut","bol"],        stress: 0, tilde: true,  accented: "fútbol",   vowelGroup: "ninguno" },
-  { plain: "carcel",   syllables: ["car","cel"],        stress: 0, tilde: true,  accented: "cárcel",   vowelGroup: "ninguno" },
-  { plain: "dificil",  syllables: ["di","fi","cil"],    stress: 1, tilde: true,  accented: "difícil",  vowelGroup: "ninguno" },
-  { plain: "huesped",  syllables: ["hues","ped"],       stress: 0, tilde: true,  accented: "huésped",  vowelGroup: "diptongo", groupLetters: "ue" },
-
-  // ---- Llanas sin tilde ----
-  { plain: "mesa",     syllables: ["me","sa"],          stress: 0, tilde: false, accented: "mesa",     vowelGroup: "ninguno" },
-  { plain: "casa",     syllables: ["ca","sa"],          stress: 0, tilde: false, accented: "casa",     vowelGroup: "ninguno" },
-  { plain: "ventana",  syllables: ["ven","ta","na"],    stress: 1, tilde: false, accented: "ventana",  vowelGroup: "ninguno" },
-  { plain: "joven",    syllables: ["jo","ven"],         stress: 0, tilde: false, accented: "joven",    vowelGroup: "ninguno" },
-  { plain: "examen",   syllables: ["e","xa","men"],     stress: 1, tilde: false, accented: "examen",   vowelGroup: "ninguno" },
-  { plain: "agua",     syllables: ["a","gua"],          stress: 0, tilde: false, accented: "agua",     vowelGroup: "diptongo", groupLetters: "ua" },
-  { plain: "tiempo",   syllables: ["tiem","po"],        stress: 0, tilde: false, accented: "tiempo",   vowelGroup: "diptongo", groupLetters: "ie" },
-  { plain: "cielo",    syllables: ["cie","lo"],         stress: 0, tilde: false, accented: "cielo",    vowelGroup: "diptongo", groupLetters: "ie" },
-  { plain: "fuego",    syllables: ["fue","go"],         stress: 0, tilde: false, accented: "fuego",    vowelGroup: "diptongo", groupLetters: "ue" },
-  { plain: "aceite",   syllables: ["a","cei","te"],     stress: 1, tilde: false, accented: "aceite",   vowelGroup: "diptongo", groupLetters: "ei" },
-  { plain: "jaula",    syllables: ["jau","la"],         stress: 0, tilde: false, accented: "jaula",    vowelGroup: "diptongo", groupLetters: "au" },
-  { plain: "familia",  syllables: ["fa","mi","lia"],    stress: 1, tilde: false, accented: "familia",  vowelGroup: "diptongo", groupLetters: "ia" },
-  { plain: "radio",    syllables: ["ra","dio"],         stress: 0, tilde: false, accented: "radio",    vowelGroup: "diptongo", groupLetters: "io" },
-
-  // ---- Llanas con hiato acentual ----
-  { plain: "dia",      syllables: ["di","a"],           stress: 0, tilde: true,  accented: "día",      vowelGroup: "hiato_acentual", groupLetters: "ía" },
-  { plain: "rio",      syllables: ["ri","o"],           stress: 0, tilde: true,  accented: "río",      vowelGroup: "hiato_acentual", groupLetters: "ío" },
-  { plain: "tia",      syllables: ["ti","a"],           stress: 0, tilde: true,  accented: "tía",      vowelGroup: "hiato_acentual", groupLetters: "ía" },
-  { plain: "policia",  syllables: ["po","li","ci","a"], stress: 2, tilde: true,  accented: "policía",  vowelGroup: "hiato_acentual", groupLetters: "ía" },
-  { plain: "sonrie",   syllables: ["son","ri","e"],     stress: 1, tilde: true,  accented: "sonríe",   vowelGroup: "hiato_acentual", groupLetters: "íe" },
-  { plain: "actua",    syllables: ["ac","tu","a"],      stress: 1, tilde: true,  accented: "actúa",    vowelGroup: "hiato_acentual", groupLetters: "úa" },
-
-  // ---- Hiato simple (dos vocales fuertes) ----
-  { plain: "poeta",    syllables: ["po","e","ta"],      stress: 1, tilde: false, accented: "poeta",    vowelGroup: "hiato", groupLetters: "oe" },
-  { plain: "teatro",   syllables: ["te","a","tro"],     stress: 1, tilde: false, accented: "teatro",   vowelGroup: "hiato", groupLetters: "ea" },
-  { plain: "museo",    syllables: ["mu","se","o"],      stress: 1, tilde: false, accented: "museo",    vowelGroup: "hiato", groupLetters: "eo" },
-  { plain: "real",     syllables: ["re","al"],          stress: 1, tilde: false, accented: "real",     vowelGroup: "hiato", groupLetters: "ea" },
-  { plain: "roedor",   syllables: ["ro","e","dor"],     stress: 2, tilde: false, accented: "roedor",   vowelGroup: "hiato", groupLetters: "oe" },
-  { plain: "caos",     syllables: ["ca","os"],          stress: 0, tilde: false, accented: "caos",     vowelGroup: "hiato", groupLetters: "ao" },
-
-  // ---- Esdrújulas ----
-  { plain: "pagina",     syllables: ["pa","gi","na"],        stress: 0, tilde: true, accented: "página",     vowelGroup: "ninguno" },
-  { plain: "musica",     syllables: ["mu","si","ca"],        stress: 0, tilde: true, accented: "música",     vowelGroup: "ninguno" },
-  { plain: "telefono",   syllables: ["te","le","fo","no"],   stress: 1, tilde: true, accented: "teléfono",   vowelGroup: "ninguno" },
-  { plain: "sabado",     syllables: ["sa","ba","do"],        stress: 0, tilde: true, accented: "sábado",     vowelGroup: "ninguno" },
-  { plain: "numero",     syllables: ["nu","me","ro"],        stress: 0, tilde: true, accented: "número",     vowelGroup: "ninguno" },
-  { plain: "rapido",     syllables: ["ra","pi","do"],        stress: 0, tilde: true, accented: "rápido",     vowelGroup: "ninguno" },
-  { plain: "medico",     syllables: ["me","di","co"],        stress: 0, tilde: true, accented: "médico",     vowelGroup: "ninguno" },
-  { plain: "camara",     syllables: ["ca","ma","ra"],        stress: 0, tilde: true, accented: "cámara",     vowelGroup: "ninguno" },
-  { plain: "murcielago", syllables: ["mur","cie","la","go"], stress: 1, tilde: true, accented: "murciélago", vowelGroup: "diptongo", groupLetters: "ie" },
-  { plain: "linea",      syllables: ["li","ne","a"],         stress: 0, tilde: true, accented: "línea",      vowelGroup: "hiato", groupLetters: "ea" },
-
-  // ---- Sobresdrújulas ----
-  { plain: "cuentamelo",  syllables: ["cuen","ta","me","lo"],      stress: 0, tilde: true, accented: "cuéntamelo",  vowelGroup: "diptongo", groupLetters: "ue" },
-  { plain: "digaselo",    syllables: ["di","ga","se","lo"],        stress: 0, tilde: true, accented: "dígaselo",    vowelGroup: "ninguno" },
-  { plain: "explicamelo", syllables: ["ex","pli","ca","me","lo"],  stress: 1, tilde: true, accented: "explícamelo", vowelGroup: "ninguno" },
-
-  // ---- Monosílabos con triptongo (no llevan tilde) ----
-  { plain: "buey", syllables: ["buey"], stress: 0, tilde: false, accented: "buey", vowelGroup: "triptongo", groupLetters: "uey" },
-  { plain: "miau", syllables: ["miau"], stress: 0, tilde: false, accented: "miau", vowelGroup: "triptongo", groupLetters: "iau" },
-
-  // ---- Agudas con triptongo ----
-  { plain: "estudiais",  syllables: ["es","tu","diais"],  stress: 2, tilde: true, accented: "estudiáis",  vowelGroup: "triptongo", groupLetters: "iai" },
-  { plain: "cambiais",   syllables: ["cam","biais"],      stress: 1, tilde: true, accented: "cambiáis",   vowelGroup: "triptongo", groupLetters: "iai" },
-  { plain: "apreciais",  syllables: ["a","pre","ciais"],  stress: 2, tilde: true, accented: "apreciáis",  vowelGroup: "triptongo", groupLetters: "iai" },
-];
-
-function computeType(len, stress) {
-  if (len === 1) return "monosilaba";
-  const diffLen = (len - 1) - stress;
-  if (diffLen === 0) return "aguda";
-  if (diffLen === 1) return "llana";
-  if (diffLen === 2) return "esdrujula";
-  return "sobresdrujula";
-}
+// Tope de sílabas del pool sencillo (ACS y discalculia). Al compartir banco
+// con el juego entraron palabras de 4 y 5 sílabas (espectáculo, catástrofe...)
+// que no encajan en una adaptación significativa. Sube el número para
+// ampliarlo.
+const EASY_MAX_SILABAS = 3;
 
 const EASY_WORDS = WORDS.filter(
-  (w) => !["triptongo", "hiato_acentual"].includes(w.vowelGroup) && computeType(w.syllables.length, w.stress) !== "sobresdrujula"
+  (w) =>
+    !["triptongo", "hiato_acentual"].includes(w.vowelGroup) &&
+    computeType(w.syllables.length, w.stress) !== "sobresdrujula" &&
+    w.syllables.length <= EASY_MAX_SILABAS
 );
 const ALTAS_WORDS = WORDS.filter(
   (w) => ["triptongo", "hiato_acentual"].includes(w.vowelGroup) || computeType(w.syllables.length, w.stress) === "sobresdrujula"
