@@ -9,7 +9,7 @@
 // instalados (no hay proceso de build que lo haga automáticamente).
 // ============================================================
 
-const CACHE_NAME = "ar-cache-v7";
+const CACHE_NAME = "ar-cache-v8";
 const APP_SHELL = [
   "./",
   "index.html",

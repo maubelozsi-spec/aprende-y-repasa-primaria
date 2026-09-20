@@ -10,11 +10,10 @@ const WORDS = window.ACENTUACION_BANCO.WORDS;
 
 const computeType = window.ACENTUACION_BANCO.computeType;
 
-// Tope de sílabas del pool sencillo (ACS y discalculia). Al compartir banco
-// con el juego entraron palabras de 4 y 5 sílabas (espectáculo, catástrofe...)
-// que no encajan en una adaptación significativa. Sube el número para
-// ampliarlo.
-const EASY_MAX_SILABAS = 3;
+// Tope de sílabas del pool sencillo (ACS y discalculia): deja fuera las
+// palabras largas del banco compartido (espectáculo, devuélvemelo) sin tocar
+// el resto de perfiles. Baja el número para acortar más las palabras.
+const EASY_MAX_SILABAS = 4;
 
 const EASY_WORDS = WORDS.filter(
   (w) =>
