@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juegos · Aprende y Repasa</title>
+<meta name="description" content="Juegos de Lengua y Matemáticas para 5º y 6º de Primaria: acentuación en formato aventura y el concurso Cifras y Letras para jugar en clase.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.BASE_PATH = "../";
+  window.CURRENT_PAGE = "juegos";
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="content-wrap">
+    <div class="topbar">
+      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
+      <span class="topbar-title">Aprende y Repasa</span>
+    </div>
+
+    <main class="content">
+      <header class="content-header">
+        <p class="eyebrow">Juegos</p>
+        <h1>Juegos de Lengua y Matemáticas</h1>
+        <p class="content-subtitle">Los mismos contenidos de clase, pero jugando. Cada juego dice si es para practicar uno solo o para toda la clase a la vez.</p>
+      </header>
+
+      <div class="subject-grid">
+        <a href="../lengua/juego-acentuacion.html" class="subject-card" style="--card-color:var(--color-sky); --card-tint:var(--color-sky-tint);">
+          <h2>El Pórtico de las Tildes 🏛️</h2>
+          <p>Aventura de acentuación entre Grecia y Roma, en cinco etapas: sílaba tónica, agudas y llanas, la tilde, y diptongo, hiato o triptongo. Tres niveles de dificultad y modo de lectura fácil.</p>
+          <span class="subject-meta">Lengua · para jugar uno solo</span>
+        </a>
+
+        <a href="../cifras-letras/index.html" class="subject-card" style="--card-color:var(--color-plum); --card-tint:var(--color-plum-tint);">
+          <h2>Cifras y Letras 🎬</h2>
+          <p>El concurso de la tele para jugar en clase o en casa: formar la palabra más larga y llegar al número objetivo. Equipos conectados y marcador en directo, con panel para el docente.</p>
+          <span class="subject-meta">Lengua y Matemáticas · toda la clase a la vez</span>
+        </a>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
+    </footer>
+  </div>
+</div>
+
+<script src="../js/layout.js"></script>
+</body>
+</html>
