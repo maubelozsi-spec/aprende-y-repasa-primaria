@@ -384,7 +384,7 @@ td b{font-family:var(--disp); letter-spacing:.04em}
 
   <footer class="pie">
     <p><strong>Para el aula.</strong> Las etapas I–III trabajan el acento por posición; la IV, los grupos vocálicos; la V las junta. Están separadas a propósito: son dos clasificaciones distintas y mezclarlas es lo que más confunde.</p>
-    <p>Nivel <em>Sencillo</em>: palabras de hasta 3 sílabas, sin triptongos ni sobresdrújulas, 5 columnas y 4 pruebas por etapa. <em>Reto</em>: solo sobresdrújulas, triptongos e hiatos con tilde.</p>
+    <p>Nivel <em>Sencillo</em>: palabras de hasta 4 sílabas, sin triptongos ni sobresdrújulas, 5 columnas y 4 pruebas por etapa. <em>Reto</em>: solo sobresdrújulas, triptongos e hiatos con tilde.</p>
   </footer>
 </div>
 
@@ -570,6 +570,11 @@ td b{font-family:var(--disp); letter-spacing:.04em}
   function tomar(a, n){ return barajar(a).slice(0, n); }
   function alAzar(a){ return a[Math.floor(Math.random() * a.length)]; }
 
+  // Tope de sílabas del nivel Sencillo. Es el equivalente en el juego de
+  // EASY_MAX_SILABAS (js/ortografia.js): si cambias uno, cambia el otro,
+  // porque los dos describen la misma adaptación.
+  var SENCILLO_MAX_SILABAS = 4;
+
   function sirvePara(prueba){
     return function(w){
       if (prueba === "grupo") return w.grupo !== "ninguno";
@@ -588,7 +593,7 @@ td b{font-family:var(--disp); letter-spacing:.04em}
     }
     p = PALABRAS.filter(sirvePara(prueba));
     if (nivel === "sencillo"){
-      p = p.filter(function(w){ return !esDificil(w) && w.silAc.length <= 3; });
+      p = p.filter(function(w){ return !esDificil(w) && w.silAc.length <= SENCILLO_MAX_SILABAS; });
     } else if (nivel === "reto"){
       var duras = p.filter(esDificil);
       if (duras.length >= 6) p = duras;
@@ -648,7 +653,7 @@ td b{font-family:var(--disp); letter-spacing:.04em}
      6. PORTADA Y MAPA
      ========================================================= */
   var NOTAS = {
-    sencillo:"Sencillo: palabras cortas y conocidas, sin triptongos ni sobresdrújulas, 5 columnas y 4 pruebas por etapa. Pensado para adaptación curricular.",
+    sencillo:"Sencillo: palabras de hasta cuatro sílabas, sin triptongos ni sobresdrújulas, 5 columnas y 4 pruebas por etapa. Pensado para adaptación curricular.",
     senda:"La senda: todas las palabras del banco, 3 columnas y 6 pruebas por etapa.",
     reto:"Reto: solo sobresdrújulas, triptongos e hiatos con tilde, los casos que rompen la regla general."
   };
