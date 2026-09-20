@@ -101,7 +101,11 @@ a {
   flex-shrink: 0;
   background: var(--surface);
   border-right: 1px solid var(--border);
-  min-height: 100vh;
+  /* Altura fija, no mínima: si la barra crece con su contenido, el
+     "overflow-y: auto" de .sidebar-nav no llega a activarse nunca y el
+     menú se estira hasta hacer la página larguísima. En móvil (máx.
+     900px) ya era "height: 100vh"; esto lo iguala en escritorio. */
+  height: 100vh;
   position: sticky;
   top: 0;
   display: flex;

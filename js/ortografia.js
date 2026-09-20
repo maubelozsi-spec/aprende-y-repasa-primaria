@@ -6,6 +6,12 @@
 // El banco de palabras vive en js/acentuacion-banco.js, compartido con
 // lengua/juego-acentuacion.html. Para añadir palabras, edita ese archivo:
 // esta ficha las recoge automáticamente.
+if (!window.ACENTUACION_BANCO) {
+  throw new Error(
+    "Falta js/acentuacion-banco.js. Toda página que cargue js/ortografia.js " +
+    "tiene que cargar antes el banco de palabras."
+  );
+}
 const WORDS = window.ACENTUACION_BANCO.WORDS;
 
 const computeType = window.ACENTUACION_BANCO.computeType;
