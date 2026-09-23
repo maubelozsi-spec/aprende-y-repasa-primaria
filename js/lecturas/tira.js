@@ -652,8 +652,13 @@ window.LECTURAS["tira"] = [
     fuente: "Texto original",
     antes: "¿Ves vídeos de trucos para hacerlo todo más rápido? ¿Crees que siempre son tan fáciles como parecen?",
     texto: [
+      { p: "Mario tiene doce años y sueña con tener un canal de vídeos con miles de seguidores. De momento tiene catorce: su familia, sus amigos y un vecino. Hoy su madre le ha pedido que ordene su cuarto, y a él se le ha ocurrido una idea genial." },
       { vinetas: [
-        { escena: "Dormitorio desordenado. Mario coloca el móvil en un soporte, frente a su cama deshecha.", bocadillos: [
+        { escena: "Dormitorio desordenado. Mario, tumbado en la cama deshecha, mira en el móvil un vídeo en el que alguien hace la cama en diez segundos.", bocadillos: [
+          { quien: "Mamá", t: "¡Mario, esa habitación!", forma: "grita" },
+          { quien: "Mario", t: "¡Voy, mamá! Y de paso me hago famoso.", forma: "dice" },
+        ] },
+        { escena: "Mario coloca el móvil en un soporte, frente a su cama deshecha.", bocadillos: [
           { quien: "Mario", t: "¡Hola, seguidores! Hoy os enseño a hacer la cama en diez segundos.", forma: "dice" },
         ] },
         { escena: "Mario lanza el edredón por el aire: ¡FLUSH! El edredón le cae encima de la cabeza.", bocadillos: [
@@ -662,8 +667,20 @@ window.LECTURAS["tira"] = [
         { cartela: "Toma 7", escena: "La almohada sale disparada por la ventana: ¡FIUUU!", bocadillos: [
           { quien: "Mario", t: "¡Mi almohada!", forma: "grita" },
         ] },
+        { cartela: "Toma 8", escena: "Mario, en pijama, recoge la almohada en el patio. Don Ramón, el vecino, riega sus macetas.", bocadillos: [
+          { quien: "Don Ramón", t: "Buenos días, Mario. ¿Ahora llueven almohadas?", forma: "dice" },
+          { quien: "Mario", t: "Es para un vídeo, don Ramón. Arte moderno.", forma: "dice" },
+        ] },
+        { cartela: "Toma 15", escena: "Carla, la hermana pequeña de Mario, se enreda en la sábana y parece un fantasma.", bocadillos: [
+          { quien: "Carla", t: "¡Déjame a mí, que yo lo hago en cinco segundos!", forma: "grita" },
+          { quien: "Mario", t: "Genial. Ahora somos dos los enredados.", forma: "piensa" },
+        ] },
         { cartela: "Toma 23", escena: "Mario, sudando, lucha contra la sábana bajera, que se le escapa por una esquina: ¡PLOF!", bocadillos: [
           { quien: "Mario", t: "Diez segundos… diez segundos… ¿quién se inventó esto?", forma: "piensa" },
+        ] },
+        { cartela: "Toma 30", escena: "Mario y Carla, sentados en el suelo, vuelven a ver el vídeo del principio, muy despacio.", bocadillos: [
+          { quien: "Mario", t: "Un momento… ¡aquí hay un corte! ¡Y la cama ya estaba medio hecha!", forma: "dice" },
+          { quien: "Carla", t: "¡Qué tramposo el del vídeo!", forma: "dice" },
         ] },
         { cartela: "Toma 41", escena: "Por fin la cama está perfecta. Mario, despeinado y agotado, levanta los brazos: ¡CLIC! Deja de grabar.", bocadillos: [
           { quien: "Mario", t: "¡Lo conseguí! ¡Diez segundos exactos!", forma: "grita" },
@@ -671,6 +688,13 @@ window.LECTURAS["tira"] = [
         { escena: "Su madre, en la puerta, con el reloj en la mano, sonríe.", bocadillos: [
           { quien: "Mamá", t: "Enhorabuena, cariño. Llevas una hora y media haciendo la cama en diez segundos.", forma: "dice" },
           { quien: "Mario", t: "Ya, pero en el vídeo no se nota.", forma: "dice" },
+        ] },
+        { escena: "Esa noche. Mario, en la cama, repasa en el móvil todas las tomas fallidas y se ríe solo.", bocadillos: [
+          { quien: "Mario", t: "Esto es más divertido que la toma buena. ¿Y si enseño lo que pasó de verdad?", forma: "piensa" },
+        ] },
+        { cartela: "Una semana después…", escena: "Mario enseña a su madre un vídeo titulado «Cómo NO hacer la cama en diez segundos (41 tomas)».", bocadillos: [
+          { quien: "Mario", t: "¡Es mi vídeo con más visitas! A la gente le gustan los fallos de verdad.", forma: "dice" },
+          { quien: "Mamá", t: "Y a mí me gusta que, por fin, hagas la cama todos los días.", forma: "dice" },
         ] },
       ] },
     ],
@@ -680,15 +704,12 @@ window.LECTURAS["tira"] = [
       { p: "sábana bajera", d: "sábana con gomas que se ajusta al colchón" },
     ],
     preguntas: [
-      { tipo: "comprension", q: "¿Qué quiere enseñar Mario en su vídeo?", r: "A hacer la cama en diez segundos.", lineas: 1 },
       { tipo: "comprension", q: "¿Qué información nos dan las cartelas «Toma 7», «Toma 23» y «Toma 41»?", r: "Que Mario ha tenido que repetir la grabación muchísimas veces porque le sale mal, y que va pasando el tiempo.", lineas: 2 },
-      { tipo: "comprension", q: "¿Por qué es gracioso lo que dice la madre en la última viñeta? Elige:", opciones: ["Porque se ha equivocado de hora", "Porque hacer la cama «en diez segundos» le ha costado una hora y media", "Porque ella tampoco sabe hacer la cama"], r: "Porque hacer la cama «en diez segundos» le ha costado una hora y media" },
-      { tipo: "comprension", q: "¿Qué quiere decir Mario con «Ya, pero en el vídeo no se nota»? ¿Qué nos revela sobre muchos vídeos de internet?", r: "Que en el vídeo solo se verá la toma buena de diez segundos y nadie sabrá que tardó hora y media. Revela que muchos vídeos muestran solo la parte que sale bien y esconden todo el esfuerzo o los fallos.", lineas: 3 },
-      { tipo: "comprension", q: "¿Crees que la madre está enfadada? ¿Por qué?", r: "No: sonríe y le dice «Enhorabuena, cariño» con ironía, divertida porque su hijo ha tardado muchísimo en algo que presumía de hacer rápido.", lineas: 2 },
-      { tipo: "texto", q: "¿Qué parte de la tira es la presentación, cuál el desarrollo y cuál el final sorprendente? Copia dos onomatopeyas y explica qué imitan.", r: "Presentación: viñeta 1 (Mario presenta su tutorial). Desarrollo: viñetas 2 a 5 (los intentos fallidos hasta conseguirlo). Final sorprendente: viñeta 6 (la madre revela que ha tardado hora y media). Onomatopeyas: «¡FLUSH!» (el edredón volando), «¡FIUUU!» (la almohada saliendo disparada), «¡PLOF!» (la sábana soltándose), «¡CLIC!» (el botón del móvil).", lineas: 4 },
-      { tipo: "opinion", q: "¿Te fías de los vídeos que prometen hacerlo todo «en diez segundos»? ¿Por qué?", r: "Respuesta libre. Valorar el sentido crítico.", lineas: 2 },
-      { tipo: "opinion", q: "¿Qué tutorial te gustaría grabar a ti? ¿Contarías también los errores? ¿Por qué?", r: "Respuesta libre.", lineas: 2 },
-      { tipo: "reflexion", q: "En las redes sociales casi siempre vemos solo lo que sale bien. ¿Cómo puede afectarnos compararnos con esas imágenes? ¿Por qué es importante saber que detrás hay fallos y esfuerzo?", r: "Respuesta libre. Valorar que hable de la autoestima, del esfuerzo real y del pensamiento crítico ante las redes.", lineas: 3 },
+      { tipo: "comprension", q: "¿Qué descubre Mario al ver otra vez el vídeo del principio? ¿Qué nos dice eso de algunos vídeos?", r: "Que el vídeo tiene un corte y la cama ya estaba medio hecha: era un truco. Nos dice que muchos vídeos esconden los fallos y hacen parecer fácil lo que no lo es.", lineas: 2 },
+      { tipo: "comprension", q: "¿Por qué hace gracia lo que dice la madre en la viñeta 10? Elige:", opciones: ["Porque se ha equivocado de hora", "Porque hacer la cama «en diez segundos» le ha costado hora y media", "Porque ella tampoco sabe hacer la cama"], r: "Porque hacer la cama «en diez segundos» le ha costado hora y media" },
+      { tipo: "texto", q: "¿Qué viñetas son la presentación, el desarrollo y el final? Copia dos onomatopeyas y di qué imitan.", r: "Presentación: viñetas 1 y 2 (Mario decide grabar el tutorial). Desarrollo: viñetas 3 a 10 (los intentos hasta conseguirlo y la frase de la madre). Final: viñetas 11 y 12 (Mario enseña sus fallos y triunfa). Onomatopeyas: «¡FLUSH!» (el edredón), «¡FIUUU!» (la almohada), «¡PLOF!» (la sábana), «¡CLIC!» (el móvil).", lineas: 2 },
+      { tipo: "opinion", q: "¿Por qué crees que el vídeo de los fallos tiene más visitas? ¿Tú lo verías? ¿Por qué?", r: "Respuesta libre. Valorar que hable de la sinceridad y el humor.", lineas: 2 },
+      { tipo: "reflexion", q: "En las redes solemos ver solo lo que sale bien. ¿Cómo puede afectarnos compararnos con esas imágenes?", r: "Respuesta libre. Valorar que hable de la autoestima, del esfuerzo real y del pensamiento crítico ante las redes.", lineas: 2 },
     ],
   },
 ];

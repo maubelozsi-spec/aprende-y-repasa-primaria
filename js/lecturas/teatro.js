@@ -553,8 +553,6 @@ window.LECTURAS["teatro"] = [
       { personaje: "FURRIER", acot: "desconcertado", dice: "¿Figura? ¡Soy un soldado de carne y hueso!" },
       { personaje: "JUANA CASTRADA", dice: "Qué bien habla este muñeco. Se nota que somos muy listos, porque lo vemos perfectamente." },
       { personaje: "FURRIER", acot: "mirando dentro del teatrillo", dice: "¿Pero qué miran ustedes? ¡Ahí dentro no hay nada!" },
-      { personaje: "BENITO REPOLLO", acot: "en voz baja", dice: "Entonces… ¿no ve nada porque no es listo?" },
-      { personaje: "FURRIER", dice: "¡No veo nada porque no hay nada! ¿O es que alguno de ustedes ha visto de verdad un toro ahí dentro?" },
       { acot: "Silencio. Todos se miran. Nadie se atreve a hablar." },
       { personaje: "CHIRINOS", acot: "guardando las monedas", dice: "Chanfalla, creo que es buen momento para irnos." },
       { acot: "Los dos pícaros salen corriendo con el dinero mientras los vecinos siguen discutiendo. Telón." },
@@ -564,6 +562,7 @@ window.LECTURAS["teatro"] = [
       { p: "retablo", d: "aquí, pequeño teatro portátil de figuras." },
       { p: "pícaro", d: "persona astuta que engaña a otros para sacar provecho." },
       { p: "escribano", d: "persona encargada de escribir y dar fe de documentos oficiales." },
+      { p: "furrier", d: "soldado que se encargaba de buscar alojamiento y comida para la tropa." },
     ],
     preguntas: [
       { tipo: "comprension", q: "¿Cuál es el truco de Chanfalla y Chirinos? ¿Por qué quieren cobrar antes de la función?", r: "Dicen que solo las personas listas pueden ver las maravillas, así que nadie se atreve a reconocer que no ve nada. Cobran antes porque saben que el retablo está vacío y, si alguien descubre el engaño, no les pagarían.", lineas: 2 },
