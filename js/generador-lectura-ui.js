@@ -175,18 +175,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const bodyWrap = document.createElement("div");
     bodyWrap.className = "lectgen-body";
-    texto.cuerpo.split("\n\n").forEach((paragraph, i) => {
+    const parrafos = texto.parrafos || texto.cuerpo.split("\n\n").map((t) => ({ texto: t }));
+    parrafos.forEach((par, i) => {
       if (diff.is("tdah") && i > 0 && i % 2 === 0) {
         const pause = document.createElement("p");
         pause.className = "lectgen-pause";
         pause.textContent = "· Pausa · Respira un momento antes de seguir ·";
         bodyWrap.appendChild(pause);
       }
+      if (par.tabla) {
+        const t = par.tabla;
+        const table = document.createElement("table");
+        table.className = "lectgen-tabla";
+        if (t.titulo) table.createCaption().textContent = t.titulo;
+        if (t.cab) {
+          const tr = table.createTHead().insertRow();
+          t.cab.forEach((c) => {
+            const th = document.createElement("th");
+            th.textContent = c;
+            tr.appendChild(th);
+          });
+        }
+        const tb = table.createTBody();
+        (t.filas || []).forEach((f) => {
+          const tr = tb.insertRow();
+          f.forEach((c) => (tr.insertCell().textContent = c));
+        });
+        bodyWrap.appendChild(table);
+        return;
+      }
       const p = document.createElement("p");
-      p.textContent = paragraph;
+      p.textContent = par.texto;
+      if (par.texto.indexOf("\n") !== -1) p.style.whiteSpace = "pre-line";
+      if (par.negrita) p.style.fontWeight = "700";
+      if (par.cursiva) p.style.fontStyle = "italic";
       bodyWrap.appendChild(p);
     });
     previewEl.appendChild(bodyWrap);
+    if (texto.fuente) {
+      const f = document.createElement("p");
+      f.className = "lectgen-tipo-tag";
+      f.textContent = "Fuente: " + texto.fuente;
+      previewEl.appendChild(f);
+    }
 
     function addSection(label) {
       const bar = document.createElement("div");

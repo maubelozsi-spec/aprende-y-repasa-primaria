@@ -2214,6 +2214,29 @@ table.rules-table tr:last-child td {
   white-space: pre-line;
 }
 
+.lectgen-tabla {
+  border-collapse: collapse;
+  margin: 0 0 14px;
+  font-size: 14px;
+}
+
+.lectgen-tabla caption {
+  font-weight: 700;
+  text-align: left;
+  margin-bottom: 6px;
+}
+
+.lectgen-tabla th,
+.lectgen-tabla td {
+  border: 1px solid var(--border-strong);
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.lectgen-tabla th {
+  background: var(--surface-2, #f1f2f6);
+}
+
 .lectgen-section-bar {
   background: #595959;
   color: #ffffff;
