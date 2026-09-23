@@ -324,7 +324,7 @@ window.LECTURAS["discontinuo"] = [
     antes: "¿Has leído alguna vez la etiqueta de un alimento? ¿Qué información crees que aparece en ella?",
     texto: [
       { h: "Información nutricional: naranja cruda" },
-      { p: "Andalucía es una de las principales zonas productoras de naranjas de España. Pero ¿qué nos aporta esta fruta? La tabla lo muestra para 100 gramos y para una naranja mediana, que pesa unos 150 gramos sin cáscara." },
+      { p: "Andalucía es una de las principales zonas productoras de naranjas de España. Pero ¿qué nos aporta esta fruta? La tabla lo muestra para 100 gramos y para una naranja mediana, que pesa unos 150 gramos sin cáscara. Después, la compararemos con otras frutas muy conocidas." },
       { tabla: { titulo: "Composición de la naranja", cab: ["Nutriente", "Por 100 g", "Por naranja (150 g)"], filas: [
         ["Energía", "47 kcal", "71 kcal"],
         ["Hidratos de carbono", "11,8 g", "17,7 g"],
@@ -335,6 +335,8 @@ window.LECTURAS["discontinuo"] = [
         ["Vitamina C", "53 mg", "80 mg"],
       ] }, nota: "Fuente: USDA FoodData Central. Valores redondeados." },
       { dato: "La cantidad diaria de vitamina C de referencia para una persona adulta en la Unión Europea es de 80 mg." },
+      { h: "¿Para qué sirve la vitamina C?" },
+      { p: "Nuestro cuerpo no puede fabricar vitamina C, así que tenemos que tomarla con la comida, sobre todo con frutas y verduras. Ayuda a que funcionen bien las defensas, a que las heridas cicatricen y a aprovechar mejor el hierro de los alimentos. Como se estropea con el calor y con el aire, las frutas crudas y recién cortadas la conservan mejor." },
       { lista: [
         "Mira primero a qué cantidad se refieren los datos: ¿100 g, una ración, una pieza?",
         "Fíjate en las unidades: kcal para la energía, g (gramos) y mg (miligramos) para los nutrientes.",
@@ -351,7 +353,7 @@ window.LECTURAS["discontinuo"] = [
         ["Fresa", "32 kcal", "4,9 g", "2,0 g", "59 mg"],
       ] }, nota: "Fuente: USDA FoodData Central. Valores redondeados." },
       { h: "¿Entera o en zumo?" },
-      { p: "Los azúcares de la naranja son naturales y vienen acompañados de fibra, que ayuda a la digestión y hace que nos sintamos saciados. Al exprimirla, casi toda la fibra se queda en el colador, junto con la pulpa. Además, para llenar un vaso hacen falta dos o tres naranjas, que nos bebemos en un momento. Por eso es mejor comer la fruta entera que tomar solo el zumo." },
+      { p: "Los azúcares de la naranja son naturales y vienen acompañados de fibra, que ayuda a la digestión y hace que nos sintamos saciados. Al exprimirla, casi toda la fibra se queda en el colador, junto con la pulpa. Además, para llenar un vaso hacen falta unas dos o tres naranjas, que nos bebemos en un momento. Por eso es mejor comer la fruta entera que tomar solo el zumo." },
     ],
     vocabulario: [
       { p: "nutriente", d: "Sustancia de los alimentos que el cuerpo necesita para vivir y crecer." },
@@ -360,7 +362,7 @@ window.LECTURAS["discontinuo"] = [
       { p: "saciado", d: "Que ha comido lo suficiente y no tiene más hambre." },
     ],
     preguntas: [
-      { tipo: "comprension", q: "¿Una naranja mediana cubre la vitamina C diaria de referencia para un adulto? Justifícalo con los datos.", r: "Sí: una naranja de 150 g aporta unos 80 mg, justo la cantidad de referencia (80 mg).", lineas: 2 },
+      { tipo: "comprension", q: "¿Una naranja mediana cubre la vitamina C diaria de referencia de un adulto? Justifícalo.", r: "Sí: una naranja de 150 g aporta unos 80 mg, justo la cantidad de referencia (80 mg).", lineas: 2 },
       { tipo: "comprension", q: "Compara la fibra de 100 g de naranja entera y de 100 g de zumo. ¿Qué conclusión sacas?", r: "La naranja tiene 2,4 g y el zumo solo 0,2 g: doce veces menos. Conviene comer la fruta entera, porque al exprimirla se pierde casi toda la fibra.", lineas: 2 },
       { tipo: "comprension", q: "¿Qué alimento de la comparación tiene más vitamina C por cada 100 g? Elige:", opciones: ["Naranja", "Kiwi verde", "Fresa"], r: "Kiwi verde" },
       { tipo: "texto", q: "¿Por qué la primera tabla da los datos por 100 g y también por naranja? ¿Para qué sirve cada columna?", r: "Por 100 g sirve para comparar alimentos entre sí; por naranja, para saber lo que tomamos de verdad al comer una pieza.", lineas: 2 },
