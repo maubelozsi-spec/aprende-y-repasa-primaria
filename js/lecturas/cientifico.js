@@ -147,7 +147,7 @@ window.LECTURAS["cientifico"] = [
       { p: "Para observar la Luna no hace falta un gran telescopio: unos prismáticos bastan para ver sus cráteres. El mejor momento no es la luna llena, sino los días cercanos al cuarto creciente. Entonces la luz del Sol llega de lado a la zona del borde entre la parte iluminada y la oscura, y las sombras alargadas de las montañas y los cráteres hacen que el relieve se vea mucho mejor." },
       { p: "El 20 de julio de 1969, el astronauta Neil Armstrong, de la misión Apolo 11, se convirtió en la primera persona que pisó la Luna. Entre 1969 y 1972, doce astronautas de las misiones Apolo caminaron sobre su superficie. Como allí no hay viento ni lluvia, las huellas de sus botas siguen marcadas en el polvo lunar. Hoy varias agencias espaciales preparan el regreso de los seres humanos." },
       { h: "Conclusión" },
-      { p: "La Luna no es solo un adorno del cielo nocturno: influye en los mares, nos ha ayudado a medir el tiempo y fue el primer paso de la humanidad fuera de la Tierra." },
+      { p: "La Luna no es solo un adorno del cielo nocturno: influye en los mares, nos ha ayudado a medir el tiempo y fue el primer mundo fuera de la Tierra que pisó la humanidad." },
     ],
     vocabulario: [
       { p: "satélite", d: "Astro que gira alrededor de un planeta." },
