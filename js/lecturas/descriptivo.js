@@ -80,7 +80,7 @@ window.LECTURAS["descriptivo"] = [
       { tipo: "comprension", q: "¿Qué quiere decir la nieta con que su abuela «es generosa sin hacer ruido»?", r: "Que ayuda a los demás sin presumir ni buscar que se lo agradezcan.", lineas: 2 },
       { tipo: "texto", q: "¿Qué párrafos son prosopografía y cuáles etopeya? ¿Es un retrato objetivo o subjetivo? ¿Por qué?", r: "Prosopografía: los que describen su aspecto, ropa, voz y manos. Etopeya: los que cuentan que es curiosa, paciente, terca y generosa. Es subjetivo: «la risa más contagiosa del barrio», «las mejores tortas del mundo».", lineas: 3 },
       { tipo: "opinion", q: "La abuela aprende informática a los setenta y dos años. ¿Crees que nunca es tarde para aprender? ¿Por qué?", r: "Respuesta libre. Valorar que argumenten con ejemplos.", lineas: 2 },
-      { tipo: "reflexion", q: "¿Qué puedes aprender tú de las personas mayores? ¿Y qué puedes enseñarles?", r: "Respuesta libre. Valorar el respeto y la idea de aprendizaje mutuo.", lineas: 3 },
+      { tipo: "reflexion", q: "¿Qué puedes aprender tú de las personas mayores? ¿Y qué puedes enseñarles?", r: "Respuesta libre. Valorar el respeto y la idea de aprendizaje mutuo.", lineas: 2 },
     ],
   },
   {
