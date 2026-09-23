@@ -63,8 +63,8 @@ window.LECTURAS["tira"] = [
     ],
     preguntas: [
       { tipo: "comprension", q: "¿Por qué piensa Dani en la viñeta 1 que diecisiete croquetas «van a traer problemas»?", r: "Porque diecisiete entre cuatro personas da cuatro a cada uno y sobra una. Adivina que al final todos querrán esa croqueta y habrá lío.", lineas: 2 },
-      { tipo: "comprension", q: "¿Por qué ningún hermano coge la croqueta? ¿Qué dos soluciones prueban antes de que actúe Tapón?", r: "Tienen miedo de lo que dirá el otro (glotona, ansioso). Prueban a jugar a piedra, papel o tijera, pero empatan una y otra vez, y a partirla por la mitad, pero los dos protestan.", lineas: 2 },
-      { tipo: "comprension", q: "¿Qué ha aprendido mamá en la última viñeta? Elige:", opciones: ["A hacer menos croquetas", "A repartir justo entre cuatro y dar la que sobra a Tapón", "A no dar croquetas al perro"], r: "A repartir justo entre cuatro y dar la que sobra a Tapón" },
+      { tipo: "comprension", q: "¿Por qué nadie coge la croqueta? ¿Qué dos soluciones prueban antes de que actúe Tapón?", r: "Tienen miedo de lo que dirá el otro (glotona, ansioso). Prueban a jugar a piedra, papel o tijera, pero empatan una y otra vez, y a partirla por la mitad, pero los dos protestan.", lineas: 2 },
+      { tipo: "comprension", q: "¿Qué ha aprendido mamá al final? Elige:", opciones: ["A hacer menos croquetas", "A repartir justo entre cuatro y dar la que sobra a Tapón", "A no dar croquetas al perro"], r: "A repartir justo entre cuatro y dar la que sobra a Tapón" },
       { tipo: "texto", q: "¿En qué viñetas están la presentación, el desarrollo y el final sorprendente? ¿Quién tiene bocadillos de pensamiento?", r: "Presentación: viñetas 1 a 3 (la familia, las croquetas, la última en la fuente). Desarrollo: viñetas 4 a 10 (nadie se decide). Final sorprendente: viñeta 11 (Tapón se la come); la 12 es un cierre. Son de pensamiento los de Dani (1 y 6), Sofía (5) y Tapón (2, 11 y 12): se dibujan como nubes unidas al personaje con burbujitas.", lineas: 2 },
       { tipo: "opinion", q: "¿Qué solución justa habrías propuesto tú para la última croqueta? ¿Por qué?", r: "Respuesta libre. Valorar soluciones razonadas (partirla, echarlo a suertes, guardarla para mañana…).", lineas: 2 },
       { tipo: "reflexion", q: "A veces callamos lo que queremos por miedo a lo que pensarán los demás. ¿Qué se puede perder por no hablar claro?", r: "Respuesta libre. Valorar que relacione con situaciones reales y hable de la comunicación sincera.", lineas: 2 },
@@ -221,7 +221,7 @@ window.LECTURAS["tira"] = [
     fuente: "Texto original",
     antes: "Jaén es la provincia con más olivos de España. ¿Has comido alguna vez una aceituna recién cogida del árbol? ¿Cómo crees que sabe?",
     texto: [
-      { p: "Es diciembre y Yusuf pasa el fin de semana con su abuelo Paco, que tiene un olivar cerca de Úbeda, en la provincia de Jaén. Es la primera vez que va a la recogida de la aceituna y lleva toda la semana presumiendo delante de sus amigos. Lo acompaña su prima Lola, que ya ha ayudado otros años y se sabe todos los trucos." },
+      { p: "Es diciembre y Yusuf pasa el fin de semana con su abuelo Paco, que tiene un olivar cerca de Úbeda, en la provincia de Jaén. Es la primera vez que va a la recogida de la aceituna y lleva toda la semana presumiendo delante de sus amigos. Lo acompaña su prima Lola, que ya ha ayudado otros años y se sabe todos los trucos. Lo que Yusuf no sabe es que el campo guarda alguna sorpresa." },
       { vinetas: [
         { escena: "Madrugada en la cocina de la casa de campo. El abuelo se toma un café. Yusuf, en pijama, bosteza.", bocadillos: [
           { quien: "Abuelo Paco", t: "Arriba, que la aceituna no espera.", forma: "dice" },
@@ -233,6 +233,7 @@ window.LECTURAS["tira"] = [
         ] },
         { escena: "El abuelo golpea suavemente las ramas con una vara larga: ¡TAC, TAC! Las aceitunas caen sobre la malla: ¡PLIC, PLOC, PLIC!", bocadillos: [
           { quien: "Yusuf", t: "¡Llueven aceitunas!", forma: "grita" },
+          { quien: "Lola", t: "Y ahora a recogerlas todas, que ese es el trabajo de verdad.", forma: "dice" },
         ] },
         { escena: "Yusuf coge la vara y golpea una rama con todas sus fuerzas: ¡ZAS! Caen aceitunas, hojas y hasta una ramita.", bocadillos: [
           { quien: "Abuelo Paco", t: "¡Suave, suave! El olivo es un abuelo como yo: hay que tratarlo con cariño.", forma: "dice" },
@@ -242,13 +243,15 @@ window.LECTURAS["tira"] = [
           { quien: "Yusuf", t: "Si las del bote están tan ricas, estas, recién cogidas, estarán buenísimas…", forma: "piensa" },
         ] },
         { escena: "Lola lo ve desde el otro lado del olivo y sonríe con picardía, sin decir nada.", bocadillos: [
-          { quien: "Lola", t: "Ya verás qué sorpresa te vas a llevar, primo…", forma: "piensa" },
+          { quien: "Lola", t: "Ya verás qué sorpresa te vas a llevar, primo… Yo no digo nada.", forma: "piensa" },
         ] },
         { escena: "Yusuf se mete la aceituna en la boca. El abuelo levanta la mano, pero ya es tarde.", bocadillos: [
           { quien: "Abuelo Paco", t: "¡Yusuf, espera, que esa…!", forma: "grita" },
+          { quien: "Lola", t: "Tres, dos, uno…", forma: "piensa" },
         ] },
         { escena: "Yusuf pone una cara de asco enorme, con la lengua fuera: ¡PUAJ!", bocadillos: [
           { quien: "Yusuf", t: "¡Está amarguísima! ¡Sabe a medicina!", forma: "grita" },
+          { quien: "Abuelo Paco", t: "¡Escupe, escupe, hombre!", forma: "dice" },
         ] },
         { escena: "El abuelo se ríe mientras le ofrece la cantimplora de agua. Lola se parte de risa.", bocadillos: [
           { quien: "Abuelo Paco", t: "Por eso las aliñamos antes de comerlas, listillo. Del árbol a la boca no hay atajo.", forma: "dice" },
@@ -277,7 +280,7 @@ window.LECTURAS["tira"] = [
       { tipo: "comprension", q: "¿Dónde y en qué época del año ocurre la historia? ¿Qué pistas de la tira lo confirman?", r: "En un olivar cerca de Úbeda (Jaén), en diciembre. Lo confirman el gorro y los guantes de Yusuf y que es época de coger aceituna.", lineas: 2 },
       { tipo: "comprension", q: "¿Por qué sonríe Lola con picardía en la viñeta 6? ¿Cómo lo sabemos?", r: "Porque sabe que las aceitunas recién cogidas están amargas y espera la cara que pondrá Yusuf. Lo sabemos por su pensamiento y porque en la viñeta 9 cuenta que a ella le pasó lo mismo.", lineas: 2 },
       { tipo: "comprension", q: "¿Qué quiere decir el abuelo con «Del árbol a la boca no hay atajo»? Elige:", opciones: ["Que el camino del olivar es muy largo", "Que las aceitunas hay que aliñarlas antes de comerlas", "Que no se puede comer en el campo"], r: "Que las aceitunas hay que aliñarlas antes de comerlas" },
-      { tipo: "texto", q: "Copia tres onomatopeyas de la tira y explica qué sonido imita cada una. ¿Cuál es, para ti, la viñeta más graciosa?", r: "«¡TAC, TAC!»: la vara golpeando las ramas; «¡PLIC, PLOC!»: las aceitunas cayendo; «¡ZAS!»: el golpe fuerte de Yusuf; «¡PUAJ!»: asco. Lo más gracioso suele ser la viñeta 8, cuando Yusuf descubre el sabor amargo.", lineas: 2 },
+      { tipo: "texto", q: "Copia tres onomatopeyas de la tira y explica qué sonido imita cada una.", r: "«¡TAC, TAC!»: la vara golpeando las ramas; «¡PLIC, PLOC!»: las aceitunas cayendo; «¡ZAS!»: el golpe fuerte de Yusuf; «¡PUAJ!»: asco.", lineas: 2 },
       { tipo: "opinion", q: "¿Te gustaría ayudar en la recogida de la aceituna? ¿Por qué?", r: "Respuesta libre.", lineas: 2 },
       { tipo: "reflexion", q: "Muchos alimentos necesitan mucho trabajo antes de llegar a nuestra mesa. ¿Por qué es importante conocer ese trabajo y valorarlo?", r: "Respuesta libre. Valorar que hable del esfuerzo de agricultores y agricultoras y de no desperdiciar comida.", lineas: 2 },
     ],
@@ -290,8 +293,13 @@ window.LECTURAS["tira"] = [
     fuente: "Texto original",
     antes: "¿Hablas por videollamada con algún familiar? ¿Alguna vez ha pasado algo gracioso?",
     texto: [
+      { p: "Hoy la abuela Maruja cumple setenta y cinco años. Vive en un pueblo de la Alpujarra, en Granada, y su vecina Encarna le acaba de enseñar a hacer videollamadas. Sofía y Dani le han preparado una sorpresa: una tarta con velas y una canción." },
       { vinetas: [
-        { escena: "Salón. Sofía y Dani sujetan una tableta, sonrientes. En la pantalla solo se ve un techo con una lámpara.", bocadillos: [
+        { escena: "Salón. Dani sujeta una tarta con dos velas: un 7 y un 5. Sofía coloca la tableta.", bocadillos: [
+          { quien: "Sofía", t: "Cuando la abuela conteste, cantamos a la de tres.", forma: "dice" },
+          { quien: "Dani", t: "Y yo hago la segunda voz.", forma: "dice" },
+        ] },
+        { escena: "La tableta suena: ¡PIRIRÍ, PIRIRÍ! En la pantalla solo se ve un techo con una lámpara.", bocadillos: [
           { quien: "Sofía", t: "¡Hola, abuela Maruja! ¡Feliz cumpleaños!", forma: "dice" },
         ] },
         { escena: "En la pantalla aparece, enorme, una oreja con un pendiente.", bocadillos: [
@@ -299,6 +307,7 @@ window.LECTURAS["tira"] = [
         ] },
         { escena: "Dani se acerca mucho a la tableta y habla despacio.", bocadillos: [
           { quien: "Dani", t: "Abuela, gira el teléfono. Solo te vemos la oreja.", forma: "dice" },
+          { quien: "Abuela Maruja", t: "¿Que gire qué? ¿La oreja?", forma: "dice" },
         ] },
         { escena: "La imagen da vueltas: techo, suelo, un gato, una maceta… ¡FIUUU! Sofía se marea.", bocadillos: [
           { quien: "Sofía", t: "Esto es peor que la noria de la feria…", forma: "piensa" },
@@ -307,8 +316,34 @@ window.LECTURAS["tira"] = [
           { quien: "Abuela Maruja", t: "¿Y ahora? ¿Me veis bien?", forma: "dice" },
           { quien: "Dani", t: "¡Te vemos un ojo, abuela!", forma: "dice" },
         ] },
+        { escena: "De repente, la pantalla se pone completamente negra.", bocadillos: [
+          { quien: "Abuela Maruja", t: "¿Hola? ¡Que os he perdido!", forma: "grita" },
+          { quien: "Sofía", t: "Abuela, tienes el dedo encima de la cámara.", forma: "dice" },
+        ] },
+        { escena: "En la pantalla aparece el gato de la abuela, que olfatea el móvil muy de cerca: ¡MIAU!", bocadillos: [
+          { quien: "Dani", t: "Hola, Bigotes. ¿Tú también cumples años?", forma: "dice" },
+        ] },
+        { escena: "Se oye llamar a la puerta de la abuela: ¡TOC, TOC! En la pantalla se ve el suelo de la cocina y unas zapatillas que se alejan.", bocadillos: [
+          { quien: "Abuela Maruja", t: "¡Pasa, Encarna, que tengo a los nietos metidos en el teléfono!", forma: "grita" },
+          { quien: "Encarna", t: "¡Voy, Maruja, voy!", forma: "dice" },
+        ] },
+        { escena: "La vecina Encarna coge el móvil y lo apoya en un bote de la mesa de la cocina.", bocadillos: [
+          { quien: "Encarna", t: "Trae, Maruja, que así no hay quien te vea.", forma: "dice" },
+        ] },
         { escena: "La abuela, ya bien encuadrada, sonríe con los rulos puestos.", bocadillos: [
           { quien: "Abuela Maruja", t: "¡Anda! Pues casi que prefería la oreja: ¡hoy no me he peinado!", forma: "dice" },
+        ] },
+        { escena: "Sofía y Dani cantan con la tarta delante de la tableta. La abuela se seca una lágrima con el pañuelo.", bocadillos: [
+          { quien: "Sofía y Dani", t: "¡Cumpleaños feliz, te deseamos, abuela…!", forma: "dice" },
+          { quien: "Abuela Maruja", t: "¡Ay, mis niños, qué bonito!", forma: "dice" },
+        ] },
+        { escena: "La abuela sopla hacia su móvil. En el salón, Dani sopla a la vez, por lo bajo, y las velas se apagan.", bocadillos: [
+          { quien: "Abuela Maruja", t: "¡Funciona! ¡Las he apagado desde aquí!", forma: "grita" },
+          { quien: "Dani", t: "Mejor no le digo que he soplado yo.", forma: "piensa" },
+        ] },
+        { escena: "Después de colgar, los dos se reparten la tarta.", bocadillos: [
+          { quien: "Sofía", t: "El domingo vamos a verla y le enseñamos a usar el móvil.", forma: "dice" },
+          { quien: "Dani", t: "Y ella nos enseña a hacer su bizcocho. Trato justo.", forma: "dice" },
         ] },
       ] },
     ],
@@ -317,15 +352,12 @@ window.LECTURAS["tira"] = [
       { p: "rulos", d: "cilindros que se enrollan en el pelo para rizarlo" },
     ],
     preguntas: [
-      { tipo: "comprension", q: "¿Por qué llaman Sofía y Dani a su abuela?", r: "Para felicitarla por su cumpleaños.", lineas: 1 },
-      { tipo: "comprension", q: "¿Qué ven los nietos en la pantalla antes de ver bien a la abuela? Escríbelo en orden.", r: "Primero un techo con una lámpara, luego una oreja, después todo dando vueltas (techo, suelo, gato, maceta) y luego un ojo gigante.", lineas: 2 },
-      { tipo: "comprension", q: "¿Por qué la abuela grita «¡No se oye nada!» en la viñeta 2?", r: "Porque tiene el teléfono pegado a la oreja, como si fuera una llamada normal, y no sabe usar bien la videollamada.", lineas: 2 },
-      { tipo: "comprension", q: "¿Qué quiere decir Sofía cuando piensa que aquello es «peor que la noria de la feria»? Elige:", opciones: ["Que tiene ganas de ir a la feria", "Que la imagen da tantas vueltas que se marea", "Que la abuela está en la feria"], r: "Que la imagen da tantas vueltas que se marea" },
-      { tipo: "comprension", q: "¿Por qué la abuela dice al final que «prefería la oreja»?", r: "Porque ahora se le ve toda la cara con los rulos puestos y le da vergüenza no estar peinada.", lineas: 2 },
-      { tipo: "texto", q: "Hay bocadillos de las tres formas: «dice», «piensa» y «grita». Pon un ejemplo de cada uno y explica cómo se dibujaría cada globo.", r: "Dice: «Abuela, gira el teléfono» (globo redondo con un rabito). Piensa: «Esto es peor que la noria de la feria…» (nube unida al personaje con burbujitas). Grita: «¿Hola? ¡No se oye nada!» (borde en picos y letras grandes).", lineas: 3 },
-      { tipo: "opinion", q: "¿Crees que es fácil para las personas mayores usar la tecnología? ¿Por qué?", r: "Respuesta libre. Valorar que argumente con empatía.", lineas: 3 },
-      { tipo: "opinion", q: "¿Qué consejo le darías a la abuela Maruja para la próxima videollamada?", r: "Respuesta libre.", lineas: 2 },
-      { tipo: "reflexion", q: "¿Cómo podrías ayudar a una persona mayor de tu familia a usar el móvil o la tableta? ¿Qué podrías aprender tú de ella a cambio?", r: "Respuesta libre. Valorar la paciencia y el intercambio entre generaciones.", lineas: 3 },
+      { tipo: "comprension", q: "¿Por qué llaman a la abuela? ¿Qué sorpresa le han preparado?", r: "Para felicitarla por su cumpleaños (75 años). Le han preparado una tarta con velas y una canción.", lineas: 2 },
+      { tipo: "comprension", q: "¿Por qué no se oye nada en la viñeta 3? ¿Y por qué se pone negra la pantalla en la 7?", r: "Porque tiene el teléfono pegado a la oreja, como en una llamada normal. La pantalla se pone negra porque tapa la cámara con el dedo.", lineas: 2 },
+      { tipo: "comprension", q: "¿Por qué Dani no le dice a la abuela que ha soplado él? Elige:", opciones: ["Porque le da vergüenza soplar", "Para no quitarle a la abuela la ilusión", "Porque las velas eran de la abuela"], r: "Para no quitarle a la abuela la ilusión" },
+      { tipo: "texto", q: "Copia un bocadillo de cada forma («dice», «piensa», «grita») y explica cómo se dibuja cada globo.", r: "Dice: «Abuela, gira el teléfono» (globo redondo con rabito). Piensa: «Esto es peor que la noria de la feria…» (nube unida con burbujitas). Grita: «¿Hola? ¡No se oye nada!» (borde en picos y letras grandes).", lineas: 2 },
+      { tipo: "opinion", q: "¿Crees que es fácil para las personas mayores usar la tecnología? ¿Por qué?", r: "Respuesta libre. Valorar que argumente con empatía.", lineas: 2 },
+      { tipo: "reflexion", q: "¿Cómo ayudarías a una persona mayor a usar el móvil? ¿Qué podrías aprender tú de ella?", r: "Respuesta libre. Valorar la paciencia y el intercambio entre generaciones.", lineas: 2 },
     ],
   },
   {
@@ -336,24 +368,54 @@ window.LECTURAS["tira"] = [
     fuente: "Texto original",
     antes: "En la costa de Cádiz sopla a menudo un viento fuerte del este llamado levante. ¿Qué problemas crees que puede dar en un día de playa?",
     texto: [
+      { p: "Irene vive en Jerez y este sábado va con su familia a pasar el día en una playa de Cádiz. Su padre lleva toda la semana diciendo que será un día perfecto. Lo que no ha mirado es el viento: sopla levante, el viento del este que tan bien conocen en la costa gaditana." },
       { vinetas: [
-        { escena: "Playa de Cádiz. La familia de Irene llega cargada: sombrilla, nevera, toallas y cubo. La arena vuela un poco.", bocadillos: [
+        { escena: "Dentro del coche, camino de la playa. La madre mira el móvil. Pablo, el hermano pequeño de Irene, abraza una cometa.", bocadillos: [
+          { quien: "Mamá", t: "Dan levante fuerte para hoy. ¿Seguro que vamos a la playa?", forma: "dice" },
+          { quien: "Papá", t: "¡Tonterías! Un poco de aire fresquito, nada más.", forma: "dice" },
+        ] },
+        { escena: "Playa de Cádiz. La familia llega cargada: sombrilla, nevera, toallas y cubo. La arena vuela un poco.", bocadillos: [
           { quien: "Papá", t: "¡Qué día tan bueno! Aquí mismo nos ponemos.", forma: "dice" },
+          { quien: "Pablo", t: "¡Qué bien! ¡Hoy mi cometa va a volar altísimo!", forma: "dice" },
         ] },
         { escena: "El padre clava la sombrilla con fuerza en la arena.", bocadillos: [
           { quien: "Papá", t: "Bien hondita, que hoy hay algo de levante.", forma: "dice" },
           { quien: "Irene", t: "¿«Algo»? Se me ha volado hasta la coleta.", forma: "piensa" },
         ] },
+        { escena: "La madre extiende las toallas y sujeta cada esquina con una zapatilla. Pablo muerde su bocadillo: ¡CRUNCH!", bocadillos: [
+          { quien: "Mamá", t: "Las zapatillas, de pesas. Truco de gaditana.", forma: "dice" },
+          { quien: "Pablo", t: "Mamá, mi bocadillo es de tortilla… y de arena.", forma: "dice" },
+        ] },
         { escena: "Una ráfaga enorme: ¡FIUUUUU! La sombrilla sale volando como un paracaídas.", bocadillos: [
           { quien: "Toda la familia", t: "¡¡LA SOMBRILLA!!", forma: "grita" },
+          { quien: "Pablo", t: "¡Hala, se va de vacaciones sin nosotros!", forma: "dice" },
         ] },
         { escena: "El padre corre por la orilla detrás de la sombrilla, con líneas de movimiento. Dos niños que juegan a las palas se apartan.", bocadillos: [
           { quien: "Papá", t: "¡Perdón! ¡Perdón! ¡Es que va sola!", forma: "grita" },
+          { quien: "Niño de las palas", t: "¡Corra, señor, que se le escapa!", forma: "dice" },
         ] },
-        { escena: "La sombrilla aterriza clavada en la arena, justo delante del chiringuito, junto a la única zona con sombra de la playa: ¡CHOF!", bocadillos: [] },
+        { escena: "Pablo, con la cometa en la mano, señala al cielo, emocionado.", bocadillos: [
+          { quien: "Pablo", t: "¡Mira, Irene! ¡La sombrilla de papá vuela más que mi cometa!", forma: "grita" },
+          { quien: "Irene", t: "Eso no lo cuentes en el cole.", forma: "dice" },
+        ] },
+        { escena: "La sombrilla aterriza clavada en la arena, justo delante del chiringuito, junto a la única zona con sombra de la playa: ¡CHOF!", bocadillos: [
+          { quien: "Camarero", t: "Buenos días, señor. ¿Mesa para cuatro?", forma: "dice" },
+        ] },
         { escena: "Irene, su madre y su hermano llegan arrastrando las cosas. El padre, sin aliento, sonríe orgulloso.", bocadillos: [
           { quien: "Irene", t: "Papá, ¿lo tenías planeado?", forma: "dice" },
           { quien: "Papá", t: "Claro, hija. En Cádiz, el levante elige el sitio.", forma: "dice" },
+        ] },
+        { escena: "La familia come a la sombra. En la torre del socorrista ondea una bandera amarilla.", bocadillos: [
+          { quien: "Irene", t: "Bandera amarilla: hoy, si nos bañamos, con cuidado y cerca de la orilla.", forma: "dice" },
+          { quien: "Mamá", t: "Muy bien, Irene. Tú sí has mirado el tiempo.", forma: "dice" },
+        ] },
+        { escena: "Por la tarde. Todos tienen arena en el pelo, en las cejas y hasta en las orejas. El padre se estira, feliz.", bocadillos: [
+          { quien: "Papá", t: "¿Veis? Un día perfecto. Ni una gota de calor.", forma: "dice" },
+          { quien: "Pablo", t: "Llevo tanta arena encima que podría hacer un castillo conmigo mismo.", forma: "piensa" },
+        ] },
+        { escena: "De vuelta en el coche. Irene sacude su gorra por la ventanilla.", bocadillos: [
+          { quien: "Irene", t: "Papá, ¿el sábado que viene miramos el viento antes de salir?", forma: "dice" },
+          { quien: "Papá", t: "Trato hecho. Y si sopla levante… ¡nos vamos a la sierra!", forma: "dice" },
         ] },
       ] },
     ],
@@ -361,17 +423,15 @@ window.LECTURAS["tira"] = [
       { p: "levante", d: "viento del este, muy fuerte y frecuente en la costa de Cádiz" },
       { p: "ráfaga", d: "golpe de viento fuerte y corto" },
       { p: "chiringuito", d: "pequeño bar al aire libre, en la playa" },
+      { p: "socorrista", d: "persona que vigila la playa y ayuda a los bañistas en peligro" },
     ],
     preguntas: [
-      { tipo: "comprension", q: "¿Qué hace el padre para que la sombrilla no se vuele? ¿Funciona?", r: "La clava bien honda en la arena. No funciona: una ráfaga de levante se la lleva.", lineas: 2 },
-      { tipo: "comprension", q: "¿Qué quiere decir Irene cuando piensa: «¿Algo? Se me ha volado hasta la coleta»?", r: "Que su padre se queda corto: no hay «algo» de levante, sino muchísimo viento. Es una exageración con ironía.", lineas: 2 },
-      { tipo: "comprension", q: "¿Por qué pide perdón el padre en la viñeta 4?", r: "Porque va corriendo detrás de la sombrilla y molesta a otras personas de la playa, como a los niños que juegan a las palas.", lineas: 2 },
-      { tipo: "comprension", q: "¿Dónde aterriza la sombrilla? Elige:", opciones: ["En el mar", "Delante del chiringuito, junto a la sombra", "Encima de la nevera de la familia"], r: "Delante del chiringuito, junto a la sombra" },
-      { tipo: "comprension", q: "¿Crees que el padre lo tenía planeado de verdad? ¿Por qué contesta así a Irene?", r: "No; fue pura casualidad. Contesta así para no quedar mal y hacer una broma: presume de algo que ha hecho el viento.", lineas: 2 },
-      { tipo: "texto", q: "¿Qué recursos se usan en las viñetas 3, 4 y 5 para mostrar el viento y el movimiento? Nombra las onomatopeyas y las líneas de movimiento.", r: "En la viñeta 3, la onomatopeya «¡FIUUUUU!» imita el viento; en la 4, las líneas de movimiento muestran que el padre corre muy rápido; en la 5, «¡CHOF!» imita la sombrilla clavándose en la arena.", lineas: 3 },
-      { tipo: "opinion", q: "¿Qué habrías hecho tú en un día de levante tan fuerte: quedarte en la playa o irte? ¿Por qué?", r: "Respuesta libre.", lineas: 2 },
-      { tipo: "opinion", q: "¿Te parece que el padre es un buen personaje de humor? ¿Qué rasgos lo hacen gracioso?", r: "Respuesta libre. Valorar que hable de su optimismo, su orgullo o su manera de salir airoso.", lineas: 3 },
-      { tipo: "reflexion", q: "Una sombrilla que sale volando puede hacer daño a alguien. ¿Qué normas de seguridad y respeto deberíamos seguir en la playa?", r: "Respuesta libre. Valorar ideas como sujetar bien la sombrilla, respetar el espacio de los demás o hacer caso a las banderas.", lineas: 3 },
+      { tipo: "comprension", q: "¿Qué avisa la madre en el coche? ¿Cómo responde el padre?", r: "Que dan levante fuerte para ese día. El padre le quita importancia: dice que será un poco de aire fresquito.", lineas: 2 },
+      { tipo: "comprension", q: "¿Crees que el padre tenía planeado dónde caería la sombrilla? ¿Por qué contesta así a Irene?", r: "No; fue pura casualidad. Contesta así para no quedar mal y hacer una broma: presume de algo que ha hecho el viento.", lineas: 2 },
+      { tipo: "comprension", q: "¿Qué quiere decir Irene al pensar «¿Algo? Se me ha volado hasta la coleta»? Elige:", opciones: ["Que ha perdido la coleta", "Que el viento es mucho más fuerte de lo que dice su padre", "Que quiere cortarse el pelo"], r: "Que el viento es mucho más fuerte de lo que dice su padre" },
+      { tipo: "texto", q: "¿Qué recursos muestran el viento y el movimiento en las viñetas 5, 6 y 8?", r: "En la 5, la onomatopeya «¡FIUUUUU!» imita el viento; en la 6, las líneas de movimiento muestran que el padre corre muy rápido; en la 8, «¡CHOF!» imita la sombrilla clavándose en la arena.", lineas: 2 },
+      { tipo: "opinion", q: "En un día de levante tan fuerte, ¿te habrías quedado en la playa o te habrías ido? ¿Por qué?", r: "Respuesta libre.", lineas: 2 },
+      { tipo: "reflexion", q: "Una sombrilla que sale volando puede hacer daño. ¿Qué normas de seguridad y respeto hay que seguir en la playa?", r: "Respuesta libre. Valorar ideas como sujetar bien la sombrilla, respetar el espacio de los demás o hacer caso a las banderas.", lineas: 2 },
     ],
   },
   {
@@ -382,9 +442,17 @@ window.LECTURAS["tira"] = [
     fuente: "Texto original",
     antes: "En los deportes se usan palabras especiales. ¿Conoces alguna expresión de baloncesto o de fútbol que pueda entenderse mal?",
     texto: [
+      { p: "Marcos acaba de llegar al colegio y se ha apuntado al equipo de baloncesto de 5.º. Es rapidísimo y tiene muchas ganas, pero nunca había jugado en un equipo. Hoy es su primer partido y está tan nervioso que no se atreve a preguntar nada." },
       { vinetas: [
+        { escena: "Vestuario. Marcos se ata las zapatillas con las manos temblorosas. Irene, la capitana, le da una palmada en la espalda.", bocadillos: [
+          { quien: "Irene", t: "Tranquilo. Tú haz lo que diga Lucía y ya está.", forma: "dice" },
+          { quien: "Marcos", t: "Vale. Lo que diga Lucía.", forma: "dice" },
+        ] },
+        { escena: "Primera parte. Marcos mira el partido desde el banquillo, con los ojos muy abiertos.", bocadillos: [
+          { quien: "Marcos", t: "Botar, pasar, tirar… ¿y por qué todos gritan «¡bloqueo!»?", forma: "piensa" },
+        ] },
         { escena: "Pabellón. Partido de baloncesto de las alumnas y alumnos de 5.º. La entrenadora Lucía da instrucciones en un tiempo muerto.", bocadillos: [
-          { quien: "Lucía", t: "Escuchad: ahora vamos a hacer defensa en zona.", forma: "dice" },
+          { quien: "Lucía", t: "Escuchad: ahora vamos a hacer defensa en zona. Marcos, sales tú.", forma: "dice" },
         ] },
         { escena: "Marcos, que es su primer partido, levanta el pulgar muy convencido.", bocadillos: [
           { quien: "Marcos", t: "¡Entendido, míster!", forma: "dice" },
@@ -392,33 +460,47 @@ window.LECTURAS["tira"] = [
         ] },
         { escena: "Silbato: ¡PRIIIIT! Empieza el juego. Todos corren a defender cerca de la canasta… menos Marcos, que sale del pabellón.", bocadillos: [
           { quien: "Irene", t: "¡Marcos! ¿Adónde vas?", forma: "grita" },
+          { quien: "Marcos", t: "¡A defender la zona, capitana!", forma: "dice" },
         ] },
         { escena: "Marcos aparece en la puerta del pabellón, con los brazos abiertos, junto a un cartel que dice «Zona de aparcamiento».", bocadillos: [
           { quien: "Marcos", t: "¡Defendiendo la zona! ¡Por aquí no pasa nadie!", forma: "grita" },
         ] },
+        { escena: "Un señor con las llaves del coche en la mano intenta pasar. Marcos se mueve a un lado y a otro, cerrándole el paso.", bocadillos: [
+          { quien: "Señor", t: "Chaval, que solo quiero sacar el coche.", forma: "dice" },
+          { quien: "Marcos", t: "¡Lo siento, estamos en defensa en zona!", forma: "dice" },
+        ] },
         { escena: "Lucía se tapa la cara con la carpeta. El público se ríe: ¡JA, JA, JA!", bocadillos: [
           { quien: "Lucía", t: "Marcos, la zona es la de la canasta, la que está pintada en el suelo.", forma: "dice" },
+        ] },
+        { escena: "Marcos vuelve corriendo y se coloca bajo la canasta, junto a sus compañeros.", bocadillos: [
+          { quien: "Irene", t: "Aquí, a mi lado. Tú vigilas esta parte.", forma: "dice" },
+          { quien: "Marcos", t: "¡Ah, esta zona! Haberlo dicho antes.", forma: "dice" },
+        ] },
+        { escena: "Marcos roba el balón a una jugadora rival: ¡ZAS! El público aplaude: ¡CLAP, CLAP, CLAP!", bocadillos: [
+          { quien: "Irene", t: "¡Muy bien, Marcos! ¡Eso es defender!", forma: "grita" },
         ] },
         { escena: "Final del partido. El marcador indica que han ganado. Marcos, con la medalla puesta, habla con Lucía.", bocadillos: [
           { quien: "Marcos", t: "Pues en el aparcamiento no nos ha metido nadie ni un punto.", forma: "dice" },
           { quien: "Lucía", t: "En eso tienes toda la razón.", forma: "dice" },
+        ] },
+        { cartela: "Al día siguiente, en el entrenamiento…", escena: "Lucía reparte a cada jugador una hoja titulada «Palabras del baloncesto».", bocadillos: [
+          { quien: "Lucía", t: "Para que nadie se pierda: zona, bloqueo, rebote… Y si no entendéis algo, se pregunta.", forma: "dice" },
+          { quien: "Marcos", t: "Entonces pregunto: ¿el rebote no es cuando uno se enfada?", forma: "dice" },
         ] },
       ] },
     ],
     vocabulario: [
       { p: "tiempo muerto", d: "pausa que pide un equipo durante el partido para dar instrucciones" },
       { p: "defensa en zona", d: "en baloncesto, forma de defender en la que cada jugador vigila una parte del campo cercana a su canasta" },
+      { p: "rebote", d: "en baloncesto, balón que se recoge después de un tiro fallado; en lenguaje coloquial, también enfado" },
     ],
     preguntas: [
-      { tipo: "comprension", q: "¿Qué instrucción da la entrenadora durante el tiempo muerto?", r: "Que el equipo haga una defensa en zona.", lineas: 1 },
-      { tipo: "comprension", q: "¿Entiende Marcos la instrucción? ¿Cómo lo sabemos antes de que salga del pabellón?", r: "No la entiende. Lo sabemos por su bocadillo de pensamiento: «¿En zona? ¿En qué zona?», aunque en voz alta dice «¡Entendido!».", lineas: 2 },
+      { tipo: "comprension", q: "¿Entiende Marcos la instrucción de Lucía? ¿Cómo lo sabemos antes de que salga del pabellón?", r: "No la entiende. Lo sabemos por su bocadillo de pensamiento: «¿En zona? ¿En qué zona?», aunque en voz alta dice «¡Entendido!».", lineas: 2 },
+      { tipo: "comprension", q: "¿Qué hace Marcos con el señor de las llaves? ¿Por qué resulta gracioso?", r: "Le cierra el paso para que no saque el coche. Es gracioso porque defiende el aparcamiento como si fuera un partido, muy en serio, por haber entendido mal la instrucción.", lineas: 2 },
       { tipo: "comprension", q: "¿Qué «zona» cree Marcos que tiene que defender? Elige:", opciones: ["La zona pintada bajo la canasta", "La zona de aparcamiento", "La zona del público"], r: "La zona de aparcamiento" },
-      { tipo: "comprension", q: "¿Por qué Lucía se tapa la cara con la carpeta en la viñeta 5?", r: "Porque le da vergüenza y a la vez risa ver a su jugador fuera del pabellón defendiendo el aparcamiento.", lineas: 2 },
-      { tipo: "comprension", q: "¿Por qué la entrenadora le da la razón a Marcos al final? ¿Lo dice en serio?", r: "Porque es verdad que en el aparcamiento nadie les ha metido un punto: allí no se juega. Lo dice con humor, siguiéndole la broma.", lineas: 2 },
-      { tipo: "texto", q: "El humor de esta tira nace de un malentendido. Explica en qué consiste y en qué viñeta se descubre. ¿Qué onomatopeyas aparecen?", r: "Marcos entiende «zona» de forma literal, como cualquier zona, y no como la zona de defensa del baloncesto. Se descubre en la viñeta 4, al verlo junto al cartel del aparcamiento. Onomatopeyas: «¡PRIIIIT!» (silbato) y «¡JA, JA, JA!» (risas).", lineas: 3 },
-      { tipo: "opinion", q: "Marcos dice «¡Entendido!» sin haber entendido. ¿Por qué crees que lo hace? ¿Qué debería haber hecho?", r: "Respuesta libre. Valorar que hable de la vergüenza a preguntar y de la importancia de pedir aclaraciones.", lineas: 3 },
-      { tipo: "opinion", q: "¿Te ha pasado algo parecido con una palabra que no conocías? Cuéntalo.", r: "Respuesta libre.", lineas: 2 },
-      { tipo: "reflexion", q: "¿Por qué a veces nos da vergüenza preguntar cuando no entendemos algo? ¿Cómo podemos conseguir que en clase o en un equipo todos se atrevan a preguntar?", r: "Respuesta libre. Valorar que proponga un ambiente de respeto donde equivocarse no sea motivo de burla.", lineas: 3 },
+      { tipo: "texto", q: "El humor nace de un malentendido. ¿En qué consiste? ¿Qué palabra provoca otro en la última viñeta?", r: "Marcos entiende «zona» de forma literal, como cualquier zona, y no como la zona de defensa del baloncesto. En la última viñeta, confunde «rebote» (balón que se recoge) con «rebote» (enfado).", lineas: 2 },
+      { tipo: "opinion", q: "Marcos dice «¡Entendido!» sin haber entendido. ¿Por qué crees que lo hace? ¿Qué debería haber hecho?", r: "Respuesta libre. Valorar que hable de la vergüenza a preguntar y de la importancia de pedir aclaraciones.", lineas: 2 },
+      { tipo: "reflexion", q: "¿Qué podemos hacer para que en clase o en un equipo todos se atrevan a preguntar sin miedo?", r: "Respuesta libre. Valorar que proponga un ambiente de respeto donde equivocarse no sea motivo de burla.", lineas: 2 },
     ],
   },
   {
