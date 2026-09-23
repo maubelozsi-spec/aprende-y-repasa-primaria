@@ -40,13 +40,13 @@ window.LECTURAS["noticia"] = [
     subtipo: "Noticia deportiva",
     curso: "5º",
     fuente: "Noticia redactada para esta ficha a partir de hechos reales (final del Mundial femenino de fútbol, 20 de agosto de 2023)",
-    datos: ["CNN en Español y ESPN Deportes: crónicas de la final España-Inglaterra (20 de agosto de 2023)", "Olympics.com: información sobre la final del Mundial femenino 2023", "Wikipedia: Olga Carmona (fecha y lugar de nacimiento)"],
+    datos: ["CNN en Español y ESPN Deportes: crónicas de la final España-Inglaterra (20 de agosto de 2023)", "Olympics.com: información sobre la final del Mundial femenino 2023"],
     antes: "¿Recuerdas algún triunfo deportivo que se celebrara en todo el país? ¿Qué sentiste?",
     texto: [
       { titular: "¡España, campeona del mundo!", subtitulo: "Un gol de la sevillana Olga Carmona da a la selección femenina su primer Mundial de fútbol", entradilla: "Sídney (Australia), 20 de agosto de 2023. La selección española femenina de fútbol se ha proclamado hoy campeona del mundo por primera vez en su historia tras vencer por 1-0 a Inglaterra en la final, disputada en el Estadio Australia de Sídney. El único gol del partido lo marcó la defensa Olga Carmona." },
       { p: "El tanto llegó en el minuto 29 de la primera parte. Olga Carmona recibió un pase de Mariona Caldentey, avanzó por la banda izquierda y disparó con la zurda, cruzado y pegado al palo. La portera inglesa, Mary Earps, no pudo hacer nada." },
       { p: "La victoria pudo ser más amplia. En la segunda parte, el árbitro señaló un penalti a favor de España, pero Earps detuvo el lanzamiento de Jennifer Hermoso. Inglaterra, que era la campeona de Europa, buscó el empate hasta el último minuto, aunque la defensa española resistió." },
-      { p: "Olga Carmona, nacida en Sevilla en el año 2000, fue una de las grandes protagonistas del torneo. En la semifinal ya había marcado el gol de la victoria contra Suecia (2-1). Con solo 23 años, se convirtió en la autora de los dos goles más importantes de la historia de la selección femenina." },
+      { p: "Olga Carmona, nacida en Sevilla en el año 2000, fue una de las grandes protagonistas del torneo. En la semifinal ya había marcado el gol de la victoria contra Suecia (2-1). Con solo 23 años, se convirtió en la autora de dos de los goles más importantes de la historia de la selección femenina." },
       { p: "Además, la centrocampista Aitana Bonmatí recibió el Balón de Oro como mejor jugadora de todo el campeonato, que se disputó en Australia y Nueva Zelanda." },
       { p: "Con este triunfo, España se convierte en el segundo país, después de Alemania, que ha ganado el Mundial de fútbol tanto en categoría masculina como femenina. La selección masculina lo había conseguido en 2010, en Sudáfrica." },
       { p: "Como el partido se jugó a mediodía, hora española, miles de aficionados pudieron seguirlo en sus casas y en pantallas gigantes, y lo celebraron por todo el país." },
@@ -108,7 +108,7 @@ window.LECTURAS["noticia"] = [
     subtipo: "Noticia de historia",
     curso: "5º",
     fuente: "Noticia redactada para esta ficha a partir de hechos reales (hallazgo del tesoro de El Carambolo, 30 de septiembre de 1958)",
-    datos: ["Museo Arqueológico de Sevilla (Museos de Andalucía): ficha del tesoro de El Carambolo", "Historia National Geographic: artículo sobre el origen del tesoro de El Carambolo", "Wikipedia: Tesoro de El Carambolo"],
+    datos: ["Historia National Geographic: artículo sobre el origen del tesoro de El Carambolo"],
     antes: "¿Qué hace un arqueólogo? ¿Qué harías si encontraras algo muy antiguo enterrado?",
     texto: [
       { titular: "El tesoro de El Carambolo cumple 65 años", subtitulo: "Unos obreros encontraron por casualidad, cerca de Sevilla, uno de los conjuntos de joyas de oro más importantes de la Antigüedad en la península ibérica", entradilla: "Camas (Sevilla), 30 de septiembre de 2023. Hoy se cumplen 65 años del hallazgo del tesoro de El Carambolo, un conjunto de 21 joyas de oro que unos obreros descubrieron por casualidad el 30 de septiembre de 1958 mientras hacían unas obras en el cerro de El Carambolo, en Camas, muy cerca de Sevilla." },
@@ -252,7 +252,7 @@ window.LECTURAS["noticia"] = [
       { p: "El dato confirma una recuperación que parecía imposible. En 2002, los expertos contaron menos de cien ejemplares, repartidos en dos pequeñas poblaciones de Andalucía: Doñana y Sierra Morena. Entonces se temía que el lince desapareciera para siempre." },
       { p: "Desde entonces, administraciones, científicos, asociaciones y propietarios de fincas han trabajado juntos. Se criaron linces en centros especiales, como el de El Acebuche, en Doñana, y después se liberaron en zonas bien elegidas de Andalucía, Extremadura, Castilla-La Mancha y Portugal. También se ha ayudado a recuperar al conejo, su alimento principal." },
       { tabla: { titulo: "Linces ibéricos censados", cab: ["Año", "Ejemplares"], filas: [["2002", "menos de 100"], ["2023", "2.021"], ["2024", "2.401"]] }, nota: "Fuente: censos oficiales de lince ibérico (MITECO)." },
-      { p: "Gracias a estos esfuerzos, en 2024 la Unión Internacional para la Conservación de la Naturaleza (UICN) cambió la categoría del lince: dejó de estar «en peligro» y pasó a ser «vulnerable». Sigue amenazado, pero su situación es mucho mejor. Andalucía continúa siendo su gran refugio: allí vive más de un tercio de todos los linces, unos 836." },
+      { p: "Gracias a estos esfuerzos, en 2024 la Unión Internacional para la Conservación de la Naturaleza (UICN) cambió la categoría del lince: dejó de estar «en peligro» y pasó a ser «vulnerable». Sigue amenazado, pero su situación es mucho mejor. Andalucía, donde empezó la recuperación, sigue siendo uno de sus grandes refugios: allí viven unos 836 linces, más de un tercio del total." },
       { p: "Sin embargo, los expertos advierten de que el trabajo no ha terminado. En 2024 murieron 214 linces, y tres de cada cuatro de esas muertes se debieron a atropellos en carreteras y caminos. Por eso piden construir más pasos para fauna, reducir la velocidad en las zonas donde vive y seguir cuidando su hábitat, el monte mediterráneo." },
     ],
     vocabulario: [

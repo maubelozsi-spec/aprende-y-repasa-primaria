@@ -9,7 +9,7 @@ window.LECTURAS["narrativa"] = [
     fuente: "Adaptación de «La lechera», fábula de Félix María de Samaniego (Fábulas morales, siglo XVIII)",
     antes: "¿Alguna vez has hecho muchos planes con algo que todavía no tenías? ¿Salieron como pensabas?",
     texto: [
-      { p: "Por un camino de tierra, entre olivos y campos de trigo, caminaba una joven lechera llamada Clara. Llevaba sobre la cabeza un cántaro lleno de leche fresca que pensaba vender en el mercado del pueblo. Iba tan contenta que casi daba saltitos y, mientras andaba, empezó a hacer planes." },
+      { p: "Por un camino de tierra, entre olivos y campos de trigo, caminaba una joven lechera llamada Clara. Llevaba sobre la cabeza un cántaro lleno de leche fresca que pensaba vender en el mercado del pueblo. Hacía una mañana espléndida. Iba tan contenta que casi daba saltitos y, mientras andaba, empezó a hacer planes para el futuro." },
       { p: "—Con el dinero que me den por esta leche —pensaba— compraré una cesta de huevos. De los huevos saldrán cien pollitos, que criaré en el corral de casa. Les daré buen grano y crecerán sanos y gordos." },
       { p: "Clara sonreía y seguía imaginando: —Cuando los pollos sean grandes, los venderé y compraré un cerdito. Lo alimentaré con bellotas y castañas hasta que sea el cerdo más hermoso de la comarca. Después lo venderé a buen precio y con ese dinero me compraré una vaca y un ternero que saltará por el prado." },
       { p: "Tan emocionada estaba pensando en el ternero que ella también dio un salto de alegría. Y entonces… ¡zas! El cántaro resbaló de su cabeza, cayó al suelo y se rompió en mil pedazos. La leche se extendió por el camino y la tierra seca se la bebió en un momento." },
