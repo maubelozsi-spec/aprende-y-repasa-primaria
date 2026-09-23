@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tarjetas de virtud · La Ciudadela</title>
+<meta name="description" content="Diseña e imprime tarjetas de virtud (sabiduría, justicia, coraje y templanza) para entregar en mano al alumnado. Ocho por folio A4.">
+<meta name="theme-color" content="#1D2944">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="css/ciudadela.css">
+</head>
+<body data-pagina="tarjetas">
+
+<header id="barra"></header>
+
+<main class="contenedor">
+  <div class="cabecera-pagina">
+    <p class="eyebrow">Para el docente</p>
+    <h1>Tarjetas de virtud</h1>
+    <p class="intro">Para las tarjetas que entregas en mano. Cada tarjeta nombra la virtud y el motivo concreto: así el alumno sabe qué ha hecho bien y no solo que «ha ganado algo». Solo hay tarjetas en positivo.</p>
+  </div>
+
+  <div class="taller">
+    <form class="panel controles" id="controles" autocomplete="off" onsubmit="return false">
+      <div class="campo-d">
+        <span class="etiqueta">Virtud</span>
+        <div class="segmento" id="elige-virtud"></div>
+      </div>
+      <div class="campo-d">
+        <label for="motivo-lista">Motivo</label>
+        <select id="motivo-lista"></select>
+        <input type="text" id="motivo-libre" maxlength="70" placeholder="Escribe tu propio motivo…" class="oculto">
+      </div>
+      <div class="campo-d">
+        <label for="nombre">Nombre del alumno o alumna<small>Opcional. Déjalo vacío para escribirlo a mano.</small></label>
+        <input type="text" id="nombre" maxlength="40">
+      </div>
+      <div class="campo-d">
+        <span class="etiqueta">Qué imprimir</span>
+        <div class="segmento" id="modo"></div>
+      </div>
+      <label class="interruptor"><input type="checkbox" id="ahorro"> <span><b>Ahorrar tinta.</b> Sin fondos de color, solo contornos.</span></label>
+      <label class="interruptor"><input type="checkbox" id="con-fecha" checked> <span>Poner la fecha de hoy</span></label>
+      <div class="acciones-calma">
+        <span class="pista">Se imprime en A4, ocho tarjetas por folio.</span>
+        <button type="button" class="btn" id="btn-imprimir"><span data-icono="imprimir"></span>Imprimir</button>
+      </div>
+    </form>
+
+    <div class="vista-previa" aria-live="polite">
+      <div id="previa"></div>
+      <p class="pista">Vista previa de una tarjeta</p>
+    </div>
+  </div>
+
+  <section class="envoltorio-hoja">
+    <h2>El folio que se va a imprimir</h2>
+    <div class="hoja" id="hoja"></div>
+  </section>
+</main>
+
+<script src="js/comun.js"></script>
+<script src="js/tarjetas.js"></script>
+</body>
+</html>

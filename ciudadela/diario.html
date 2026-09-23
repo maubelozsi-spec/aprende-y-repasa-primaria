@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mi diario de la noche · La Ciudadela</title>
+<meta name="description" content="Diario privado inspirado en el repaso nocturno de Séneca: qué hice bien, qué podría mejorar y qué depende de mí mañana.">
+<meta name="theme-color" content="#1D2944">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="css/ciudadela.css">
+</head>
+<body data-pagina="diario">
+
+<header id="barra"></header>
+
+<main class="contenedor">
+  <div class="cabecera-pagina">
+    <p class="eyebrow">Mi diario de la noche</p>
+    <h1>El repaso de Séneca</h1>
+    <p class="intro">Cada noche, Séneca repasaba su día: qué había hecho bien, en qué se había equivocado y qué podía mejorar. No para castigarse, sino para aprender. Tres preguntas, tres minutos.</p>
+  </div>
+
+  <div class="aviso-privado" style="margin:6px 0 22px">
+    <span data-icono="candado"></span>
+    <p><b>Tu diario es privado.</b> Se guarda solo en este dispositivo y no se envía a ningún sitio, ni siquiera a tu maestro o maestra. Si esta tablet u ordenador lo usan más personas, marca «No guardar en este dispositivo».</p>
+  </div>
+
+  <div class="diario-rejilla">
+    <form class="panel form-diario" id="form-diario" autocomplete="off">
+      <div class="campo-d">
+        <span class="etiqueta">¿Cómo ha sido tu día?</span>
+        <div class="animos" id="animos"></div>
+      </div>
+      <div class="campo-d">
+        <label for="d-bien">1. ¿Qué he hecho bien hoy?<small>Algo pequeño también cuenta: ayudé a alguien, terminé una tarea, me controlé…</small></label>
+        <textarea id="d-bien" maxlength="600"></textarea>
+      </div>
+      <div class="campo-d">
+        <label for="d-mejor">2. ¿Qué podría hacer mejor?<small>Sin castigarte: como se lo dirías a un amigo.</small></label>
+        <textarea id="d-mejor" maxlength="600"></textarea>
+      </div>
+      <div class="campo-d">
+        <label for="d-manana">3. ¿Qué depende de mí mañana?<small>Una sola cosa concreta.</small></label>
+        <textarea id="d-manana" maxlength="600"></textarea>
+      </div>
+      <div class="campo-d">
+        <span class="etiqueta">Hoy he practicado…</span>
+        <div class="chips-virtud" id="chips-virtud"></div>
+      </div>
+      <label class="interruptor"><input type="checkbox" id="no-guardar"> <span><b>No guardar en este dispositivo.</b> Escribo para mí y, al terminar, se borra.</span></label>
+      <div class="acciones-calma">
+        <span class="pista" id="estado-guardado"></span>
+        <button type="submit" class="btn" id="btn-guardar">Guardar en mi diario</button>
+      </div>
+    </form>
+
+    <aside style="display:flex; flex-direction:column; gap:16px">
+      <section class="panel">
+        <h2 style="font-size:21px; margin-bottom:10px">Mis virtudes esta semana</h2>
+        <div class="semana" id="semana"></div>
+        <p class="pista" style="margin-top:10px">Cuenta las veces que has marcado cada virtud en los últimos siete días. No es una nota: es para que tú veas en qué te estás entrenando.</p>
+      </section>
+      <section>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+          <h2 style="font-size:21px">Lo que he escrito</h2>
+          <button type="button" class="btn fantasma peq" id="btn-borrar-todo">Borrar todo</button>
+        </div>
+        <div class="entradas" id="entradas"></div>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<script src="js/comun.js"></script>
+<script src="js/diario.js"></script>
+</body>
+</html>
