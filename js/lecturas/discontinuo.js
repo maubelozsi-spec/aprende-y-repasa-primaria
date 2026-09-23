@@ -320,7 +320,7 @@ window.LECTURAS["discontinuo"] = [
     subtipo: "Tabla de información nutricional",
     curso: "5º-6º",
     fuente: "Texto original con datos nutricionales reales (valores redondeados).",
-    datos: ["USDA FoodData Central: «Oranges, raw, all commercial varieties» (FDC 169097)", "Valor de referencia de nutrientes de la Unión Europea (vitamina C: 80 mg/día)"],
+    datos: ["USDA FoodData Central: «Oranges, raw, all commercial varieties» (FDC 169097)", "USDA FoodData Central: zumo de naranja natural (FDC 169098), manzana con piel (FDC 171688), plátano (FDC 173944), kiwi verde (FDC 168153) y fresa (FDC 167762)", "Valor de referencia de nutrientes de la Unión Europea (vitamina C: 80 mg/día)"],
     antes: "¿Has leído alguna vez la etiqueta de un alimento? ¿Qué información crees que aparece en ella?",
     texto: [
       { h: "Información nutricional: naranja cruda" },
@@ -511,7 +511,7 @@ window.LECTURAS["discontinuo"] = [
     subtipo: "Folleto turístico",
     curso: "6º",
     fuente: "Texto original con datos reales del parque.",
-    datos: ["Junta de Andalucía, Ventana del Visitante: Parque Natural Cabo de Gata-Níjar", "UNESCO: Reserva de la Biosfera y Geoparque Mundial Cabo de Gata-Níjar", "AEMET: valores climatológicos normales 1981-2010, Almería Aeropuerto"],
+    datos: ["Junta de Andalucía, Ventana del Visitante: Parque Natural Cabo de Gata-Níjar", "UNESCO: Reserva de la Biosfera y Geoparque Mundial Cabo de Gata-Níjar", "AEMET: valores climatológicos normales 1981-2010, Almería Aeropuerto", "Wikipedia: «Parque natural del Cabo de Gata-Níjar» (costa, municipios, salinas Ramsar 1989, vegetación y aves)"],
     antes: "¿Has estado en algún parque natural? ¿Qué normas había que cumplir allí?",
     texto: [
       { h: "Parque Natural Cabo de Gata-Níjar (Almería)" },
@@ -578,7 +578,7 @@ window.LECTURAS["discontinuo"] = [
     subtipo: "Tabla de datos climáticos",
     curso: "6º",
     fuente: "Texto original con datos climáticos reales.",
-    datos: ["AEMET: valores climatológicos normales 1981-2010 de las estaciones de Almería, Córdoba, Granada, Málaga y Sevilla Aeropuerto"],
+    datos: ["AEMET: valores climatológicos normales 1981-2010 de las estaciones de Almería, Córdoba, Granada, Málaga y Sevilla Aeropuerto (temperaturas, lluvia, días de lluvia, heladas y despejados, altitud y valores mensuales de Málaga)"],
     antes: "¿Crees que en toda Andalucía hace el mismo calor y llueve lo mismo? ¿Por qué?",
     texto: [
       { h: "¿Frío, calor, lluvia? Depende de dónde vivas" },
@@ -601,7 +601,7 @@ window.LECTURAS["discontinuo"] = [
       { p: "El aeropuerto de Granada está a 560 metros de altitud, mientras que los de Almería y Málaga están junto al mar. El mar se calienta y se enfría despacio, por eso suaviza las temperaturas de la costa: inviernos más templados y veranos menos extremos. En cambio, en el interior las noches de invierno son frías y los días de verano, muy calurosos." },
       { p: "La lluvia también cambia mucho de un lugar a otro. Almería está protegida por montañas de las borrascas que llegan del oeste, y por eso es una de las zonas más secas de Europa. Córdoba, Sevilla y Málaga reciben bastante más agua, aunque casi toda cae entre el otoño y la primavera: en julio apenas llueve en ninguna de las cinco capitales." },
       { h: "Un año en Málaga, mes a mes" },
-      { p: "Las medias anuales esconden muchos cambios a lo largo del año. Esta tabla muestra cómo varían la temperatura, la lluvia y las horas de sol en el aeropuerto de Málaga. Fíjate en qué meses llueve más y en cuáles hay más horas de sol: ¿coinciden?" },
+      { p: "Las medias anuales esconden muchos cambios a lo largo del año. Esta tabla muestra cómo varían la temperatura, la lluvia y las horas de sol en el aeropuerto de Málaga. Fíjate en qué meses llueve más y en cuáles hay más horas de sol: ¿coinciden? En julio, por ejemplo, el sol luce de media más de once horas al día." },
       { tabla: { titulo: "Málaga Aeropuerto: valores medios de cada mes (1981-2010)", cab: ["", "E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"], filas: [
         ["Temperatura (°C)", "12,1", "12,9", "14,7", "16,3", "19,3", "23,0", "25,5", "26,0", "23,5", "19,5", "15,7", "13,2"],
         ["Lluvia (mm)", "69", "60", "52", "44", "20", "6", "0", "6", "20", "57", "100", "100"],
