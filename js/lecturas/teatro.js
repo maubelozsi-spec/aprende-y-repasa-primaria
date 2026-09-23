@@ -466,7 +466,7 @@ window.LECTURAS["teatro"] = [
     titulo: "El retablo de las maravillas",
     subtipo: "Entremés",
     curso: "6º",
-    fuente: "Adaptación libre del entremés «El retablo de las maravillas», de Miguel de Cervantes (1615)",
+    fuente: "Adaptación libre del entremés «El retablo de las maravillas», de Miguel de Cervantes (1615). Se ha cambiado la condición original para ver las maravillas por otra adecuada a la edad.",
     antes: "¿Alguna vez has dicho que veías o entendías algo solo para no quedar mal delante de los demás?",
     texto: [
       { acot: "La plaza de un pueblo de Castilla. Hay un pequeño teatrillo cubierto con una tela. CHANFALLA y CHIRINOS, dos pícaros que van de pueblo en pueblo, hablan con el alcalde BENITO REPOLLO, el escribano PEDRO CAPACHO y la vecina JUANA CASTRADA." },
