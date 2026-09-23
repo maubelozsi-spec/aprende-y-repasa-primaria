@@ -511,6 +511,7 @@ window.LECTURAS["tira"] = [
     fuente: "Texto original",
     antes: "Muchas casas tienen ya un robot que aspira solo. ¿Cómo crees que reaccionaría un gato al verlo por primera vez?",
     texto: [
+      { p: "Aitana vive con su padre y con Canela, una gata naranja muy lista que se pasa casi todo el día durmiendo y el resto del tiempo vigilando la casa. Esta semana ha llegado un aparato nuevo: un robot aspirador. Aitana está encantada. Canela, no tanto: los gatos suelen desconfiar de lo nuevo, y ella más que ninguno. Y cuando algo no le gusta, Canela siempre acaba tramando un plan." },
       { vinetas: [
         { escena: "Salón. Aitana deja en el suelo un robot aspirador redondo nuevo. En el sofá, la gata Canela lo observa con desconfianza.", bocadillos: [
           { quien: "Aitana", t: "Te presento a Pelusín, Canela. Va a limpiar él solito.", forma: "dice" },
@@ -518,15 +519,46 @@ window.LECTURAS["tira"] = [
         ] },
         { escena: "El robot se pone en marcha: ¡BRRRRR! Canela da un salto hasta la lámpara con el pelo de punta.", bocadillos: [
           { quien: "Canela", t: "¡¡FFFSSS!!", forma: "grita" },
+          { quien: "Aitana", t: "¡Canela, baja de ahí, que no muerde!", forma: "dice" },
+        ] },
+        { escena: "Canela, escondida debajo del sofá, observa cómo el robot choca contra la pata de la mesa: ¡TONC! Gira y sigue.", bocadillos: [
+          { quien: "Aitana", t: "¡Mira qué bien limpia, Canela!", forma: "dice" },
+          { quien: "Canela", t: "Choca, gira, sigue. Choca, gira, sigue. No es muy listo… Eso puede ser útil.", forma: "piensa" },
+        ] },
+        { escena: "El robot se traga un calcetín que había en el suelo: ¡SLURP! Aitana corre a rescatarlo.", bocadillos: [
+          { quien: "Aitana", t: "¡Pelusín, suelta mi calcetín!", forma: "grita" },
+          { quien: "Canela", t: "Se come lo que encuentra. Anotado.", forma: "piensa" },
+        ] },
+        { escena: "Canela sale de su escondite y toca el robot con la pata: ¡TOC! Pelusín pita y cambia de dirección: ¡BIP!", bocadillos: [
+          { quien: "Canela", t: "Si lo toco, me hace caso. Interesante…", forma: "piensa" },
+          { quien: "Aitana", t: "¡Anda! ¿Ya sois amigos?", forma: "dice" },
         ] },
         { cartela: "Una semana después…", escena: "Canela va sentada encima de Pelusín, que recorre el salón como si fuera un coche.", bocadillos: [
           { quien: "Canela", t: "Ya no me asusta. Ahora es mi taxi.", forma: "piensa" },
+          { quien: "Aitana", t: "¡Canela, que no es un coche de feria!", forma: "dice" },
+        ] },
+        { escena: "Aitana y su padre miran la escena desde el sofá, sonriendo.", bocadillos: [
+          { quien: "Papá", t: "Esa gata se ha hecho la dueña del robot.", forma: "dice" },
+          { quien: "Aitana", t: "Mejor. Así ya no le tiene miedo. ¡Si hasta le ronronea!", forma: "dice" },
         ] },
         { escena: "El robot se detiene siempre delante de la cocina. Canela maúlla: ¡MIAU!", bocadillos: [
           { quien: "Aitana", t: "Qué raro. Pelusín siempre se para delante del armario de las chucherías de gato.", forma: "dice" },
+          { quien: "Canela", t: "Disimula, Pelusín. Disimula.", forma: "piensa" },
+        ] },
+        { escena: "Aitana mira en la tableta el mapa de los recorridos del robot. Todas las líneas terminan en el mismo sitio.", bocadillos: [
+          { quien: "Aitana", t: "Mira, papá: todos los caminos de Pelusín llevan al armario.", forma: "dice" },
+          { quien: "Papá", t: "Bah. Será casualidad.", forma: "dice" },
         ] },
         { escena: "De noche. Canela, con una linterna en la boca, enseña al robot un dibujo del armario hecho con las patas. El robot pita: ¡BIP, BIP!", bocadillos: [
-          { quien: "Canela", t: "Muy bien, Pelusín. Mañana aprendemos a abrir la puerta.", forma: "piensa" },
+          { quien: "Canela", t: "Muy bien, Pelusín. Paso uno: llegar al armario. Paso dos: abrir la puerta. Paso tres: la siesta. Mañana practicamos el paso dos.", forma: "piensa" },
+        ] },
+        { escena: "A la mañana siguiente. El armario está abierto y la bolsa de chucherías, vacía. Canela duerme panza arriba encima de Pelusín.", bocadillos: [
+          { quien: "Aitana", t: "¡¡CANELAAA!!", forma: "grita" },
+          { quien: "Canela", t: "Misión cumplida. Ni una miga.", forma: "piensa" },
+        ] },
+        { escena: "El padre pone una goma en la puerta del armario. Canela lo mira, tranquila, lamiéndose una pata.", bocadillos: [
+          { quien: "Papá", t: "Vale. Igual no era casualidad. A partir de hoy, este armario se cierra con goma.", forma: "dice" },
+          { quien: "Canela", t: "Humanos. Siempre los últimos en enterarse.", forma: "piensa" },
         ] },
       ] },
     ],
@@ -535,16 +567,12 @@ window.LECTURAS["tira"] = [
       { p: "robot aspirador", d: "aparato que recorre el suelo solo y aspira el polvo" },
     ],
     preguntas: [
-      { tipo: "comprension", q: "¿Cómo reacciona Canela la primera vez que el robot se pone en marcha?", r: "Se asusta, da un salto hasta la lámpara con el pelo de punta y bufa («¡FFFSSS!»).", lineas: 2 },
-      { tipo: "comprension", q: "¿Qué información nos da la cartela de la viñeta 3?", r: "Que ha pasado una semana entre la viñeta 2 y la 3.", lineas: 1 },
-      { tipo: "comprension", q: "¿Cómo ha cambiado la relación entre Canela y el robot en una semana?", r: "Al principio le tenía miedo; ahora lo usa como si fuera su taxi y hasta lo está «entrenando».", lineas: 2 },
-      { tipo: "comprension", q: "¿Por qué crees que Pelusín siempre se para delante del armario de las chucherías? Elige:", opciones: ["Porque tiene una avería", "Porque Canela lo está entrenando para que la lleve hasta sus chucherías", "Porque Aitana lo ha programado así"], r: "Porque Canela lo está entrenando para que la lleve hasta sus chucherías" },
-      { tipo: "comprension", q: "¿Qué crees que pasará si Canela consigue su plan de la última viñeta? ¿Por qué hace gracia?", r: "Que el robot abrirá el armario y Canela se comerá las chucherías. Hace gracia porque la gata parece más lista que las personas y actúa como una jefa que planea un robo.", lineas: 2 },
-      { tipo: "texto", q: "Las onomatopeyas de esta tira ayudan a «oír» a los personajes. Copia tres y di qué sonido imita cada una. ¿Qué personaje piensa pero no habla, y por qué es importante para el humor?", r: "«¡BRRRRR!»: el motor del robot; «¡FFFSSS!»: el bufido de la gata; «¡MIAU!»: el maullido; «¡BIP, BIP!»: el pitido del robot. Canela solo piensa: sus pensamientos nos dejan saber sus planes secretos, que los humanos no conocen, y eso es lo que da gracia.", lineas: 3 },
-      { tipo: "opinion", q: "¿Te ha gustado que la protagonista sea una gata que piensa como una persona? ¿Por qué?", r: "Respuesta libre.", lineas: 2 },
-      { tipo: "opinion", q: "Inventa una viñeta más para continuar la historia: describe la escena y escribe un bocadillo.", r: "Respuesta libre. Valorar que mantenga los personajes y el humor.", lineas: 3 },
-      { tipo: "reflexion", q: "Las máquinas hacen cada vez más tareas en casa. ¿Qué ventajas tiene? ¿Hay tareas que siempre deberíamos hacer las personas? ¿Por qué?", r: "Respuesta libre. Valorar que argumente ventajas e inconvenientes.", lineas: 3 },
-      { tipo: "reflexion", q: "Canela pasa del miedo a la confianza. ¿Por qué crees que nos da miedo lo nuevo al principio?", r: "Respuesta libre.", lineas: 2 },
+      { tipo: "comprension", q: "¿Cómo reacciona Canela la primera vez que el robot se pone en marcha? ¿Y una semana después?", r: "Primero se asusta, salta a la lámpara con el pelo de punta y bufa. Una semana después ya no le tiene miedo: lo usa como su taxi.", lineas: 2 },
+      { tipo: "comprension", q: "¿Qué descubre Canela sobre Pelusín en las viñetas 3, 4 y 5? ¿Para qué le sirve?", r: "Que no es muy listo (choca y gira), que se traga lo que encuentra y que, si lo toca, le hace caso. Le sirve para entrenarlo y llegar a las chucherías.", lineas: 2 },
+      { tipo: "comprension", q: "¿Por qué Pelusín siempre se para delante del armario? Elige:", opciones: ["Porque tiene una avería", "Porque Canela lo ha entrenado para llegar a sus chucherías", "Porque Aitana lo ha programado así"], r: "Porque Canela lo ha entrenado para llegar a sus chucherías" },
+      { tipo: "texto", q: "Copia tres onomatopeyas y di qué imitan. ¿Por qué hace gracia que Canela piense pero no hable?", r: "«¡BRRRRR!»: el motor del robot; «¡FFFSSS!»: el bufido; «¡TONC!»: el choque; «¡MIAU!»: el maullido; «¡BIP!»: el pitido. Sus pensamientos nos cuentan planes que los humanos no conocen, y eso da gracia.", lineas: 2 },
+      { tipo: "opinion", q: "Inventa una viñeta más para continuar la historia: describe la escena y escribe un bocadillo.", r: "Respuesta libre. Valorar que mantenga los personajes y el humor.", lineas: 2 },
+      { tipo: "reflexion", q: "Las máquinas hacen cada vez más tareas en casa. ¿Qué tareas deberíamos hacer siempre las personas? ¿Por qué?", r: "Respuesta libre. Valorar que argumente ventajas e inconvenientes.", lineas: 2 },
     ],
   },
   {
@@ -555,12 +583,26 @@ window.LECTURAS["tira"] = [
     fuente: "Texto original",
     antes: "Doñana, entre Huelva, Sevilla y Cádiz, es uno de los espacios naturales más importantes de Europa por sus aves. ¿Cómo hay que comportarse para observar animales en la naturaleza?",
     texto: [
+      { p: "La clase de 6.º de Álex ha ido de excursión a Doñana. Álex es simpático, curioso y muy hablador: le cuesta muchísimo estar callado más de un minuto seguido. Hoy tendrá que intentarlo, porque en un observatorio de aves el silencio es la norma más importante." },
       { vinetas: [
-        { escena: "Observatorio de aves de madera, frente a una laguna. La clase de 6.º, con prismáticos. La guía, Rocío, se lleva un dedo a los labios.", bocadillos: [
+        { escena: "Centro de visitantes. Rocío, la guía, da la bienvenida a la clase junto a un mapa de marismas y lagunas.", bocadillos: [
+          { quien: "Rocío", t: "Bienvenidos a Doñana. Aquí descansan muchísimas aves en su viaje entre Europa y África.", forma: "dice" },
+          { quien: "Álex", t: "¿Y veremos un lince?", forma: "dice" },
+          { quien: "Rocío", t: "Si tenemos mucha suerte… y mucho silencio.", forma: "dice" },
+        ] },
+        { escena: "Camino de arena. Rocío señala unas huellas. Detrás, Álex pisa una rama seca: ¡CRAC!", bocadillos: [
+          { quien: "Rocío", t: "Mirad: huellas de jabalí. Los animales dejan pistas por todas partes.", forma: "dice" },
+          { quien: "Rocío", t: "Ya sé quién va a ser el ruidoso de hoy…", forma: "piensa" },
+        ] },
+        { escena: "Observatorio de aves de madera, frente a una laguna. La clase, con prismáticos. Rocío se lleva un dedo a los labios.", bocadillos: [
           { quien: "Rocío", t: "Aquí hay que estar en silencio total. Si hacemos ruido, las aves se van.", forma: "dice" },
         ] },
         { escena: "Álex, con los prismáticos al revés, se asoma a la ventana del observatorio.", bocadillos: [
           { quien: "Álex", t: "Silencio total. Soy una piedra. Soy un espía.", forma: "piensa" },
+        ] },
+        { escena: "Su compañera Laura le da un toquecito en el brazo y le habla muy bajito.", bocadillos: [
+          { quien: "Laura", t: "Álex… tienes los prismáticos al revés.", forma: "dice" },
+          { quien: "Álex", t: "Chsss. Silencio total, Laura.", forma: "dice" },
         ] },
         { escena: "En la laguna, cientos de flamencos rosas descansan. Se oye el viento en las eneas.", cartela: "Por fin, la clase entera está en silencio. Un minuto. Dos minutos…", bocadillos: [] },
         { escena: "Álex da la vuelta a los prismáticos y ve de golpe un flamenco enorme, muy cerca.", bocadillos: [
@@ -568,10 +610,22 @@ window.LECTURAS["tira"] = [
         ] },
         { escena: "Todos los flamencos levantan el vuelo a la vez: ¡FLAP, FLAP, FLAP! Una nube rosa cubre el cielo. La clase se queda con la boca abierta.", bocadillos: [
           { quien: "Toda la clase", t: "¡Ooooh!", forma: "dice" },
+          { quien: "Rocío", t: "Adiós, flamencos… Hasta otro día.", forma: "piensa" },
         ] },
         { escena: "La laguna, vacía. Todos miran a Álex. Rocío suspira y apunta algo en su libreta.", bocadillos: [
           { quien: "Rocío", t: "Hoy hemos visto quinientos flamencos… y una especie rarísima: el niño que no sabe estar callado.", forma: "dice" },
           { quien: "Álex", t: "¿Y esa especie está protegida?", forma: "dice" },
+        ] },
+        { escena: "De vuelta por el camino. Álex va el último, de puntillas, con la boca cerrada. Laura lo mira extrañada.", bocadillos: [
+          { quien: "Laura", t: "¿Estás bien? Llevas diez minutos sin hablar.", forma: "dice" },
+          { quien: "Álex", t: "Estoy practicando. Soy una piedra de verdad.", forma: "piensa" },
+        ] },
+        { escena: "Álex se para en seco. Entre los matorrales asoman dos orejas con pinceles negros en las puntas.", bocadillos: [
+          { quien: "Álex", t: "Un lince… Silencio. Ahora sí, silencio de verdad.", forma: "piensa" },
+        ] },
+        { escena: "Álex toca el hombro de Rocío y señala sin decir nada. Toda la clase mira, sin respirar. Rocío sonríe.", bocadillos: [
+          { quien: "Rocío", t: "Álex… acabas de encontrar un lince ibérico. Y sin decir ni mu.", forma: "dice" },
+          { quien: "Álex", t: "Hoy he descubierto otra especie rarísima: el Álex callado.", forma: "piensa" },
         ] },
       ] },
     ],
@@ -582,15 +636,12 @@ window.LECTURAS["tira"] = [
       { p: "especie protegida", d: "tipo de animal o planta que la ley protege porque corre peligro" },
     ],
     preguntas: [
-      { tipo: "comprension", q: "¿Dónde está la clase y qué norma les da la guía?", r: "En un observatorio de aves junto a una laguna de Doñana. La norma es estar en silencio total para que las aves no se vayan.", lineas: 2 },
-      { tipo: "comprension", q: "¿Qué detalle de la viñeta 2 anuncia que Álex va a meter la pata?", r: "Que tiene los prismáticos al revés: no sabe usarlos y, cuando les dé la vuelta, se llevará una sorpresa.", lineas: 2 },
-      { tipo: "comprension", q: "¿Por qué grita Álex en la viñeta 4?", r: "Porque al dar la vuelta a los prismáticos ve de golpe un flamenco enorme, como si estuviera muy cerca, y se emociona.", lineas: 2 },
-      { tipo: "comprension", q: "¿Qué significa la expresión «una especie rarísima: el niño que no sabe estar callado»? Elige:", opciones: ["Que Álex es un animal protegido", "Que la guía, con humor, le reprocha a Álex que haya hecho ruido", "Que en Doñana viven niños salvajes"], r: "Que la guía, con humor, le reprocha a Álex que haya hecho ruido" },
-      { tipo: "comprension", q: "¿Qué crees que quiere conseguir Álex con su última pregunta?", r: "Hacer una broma para quitar importancia a su error y librarse de la regañina: si es una «especie protegida», nadie puede reñirle.", lineas: 2 },
-      { tipo: "texto", q: "Esta tira usa una cartela en la viñeta 3. ¿Qué es una cartela y para qué sirve aquí? ¿Qué onomatopeya aparece en la viñeta 5? ¿Por qué el silencio de la viñeta 3 es importante para el humor?", r: "La cartela es un recuadro con la voz del narrador; aquí indica que pasa el tiempo en silencio. En la viñeta 5 aparece «¡FLAP, FLAP, FLAP!», el aleteo de los flamencos. La viñeta 3 sin bocadillos crea calma y expectación, y así el grito de Álex resulta más sorprendente.", lineas: 4 },
-      { tipo: "opinion", q: "¿Cómo crees que se sintieron los compañeros de Álex? ¿Y el propio Álex?", r: "Respuesta libre. Valorar que se ponga en el lugar de varios personajes.", lineas: 2 },
-      { tipo: "opinion", q: "Aunque se espantaron, los niños vieron una «nube rosa». ¿Crees que la excursión mereció la pena? ¿Por qué?", r: "Respuesta libre.", lineas: 2 },
-      { tipo: "reflexion", q: "¿Por qué es importante no molestar a los animales en los espacios naturales como Doñana? ¿Qué otras normas deberíamos cumplir allí?", r: "Respuesta libre. Valorar que mencione el respeto a la fauna, no dejar basura, no salir de los caminos, no arrancar plantas…", lineas: 3 },
+      { tipo: "comprension", q: "¿Qué norma da la guía? ¿Qué pasa cuando Álex no la cumple?", r: "Estar en silencio total para que las aves no se vayan. Cuando Álex grita, todos los flamencos salen volando y la laguna se queda vacía.", lineas: 2 },
+      { tipo: "comprension", q: "¿Qué ha aprendido Álex al final? ¿Cómo lo demuestra en las viñetas 10 a 12?", r: "Que para observar animales hay que estar en silencio. Camina callado, de puntillas, y cuando ve el lince avisa a la guía sin hablar, señalándolo.", lineas: 2 },
+      { tipo: "comprension", q: "¿Qué quiere decir Rocío con «una especie rarísima»? Elige:", opciones: ["Que Álex es un animal protegido", "Que, con humor, le reprocha a Álex que haya hecho ruido", "Que en Doñana viven niños salvajes"], r: "Que, con humor, le reprocha a Álex que haya hecho ruido" },
+      { tipo: "texto", q: "¿Para qué sirve la cartela de la viñeta 6? ¿Por qué ese silencio hace más gracioso el grito de Álex?", r: "La cartela es la voz del narrador: indica que pasa el tiempo en silencio. Esa calma crea expectación, y así el grito de la viñeta 7 resulta más sorprendente.", lineas: 2 },
+      { tipo: "opinion", q: "¿Crees que la excursión mereció la pena? ¿Por qué?", r: "Respuesta libre.", lineas: 2 },
+      { tipo: "reflexion", q: "¿Por qué no hay que molestar a los animales en Doñana? ¿Qué otras normas hay que cumplir allí?", r: "Respuesta libre. Valorar que mencione el respeto a la fauna, no dejar basura, no salir de los caminos, no arrancar plantas…", lineas: 2 },
     ],
   },
   {
