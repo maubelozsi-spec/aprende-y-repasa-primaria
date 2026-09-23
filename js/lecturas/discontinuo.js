@@ -11,7 +11,7 @@ window.LECTURAS["discontinuo"] = [
     antes: "¿Has consultado alguna vez un horario de autobús o de tren? ¿Cómo encontraste la hora que buscabas?",
     texto: [
       { h: "Línea Cazorla – Úbeda (provincia de Jaén)" },
-      { p: "Lucía tiene once años y vive en Peal de Becerro, un pueblo entre la sierra de Cazorla y Úbeda. Los martes tiene clase de violín en el conservatorio de Úbeda a las 11:00 y va en autobús con su abuela Rosario. Antes de salir, las dos miran siempre el horario que hay pegado en la parada. Este es el horario de la línea." },
+      { p: "Lucía tiene once años y vive en Peal de Becerro, un pueblo entre la sierra de Cazorla y Úbeda. Los martes tiene clase de violín en el conservatorio de Úbeda a las 11:00 y va en autobús con su abuela Rosario. Antes de salir, las dos miran siempre el horario que hay pegado en la parada. Está dividido en dos tablas, una para cada sentido del viaje, y va acompañado de los precios y de algunos avisos." },
       { tabla: { titulo: "IDA: Cazorla → Úbeda (lunes a viernes)", cab: ["Parada", "Bus 1", "Bus 2", "Bus 3", "Bus 4"], filas: [
         ["Cazorla", "07:15", "09:30", "13:45", "18:00"],
         ["Peal de Becerro", "07:35", "09:50", "14:05", "18:20"],
@@ -36,6 +36,7 @@ window.LECTURAS["discontinuo"] = [
         "Domingos y festivos: no hay servicio.",
         "Llega a la parada cinco minutos antes de la hora indicada.",
         "Las bicicletas pueden viajar en el maletero, si hay sitio.",
+        "Los menores de 12 años deben viajar acompañados por una persona adulta.",
       ], titulo: "Avisos importantes" },
       { lista: [
         "Busca la tabla del sentido en que viajas: ida o vuelta.",
@@ -55,7 +56,7 @@ window.LECTURAS["discontinuo"] = [
     ],
     preguntas: [
       { tipo: "comprension", q: "Lucía tiene clase a las 11:00. ¿Qué autobús debe coger en Peal y a qué hora llega a Úbeda?", r: "El autobús 2, que sale de Peal a las 09:50 y llega a Úbeda a las 10:25.", lineas: 2 },
-      { tipo: "comprension", q: "El martes pasado perdieron el autobús. ¿Cuál era el siguiente y a qué hora habrían llegado a Úbeda?", r: "El autobús 3, que sale de Peal a las 14:05 y llega a Úbeda a las 14:40. La clase ya habría terminado: por eso Lucía avisa de que llegará tarde (o no llegará).", lineas: 2 },
+      { tipo: "comprension", q: "Si después de clase van al mercado, ¿qué autobús de vuelta pueden coger? ¿A qué hora llegan a Peal?", r: "El autobús 3 de vuelta, que sale de Úbeda a las 15:30 y llega a Peal de Becerro a las 16:05 (el de las 12:00 no les da tiempo).", lineas: 2 },
       { tipo: "comprension", q: "¿Cuánto pagan Lucía (con bonobús joven) y su abuela (billete normal) por ir de Peal a Úbeda? Elige:", opciones: ["3,15 €", "4,20 €", "2,10 €"], r: "3,15 €" },
       { tipo: "texto", q: "¿Por qué un horario es un texto discontinuo? ¿Para qué sirve la lista numerada que lo acompaña?", r: "Porque la información no va en párrafos seguidos, sino organizada en tablas. La lista numerada explica, paso a paso, cómo cruzar filas y columnas para encontrar una hora.", lineas: 2 },
       { tipo: "opinion", q: "¿Es importante que los pueblos pequeños tengan autobús aunque viaje poca gente? ¿Por qué?", r: "Respuesta libre. Valorar que piense en quienes no tienen coche: niños, mayores, estudiantes.", lineas: 2 },
@@ -72,7 +73,8 @@ window.LECTURAS["discontinuo"] = [
     antes: "¿Qué plato del comedor o de casa te gusta más? ¿Y cuál te cuesta más comer?",
     texto: [
       { h: "Comedor escolar · Menú de la semana del 13 al 17 de octubre" },
-      { tabla: { titulo: "Menú semanal", cab: ["Día", "Primer plato", "Segundo plato", "Postre"], filas: [
+      { p: "Cada viernes, el colegio envía a las familias el menú de la semana siguiente. Así en casa pueden saber qué comerán sus hijos a mediodía y preparar cenas que lo completen. El menú lo revisa una especialista en nutrición para que sea variado y equilibrado." },
+      { tabla: { titulo: "Menú de mediodía", cab: ["Día", "Primer plato", "Segundo plato", "Postre"], filas: [
         ["Lunes", "Lentejas con verduras", "Tortilla de patatas con ensalada", "Naranja"],
         ["Martes", "Crema de calabacín", "Merluza al horno con patatas", "Yogur natural"],
         ["Miércoles", "Arroz con tomate", "Pollo asado con zanahoria", "Plátano"],
@@ -85,24 +87,44 @@ window.LECTURAS["discontinuo"] = [
         "Leche: martes (yogur y crema) y viernes (natillas).",
         "Gluten: viernes (macarrones).",
       ], titulo: "Alérgenos del menú" },
-      { p: "El alumnado con alergias recibirá un menú alternativo. Avisad en secretaría antes del jueves de la semana anterior." },
+      { p: "El alumnado con alergias o intolerancias recibirá un menú alternativo. Las familias deben avisar en secretaría, con un informe médico, antes del jueves de la semana anterior." },
+      { h: "El menú alternativo de Ahmed" },
+      { p: "Ahmed, de 5.º, es alérgico al huevo. Su familia entregó el informe del médico en septiembre, así que cada semana la cocina le prepara un menú alternativo. Los platos que no puede comer se cambian por otros parecidos, para que coma lo mismo que sus compañeros siempre que sea posible." },
+      { tabla: { titulo: "Cambios en el menú de Ahmed", cab: ["Día", "Plato del menú", "Plato alternativo"], filas: [
+        ["Lunes", "Tortilla de patatas con ensalada", "Filete de ternera a la plancha con ensalada"],
+        ["Viernes", "Natillas caseras", "Mandarina"],
+      ] } },
+      { h: "¿Por qué este menú es equilibrado?" },
+      { p: "Un menú equilibrado combina alimentos de muchos tipos a lo largo de la semana. En este hay legumbres dos días, pescado otros dos, carne blanca, huevo, arroz y pasta. Todos los días aparecen verduras u hortalizas, y el postre es casi siempre fruta. Los fritos y los dulces se dejan para días sueltos." },
       { dato: "Consejo para la cena: si a mediodía has comido carne o huevo, cena pescado. Si has comido pescado, cena carne o huevo. ¡Y siempre verdura y fruta!" },
+      { tabla: { titulo: "Cenas que proponemos para completar el día", cab: ["Día", "Cena sugerida", "Postre"], filas: [
+        ["Lunes", "Crema de verduras y sardinas a la plancha", "Pera"],
+        ["Martes", "Ensalada de tomate y tortilla francesa", "Mandarina"],
+        ["Miércoles", "Judías verdes y merluza a la plancha", "Yogur natural"],
+        ["Jueves", "Sopa de fideos y pescado al horno", "Uvas"],
+        ["Viernes", "Pisto con pechuga de pollo", "Manzana asada"],
+      ] } },
+      { lista: [
+        "Lavarse las manos antes de entrar al comedor.",
+        "Probar un poco de cada plato, aunque sea nuevo.",
+        "Servirse el pan y el agua con calma, sin desperdiciar.",
+        "Hablar en voz baja para que todos estemos a gusto.",
+        "Recoger la bandeja y separar los restos al terminar.",
+      ], titulo: "Normas del comedor" },
     ],
     vocabulario: [
       { p: "alérgeno", d: "Sustancia de un alimento que a algunas personas les produce alergia." },
       { p: "alternativo", d: "Que sustituye a otra cosa; en este caso, otro menú distinto." },
       { p: "legumbre", d: "Semilla que se cría en vainas, como las lentejas o los garbanzos." },
+      { p: "intolerancia", d: "Problema del cuerpo para digerir bien un alimento." },
     ],
     preguntas: [
-      { tipo: "comprension", q: "¿Qué días hay pescado de segundo plato? ¿Qué pescados son?", r: "El martes (merluza) y el viernes (boquerones).", lineas: 1 },
       { tipo: "comprension", q: "Ahmed es alérgico al huevo. ¿Qué días necesita el menú alternativo y en qué platos?", r: "El lunes (tortilla de patatas) y el viernes (natillas).", lineas: 2 },
-      { tipo: "comprension", q: "¿Cuántos días hay legumbres de primer plato? Elige:", opciones: ["Uno", "Dos", "Tres"], r: "Dos" },
-      { tipo: "comprension", q: "Según el consejo, ¿qué le convendría cenar a Sara el miércoles? Explica por qué.", r: "Pescado (con verdura y fruta), porque el miércoles a mediodía come pollo, que es carne.", lineas: 2 },
-      { tipo: "comprension", q: "¿Cuántos días de la semana el postre es fruta? ¿Cuáles?", r: "Tres días: lunes (naranja), miércoles (plátano) y jueves (manzana).", lineas: 1 },
-      { tipo: "texto", q: "¿Qué información da la tabla y qué información da la lista? ¿Por qué crees que se separan?", r: "La tabla organiza los platos por días; la lista reúne los alérgenos. Se separan para que cada lector encuentre rápido lo que busca.", lineas: 2 },
-      { tipo: "opinion", q: "Si pudieras cambiar un plato de este menú, ¿cuál sería y por cuál lo cambiarías para que siguiera siendo sano? ¿Por qué?", r: "Respuesta libre. Valorar que proponga un plato equilibrado.", lineas: 3 },
-      { tipo: "opinion", q: "¿Te parece bien que el menú se publique con una semana de antelación? ¿A quién ayuda?", r: "Respuesta libre. Valorar que piense en las familias y en quienes tienen alergias.", lineas: 3 },
-      { tipo: "reflexion", q: "¿Cómo te sentirías si fueras alérgico a un alimento y nadie lo tuviera en cuenta? ¿Qué puedes hacer tú para ayudar a un compañero con alergia?", r: "Respuesta libre. Valorar la empatía y propuestas concretas (no compartir comida, avisar a un adulto…).", lineas: 3 },
+      { tipo: "comprension", q: "¿Por qué la cena sugerida del martes lleva tortilla y no pescado? Usa el consejo del recuadro.", r: "Porque el martes a mediodía se come merluza (pescado), y el consejo dice que, si a mediodía has comido pescado, cenes carne o huevo.", lineas: 2 },
+      { tipo: "comprension", q: "¿Cuántos días hay legumbres de primer plato a mediodía? Elige:", opciones: ["Uno", "Dos", "Tres"], r: "Dos" },
+      { tipo: "texto", q: "¿Qué información dan las dos tablas y qué dan las listas? ¿Por qué crees que se separan?", r: "Las tablas organizan por días los menús de mediodía y las cenas; las listas reúnen los alérgenos y las normas. Se separan para que cada lector encuentre rápido lo que busca.", lineas: 2 },
+      { tipo: "opinion", q: "Si pudieras cambiar un plato del menú por otro igual de sano, ¿cuál cambiarías? ¿Por qué?", r: "Respuesta libre. Valorar que proponga un plato equilibrado.", lineas: 2 },
+      { tipo: "reflexion", q: "¿Cómo te sentirías si fueras alérgico a un alimento y nadie lo tuviera en cuenta? ¿Cómo puedes ayudar tú?", r: "Respuesta libre. Valorar la empatía y propuestas concretas (no compartir comida, avisar a un adulto…).", lineas: 2 },
     ],
   },
   // 3 ─────────────────────────────────────────────
