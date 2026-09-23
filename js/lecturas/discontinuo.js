@@ -119,7 +119,7 @@ window.LECTURAS["discontinuo"] = [
       { p: "intolerancia", d: "Problema del cuerpo para digerir bien un alimento." },
     ],
     preguntas: [
-      { tipo: "comprension", q: "Ahmed es alérgico al huevo. ¿Qué días necesita el menú alternativo y en qué platos?", r: "El lunes (tortilla de patatas) y el viernes (natillas).", lineas: 2 },
+      { tipo: "comprension", q: "¿Por qué cambia el menú de Ahmed solo el lunes y el viernes? ¿Qué come él esos días?", r: "Porque es alérgico al huevo y solo esos días hay platos con huevo (tortilla y natillas). Come filete de ternera con ensalada el lunes y mandarina de postre el viernes.", lineas: 2 },
       { tipo: "comprension", q: "¿Por qué la cena sugerida del martes lleva tortilla y no pescado? Usa el consejo del recuadro.", r: "Porque el martes a mediodía se come merluza (pescado), y el consejo dice que, si a mediodía has comido pescado, cenes carne o huevo.", lineas: 2 },
       { tipo: "comprension", q: "¿Cuántos días hay legumbres de primer plato a mediodía? Elige:", opciones: ["Uno", "Dos", "Tres"], r: "Dos" },
       { tipo: "texto", q: "¿Qué información dan las dos tablas y qué dan las listas? ¿Por qué crees que se separan?", r: "Las tablas organizan por días los menús de mediodía y las cenas; las listas reúnen los alérgenos y las normas. Se separan para que cada lector encuentre rápido lo que busca.", lineas: 2 },
