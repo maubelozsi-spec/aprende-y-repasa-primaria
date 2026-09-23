@@ -44,7 +44,8 @@ window.LECTURAS["discontinuo"] = [
         "Baja por la misma columna hasta la fila de tu destino: ahí está la hora de llegada.",
       ], ordenada: true, titulo: "Cómo leer el horario" },
       { p: "El martes pasado, la abuela Rosario se entretuvo charlando con una vecina y llegaron a la parada de Peal a las 09:55. El autobús acababa de irse. Lucía miró el horario, suspiró y sacó el móvil para avisar a su profesora: ese día llegaría tarde a clase." },
-      { dato: "Los horarios se leen cruzando una fila (la parada) con una columna (el autobús). ¡Así encuentras la hora exacta!" },
+      { p: "Para la vuelta, la abuela quiere pasar antes por el mercado de Úbeda, que está a diez minutos andando de la estación. Si la clase termina a las 12:00, ¿les dará tiempo a comprar y a coger el autobús de las 12:00? Está claro que no. Tendrán que elegir otro." },
+      { dato: "Las horas de los horarios se escriben en formato de 24 horas: 13:45 son las dos menos cuarto de la tarde y 20:55, las nueve menos cinco de la noche. Así no hay que escribir «de la mañana» o «de la tarde»." },
     ],
     vocabulario: [
       { p: "sentido", d: "Dirección en la que va un vehículo: de ida o de vuelta." },
