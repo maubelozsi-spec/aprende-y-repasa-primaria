@@ -117,7 +117,7 @@ body.lect-pizarra-abierta { overflow: hidden; }
 #lect-imprimir { display: none; }
 
 @media print {
-  @page { size: A4 portrait; margin: 13mm 14mm 12mm; }
+  @page { size: A4 portrait; margin: 11mm 14mm 10mm; }
   body.lect-imprimiendo > *:not(#lect-imprimir) { display: none !important; }
   body.lect-imprimiendo { background: #fff !important; }
   body.lect-imprimiendo #lect-imprimir { display: block; }
@@ -136,16 +136,16 @@ body.lect-pizarra-abierta { overflow: hidden; }
   .lf .lect-tabla th { background: #e8e8e8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .lf .lect-tabla th, .lf .lect-tabla td { border: 0.8pt solid #555; padding: 2.5pt 5pt; }
   .lf .lect-vinetas { grid-template-columns: 1fr 1fr; gap: 6pt; }
-  .lf .lect-vineta { break-inside: avoid; padding: 5pt 7pt; gap: 4pt; font-size: 9.5pt; border-width: 1.5pt; }
-  .lf .lect-bocadillo { border-width: 1pt; padding: 2pt 6pt; }
+  .lf .lect-vineta { break-inside: avoid; padding: 4pt 6pt; gap: 2pt; font-size: 9.5pt; line-height: 1.3; border-width: 1.2pt; }
+  .lf .lect-bocadillo { border-width: 1pt; padding: 1pt 5pt; }
   .lf .lect-cita, .lf .lect-dato, .lf .lect-antes { background: none !important; border: 0.8pt solid #999; padding: 4pt 7pt; margin-bottom: 6pt; border-radius: 3pt; }
   .lf .lect-vocab { background: none; border: 0.8pt solid #999; padding: 4pt 8pt; margin-top: 6pt; font-size: 9pt; }
   .lf-preguntas { margin-top: 8pt; }
-  .lf-preguntas h2 { font-size: 11pt; margin: 6pt 0 2pt; border-bottom: 0.8pt solid #000; }
+  .lf-preguntas h2 { font-size: 10.5pt; margin: 4pt 0 1pt; border-bottom: 0.8pt solid #000; }
   .lf-p { break-inside: avoid; margin: 0 0 3pt; }
   .lf-p .q { margin: 0; }
   .lf-p .q b { margin-right: 3pt; }
-  .lf-linea { border-bottom: 0.7pt dotted #666; height: 17pt; }
+  .lf-linea { border-bottom: 0.7pt dotted #666; height: 16.5pt; }
   .lf-op { margin: 1pt 0 0 14pt; }
   .lf-op span { display: inline-block; margin-right: 12pt; }
   .lf-sol { margin: 1pt 0 3pt 14pt; font-style: italic; color: #1a5b2e; font-size: 9.5pt; }
