@@ -52,12 +52,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectAllBtn = document.getElementById("dict-select-all");
   const selectNoneBtn = document.getElementById("dict-select-none");
   const countInput = document.getElementById("dict-count");
+  const countLabel = document.querySelector('label[for="dict-count"]');
   const generateBtn = document.getElementById("dict-generate-btn");
   const toggleBtn = document.getElementById("dict-toggle-colors");
   const copyBtn = document.getElementById("dict-copy-btn");
   const statusEl = document.getElementById("dict-status");
   const storyEl = document.getElementById("dict-story");
   const legendEl = document.getElementById("dict-legend");
+  const countHint = document.getElementById("dict-count-hint");
 
   let currentDictado = null;
   let showColors = false;
@@ -91,6 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => {
       if (btn.disabled) return;
       btn.classList.toggle("active");
+      updateCountRange();
     });
     rulesContainer.appendChild(btn);
   });
@@ -117,6 +120,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     storyEl.classList.toggle("difficulty-readable", diff.is("dislexia"));
+    updateCountRange();
+  }
+
+  // Las historias tienen un número de frases mínimo (inicio + un episodio + final)
+  // y máximo (todos los episodios): se indica según las reglas elegidas.
+  function updateCountRange() {
+    const rango = rangoFrasesDictado(getSelectedRules());
+    if (!rango) {
+      countHint.textContent = "Elige al menos una regla para ver cuántas frases puede tener el dictado.";
+      return;
+    }
+    countInput.min = rango.min;
+    countInput.max = rango.max;
+    const v = Number(countInput.value) || rango.min;
+    countInput.value = Math.min(rango.max, Math.max(rango.min, v));
+    countLabel.textContent = `Número de frases (${rango.min}-${rango.max})`;
+    countHint.textContent = `Con las reglas elegidas, el dictado puede tener entre ${rango.min} y ${rango.max} frases. Todas forman una misma historia: al pedir menos frases se quitan episodios, no el principio ni el final.`;
   }
 
   applyDifficultyUI();
@@ -125,9 +145,11 @@ document.addEventListener("DOMContentLoaded", () => {
     rulesContainer.querySelectorAll(".dictado-rule-toggle").forEach((b) => {
       if (!b.disabled) b.classList.add("active");
     });
+    updateCountRange();
   });
   selectNoneBtn.addEventListener("click", () => {
     rulesContainer.querySelectorAll(".dictado-rule-toggle").forEach((b) => b.classList.remove("active"));
+    updateCountRange();
   });
 
   function getSelectedRules() {
@@ -223,9 +245,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const usedRules = new Set();
 
-    dictado.frases.forEach((frase) => {
-      const p = document.createElement("p");
+    // La historia se pinta en párrafos: inicio, episodios de tres en tres y final.
+    // Las frases de diálogo (empiezan por raya) van en su propio párrafo.
+    let p = null;
+    let enParrafo = 0;
+    const nuevoParrafo = () => {
+      p = document.createElement("p");
       p.className = "dictado-sentence";
+      storyEl.appendChild(p);
+      enParrafo = 0;
+    };
+    const finEpisodios = dictado.frases.length - dictado.nFinal;
+    dictado.frases.forEach((frase, i) => {
+      const esDialogo = /^\s*—/.test(frase.tokens.map((t) => t.text).join(""));
+      const corte = i === 0 || i === dictado.nInicio || i === finEpisodios ||
+        (i > dictado.nInicio && i < finEpisodios && enParrafo >= 3);
+      if (!p || corte || esDialogo || p.dataset.dialogo) nuevoParrafo();
+      if (esDialogo) p.dataset.dialogo = "1";
+      if (enParrafo > 0) p.appendChild(document.createTextNode(" "));
+      enParrafo++;
       frase.tokens.forEach((token) => {
         if (token.ruleId && showColors) {
           usedRules.add(token.ruleId);
@@ -250,7 +288,6 @@ document.addEventListener("DOMContentLoaded", () => {
           p.appendChild(document.createTextNode(token.text));
         }
       });
-      storyEl.appendChild(p);
     });
 
     renderLegend([...usedRules]);
@@ -259,7 +296,8 @@ document.addEventListener("DOMContentLoaded", () => {
   generateBtn.addEventListener("click", () => {
     closePopover();
     const reglaIds = getSelectedRules();
-    const count = Math.min(20, Math.max(3, Number(countInput.value) || 8));
+    const rango = rangoFrasesDictado(reglaIds) || { min: 3, max: 20 };
+    const count = Math.min(rango.max, Math.max(rango.min, Number(countInput.value) || rango.min));
     countInput.value = count;
 
     statusEl.classList.remove("show", "ok", "ko");
@@ -287,8 +325,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       statusEl.classList.add("show", "ok");
       let msg = `<p class="feedback-title">¡Dictado listo!</p><p>${currentDictado.generadas} frase${currentDictado.generadas === 1 ? "" : "s"} generada${currentDictado.generadas === 1 ? "" : "s"}`;
-      if (currentDictado.generadas < currentDictado.solicitadas) {
-        msg += ` (solo hay ${currentDictado.generadas} frases distintas disponibles para las reglas elegidas)`;
+      if (currentDictado.generadas !== currentDictado.solicitadas) {
+        msg += ` (esta historia admite otro número de frases)`;
+      }
+      const nombre = (id) => (DICTADO_RULES.find((r) => r.id === id) || {}).label || id;
+      msg += `. Reglas que trabaja esta historia: ${currentDictado.reglasPracticadas.map(nombre).join(", ")}`;
+      const faltan = reglaIds.filter((r) => !currentDictado.reglasPracticadas.includes(r));
+      if (faltan.length) {
+        msg += `. No aparecen en ella: ${faltan.map(nombre).join(", ")} (cada historia trabaja 2 o 3 reglas; genera otra para practicarlas)`;
       }
       msg += `. Dicta el texto y, cuando termines, pulsa "Mostrar corrección" para revisar las palabras clave.</p>`;
       statusEl.innerHTML = msg;

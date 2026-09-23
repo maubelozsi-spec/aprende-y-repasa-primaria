@@ -9,10 +9,18 @@ window.LECTURAS["tira"] = [
     fuente: "Texto original",
     antes: "En muchas casas nadie se atreve a coger lo último que queda en el plato. ¿Pasa en la tuya? ¿Por qué crees que ocurre?",
     texto: [
-      { p: "Sofía y Dani son hermanos. Viven con sus padres y con Tapón, un perro pequeño, redondo y muy glotón." },
+      { p: "Sofía y Dani son hermanos. Sofía tiene doce años y Dani, diez. Viven con sus padres y con Tapón, un perro pequeño, redondo y muy glotón, que se pasa las comidas debajo de la mesa esperando que caiga algo. En esta casa, lo último que queda en un plato siempre da quebraderos de cabeza. Esta noche hay croquetas caseras, el plato favorito de toda la familia… y también de Tapón." },
       { vinetas: [
-        { escena: "Comedor. La familia termina de cenar. En el centro de la mesa, una fuente con una sola croqueta. Debajo de la mesa asoma el hocico de Tapón.", bocadillos: [
-          { quien: "Mamá", t: "¿Nadie quiere la última croqueta?", forma: "dice" },
+        { escena: "Cocina. Mamá fríe croquetas en una sartén: ¡CHISSS! Sofía y Dani asoman la nariz por la puerta. Tapón, detrás, se relame.", bocadillos: [
+          { quien: "Mamá", t: "Croquetas de puchero, como las de la abuela. He hecho diecisiete.", forma: "dice" },
+          { quien: "Dani", t: "Diecisiete entre cuatro… Tocamos a cuatro y sobra una. Esto va a traer problemas.", forma: "piensa" },
+        ] },
+        { escena: "Comedor. Toda la familia cena feliz. Debajo de la mesa, Tapón sigue con la mirada cada croqueta que pasa por encima de su cabeza.", bocadillos: [
+          { quien: "Papá", t: "¡Qué ricas! Crujientes por fuera y cremosas por dentro.", forma: "dice" },
+          { quien: "Tapón", t: "Paciencia. A alguien se le caerá una. Siempre se cae una.", forma: "piensa" },
+        ] },
+        { escena: "Final de la cena. En el centro de la mesa, una fuente con una sola croqueta. Debajo de la mesa asoma el hocico de Tapón.", bocadillos: [
+          { quien: "Mamá", t: "¿Nadie quiere la última croqueta? Papá y yo ya no podemos más.", forma: "dice" },
         ] },
         { escena: "Sofía y Dani se miran fijamente, muy educados.", bocadillos: [
           { quien: "Sofía", t: "Cógela tú, Dani.", forma: "dice" },
@@ -24,12 +32,28 @@ window.LECTURAS["tira"] = [
         { escena: "Primer plano de Dani, con una gota de sudor en la frente.", bocadillos: [
           { quien: "Dani", t: "Si la cojo, me mandará fregar los platos por ansioso…", forma: "piensa" },
         ] },
+        { escena: "Papá levanta un puño, muy solemne, como un árbitro.", bocadillos: [
+          { quien: "Papá", t: "Lo decidiremos como se hace en esta casa: a piedra, papel o tijera.", forma: "dice" },
+          { quien: "Sofía y Dani", t: "¡Piedra, papel o tijera… ya!", forma: "grita" },
+        ] },
+        { cartela: "Diez empates después…", escena: "Los dos hermanos, con la mano en alto, sacan otra vez lo mismo: tijera y tijera.", bocadillos: [
+          { quien: "Dani", t: "¿Me estás leyendo la mente?", forma: "dice" },
+          { quien: "Sofía", t: "Somos hermanos. Es lo que tiene.", forma: "dice" },
+        ] },
+        { escena: "Mamá coge un cuchillo para partir la croqueta por la mitad. Los dos niños protestan a la vez.", bocadillos: [
+          { quien: "Sofía", t: "¡Pero una mitad será más grande que la otra!", forma: "grita" },
+          { quien: "Dani", t: "¡Y yo quiero la punta crujiente!", forma: "grita" },
+        ] },
         { escena: "Los dos estiran la mano muy despacio a la vez. Por debajo de la mesa, dos orejas peludas se preparan.", bocadillos: [
           { quien: "Sofía y Dani", t: "¡Bueno, vale, pues…!", forma: "dice" },
         ] },
         { escena: "Tapón salta como un cohete y atrapa la croqueta en el aire: ¡ÑAM! Solo quedan migas. Papá se ríe tapándose la boca.", bocadillos: [
           { quien: "Mamá", t: "Problema resuelto.", forma: "dice" },
           { quien: "Tapón", t: "Aquí nadie tiene vergüenza. Solo hambre.", forma: "piensa" },
+        ] },
+        { cartela: "A la semana siguiente…", escena: "Mamá deja en la mesa una fuente con dieciséis croquetas. En el suelo, junto al cuenco de Tapón, hay un platito con una más.", bocadillos: [
+          { quien: "Mamá", t: "Cuatro para cada uno. Y la diecisiete, directamente para el listo de la casa.", forma: "dice" },
+          { quien: "Tapón", t: "Por fin esta familia aprende a hacer cuentas.", forma: "piensa" },
         ] },
       ] },
     ],
@@ -38,15 +62,12 @@ window.LECTURAS["tira"] = [
       { p: "ansioso", d: "que quiere algo con mucha prisa" },
     ],
     preguntas: [
-      { tipo: "comprension", q: "¿Qué problema hay en la mesa al final de la cena?", r: "Solo queda una croqueta y ninguno de los dos hermanos se atreve a cogerla.", lineas: 2 },
-      { tipo: "comprension", q: "¿Por qué ni Sofía ni Dani quieren coger la croqueta, si en realidad les apetece? Explica lo que piensa cada uno.", r: "Tienen miedo de lo que dirá el otro: Sofía cree que Dani la llamará glotona y Dani cree que Sofía lo mandará fregar por ansioso.", lineas: 3 },
-      { tipo: "comprension", q: "En la viñeta 5 aparecen «dos orejas peludas» debajo de la mesa. ¿De quién son y qué anuncian?", r: "Son de Tapón. Anuncian que el perro está atento y va a quedarse con la croqueta.", lineas: 2 },
-      { tipo: "comprension", q: "¿Qué onomatopeya aparece en la última viñeta? Elige qué sonido imita:", opciones: ["Un golpe contra la mesa", "El ruido de comer de un bocado", "Un ladrido"], r: "El ruido de comer de un bocado" },
-      { tipo: "comprension", q: "¿Qué quiere decir mamá con «Problema resuelto»? ¿Está enfadada?", r: "Que ya no hay que decidir quién se la come, porque se la ha comido Tapón. No está enfadada: lo dice con humor.", lineas: 2 },
-      { tipo: "texto", q: "Indica en qué viñetas están la presentación, el desarrollo y el final sorprendente. ¿Qué bocadillos son de pensamiento y cómo lo sabes?", r: "Presentación: viñeta 1 (familia, cena, croqueta). Desarrollo: viñetas 2 a 5 (los hermanos no se deciden). Final sorprendente: viñeta 6 (Tapón se la come). Son de pensamiento los de las viñetas 3 y 4 y el de Tapón en la 6: los personajes no lo dicen en voz alta; en el dibujo serían nubes unidas con burbujitas.", lineas: 3 },
-      { tipo: "opinion", q: "¿Te parece bien dejar la última croqueta por vergüenza? ¿Qué solución justa habrías propuesto tú?", r: "Respuesta libre. Valorar soluciones razonadas (partirla, echarlo a suertes, preguntar…).", lineas: 3 },
-      { tipo: "opinion", q: "¿Dónde está la gracia de esta tira? ¿Te ha parecido divertida? ¿Por qué?", r: "Respuesta libre. La gracia está en que, por tanta educación y tanto miedo, el que se lleva el premio es el perro.", lineas: 2 },
-      { tipo: "reflexion", q: "A veces no decimos lo que queremos por miedo a lo que pensarán los demás. ¿Te ha pasado? ¿Qué se puede perder por no hablar claro?", r: "Respuesta libre. Valorar que relacione con situaciones reales y hable de la comunicación sincera.", lineas: 3 },
+      { tipo: "comprension", q: "¿Por qué piensa Dani en la viñeta 1 que diecisiete croquetas «van a traer problemas»?", r: "Porque diecisiete entre cuatro personas da cuatro a cada uno y sobra una. Adivina que al final todos querrán esa croqueta y habrá lío.", lineas: 2 },
+      { tipo: "comprension", q: "¿Por qué ningún hermano coge la croqueta? ¿Qué dos soluciones prueban antes de que actúe Tapón?", r: "Tienen miedo de lo que dirá el otro (glotona, ansioso). Prueban a jugar a piedra, papel o tijera, pero empatan una y otra vez, y a partirla por la mitad, pero los dos protestan.", lineas: 2 },
+      { tipo: "comprension", q: "¿Qué ha aprendido mamá en la última viñeta? Elige:", opciones: ["A hacer menos croquetas", "A repartir justo entre cuatro y dar la que sobra a Tapón", "A no dar croquetas al perro"], r: "A repartir justo entre cuatro y dar la que sobra a Tapón" },
+      { tipo: "texto", q: "¿En qué viñetas están la presentación, el desarrollo y el final sorprendente? ¿Quién tiene bocadillos de pensamiento?", r: "Presentación: viñetas 1 a 3 (la familia, las croquetas, la última en la fuente). Desarrollo: viñetas 4 a 10 (nadie se decide). Final sorprendente: viñeta 11 (Tapón se la come); la 12 es un cierre. Son de pensamiento los de Dani (1 y 6), Sofía (5) y Tapón (2, 11 y 12): se dibujan como nubes unidas al personaje con burbujitas.", lineas: 2 },
+      { tipo: "opinion", q: "¿Qué solución justa habrías propuesto tú para la última croqueta? ¿Por qué?", r: "Respuesta libre. Valorar soluciones razonadas (partirla, echarlo a suertes, guardarla para mañana…).", lineas: 2 },
+      { tipo: "reflexion", q: "A veces callamos lo que queremos por miedo a lo que pensarán los demás. ¿Qué se puede perder por no hablar claro?", r: "Respuesta libre. Valorar que relacione con situaciones reales y hable de la comunicación sincera.", lineas: 2 },
     ],
   },
   {
@@ -57,18 +78,32 @@ window.LECTURAS["tira"] = [
     fuente: "Texto original",
     antes: "¿Qué excusas has oído (o dicho) para no entregar los deberes? ¿Cuál es la más increíble?",
     texto: [
+      { p: "Dani, el hermano pequeño de Sofía, está en 5.º. Esta mañana se ha dormido y ha salido de casa a toda prisa, con la mochila a medio cerrar. En clase le espera el profesor Julián, que el viernes mandó para hoy unos deberes de Matemáticas: diez problemas de fracciones." },
       { vinetas: [
-        { escena: "Aula. Dani entra corriendo y despeinado, con la mochila abierta. El profesor Julián lo espera en la puerta.", bocadillos: [
+        { escena: "Calle. Dani corre con la mochila abierta y, sin darse cuenta, se le cae un cuaderno. Detrás, Tapón lo recoge con la boca.", bocadillos: [
+          { quien: "Dani", t: "¡Llego tarde, llego tarde!", forma: "grita" },
+          { quien: "Tapón", t: "Se le ha caído algo. Soy un perro responsable: se lo llevaré.", forma: "piensa" },
+        ] },
+        { escena: "Aula. Dani entra corriendo y despeinado. El profesor Julián lo espera en la puerta.", bocadillos: [
           { quien: "Julián", t: "Buenos días, Dani. ¿Traes los deberes de Mates?", forma: "dice" },
         ] },
         { escena: "Dani pone cara de pena y junta las manos.", bocadillos: [
           { quien: "Dani", t: "Es que… ¡mi perro se los comió!", forma: "dice" },
           { quien: "Julián", t: "Esta excusa ya la usaba yo cuando tenía su edad.", forma: "piensa" },
         ] },
+        { escena: "Julián se cruza de brazos y levanta una ceja.", bocadillos: [
+          { quien: "Julián", t: "¿Ah, sí? ¿Y qué problema le gustó más, el tercero o el séptimo?", forma: "dice" },
+          { quien: "Dani", t: "Eh… el de las pizzas. Se lo comió con muchas ganas.", forma: "dice" },
+        ] },
+        { escena: "Noa y Hugo cuchichean en la primera fila, tapándose la boca.", bocadillos: [
+          { quien: "Noa", t: "¿Un perro que se come problemas de fracciones?", forma: "dice" },
+          { quien: "Hugo", t: "Le habrá sentado mal el denominador.", forma: "dice" },
+        ] },
         { escena: "Se oyen unos arañazos en la puerta del aula: ¡RAS, RAS! Después, un ladrido: ¡GUAU!", bocadillos: [
           { quien: "Toda la clase", t: "¿¿Un perro en el cole??", forma: "grita" },
         ] },
-        { escena: "Entra Tapón, moviendo la cola, con el cuaderno de Dani en la boca, sin un solo mordisco.", bocadillos: [
+        { escena: "Pepa, la conserje, abre la puerta. Entra Tapón moviendo la cola, con el cuaderno de Dani en la boca, sin un solo mordisco.", bocadillos: [
+          { quien: "Pepa", t: "Perdona, Julián. Este caballero insistía en entrar.", forma: "dice" },
           { quien: "Dani", t: "Tapón, traidor…", forma: "piensa" },
         ] },
         { escena: "Julián coge el cuaderno y lo abre. Las hojas están en blanco. Dani se hunde en la silla.", bocadillos: [
@@ -77,22 +112,32 @@ window.LECTURAS["tira"] = [
         { escena: "Julián acaricia a Tapón, que parece sonreír. Dani, rojo como un tomate.", bocadillos: [
           { quien: "Julián", t: "Tu perro es más sincero que tú. Él tiene un diez; tú, deberes dobles.", forma: "dice" },
         ] },
+        { escena: "Dani se levanta, mira al suelo y respira hondo.", bocadillos: [
+          { quien: "Dani", t: "Vale… No los hice. Me pasé la tarde jugando y luego me dio vergüenza decirlo.", forma: "dice" },
+          { quien: "Julián", t: "Eso sí es una buena respuesta. Por decir la verdad, te quito los dobles: haz los diez esta tarde.", forma: "dice" },
+        ] },
+        { cartela: "Esa tarde, en casa…", escena: "Dani hace los problemas en la mesa del salón. Tapón está tumbado encima del cuaderno.", bocadillos: [
+          { quien: "Dani", t: "Tapón, quita, que no me dejas escribir.", forma: "dice" },
+          { quien: "Tapón", t: "Vigilancia especial. De este chico ya no me fío.", forma: "piensa" },
+        ] },
+        { escena: "Mamá se asoma por la puerta, sorprendida. Dani sigue escribiendo.", bocadillos: [
+          { quien: "Mamá", t: "¿Haciendo los deberes sin que nadie te lo pida? ¿Estás malo?", forma: "dice" },
+          { quien: "Dani", t: "No, mamá. Es que en esta casa hasta el perro me vigila.", forma: "dice" },
+        ] },
       ] },
     ],
     vocabulario: [
       { p: "excusa", d: "razón que se da para librarse de algo, a veces inventada" },
       { p: "traidor", d: "que engaña o descubre a alguien que confiaba en él" },
+      { p: "conserje", d: "persona que cuida la entrada y el edificio del colegio" },
     ],
     preguntas: [
-      { tipo: "comprension", q: "¿Qué excusa pone Dani para no entregar los deberes?", r: "Que su perro se los ha comido.", lineas: 1 },
-      { tipo: "comprension", q: "¿Qué piensa el profesor cuando oye la excusa? ¿Se la cree?", r: "Piensa que es una excusa muy vieja, que él mismo usaba de pequeño. No se la cree.", lineas: 2 },
-      { tipo: "comprension", q: "¿Por qué Dani llama «traidor» a Tapón en la viñeta 4?", r: "Porque el perro aparece con el cuaderno intacto y demuestra que Dani ha mentido: no se lo había comido.", lineas: 2 },
-      { tipo: "comprension", q: "¿Qué descubre el profesor al abrir el cuaderno? Elige:", opciones: ["Que los deberes están hechos, pero mordidos", "Que las hojas están en blanco: Dani no hizo los deberes", "Que los deberes los hizo el perro"], r: "Que las hojas están en blanco: Dani no hizo los deberes" },
-      { tipo: "comprension", q: "¿Cómo crees que llegó Tapón hasta el colegio? Usa las pistas de la tira.", r: "Probablemente siguió a Dani desde casa, que salió corriendo con la mochila abierta y se dejó el cuaderno; el perro lo cogió y fue tras él.", lineas: 2 },
-      { tipo: "texto", q: "Busca las onomatopeyas de la viñeta 3 y di qué sonido imita cada una. ¿Qué bocadillo es de tipo «grita» y cómo se dibujaría?", r: "«¡RAS, RAS!» imita los arañazos en la puerta y «¡GUAU!», el ladrido. El de toda la clase («¿¿Un perro en el cole??») es un grito: se dibuja con el borde en picos, como una explosión, y letras grandes.", lineas: 3 },
-      { tipo: "opinion", q: "¿Te parece justo el castigo de «deberes dobles»? ¿Qué habrías hecho tú en lugar del profesor?", r: "Respuesta libre. Valorar que argumente.", lineas: 3 },
-      { tipo: "opinion", q: "¿Qué habría pasado si Dani hubiera dicho la verdad desde el principio?", r: "Respuesta libre. Valorar que relacione sinceridad y confianza.", lineas: 2 },
-      { tipo: "reflexion", q: "La mentira de Dani se descubre enseguida. ¿Por qué crees que las mentiras acaban saliendo a la luz? ¿Qué se pierde cuando alguien nos pilla mintiendo?", r: "Respuesta libre. Valorar que hable de la confianza.", lineas: 3 },
+      { tipo: "comprension", q: "¿Qué excusa pone Dani? ¿Qué pistas muestran que el profesor no se la cree?", r: "Que su perro se ha comido los deberes. Julián piensa que es una excusa muy vieja y le hace una pregunta trampa sobre los problemas.", lineas: 2 },
+      { tipo: "comprension", q: "¿Por qué llama Dani «traidor» a Tapón? ¿Cómo llegó el perro al colegio, según la viñeta 1?", r: "Porque aparece con el cuaderno intacto y demuestra que Dani ha mentido. Llegó porque a Dani se le cayó el cuaderno en la calle y Tapón lo recogió y lo siguió.", lineas: 2 },
+      { tipo: "comprension", q: "¿Por qué le quita el profesor los deberes dobles? Elige:", opciones: ["Porque Tapón le cae bien", "Porque Dani acaba diciendo la verdad", "Porque se le olvida el castigo"], r: "Porque Dani acaba diciendo la verdad" },
+      { tipo: "texto", q: "¿Qué onomatopeyas hay en la viñeta 6 y qué imitan? ¿Cómo se dibujaría el bocadillo de toda la clase?", r: "«¡RAS, RAS!» imita los arañazos en la puerta y «¡GUAU!», el ladrido. El de toda la clase es un grito: borde en picos, como una explosión, y letras grandes.", lineas: 2 },
+      { tipo: "opinion", q: "¿Te parece justo que Julián rebaje el castigo cuando Dani dice la verdad? ¿Por qué?", r: "Respuesta libre. Valorar que argumente.", lineas: 2 },
+      { tipo: "reflexion", q: "¿Por qué crees que las mentiras acaban saliendo a la luz? ¿Qué se pierde cuando alguien nos pilla mintiendo?", r: "Respuesta libre. Valorar que hable de la confianza.", lineas: 2 },
     ],
   },
   {
@@ -103,42 +148,69 @@ window.LECTURAS["tira"] = [
     fuente: "Texto original",
     antes: "¿Crees que las plantas crecen mejor si les hablas o les pones música? ¿Lo has oído alguna vez?",
     texto: [
+      { p: "En la clase de 5.º B, junto a la ventana, hay una maceta con una planta de hojas verdes y brillantes. La trajo la profesora Carmen el primer día de curso y los alumnos la bautizaron enseguida: se llama Ramona. Desde entonces, cuidarla es cosa de todos, y en el colegio ya la conocen como la planta más mimada del edificio." },
       { vinetas: [
         { escena: "Rincón del aula junto a la ventana. Noa, con una regadera, sonríe a una planta en una maceta con un cartelito que dice «Ramona».", bocadillos: [
           { quien: "Noa", t: "Buenos días, Ramona. Hoy te traigo agua fresquita.", forma: "dice" },
         ] },
+        { escena: "Noa pega en la pared un cuadrante de turnos con los nombres de toda la clase. Aitana se acerca con un trapito.", bocadillos: [
+          { quien: "Noa", t: "Hay que organizarse. Ramona se merece lo mejor.", forma: "dice" },
+          { quien: "Aitana", t: "¡Pues yo le limpio las hojas una a una!", forma: "dice" },
+        ] },
         { escena: "Hugo se acerca con un libro de cuentos bajo el brazo.", bocadillos: [
           { quien: "Hugo", t: "Dicen que si les hablas, crecen más. Yo le leo un cuento cada recreo.", forma: "dice" },
+          { quien: "Noa", t: "Léele el de las habichuelas mágicas. Seguro que le da ideas.", forma: "dice" },
         ] },
         { escena: "Varios compañeros bailan alrededor de la maceta con un altavoz: ¡CHUNDA, CHUNDA!", bocadillos: [
           { quien: "Aitana", t: "¡Y los viernes, fiesta para Ramona!", forma: "grita" },
+          { quien: "Mateo", t: "¡Venga, Ramona, mueve esas hojas!", forma: "dice" },
+        ] },
+        { escena: "Día de lluvia. Mateo saca la maceta al alféizar de la ventana. La profesora Carmen lo mira desde la pizarra, con cara rara.", bocadillos: [
+          { quien: "Mateo", t: "Agua de lluvia, que es más natural.", forma: "dice" },
+          { quien: "Carmen", t: "Tendría que decirles algo… Mañana se lo digo.", forma: "piensa" },
+        ] },
+        { cartela: "En Navidad…", escena: "Ramona lleva un gorrito rojo y un espumillón dorado. Todos le cantan un villancico.", bocadillos: [
+          { quien: "Aitana", t: "¡Ramona también se merece su fiesta!", forma: "dice" },
+          { quien: "Carmen", t: "Ay… Mañana se lo digo. Seguro.", forma: "piensa" },
         ] },
         { cartela: "Tres meses después…", escena: "Noa mide la planta con una regla, muy seria.", bocadillos: [
           { quien: "Noa", t: "¡Profe! Ramona no ha crecido ni un milímetro.", forma: "dice" },
+          { quien: "Mateo", t: "¿Cómo que nada? ¡Si la cuidamos más que a nadie!", forma: "dice" },
+        ] },
+        { escena: "La clase entera rodea la maceta, preocupada.", bocadillos: [
+          { quien: "Hugo", t: "¿Y si se aburre con mis cuentos?", forma: "dice" },
+          { quien: "Aitana", t: "¡Le falta música! Subiremos el volumen.", forma: "dice" },
         ] },
         { escena: "La profesora Carmen se rasca la cabeza, un poco apurada.", bocadillos: [
-          { quien: "Carmen", t: "Noa… Ramona es de plástico. La compré para decorar.", forma: "dice" },
+          { quien: "Carmen", t: "Chicos… Ramona es de plástico. La compré para decorar.", forma: "dice" },
+          { quien: "Toda la clase", t: "¿¿DE PLÁSTICO??", forma: "grita" },
         ] },
         { escena: "Toda la clase se queda congelada. Noa, con la regadera en la mano, mira la maceta.", bocadillos: [
           { quien: "Noa", t: "Bueno… pues ha sido la planta mejor cuidada del colegio.", forma: "dice" },
           { quien: "Hugo", t: "Y la que más cuentos se sabe.", forma: "piensa" },
         ] },
+        { escena: "Carmen deja en la mesa una bandeja con tierra y un sobre de semillas de girasol.", bocadillos: [
+          { quien: "Carmen", t: "Para compensaros: semillas de verdad. Estas sí van a crecer.", forma: "dice" },
+          { quien: "Toda la clase", t: "¡BIEEEN!", forma: "grita" },
+        ] },
+        { cartela: "Un mes después…", escena: "En la bandeja asoman pequeños girasoles. A su lado sigue Ramona, con un cartel nuevo: «La abuela de la clase».", bocadillos: [
+          { quien: "Noa", t: "Ramona, te presento a tus nietos.", forma: "dice" },
+          { quien: "Hugo", t: "Hoy el cuento es para todos.", forma: "dice" },
+        ] },
       ] },
     ],
     vocabulario: [
       { p: "regadera", d: "recipiente con un tubo agujereado para regar" },
+      { p: "alféizar", d: "parte de abajo del hueco de una ventana" },
       { p: "apurado", d: "que siente vergüenza o apuro" },
     ],
     preguntas: [
-      { tipo: "comprension", q: "¿Qué hacen los niños para que Ramona crezca? Nombra tres cosas.", r: "Noa la riega y le habla, Hugo le lee cuentos en el recreo y los viernes le hacen una fiesta con música.", lineas: 2 },
-      { tipo: "comprension", q: "¿Para qué sirve la cartela «Tres meses después…»?", r: "Para indicar que ha pasado mucho tiempo entre la viñeta 3 y la 4, sin tener que dibujarlo.", lineas: 2 },
-      { tipo: "comprension", q: "¿Por qué no ha crecido Ramona?", r: "Porque es una planta de plástico, no una planta de verdad.", lineas: 1 },
-      { tipo: "comprension", q: "¿Por qué la profesora está «un poco apurada» en la viñeta 5? Elige:", opciones: ["Porque se le ha olvidado regar la planta", "Porque le da apuro decirles que llevan meses cuidando una planta falsa", "Porque la planta está enferma"], r: "Porque le da apuro decirles que llevan meses cuidando una planta falsa" },
-      { tipo: "comprension", q: "¿Cómo reacciona Noa al final? ¿Qué dice eso de su forma de ser?", r: "No se enfada ni se pone triste: se lo toma con humor y ve el lado positivo. Es una niña optimista.", lineas: 2 },
-      { tipo: "texto", q: "Explica dónde está el final sorprendente de la tira. ¿Qué onomatopeya aparece y qué representa?", r: "El final sorprendente llega en las viñetas 5 y 6: descubrimos que la planta es de plástico, algo que el lector no esperaba. La onomatopeya «¡CHUNDA, CHUNDA!» representa la música que suena en el altavoz.", lineas: 3 },
-      { tipo: "opinion", q: "¿Crees que Noa y sus compañeros perdieron el tiempo cuidando a Ramona? ¿Por qué?", r: "Respuesta libre. Valorar que argumente (se lo pasaron bien, trabajaron en equipo…).", lineas: 3 },
-      { tipo: "opinion", q: "¿Debería la profesora habérselo dicho antes? ¿Por qué?", r: "Respuesta libre.", lineas: 2 },
-      { tipo: "reflexion", q: "Cuidar de algo juntos une a un grupo. ¿Qué podríais cuidar en vuestra clase entre todos? ¿Qué aprenderíais?", r: "Respuesta libre. Valorar la responsabilidad compartida.", lineas: 3 },
+      { tipo: "comprension", q: "¿Qué hacen los niños para cuidar a Ramona? Nombra tres cosas.", r: "La riegan y le hablan, le limpian las hojas, Hugo le lee cuentos, los viernes le hacen una fiesta con música y la sacan a la lluvia.", lineas: 2 },
+      { tipo: "comprension", q: "¿Qué piensa la profesora en las viñetas 5 y 6? ¿Por qué crees que no se lo dice antes a la clase?", r: "Que tendría que decirles algo (que Ramona es de plástico) y lo va dejando para mañana. No se atreve porque los ve tan ilusionados que le da apuro desilusionarlos.", lineas: 2 },
+      { tipo: "comprension", q: "¿Qué hace Carmen al final para compensar a la clase? Elige:", opciones: ["Compra otra planta de plástico", "Les trae semillas de girasol para sembrar", "Se lleva a Ramona a su casa"], r: "Les trae semillas de girasol para sembrar" },
+      { tipo: "texto", q: "¿Para qué sirven las cartelas de las viñetas 6, 7 y 12? ¿En qué viñeta está el final sorprendente?", r: "Indican que pasa el tiempo (Navidad, tres meses, un mes) sin tener que dibujarlo. El final sorprendente está en la viñeta 9, cuando se descubre que Ramona es de plástico.", lineas: 2 },
+      { tipo: "opinion", q: "¿Crees que Noa y sus compañeros perdieron el tiempo cuidando a Ramona? ¿Por qué?", r: "Respuesta libre. Valorar que argumente (se lo pasaron bien, trabajaron en equipo…).", lineas: 2 },
+      { tipo: "reflexion", q: "Cuidar de algo juntos une a un grupo. ¿Qué podríais cuidar entre todos en vuestra clase? ¿Qué aprenderíais?", r: "Respuesta libre. Valorar la responsabilidad compartida.", lineas: 2 },
     ],
   },
   {
@@ -149,16 +221,28 @@ window.LECTURAS["tira"] = [
     fuente: "Texto original",
     antes: "Jaén es la provincia con más olivos de España. ¿Has comido alguna vez una aceituna recién cogida del árbol? ¿Cómo crees que sabe?",
     texto: [
-      { p: "Es diciembre y Yusuf pasa el fin de semana con su abuelo Paco, que tiene un olivar cerca de Úbeda, en la provincia de Jaén." },
+      { p: "Es diciembre y Yusuf pasa el fin de semana con su abuelo Paco, que tiene un olivar cerca de Úbeda, en la provincia de Jaén. Es la primera vez que va a la recogida de la aceituna y lleva toda la semana presumiendo delante de sus amigos. Lo acompaña su prima Lola, que ya ha ayudado otros años y se sabe todos los trucos." },
       { vinetas: [
-        { escena: "Olivar en invierno. El abuelo Paco extiende unas mallas en el suelo, bajo un olivo. Yusuf lleva gorro y guantes.", bocadillos: [
+        { escena: "Madrugada en la cocina de la casa de campo. El abuelo se toma un café. Yusuf, en pijama, bosteza.", bocadillos: [
+          { quien: "Abuelo Paco", t: "Arriba, que la aceituna no espera.", forma: "dice" },
+          { quien: "Yusuf", t: "Abuelo, si todavía es de noche…", forma: "dice" },
+        ] },
+        { escena: "Olivar en invierno. El abuelo extiende unas mallas en el suelo, bajo un olivo. Yusuf lleva gorro y guantes.", bocadillos: [
           { quien: "Abuelo Paco", t: "Hoy toca coger aceituna, campeón.", forma: "dice" },
+          { quien: "Lola", t: "Tú sujeta la malla por esa punta, que no se escape ninguna.", forma: "dice" },
         ] },
         { escena: "El abuelo golpea suavemente las ramas con una vara larga: ¡TAC, TAC! Las aceitunas caen sobre la malla: ¡PLIC, PLOC, PLIC!", bocadillos: [
           { quien: "Yusuf", t: "¡Llueven aceitunas!", forma: "grita" },
         ] },
+        { escena: "Yusuf coge la vara y golpea una rama con todas sus fuerzas: ¡ZAS! Caen aceitunas, hojas y hasta una ramita.", bocadillos: [
+          { quien: "Abuelo Paco", t: "¡Suave, suave! El olivo es un abuelo como yo: hay que tratarlo con cariño.", forma: "dice" },
+          { quien: "Yusuf", t: "Vale, vale… con cariño.", forma: "dice" },
+        ] },
         { escena: "Yusuf coge una aceituna negra y brillante y la mira con los ojos como platos.", bocadillos: [
           { quien: "Yusuf", t: "Si las del bote están tan ricas, estas, recién cogidas, estarán buenísimas…", forma: "piensa" },
+        ] },
+        { escena: "Lola lo ve desde el otro lado del olivo y sonríe con picardía, sin decir nada.", bocadillos: [
+          { quien: "Lola", t: "Ya verás qué sorpresa te vas a llevar, primo…", forma: "piensa" },
         ] },
         { escena: "Yusuf se mete la aceituna en la boca. El abuelo levanta la mano, pero ya es tarde.", bocadillos: [
           { quien: "Abuelo Paco", t: "¡Yusuf, espera, que esa…!", forma: "grita" },
@@ -166,8 +250,20 @@ window.LECTURAS["tira"] = [
         { escena: "Yusuf pone una cara de asco enorme, con la lengua fuera: ¡PUAJ!", bocadillos: [
           { quien: "Yusuf", t: "¡Está amarguísima! ¡Sabe a medicina!", forma: "grita" },
         ] },
-        { escena: "El abuelo se ríe mientras le ofrece la cantimplora de agua.", bocadillos: [
+        { escena: "El abuelo se ríe mientras le ofrece la cantimplora de agua. Lola se parte de risa.", bocadillos: [
           { quien: "Abuelo Paco", t: "Por eso las aliñamos antes de comerlas, listillo. Del árbol a la boca no hay atajo.", forma: "dice" },
+          { quien: "Lola", t: "¡A mí me pasó lo mismo el año pasado!", forma: "dice" },
+        ] },
+        { escena: "Mediodía. Descansan sentados bajo un olivo. El abuelo reparte rebanadas de pan con aceite.", bocadillos: [
+          { quien: "Abuelo Paco", t: "Esto sí se come en el campo: aceite nuevo, de la almazara del pueblo.", forma: "dice" },
+          { quien: "Yusuf", t: "¡Mmm! Esto sí que está buenísimo.", forma: "dice" },
+        ] },
+        { escena: "Atardece. Los sacos llenos esperan en el remolque. Yusuf, agotado, se sienta encima de uno.", bocadillos: [
+          { quien: "Yusuf", t: "Abuelo, ¿y cuánto aceite sale de todo esto?", forma: "dice" },
+          { quien: "Abuelo Paco", t: "Menos de lo que crees. Hacen falta varios kilos de aceituna para llenar una botella.", forma: "dice" },
+        ] },
+        { cartela: "El lunes, en el colegio…", escena: "Yusuf, rodeado de sus amigos, cuenta su aventura con las manos en alto.", bocadillos: [
+          { quien: "Yusuf", t: "He aprendido que el aceite cuesta mucho trabajo… y que, si tu prima sonríe así, no te comas nada.", forma: "dice" },
         ] },
       ] },
     ],
@@ -175,17 +271,15 @@ window.LECTURAS["tira"] = [
       { p: "malla", d: "red de tela que se pone bajo el olivo para recoger las aceitunas" },
       { p: "vara", d: "palo largo y delgado" },
       { p: "aliñar", d: "preparar las aceitunas (con agua, sal y hierbas) para que se puedan comer" },
+      { p: "almazara", d: "molino donde se hace el aceite de oliva" },
     ],
     preguntas: [
       { tipo: "comprension", q: "¿Dónde y en qué época del año ocurre la historia? ¿Qué pistas de la tira lo confirman?", r: "En un olivar cerca de Úbeda (Jaén), en diciembre. Lo confirman el gorro y los guantes de Yusuf y que es época de coger aceituna.", lineas: 2 },
-      { tipo: "comprension", q: "¿Qué hace el abuelo para que caigan las aceitunas?", r: "Pone mallas en el suelo y golpea suavemente las ramas con una vara larga.", lineas: 2 },
-      { tipo: "comprension", q: "¿Por qué Yusuf cree que la aceituna recién cogida estará buenísima?", r: "Porque piensa que, si las de bote están ricas, las frescas estarán aún mejor.", lineas: 2 },
-      { tipo: "comprension", q: "¿Qué intentaba decir el abuelo en la viñeta 4 cuando grita «¡que esa…!»? Elige:", opciones: ["Que esa aceituna era la más grande", "Que esa aceituna estaba amarga y no se podía comer así", "Que esa aceituna era suya"], r: "Que esa aceituna estaba amarga y no se podía comer así" },
-      { tipo: "comprension", q: "¿Qué quiere decir el abuelo con «Del árbol a la boca no hay atajo»?", r: "Que las aceitunas necesitan un proceso (aliñarlas) antes de comerlas; no se puede ir directamente del árbol a la boca.", lineas: 2 },
-      { tipo: "texto", q: "Copia tres onomatopeyas de la tira y explica qué sonido imita cada una. ¿En qué viñeta está el momento más gracioso?", r: "«¡TAC, TAC!»: la vara golpeando las ramas; «¡PLIC, PLOC!»: las aceitunas cayendo; «¡PUAJ!»: expresión de asco. El momento más gracioso es la viñeta 5, cuando Yusuf descubre el sabor amargo.", lineas: 3 },
-      { tipo: "opinion", q: "¿Alguna vez has probado algo esperando que supiera de una manera y te sorprendió? Cuéntalo.", r: "Respuesta libre.", lineas: 3 },
+      { tipo: "comprension", q: "¿Por qué sonríe Lola con picardía en la viñeta 6? ¿Cómo lo sabemos?", r: "Porque sabe que las aceitunas recién cogidas están amargas y espera la cara que pondrá Yusuf. Lo sabemos por su pensamiento y porque en la viñeta 9 cuenta que a ella le pasó lo mismo.", lineas: 2 },
+      { tipo: "comprension", q: "¿Qué quiere decir el abuelo con «Del árbol a la boca no hay atajo»? Elige:", opciones: ["Que el camino del olivar es muy largo", "Que las aceitunas hay que aliñarlas antes de comerlas", "Que no se puede comer en el campo"], r: "Que las aceitunas hay que aliñarlas antes de comerlas" },
+      { tipo: "texto", q: "Copia tres onomatopeyas de la tira y explica qué sonido imita cada una. ¿Cuál es, para ti, la viñeta más graciosa?", r: "«¡TAC, TAC!»: la vara golpeando las ramas; «¡PLIC, PLOC!»: las aceitunas cayendo; «¡ZAS!»: el golpe fuerte de Yusuf; «¡PUAJ!»: asco. Lo más gracioso suele ser la viñeta 8, cuando Yusuf descubre el sabor amargo.", lineas: 2 },
       { tipo: "opinion", q: "¿Te gustaría ayudar en la recogida de la aceituna? ¿Por qué?", r: "Respuesta libre.", lineas: 2 },
-      { tipo: "reflexion", q: "Muchos alimentos necesitan mucho trabajo antes de llegar a nuestra mesa. ¿Por qué es importante conocer ese trabajo y valorarlo?", r: "Respuesta libre. Valorar que hable del esfuerzo de agricultores y agricultoras y de no desperdiciar comida.", lineas: 3 },
+      { tipo: "reflexion", q: "Muchos alimentos necesitan mucho trabajo antes de llegar a nuestra mesa. ¿Por qué es importante conocer ese trabajo y valorarlo?", r: "Respuesta libre. Valorar que hable del esfuerzo de agricultores y agricultoras y de no desperdiciar comida.", lineas: 2 },
     ],
   },
   {

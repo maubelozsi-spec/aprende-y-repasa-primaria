@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Lengua</p>
         <h1>Generador de dictados</h1>
-        <p class="content-subtitle">Elige una o varias reglas ortográficas y cuántas frases quieres, y se creará una historia para dictar. Después, revela la corrección: cada palabra clave se colorea según su regla y, al pulsarla, explica el motivo.</p>
+        <p class="content-subtitle">Elige una o varias reglas ortográficas y cuántas frases quieres, y se creará una historia con sentido completo para dictar. Después, revela la corrección: cada palabra clave se colorea según su regla y, al pulsarla, explica el motivo.</p>
       </header>
 
       <div class="game-card generator-card">
@@ -56,6 +56,7 @@
         <div class="generator-field">
           <label for="dict-count">Número de frases (3-20)</label>
           <input type="number" id="dict-count" class="number-input" min="3" max="20" value="8">
+          <p class="difficulty-hint" id="dict-count-hint"></p>
         </div>
 
         <div class="actions-row">
@@ -82,6 +83,7 @@
 </div>
 
 <script src="../js/layout.js"></script>
+<script src="../js/dictado-historias.js"></script>
 <script src="../js/dictado-generator.js"></script>
 <script src="../js/generador-dictados-ui.js"></script>
 </body>
