@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>La sesión del día · La Ciudadela</title>
+<meta name="description" content="Sesión diaria de educación emocional con los estoicos para proyectar en clase: historia, pregunta, juego de «¿depende de mí?», frase y reto.">
+<meta name="theme-color" content="#1D2944">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="css/ciudadela.css">
+</head>
+<body data-pagina="sesion">
+
+<header id="barra"></header>
+
+<main class="contenedor sesion">
+  <div class="sesion-barra">
+    <div class="titulo-actual">
+      <span class="sello-virtud" id="sello-actual"></span>
+      <b id="titulo-actual">Sesión</b>
+    </div>
+    <div class="grupo">
+      <button type="button" class="btn suave peq grupo-secundario" id="btn-lista">Todas las sesiones</button>
+      <button type="button" class="btn suave peq" id="btn-escuchar"><span data-icono="altavoz"></span>Escuchar</button>
+      <button type="button" class="btn peq" id="btn-pantalla"><span data-icono="pantalla"></span>Proyectar</button>
+    </div>
+  </div>
+
+  <section class="escenario" id="escenario" aria-live="polite">
+    <div class="escenario-cuerpo" id="escenario-cuerpo"></div>
+    <div class="escenario-pie">
+      <button type="button" class="btn-nav" id="btn-anterior" aria-label="Paso anterior"><span data-icono="izquierda"></span></button>
+      <div class="puntos-nav" id="puntos-nav"></div>
+      <button type="button" class="btn-nav" id="btn-siguiente" aria-label="Paso siguiente"><span data-icono="derecha"></span></button>
+    </div>
+  </section>
+
+  <p class="pista" style="margin:14px 0 40px">Consejo: pulsa <b>Proyectar</b> y avanza con las flechas del teclado <kbd>←</kbd> <kbd>→</kbd>. En el juego, deja que la clase vote con la mano antes de destapar cada carta.</p>
+</main>
+
+<script src="js/comun.js"></script>
+<script src="js/sesiones/bloques-00-01.js"></script>
+<script src="js/sesiones/bloques-02-03.js"></script>
+<script src="js/sesiones/bloques-04-05.js"></script>
+<script src="js/sesiones/bloques-06-07.js"></script>
+<script src="js/sesiones/bloques-08-09.js"></script>
+<script src="js/sesiones/bloques-10-11.js"></script>
+<script src="js/sesiones.js"></script>
+<script src="js/sesion.js"></script>
+</body>
+</html>

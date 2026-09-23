@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>La Ciudadela · Aprende y Repasa</title>
+<meta name="description" content="Educación emocional con los filósofos estoicos para 5º y 6º de Primaria: sesión diaria para proyectar, kit de calma, diario privado y tarjetas de virtud para imprimir.">
+<meta name="theme-color" content="#1D2944">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="css/ciudadela.css">
+</head>
+<body data-pagina="portada">
+
+<header id="barra"></header>
+
+<section class="hero">
+  <div class="contenedor hero-interior">
+    <div class="hero-texto">
+      <h1><span>Educación emocional</span>La Ciudadela</h1>
+      <p class="lema">Hace dos mil años, el emperador Marco Aurelio escribió que dentro de cada persona hay una ciudadela: un lugar tranquilo donde decides qué hacer con lo que sientes. Aquí aprenderás a construir la tuya.</p>
+      <div class="acciones" style="display:flex; gap:10px; flex-wrap:wrap">
+        <a class="btn" href="calma.html">Tengo una emoción fuerte</a>
+        <a class="btn fantasma" href="sabios.html">¿Quiénes eran los estoicos?</a>
+      </div>
+    </div>
+    <div class="hero-dibujo" aria-hidden="true">
+      <svg viewBox="0 0 480 320">
+        <defs>
+          <radialGradient id="brillo" cx="50%" cy="60%" r="55%">
+            <stop offset="0" stop-color="#FFD98C" stop-opacity=".9"/>
+            <stop offset="1" stop-color="#FFD98C" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="piedra" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F0C897"/>
+            <stop offset="1" stop-color="#D59B67"/>
+          </linearGradient>
+          <linearGradient id="piedra-sombra" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#D9A574"/>
+            <stop offset="1" stop-color="#B97E4E"/>
+          </linearGradient>
+        </defs>
+        <g class="estrellas" fill="#FFF3D6">
+          <circle cx="40" cy="40" r="1.6"/><circle cx="92" cy="22" r="1.2"/><circle cx="150" cy="58" r="1.8"/>
+          <circle cx="210" cy="28" r="1.3"/><circle cx="300" cy="18" r="1.6"/><circle cx="352" cy="52" r="1.2"/>
+          <circle cx="420" cy="30" r="1.9"/><circle cx="455" cy="78" r="1.3"/><circle cx="20" cy="104" r="1.2"/>
+          <circle cx="118" cy="98" r="1.1"/><circle cx="392" cy="104" r="1.2"/>
+        </g>
+        <g class="sol">
+          <circle cx="240" cy="200" r="150" fill="url(#brillo)"/>
+          <circle cx="240" cy="205" r="66" fill="#F6C66F"/>
+        </g>
+        <path d="M0 262 Q110 222 230 250 T480 236 V320 H0z" fill="#8C4F37"/>
+
+        <!-- muralla trasera -->
+        <rect x="110" y="192" width="260" height="84" fill="url(#piedra-sombra)"/>
+        <g fill="url(#piedra-sombra)">
+          <rect x="110" y="184" width="11" height="9"/><rect x="129" y="184" width="11" height="9"/><rect x="148" y="184" width="11" height="9"/>
+          <rect x="320" y="184" width="11" height="9"/><rect x="339" y="184" width="11" height="9"/><rect x="358" y="184" width="11" height="9"/>
+        </g>
+
+        <!-- torre exterior izquierda · sabiduría -->
+        <rect x="92" y="164" width="44" height="112" fill="url(#piedra)"/>
+        <g fill="url(#piedra)"><rect x="89" y="154" width="10" height="11"/><rect x="106" y="154" width="12" height="11"/><rect x="125" y="154" width="11" height="11"/></g>
+        <path d="M114 154V122" stroke="#5B3A2F" stroke-width="2"/>
+        <path d="M114 122h24l-7 7 7 7h-24z" fill="#2F5E9E"/>
+        <path d="M108 206a6 6 0 0 1 12 0v12h-12z" fill="#FFD98C"/>
+
+        <!-- torre exterior derecha · templanza -->
+        <rect x="344" y="164" width="44" height="112" fill="url(#piedra)"/>
+        <g fill="url(#piedra)"><rect x="344" y="154" width="11" height="11"/><rect x="362" y="154" width="12" height="11"/><rect x="381" y="154" width="10" height="11"/></g>
+        <path d="M366 154V122" stroke="#5B3A2F" stroke-width="2"/>
+        <path d="M366 122h24l-7 7 7 7h-24z" fill="#4C7A38"/>
+        <path d="M360 206a6 6 0 0 1 12 0v12h-12z" fill="#FFD98C"/>
+
+        <!-- torre interior izquierda · justicia -->
+        <rect x="164" y="138" width="40" height="138" fill="url(#piedra)"/>
+        <path d="M160 140l24-26 24 26z" fill="#B5502B"/>
+        <path d="M184 114V84" stroke="#5B3A2F" stroke-width="2"/>
+        <path d="M184 84h24l-7 7 7 7h-24z" fill="#C98B1E"/>
+        <path d="M178 172a6 6 0 0 1 12 0v12h-12z" fill="#FFD98C"/>
+
+        <!-- torre interior derecha · coraje -->
+        <rect x="276" y="138" width="40" height="138" fill="url(#piedra)"/>
+        <path d="M272 140l24-26 24 26z" fill="#B5502B"/>
+        <path d="M296 114V84" stroke="#5B3A2F" stroke-width="2"/>
+        <path d="M296 84h24l-7 7 7 7h-24z" fill="#B23B2E"/>
+        <path d="M290 172a6 6 0 0 1 12 0v12h-12z" fill="#FFD98C"/>
+
+        <!-- torre del homenaje y puerta -->
+        <rect x="206" y="112" width="68" height="164" fill="url(#piedra)"/>
+        <g fill="url(#piedra)"><rect x="203" y="101" width="12" height="12"/><rect x="222" y="101" width="12" height="12"/><rect x="246" y="101" width="12" height="12"/><rect x="265" y="101" width="12" height="12"/></g>
+        <path d="M240 101V64" stroke="#5B3A2F" stroke-width="2"/>
+        <path d="M240 64h30l-8 8 8 8h-30z" fill="#F6C66F"/>
+        <circle cx="240" cy="150" r="11" fill="#FFD98C"/>
+        <path d="M222 276v-40a18 18 0 0 1 36 0v40z" fill="#1D2944"/>
+        <path d="M228 276v-38a12 12 0 0 1 24 0v38z" fill="#FFD98C" opacity=".85"/>
+
+        <!-- camino hacia la puerta -->
+        <path d="M222 276 L180 320 H300 L258 276z" fill="#E7B07A" opacity=".75"/>
+        <path d="M0 290 Q120 272 200 284 L180 320 H0z" fill="#6E3D2C"/>
+        <path d="M480 286 Q380 270 280 284 L300 320 H480z" fill="#6E3D2C"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="metodo" aria-label="El método de la Ciudadela">
+  <div class="contenedor">
+    <ol class="metodo-pasos">
+      <li class="v-sabiduria"><span class="metodo-num">1</span><div><b>Siento</b><span>Pongo nombre a lo que siento. Todas las emociones están permitidas.</span></div></li>
+      <li class="v-justicia"><span class="metodo-num">2</span><div><b>Pienso</b><span>¿Qué me estoy diciendo? A veces lo que duele es lo que pensamos.</span></div></li>
+      <li class="v-coraje"><span class="metodo-num">3</span><div><b>Separo</b><span>¿Qué depende de mí y qué no? Me ocupo de lo mío.</span></div></li>
+      <li class="v-templanza"><span class="metodo-num">4</span><div><b>Elijo</b><span>Decido qué hacer con sabiduría, justicia, coraje y templanza.</span></div></li>
+    </ol>
+  </div>
+</section>
+
+<main>
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="seccion-cabecera">
+        <div>
+          <p class="eyebrow">Para ti</p>
+          <h2>Tus cuatro puertas</h2>
+        </div>
+        <p>Entra con tu clave de Aprende y Repasa y tu diario te acompañará en cualquier dispositivo. Es solo tuyo: la app no se lo enseña a nadie, tampoco a tu maestro o maestra.</p>
+      </div>
+      <div class="rejilla dos">
+        <a class="puerta v-coraje" href="calma.html">
+          <span class="puerta-icono" data-icono="calma"></span>
+          <h3>Mi kit de calma</h3>
+          <p>¿Enfado, nervios, tristeza? Te acompaño paso a paso: respirar, ver qué depende de ti y elegir qué hacer.</p>
+          <span class="quien">Cuando lo necesites · 3-5 minutos</span>
+        </a>
+        <a class="puerta v-sabiduria" href="diario.html">
+          <span class="puerta-icono" data-icono="diario"></span>
+          <h3>Mi diario de la noche</h3>
+          <p>Como hacía Séneca: tres preguntas para repasar tu día. Qué hiciste bien, qué mejorarías y qué depende de ti mañana.</p>
+          <span class="quien">Privado · solo lo ves tú</span>
+        </a>
+        <a class="puerta v-templanza" href="sabios.html">
+          <span class="puerta-icono" data-icono="sabios"></span>
+          <h3>Los sabios del pórtico</h3>
+          <p>Un esclavo, un emperador, un consejero nacido en Córdoba y un comerciante náufrago. Conoce a los estoicos y sus cuatro virtudes.</p>
+          <span class="quien">Para leer y escuchar</span>
+        </a>
+        <a class="puerta v-justicia" href="sesion.html">
+          <span class="puerta-icono" data-icono="sesion"></span>
+          <h3>La sesión del día</h3>
+          <p>Una historia, una pregunta para pensar juntos, el juego de «¿depende de mí?», una frase de los sabios y un reto para hoy.</p>
+          <span class="quien">En clase · 5-10 minutos</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion" style="padding-top:0">
+    <div class="contenedor">
+      <div class="seccion-cabecera">
+        <div>
+          <p class="eyebrow">Para el docente</p>
+          <h2>Herramientas de aula</h2>
+        </div>
+      </div>
+      <div class="rejilla">
+        <a class="puerta docente v-general" href="sesion.html">
+          <span class="puerta-icono" data-icono="sesion"></span>
+          <h3>Proyectar la sesión</h3>
+          <p>140 sesiones para todo el curso, de septiembre a junio: cuatro por semana en doce bloques, para los primeros minutos de la mañana. Se avanza con las flechas y la app recuerda por dónde vas.</p>
+          <span class="quien">Pizarra digital</span>
+        </a>
+        <a class="puerta docente v-general" href="tarjetas.html">
+          <span class="puerta-icono" data-icono="tarjetas"></span>
+          <h3>Tarjetas de virtud</h3>
+          <p>Diseña e imprime las tarjetas que entregas en mano: con la virtud, el motivo y, si quieres, el nombre. Ocho por folio.</p>
+          <span class="quien">Para imprimir</span>
+        </a>
+        <a class="puerta docente v-general" href="guia.html">
+          <span class="puerta-icono" data-icono="guia"></span>
+          <h3>Guía didáctica</h3>
+          <p>Cómo usarla, qué ideas estoicas se han dejado fuera a propósito y por qué, y cómo conecta con las competencias clave.</p>
+          <span class="quien">Leer antes de empezar</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="contenedor">
+    <footer class="pie">
+      <p>La Ciudadela forma parte de Aprende y Repasa · 5º y 6º de Primaria.</p>
+      <p>Las frases de los estoicos están traducidas y adaptadas para Primaria; cada una indica la obra de la que procede.</p>
+    </footer>
+  </div>
+</main>
+
+<script src="js/comun.js"></script>
+</body>
+</html>
