@@ -363,7 +363,7 @@ window.LECTURAS["cientifico"] = [
       { tipo: "comprension", q: "¿Por qué la vacuna de Balmis viajó en los brazos de niños?", r: "Porque no había neveras; se mantenía activa pasando el material de un niño vacunado a otro, en cadena.", lineas: 2 },
       { tipo: "texto", q: "Relaciona cada paso del método científico con lo que hizo Jenner.", r: "Observación: las lecheras no enfermaban. Hipótesis: la viruela vacuna protege de la humana. Experimento: vacunar a un niño en 1796. Comprobación: el niño no enfermó.", lineas: 3 },
       { tipo: "opinion", q: "¿Por qué crees que Isabel Zendal fue poco conocida durante mucho tiempo?", r: "Respuesta libre. Valorar la reflexión sobre el reconocimiento del trabajo de las mujeres y de los cuidados.", lineas: 2 },
-      { tipo: "reflexion", q: "¿Por qué dice el texto que tu salud depende en parte de la de los demás? ¿Pasa en otras situaciones?", r: "Respuesta libre. Valorar que expliquen que, si muchos se vacunan, el microbio se propaga menos y se protege a quien no puede vacunarse.", lineas: 2 },
+      { tipo: "reflexion", q: "¿Por qué tu salud depende en parte de la de los demás? ¿Pasa lo mismo en otras cosas?", r: "Respuesta libre. Valorar que expliquen que, si muchos se vacunan, el microbio se propaga menos y se protege a quien no puede vacunarse.", lineas: 2 },
     ],
   },
   {
