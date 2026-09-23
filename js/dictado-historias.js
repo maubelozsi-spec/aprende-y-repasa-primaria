@@ -299,3 +299,255 @@ window.DICTADO_HISTORIAS.push(
     ],
   },
 );
+// Historias para el generador de dictados (parte 2: acentuación, tilde diacrítica, diptongos e hiatos)
+window.DICTADO_HISTORIAS = window.DICTADO_HISTORIAS || [];
+window.DICTADO_HISTORIAS.push(
+  // ------------------------------------------------------------
+  // 1. Agudas, llanas y esdrújulas
+  // ------------------------------------------------------------
+  {
+    id: "ac-cometas-tarifa",
+    titulo: "Cometas en Tarifa",
+    tema: "Un festival de cometas en la playa",
+    reglas: ["agudas", "llanas", "esdrujulas"],
+    inicio: [
+      "El [sábado|esdrujulas|«sá-ba-do» es esdrújula (la sílaba fuerte es la antepenúltima): las esdrújulas llevan siempre tilde.] por la mañana, [Martín|agudas|«Mar-tín» es aguda (la sílaba fuerte es la última) y acaba en «n»: lleva tilde.] y su prima [Ángela|esdrujulas|«Án-ge-la» es esdrújula: lleva tilde, también cuando empieza por mayúscula.] llegaron a la playa de Los Lances, en [Tarifa|llanas|«Ta-ri-fa» es llana (la sílaba fuerte es la penúltima) y acaba en vocal: no lleva tilde.].",
+      "Cada uno llevaba para el [festival|agudas|«fes-ti-val» es aguda, pero acaba en «l», no en vocal, «n» ni «s»: no lleva tilde.] una cometa hecha en casa con cañas, [papel|agudas|«pa-pel» es aguda, pero acaba en «l», no en vocal, «n» ni «s»: no lleva tilde.] de seda y un carrete de hilo.",
+    ],
+    episodios: [
+      "El viento de levante soplaba con tanta fuerza que el [dragón|agudas|«dra-gón» es aguda y acaba en «n»: lleva tilde.] verde de [Martín|agudas|«Mar-tín» es aguda y acaba en «n»: lleva tilde.] dio tres volteretas antes de subir hacia las nubes.",
+      "Junto a las dunas, un [músico|esdrujulas|«mú-si-co» es esdrújula (la sílaba fuerte es la antepenúltima): lleva tilde.] tocaba la [guitarra|llanas|«gui-ta-rra» es llana y acaba en vocal: no lleva tilde.] mientras un grupo de turistas bailaba al ritmo de la [música|esdrujulas|«mú-si-ca» es esdrújula: todas las esdrújulas llevan tilde.].",
+      "[Ángela|esdrujulas|«Án-ge-la» es esdrújula: lleva tilde, también en la mayúscula.] [ató|agudas|«a-tó» es aguda y acaba en vocal: lleva tilde.] un lazo [azul|agudas|«a-zul» es aguda, pero acaba en «l», no en vocal, «n» ni «s»: no lleva tilde.] a la cola de su cometa, porque [así|agudas|«a-sí» es aguda y acaba en vocal: lleva tilde.] le resultaba [fácil|llanas|«fá-cil» es llana y acaba en «l», no en vocal, «n» ni «s»: lleva tilde.] mantenerla derecha.",
+      "Para almorzar, se sentaron bajo una sombrilla y comieron bocadillos de [atún|agudas|«a-tún» es aguda y acaba en «n»: lleva tilde.] con [tomate|llanas|«to-ma-te» es llana y acaba en vocal: no lleva tilde.] y un [melón|agudas|«me-lón» es aguda y acaba en «n»: lleva tilde.] muy dulce.",
+      "Un [fotógrafo|esdrujulas|«fo-tó-gra-fo» es esdrújula (la sílaba fuerte es la antepenúltima): lleva tilde.] del [periódico|esdrujulas|«pe-rió-di-co» es esdrújula: todas las esdrújulas llevan tilde.] les [pidió|agudas|«pi-dió» es aguda y acaba en vocal: lleva tilde.] que posaran con sus cometas junto al faro.",
+      "[Héctor|llanas|«Héc-tor» es llana y acaba en «r», no en vocal, «n» ni «s»: lleva tilde.], el [monitor|agudas|«mo-ni-tor» es aguda, pero acaba en «r», no en vocal, «n» ni «s»: no lleva tilde.] del festival, les [enseñó|agudas|«en-se-ñó» es aguda y acaba en vocal: lleva tilde.] a soltar el hilo poco a poco, sin dar tirones.",
+      "De pronto, una [ráfaga|esdrujulas|«rá-fa-ga» es esdrújula: lleva tilde en la antepenúltima sílaba.] [arrancó|agudas|«a-rran-có» es aguda y acaba en vocal: lleva tilde.] la gorra de [Ángela|esdrujulas|«Án-ge-la» es esdrújula: lleva tilde.], que [salió|agudas|«sa-lió» es aguda y acaba en vocal: lleva tilde.] volando y [aterrizó|agudas|«a-te-rri-zó» es aguda y acaba en vocal: lleva tilde.] junto a la caseta del socorrista.",
+      "El jurado [eligió|agudas|«e-li-gió» es aguda y acaba en vocal: lleva tilde.] como ganadora una cometa con forma de [pájaro|esdrujulas|«pá-ja-ro» es esdrújula: todas las esdrújulas llevan tilde.] gigante, pintada por una artista de [Cádiz|llanas|«Cá-diz» es llana y acaba en «z», no en vocal, «n» ni «s»: lleva tilde.].",
+      "Por la tarde, el sol brillaba sobre el [océano|esdrujulas|«o-cé-a-no» es esdrújula (la sílaba fuerte, «cé», es la antepenúltima): lleva tilde.] y en el horizonte asomaban las montañas de [África|esdrujulas|«Á-fri-ca» es esdrújula: lleva tilde, también en la mayúscula.].",
+      "[Martín|agudas|«Mar-tín» es aguda y acaba en «n»: lleva tilde.] se [enredó|agudas|«en-re-dó» es aguda y acaba en vocal: lleva tilde.] con el hilo y [Ángela|esdrujulas|«Án-ge-la» es esdrújula: lleva tilde.] tuvo que ayudarle a deshacer un nudo muy [difícil|llanas|«di-fí-cil» es llana y acaba en «l», no en vocal, «n» ni «s»: lleva tilde.].",
+      "Un [camión|agudas|«ca-mión» es aguda y acaba en «n»: lleva tilde.] de helados [aparcó|agudas|«a-par-có» es aguda y acaba en vocal: lleva tilde.] junto al paseo y los dos primos corrieron a comprar un cucurucho de [limón|agudas|«li-món» es aguda y acaba en «n»: lleva tilde.].",
+      "Una [niña|llanas|«ni-ña» es llana y acaba en vocal: no lleva tilde.] pequeña volaba una cometa con forma de [árbol|llanas|«ár-bol» es llana y acaba en «l», no en vocal, «n» ni «s»: lleva tilde.], con hojas de [plástico|esdrujulas|«plás-ti-co» es esdrújula: todas las esdrújulas llevan tilde.] que brillaban al sol.",
+    ],
+    final: [
+      "Cuando el sol se [escondió|agudas|«es-con-dió» es aguda y acaba en vocal: lleva tilde.], los primos recogieron las cometas, cansados pero [felices|llanas|«fe-li-ces» es llana y acaba en «s»: no lleva tilde.], y prometieron volver el [próximo|esdrujulas|«pró-xi-mo» es esdrújula: lleva tilde.] verano.",
+    ],
+  },
+
+  // ------------------------------------------------------------
+  // 2. Agudas, llanas y esdrújulas
+  // ------------------------------------------------------------
+  {
+    id: "ac-estrellas-calar-alto",
+    titulo: "Noche de estrellas en Calar Alto",
+    tema: "Una excursión nocturna al observatorio",
+    reglas: ["agudas", "llanas", "esdrujulas"],
+    inicio: [
+      "La clase de [Nicolás|agudas|«Ni-co-lás» es aguda (la sílaba fuerte es la última) y acaba en «s»: lleva tilde.] e [Irene|llanas|«I-re-ne» es llana (la sílaba fuerte es la penúltima) y acaba en vocal: no lleva tilde.] [subió|agudas|«su-bió» es aguda y acaba en vocal: lleva tilde.] en [autobús|agudas|«au-to-bús» es aguda y acaba en «s»: lleva tilde.] hasta el observatorio de Calar Alto, en la sierra de Los Filabres, para mirar el cielo.",
+      "Los acompañaba [Cristóbal|llanas|«Cris-tó-bal» es llana y acaba en «l», no en vocal, «n» ni «s»: lleva tilde.], el profesor de Ciencias, con una [linterna|llanas|«lin-ter-na» es llana y acaba en vocal: no lleva tilde.] de luz roja.",
+    ],
+    episodios: [
+      "Al bajar del [autobús|agudas|«au-to-bús» es aguda y acaba en «s»: lleva tilde.], todos se abrocharon el [abrigo|llanas|«a-bri-go» es llana y acaba en vocal: no lleva tilde.], porque en lo alto de la montaña soplaba un viento helado.",
+      "Una [astrónoma|esdrujulas|«as-tró-no-ma» es esdrújula (la sílaba fuerte es la antepenúltima): lleva tilde.] les [explicó|agudas|«ex-pli-có» es aguda y acaba en vocal: lleva tilde.] que la enorme [cúpula|esdrujulas|«cú-pu-la» es esdrújula: todas las esdrújulas llevan tilde.] blanca se abre por la noche para que el [telescopio|llanas|«te-les-co-pio» es llana y acaba en vocal: no lleva tilde.] pueda mirar al cielo.",
+      "Con los [prismáticos|esdrujulas|«pris-má-ti-cos» es esdrújula: lleva tilde.], [Irene|llanas|«I-re-ne» es llana y acaba en vocal: no lleva tilde.] [descubrió|agudas|«des-cu-brió» es aguda y acaba en vocal: lleva tilde.] cuatro puntitos de luz alrededor de [Júpiter|esdrujulas|«Jú-pi-ter» es esdrújula: lleva tilde.]: eran sus [satélites|esdrujulas|«sa-té-li-tes» es esdrújula: todas las esdrújulas llevan tilde.].",
+      "[Nicolás|agudas|«Ni-co-lás» es aguda y acaba en «s»: lleva tilde.] [dibujó|agudas|«di-bu-jó» es aguda y acaba en vocal: lleva tilde.] en su [cuaderno|llanas|«cua-der-no» es llana y acaba en vocal: no lleva tilde.] los anillos de Saturno con un [lápiz|llanas|«lá-piz» es llana y acaba en «z», no en vocal, «n» ni «s»: lleva tilde.] muy afilado.",
+      "De repente, una estrella [fugaz|agudas|«fu-gaz» es aguda, pero acaba en «z», no en vocal, «n» ni «s»: no lleva tilde.] [cruzó|agudas|«cru-zó» es aguda y acaba en vocal: lleva tilde.] el cielo y la clase entera [pidió|agudas|«pi-dió» es aguda y acaba en vocal: lleva tilde.] un deseo en silencio.",
+      "[Cristóbal|llanas|«Cris-tó-bal» es llana y acaba en «l»: lleva tilde.] [señaló|agudas|«se-ña-ló» es aguda y acaba en vocal: lleva tilde.] la [constelación|agudas|«cons-te-la-ción» es aguda y acaba en «n»: lleva tilde.] de [Orión|agudas|«O-rión» es aguda y acaba en «n»: lleva tilde.] y les [enseñó|agudas|«en-se-ñó» es aguda y acaba en vocal: lleva tilde.] a encontrar las tres estrellas de su [cinturón|agudas|«cin-tu-rón» es aguda y acaba en «n»: lleva tilde.].",
+      "Un [científico|esdrujulas|«cien-tí-fi-co» es esdrújula (la sílaba fuerte es la antepenúltima): lleva tilde.] les [contó|agudas|«con-tó» es aguda y acaba en vocal: lleva tilde.] que la luz de algunas estrellas tarda miles de años en llegar hasta la Tierra.",
+      "Como la luna estaba en cuarto creciente, pudieron ver sus [cráteres|esdrujulas|«crá-te-res» es esdrújula y lleva tilde; en singular, «crá-ter», es llana terminada en «r» y también la lleva.] con el telescopio grande.",
+      "[Irene|llanas|«I-re-ne» es llana y acaba en vocal: no lleva tilde.] [preguntó|agudas|«pre-gun-tó» es aguda y acaba en vocal: lleva tilde.] si [algún|agudas|«al-gún» es aguda y acaba en «n»: lleva tilde.] [astronauta|llanas|«as-tro-nau-ta» es llana y acaba en vocal: no lleva tilde.] [viajará|agudas|«via-ja-rá» es aguda y acaba en vocal: lleva tilde.] a Marte, y la [astrónoma|esdrujulas|«as-tró-no-ma» es esdrújula: lleva tilde.] le [contestó|agudas|«con-tes-tó» es aguda y acaba en vocal: lleva tilde.] que [quizá|agudas|«qui-zá» es aguda y acaba en vocal: lleva tilde.] lo vea ella misma.",
+      "Durante el descanso, tomaron chocolate caliente en vasos de [plástico|esdrujulas|«plás-ti-co» es esdrújula: todas las esdrújulas llevan tilde.] junto a la puerta del edificio [principal|agudas|«prin-ci-pal» es aguda, pero acaba en «l», no en vocal, «n» ni «s»: no lleva tilde.].",
+      "Con una [aplicación|agudas|«a-pli-ca-ción» es aguda y acaba en «n»: lleva tilde.] del [móvil|llanas|«mó-vil» es llana y acaba en «l», no en vocal, «n» ni «s»: lleva tilde.], los alumnos comprobaron el nombre de cada [planeta|llanas|«pla-ne-ta» es llana y acaba en vocal: no lleva tilde.] y de cada estrella brillante.",
+    ],
+    final: [
+      "A medianoche, de vuelta en el [autobús|agudas|«au-to-bús» es aguda y acaba en «s»: lleva tilde.], [Nicolás|agudas|«Ni-co-lás» es aguda y acaba en «s»: lleva tilde.] e [Irene|llanas|«I-re-ne» es llana y acaba en vocal: no lleva tilde.] se quedaron dormidos soñando con [galaxias|llanas|«ga-la-xias» es llana y acaba en «s»: no lleva tilde.] lejanas.",
+    ],
+  },
+
+  // ------------------------------------------------------------
+  // 3. Agudas y tilde diacrítica
+  // ------------------------------------------------------------
+  {
+    id: "ac-desvan-ubeda",
+    titulo: "El ruido del desván",
+    tema: "Un misterio en casa de la abuela",
+    reglas: ["agudas", "td"],
+    inicio: [
+      "Un fin de semana de otoño, [Adrián|agudas|«A-drián» es aguda (la sílaba fuerte es la última) y acaba en «n»: lleva tilde.] e [Inés|agudas|«I-nés» es aguda y acaba en «s»: lleva tilde.] fueron a dormir a casa de su abuela [Pilar|agudas|«Pi-lar» es aguda, pero acaba en «r», no en vocal, «n» ni «s»: no lleva tilde.], en Úbeda.",
+      "La primera noche, los dos oyeron unos golpecitos que llegaban del [desván|agudas|«des-ván» es aguda y acaba en «n»: lleva tilde.], justo encima de su [habitación|agudas|«ha-bi-ta-ción» es aguda y acaba en «n»: lleva tilde.].",
+    ],
+    episodios: [
+      "—¿[Qué|td|«Qué» lleva tilde porque pregunta; el «que» sin tilde solo une palabras.] ha sido eso? —[susurró|agudas|«su-su-rró» es aguda y acaba en vocal: lleva tilde.] [Inés|agudas|«I-nés» es aguda y acaba en «s»: lleva tilde.], tapándose con la manta hasta la [nariz|agudas|«na-riz» es aguda, pero acaba en «z», no en vocal, «n» ni «s»: no lleva tilde.].",
+      "—Mañana subiremos a mirar, aunque no [sé|td|«Sé», del verbo «saber», lleva tilde; «se» sin tilde es un pronombre.] si me [atreveré|agudas|«a-tre-ve-ré» es aguda y acaba en vocal: lleva tilde.] —[confesó|agudas|«con-fe-só» es aguda y acaba en vocal: lleva tilde.] [Adrián|agudas|«A-drián» es aguda y acaba en «n»: lleva tilde.], que era el [mayor|agudas|«ma-yor» es aguda, pero acaba en «r», no en vocal, «n» ni «s»: no lleva tilde.] de los dos.",
+      "Por la mañana, mientras desayunaban, la abuela les [preguntó|agudas|«pre-gun-tó» es aguda y acaba en vocal: lleva tilde.]: —¿[Cómo|td|«Cómo» lleva tilde porque pregunta; «como» sin tilde compara o significa «ya que».] [habéis|agudas|«ha-béis» es aguda y acaba en «s»: lleva tilde.] dormido en la [habitación|agudas|«ha-bi-ta-ción» es aguda y acaba en «n»: lleva tilde.] del [balcón|agudas|«bal-cón» es aguda y acaba en «n»: lleva tilde.]?",
+      "[Inés|agudas|«I-nés» es aguda y acaba en «s»: lleva tilde.] [protestó|agudas|«pro-tes-tó» es aguda y acaba en vocal: lleva tilde.] porque su hermano roncaba, pero [él|td|«Él» lleva tilde porque es un pronombre personal; «el» sin tilde es artículo.] juraba que [el|td|Aquí «el» es artículo (va delante de «que roncaba»), por eso no lleva tilde.] que roncaba era ella.",
+      "La abuela les [explicó|agudas|«ex-pli-có» es aguda y acaba en vocal: lleva tilde.] que en el [desván|agudas|«des-ván» es aguda y acaba en «n»: lleva tilde.] guardaba un [baúl|agudas|«ba-úl» es aguda terminada en «l», que no pediría tilde; la lleva porque la «ú» tónica se separa de la «a» (hiato).] lleno de juguetes antiguos de [papá|agudas|«pa-pá» es aguda y acaba en vocal: lleva tilde.].",
+      "—Te dejo [mi|td|«mi» sin tilde es posesivo (mi linterna); «mí» con tilde es pronombre (para mí).] linterna si [tú|td|«Tú» lleva tilde porque es pronombre personal; «tu» sin tilde es posesivo (tu casa).] subes primero —le propuso [Inés|agudas|«I-nés» es aguda y acaba en «s»: lleva tilde.] a su hermano.",
+      "Al abrir la puerta del [desván|agudas|«des-ván» es aguda y acaba en «n»: lleva tilde.], una nube de polvo les hizo estornudar e [Inés|agudas|«I-nés» es aguda y acaba en «s»: lleva tilde.] [gritó|agudas|«gri-tó» es aguda y acaba en vocal: lleva tilde.]: —¡[Qué|td|«Qué» lleva tilde porque exclama; el «que» sin tilde solo une palabras.] asco!",
+      "—¿[Dónde|td|«Dónde» lleva tilde porque pregunta; «donde» sin tilde solo indica un lugar.] [está|agudas|«es-tá» es aguda y acaba en vocal: lleva tilde.] el interruptor de la luz? —[preguntó|agudas|«pre-gun-tó» es aguda y acaba en vocal: lleva tilde.] [Adrián|agudas|«A-drián» es aguda y acaba en «n»: lleva tilde.], tanteando la [pared|agudas|«pa-red» es aguda, pero acaba en «d», no en vocal, «n» ni «s»: no lleva tilde.] con la mano.",
+      "En un [baúl|agudas|«ba-úl» es aguda terminada en «l», que no pediría tilde; la lleva porque la «ú» tónica se separa de la «a» (hiato).] polvoriento encontraron un [camión|agudas|«ca-mión» es aguda y acaba en «n»: lleva tilde.] de madera y un [avión|agudas|«a-vión» es aguda y acaba en «n»: lleva tilde.] de hojalata que habían sido de su [papá|agudas|«pa-pá» es aguda y acaba en vocal: lleva tilde.].",
+      "—¿[Quién|td|«Quién» lleva tilde porque pregunta; «quien» sin tilde no pregunta.] [habrá|agudas|«ha-brá» es aguda y acaba en vocal: lleva tilde.] dejado estas migas junto a la ventana? —se [preguntó|agudas|«pre-gun-tó» es aguda y acaba en vocal: lleva tilde.] [Inés|agudas|«I-nés» es aguda y acaba en «s»: lleva tilde.] en voz baja.",
+      "—A [mí|td|«Mí» lleva tilde porque es pronombre (a mí); «mi» sin tilde es posesivo.] [sí|td|«Sí» lleva tilde cuando afirma; «si» sin tilde expresa una condición.] me dan un poco de miedo los ruidos, [así|agudas|«a-sí» es aguda y acaba en vocal: lleva tilde.] que [tú|td|«Tú» lleva tilde porque es pronombre personal; «tu» sin tilde es posesivo.] ve delante —[admitió|agudas|«ad-mi-tió» es aguda y acaba en vocal: lleva tilde.] [Adrián|agudas|«A-drián» es aguda y acaba en «n»: lleva tilde.].",
+      "—[Aún|td|«Aún» lleva tilde cuando significa «todavía»; «aun» sin tilde significa «incluso».] se oyen pasitos —[susurró|agudas|«su-su-rró» es aguda y acaba en vocal: lleva tilde.] [Inés|agudas|«I-nés» es aguda y acaba en «s»: lleva tilde.], pegando la oreja a un [cajón|agudas|«ca-jón» es aguda y acaba en «n»: lleva tilde.] del armario, cada vez [más|td|«Más» lleva tilde cuando indica cantidad; «mas» sin tilde significa «pero».] nerviosa.",
+    ],
+    final: [
+      "Por fin, [detrás|agudas|«de-trás» es aguda y acaba en «s»: lleva tilde.] de un [sillón|agudas|«si-llón» es aguda y acaba en «n»: lleva tilde.] viejo, encontraron al culpable de los ruidos: un [ratón|agudas|«ra-tón» es aguda y acaba en «n»: lleva tilde.] gris que mordisqueaba un trozo de [algodón|agudas|«al-go-dón» es aguda y acaba en «n»: lleva tilde.].",
+      "—¡[Así|agudas|«A-sí» es aguda y acaba en vocal: lleva tilde.] que eras [tú|td|«Tú» lleva tilde porque es pronombre personal; «tu» sin tilde es posesivo.]! —le dijo [Inés|agudas|«I-nés» es aguda y acaba en «s»: lleva tilde.] entre risas, y la abuela lo [soltó|agudas|«sol-tó» es aguda y acaba en vocal: lleva tilde.] en el [jardín|agudas|«jar-dín» es aguda y acaba en «n»: lleva tilde.] con un trozo de queso.",
+    ],
+  },
+
+  // ------------------------------------------------------------
+  // 4. Llanas y diptongos
+  // ------------------------------------------------------------
+  {
+    id: "ac-huerta-vega",
+    titulo: "La huerta del abuelo Aurelio",
+    tema: "Trabajar en la huerta de la vega de Granada",
+    reglas: ["llanas", "diptongo"],
+    inicio: [
+      "[Víctor|llanas|«Víc-tor» es llana (la sílaba fuerte es la penúltima) y acaba en «r», no en vocal, «n» ni «s»: lleva tilde.] pasa los fines de semana en la [huerta|diptongo|«huer-ta»: «ue» es diptongo, una vocal cerrada (u) y una abierta (e) en la misma sílaba.] de su [abuelo|diptongo|«a-bue-lo»: «ue» es diptongo, vocal cerrada (u) más abierta (e) en la misma sílaba.] [Aurelio|diptongo|«Au-re-lio» tiene dos diptongos: «au» y «io», cada uno en una sola sílaba.], en la vega de Granada.",
+      "Desde allí se ven las cumbres blancas de [Sierra|diptongo|«Sie-rra»: «ie» es diptongo, vocal cerrada (i) más abierta (e) en la misma sílaba.] Nevada, que brillan al sol como si [fueran|diptongo|«fue-ran»: «ue» es diptongo, vocal cerrada (u) más abierta (e) en la misma sílaba.] de [azúcar|llanas|«a-zú-car» es llana y acaba en «r», no en vocal, «n» ni «s»: lleva tilde.].",
+    ],
+    episodios: [
+      "Con una azada pequeña, [Víctor|llanas|«Víc-tor» es llana y acaba en «r»: lleva tilde.] ayuda a su [abuelo|diptongo|«a-bue-lo»: «ue» es diptongo.] a abrir surcos rectos en la [tierra|diptongo|«tie-rra»: «ie» es diptongo, vocal cerrada (i) más abierta (e).] para sembrar [lechugas|llanas|«le-chu-gas» es llana y acaba en «s»: no lleva tilde.].",
+      "El [agua|diptongo|«a-gua»: «ua» es diptongo, vocal cerrada (u) más abierta (a) en la misma sílaba.] de la [acequia|diptongo|«a-ce-quia»: la «u» de «qu» no suena, pero «ia» es diptongo en la misma sílaba.] corre fresca entre los bancales y hace un [ruido|diptongo|«rui-do»: «ui» es diptongo, dos vocales cerradas distintas en la misma sílaba.] [suave|diptongo|«sua-ve»: «ua» es diptongo, vocal cerrada (u) más abierta (a).] que a [Víctor|llanas|«Víc-tor» es llana y acaba en «r»: lleva tilde.] le encanta.",
+      "Junto a la caseta [hay|diptongo|«hay»: «ay» es diptongo; la «y» final suena como una «i».] un [ciruelo|diptongo|«ci-rue-lo»: «ue» es diptongo.] tan [viejo|diptongo|«vie-jo»: «ie» es diptongo.] que [nadie|diptongo|«na-die»: «ie» es diptongo en la última sílaba.] [recuerda|diptongo|«re-cuer-da»: «ue» es diptongo.] [quién|diptongo|«quién»: la «u» de «qu» no suena, pero «ie» es diptongo.] plantó ese [árbol|llanas|«ár-bol» es llana y acaba en «l», no en vocal, «n» ni «s»: lleva tilde.] retorcido.",
+      "[Cuando|diptongo|«cuan-do»: «ua» es diptongo, vocal cerrada (u) más abierta (a).] el sol [aprieta|diptongo|«a-prie-ta»: «ie» es diptongo.], los dos descansan bajo el nogal y [meriendan|diptongo|«me-rien-dan»: «ie» es diptongo.] pan con [aceite|diptongo|«a-cei-te»: «ei» es diptongo, vocal abierta (e) más cerrada (i) en la misma sílaba.||llanas|«a-cei-te» es llana y acaba en vocal: no lleva tilde.] y un poco de queso fresco.",
+      "[Víctor|llanas|«Víc-tor» es llana y acaba en «r»: lleva tilde.] anota en un [cuaderno|diptongo|«cua-der-no»: «ua» es diptongo.||llanas|«cua-der-no» es llana y acaba en vocal: no lleva tilde.] con su [lápiz|llanas|«lá-piz» es llana y acaba en «z», no en vocal, «n» ni «s»: lleva tilde.] verde la fecha en que brota cada semilla.",
+      "Por la tarde recogen [pimientos|diptongo|«pi-mien-tos»: «ie» es diptongo.] rojos, calabacines y unas habas tan [tiernas|diptongo|«tier-nas»: «ie» es diptongo.] que se [pueden|diptongo|«pue-den»: «ue» es diptongo.] comer crudas.",
+      "El [abuelo|diptongo|«a-bue-lo»: «ue» es diptongo.] le explica que la [tierra|diptongo|«tie-rra»: «ie» es diptongo.] de la vega es [muy|diptongo|«muy»: «uy» es diptongo; la «y» final suena como una «i».] [fértil|llanas|«fér-til» es llana y acaba en «l», no en vocal, «n» ni «s»: lleva tilde.] y que por eso aquí crecen tan [bien|diptongo|«bien»: «ie» es diptongo; es una sola sílaba y no lleva tilde.] las hortalizas.",
+      "Bajo una [piedra|diptongo|«pie-dra»: «ie» es diptongo.] vive un sapo gordo que, según el [abuelo|diptongo|«a-bue-lo»: «ue» es diptongo.], es un [huésped|llanas|«hués-ped» es llana y acaba en «d», no en vocal, «n» ni «s»: lleva tilde.||diptongo|«hués-ped»: «ue» es diptongo; la tilde va sobre la vocal abierta (é).] [muy|diptongo|«muy»: «uy» es diptongo.] [útil|llanas|«ú-til» es llana y acaba en «l»: lleva tilde.] porque se come los bichos.",
+      "[Cuando|diptongo|«cuan-do»: «ua» es diptongo.] [llueve|diptongo|«llue-ve»: «ue» es diptongo.], se [refugian|diptongo|«re-fu-gian»: «ia» es diptongo.] en la caseta de las [herramientas|diptongo|«he-rra-mien-tas»: «ie» es diptongo.] y el [abuelo|diptongo|«a-bue-lo»: «ue» es diptongo.] le [cuenta|diptongo|«cuen-ta»: «ue» es diptongo.] [historias|diptongo|«his-to-rias»: «ia» es diptongo.] de [cuando|diptongo|«cuan-do»: «ua» es diptongo.] era niño.",
+      "Lo que [Víctor|llanas|«Víc-tor» es llana y acaba en «r»: lleva tilde.] [prefiere|diptongo|«pre-fie-re»: «ie» es diptongo.] es regar con la manguera los girasoles, que ya le sacan un palmo de [altura|llanas|«al-tu-ra» es llana y acaba en vocal: no lleva tilde.].",
+      "Los [viernes|diptongo|«vier-nes»: «ie» es diptongo.||llanas|«vier-nes» es llana y acaba en «s»: no lleva tilde.], [Víctor|llanas|«Víc-tor» es llana y acaba en «r»: lleva tilde.] y su [abuelo|diptongo|«a-bue-lo»: «ue» es diptongo.] llevan [huevos|diptongo|«hue-vos»: «ue» es diptongo.] de sus gallinas a unos amigos que viven en la [ciudad|diptongo|«ciu-dad»: «iu» es diptongo, dos vocales cerradas distintas en la misma sílaba.].",
+      "Cada otoño, el [abuelo|diptongo|«a-bue-lo»: «ue» es diptongo.] seca [pimientos|diptongo|«pi-mien-tos»: «ie» es diptongo.] con el humo de la chimenea para hacer un pimentón [ahumado|diptongo|«ahu-ma-do»: la «h» intercalada no impide el diptongo; «au» se pronuncia en la misma sílaba.] que [huele|diptongo|«hue-le»: «ue» es diptongo.||llanas|«hue-le» es llana y acaba en vocal: no lleva tilde.] de maravilla.",
+    ],
+    final: [
+      "[Cuando|diptongo|«cuan-do»: «ua» es diptongo.] se pone el sol, [Víctor|llanas|«Víc-tor» es llana y acaba en «r»: lleva tilde.] [vuelve|diptongo|«vuel-ve»: «ue» es diptongo.] a casa con las manos [sucias|diptongo|«su-cias»: «ia» es diptongo.], la cesta llena y la cabeza llena de planes para la [huerta|diptongo|«huer-ta»: «ue» es diptongo.].",
+    ],
+  },
+
+  // ------------------------------------------------------------
+  // 5. Esdrújulas e hiatos
+  // ------------------------------------------------------------
+  {
+    id: "ac-donana-pajaros",
+    titulo: "Un día en Doñana",
+    tema: "Una excursión para observar aves",
+    reglas: ["esdrujulas", "hiato"],
+    inicio: [
+      "El [sábado|esdrujulas|«sá-ba-do» es esdrújula (la sílaba fuerte es la antepenúltima): las esdrújulas llevan siempre tilde.], [Raúl|hiato|«Ra-úl»: la «ú» es cerrada pero tónica y lleva tilde, así que se separa de la «a» (hiato).] y [Noelia|hiato|«No-e-lia»: «o» y «e» son dos vocales abiertas y van en sílabas distintas (hiato).] fueron con su clase al parque nacional de Doñana, entre Huelva y Sevilla.",
+      "Los esperaba [Leonor|hiato|«Le-o-nor»: «e» y «o» son dos vocales abiertas y van en sílabas distintas (hiato).], una [guía|hiato|«guí-a»: la «í» tónica lleva tilde y se separa de la «a» (hiato).] que conoce cada rincón de la marisma como la palma de su mano.",
+    ],
+    episodios: [
+      "Desde el mirador vieron cientos de flamencos de plumaje [rosáceo|esdrujulas|«ro-sá-ce-o» es esdrújula: lleva tilde en la antepenúltima sílaba.||hiato|«ro-sá-ce-o»: «e» y «o» son vocales abiertas y van en sílabas distintas (hiato).] que buscaban comida en el agua poco profunda.",
+      "[Leonor|hiato|«Le-o-nor»: dos vocales abiertas, «e» y «o», en sílabas distintas (hiato).] les dejó unos [prismáticos|esdrujulas|«pris-má-ti-cos» es esdrújula: lleva tilde.] para observar una [espátula|esdrujulas|«es-pá-tu-la» es esdrújula: todas las esdrújulas llevan tilde.], un [pájaro|esdrujulas|«pá-ja-ro» es esdrújula: lleva tilde.] blanco con el pico en forma de cuchara.",
+      "[Raúl|hiato|«Ra-úl»: la «ú» tónica lleva tilde y se separa de la «a» (hiato).] [quería|hiato|«que-rí-a»: la «í» tónica lleva tilde y se separa de la «a» (hiato).] ver un lince [ibérico|esdrujulas|«i-bé-ri-co» es esdrújula: lleva tilde.], pero la [guía|hiato|«guí-a»: la «í» tónica se separa de la «a» (hiato).] le explicó que es un animal muy [tímido|esdrujulas|«tí-mi-do» es esdrújula: lleva tilde.] y difícil de encontrar.",
+      "En el pequeño [museo|hiato|«mu-se-o»: «e» y «o» son vocales abiertas y van en sílabas distintas (hiato).] del parque, [Noelia|hiato|«No-e-lia»: «o» y «e» son vocales abiertas en sílabas distintas (hiato).] leyó que el [búho|hiato|«bú-ho»: la «h» intercalada no impide el hiato; la «ú» tónica lleva tilde y se separa de la «o».] [real|hiato|«re-al»: «e» y «a» son vocales abiertas y van en sílabas distintas (hiato).] puede girar la cabeza casi por completo.",
+      "A [mediodía|hiato|«me-dio-dí-a»: la «í» tónica lleva tilde y se separa de la «a» (hiato).] comieron bajo unos pinos y [Noelia|hiato|«No-e-lia»: «o» y «e» forman hiato.] repartió [plátanos|esdrujulas|«plá-ta-nos» es esdrújula: lleva tilde.] entre sus compañeros.",
+      "Para cruzar las dunas, subieron a un [vehículo|esdrujulas|«ve-hí-cu-lo» es esdrújula: lleva tilde en la antepenúltima sílaba.||hiato|«ve-hí-cu-lo»: la «h» intercalada no impide el hiato; la «í» tónica se separa de la «e».] todoterreno que avanzaba despacio dando saltos sobre la arena.",
+      "Desde lo alto de una duna contemplaron el [océano|esdrujulas|«o-cé-a-no» es esdrújula (la sílaba fuerte, «cé», es la antepenúltima): lleva tilde.||hiato|«o-cé-a-no»: «e» y «a» son vocales abiertas y van en sílabas distintas (hiato).] [Atlántico|esdrujulas|«At-lán-ti-co» es esdrújula: lleva tilde.] y una [línea|esdrujulas|«lí-ne-a» es esdrújula: lleva tilde.||hiato|«lí-ne-a»: «e» y «a» son vocales abiertas en sílabas distintas (hiato).] de espuma blanca a lo largo de la orilla.",
+      "Con su [cámara|esdrujulas|«cá-ma-ra» es esdrújula: lleva tilde.], [Raúl|hiato|«Ra-úl»: la «ú» tónica se separa de la «a» (hiato).] fotografió un [águila|esdrujulas|«á-gui-la» es esdrújula: lleva tilde.] imperial que [planeaba|hiato|«pla-ne-a-ba»: «e» y «a» son vocales abiertas en sílabas distintas (hiato).] en [círculos|esdrujulas|«cír-cu-los» es esdrújula: lleva tilde.] sobre los pinos.",
+      "La [guía|hiato|«guí-a»: la «í» tónica lleva tilde y se separa de la «a» (hiato).] les pidió que caminaran en silencio para no asustar a los [pájaros|esdrujulas|«pá-ja-ros» es esdrújula: lleva tilde.] que descansaban junto al agua.",
+      "[Noelia|hiato|«No-e-lia»: «o» y «e» son vocales abiertas en sílabas distintas (hiato).] dibujó muy [rápido|esdrujulas|«rá-pi-do» es esdrújula: lleva tilde.] una garza [real|hiato|«re-al»: «e» y «a» son vocales abiertas en sílabas distintas (hiato).] con las patas tan largas que [parecía|hiato|«pa-re-cí-a»: la «í» tónica lleva tilde y se separa de la «a» (hiato).] caminar sobre zancos.",
+      "Una [zoóloga|esdrujulas|«zo-ó-lo-ga» es esdrújula: lleva tilde en la antepenúltima sílaba.||hiato|«zo-ó-lo-ga»: dos «o» seguidas van en sílabas distintas (hiato).] del parque les contó que miles de aves viajan desde el norte de Europa para pasar el invierno en la marisma.",
+    ],
+    final: [
+      "De vuelta a casa, [Raúl|hiato|«Ra-úl»: la «ú» tónica se separa de la «a» (hiato).] y [Noelia|hiato|«No-e-lia»: «o» y «e» forman hiato.] repasaban sus fotos y sus dibujos, [deseando|hiato|«de-se-an-do»: «e» y «a» son vocales abiertas en sílabas distintas (hiato).] volver pronto a Doñana.",
+    ],
+  },
+
+  // ------------------------------------------------------------
+  // 6. Tilde diacrítica y diptongos
+  // ------------------------------------------------------------
+  {
+    id: "ac-final-torneo",
+    titulo: "La final del torneo",
+    tema: "Un partido de fútbol del colegio",
+    reglas: ["td", "diptongo"],
+    inicio: [
+      "El equipo de [Luis|diptongo|«Luis»: «ui» es diptongo; es una sola sílaba y por eso no lleva tilde.] y [Julia|diptongo|«Ju-lia»: «ia» es diptongo, vocal cerrada (i) más abierta (a) en la misma sílaba.] [juega|diptongo|«jue-ga»: «ue» es diptongo, vocal cerrada (u) más abierta (e).] [hoy|diptongo|«hoy»: «oy» es diptongo; la «y» final suena como una «i».] la final del torneo del [colegio|diptongo|«co-le-gio»: «io» es diptongo en la última sílaba.] contra los Leones de quinto B.",
+      "La entrenadora, [Aurora|diptongo|«Au-ro-ra»: «au» es diptongo, vocal abierta (a) más cerrada (u) en la misma sílaba.], los reúne en el [vestuario|diptongo|«ves-tua-rio» tiene dos diptongos: «ua» e «io».] [diez|diptongo|«diez»: «ie» es diptongo; es una sola sílaba.] minutos antes de empezar.",
+    ],
+    episodios: [
+      "—¿[Quién|td|«Quién» lleva tilde porque pregunta; «quien» sin tilde no pregunta.||diptongo|«quién»: la «u» de «qu» no suena, pero «ie» es diptongo.] va a jugar de portero? —pregunta [Julia|diptongo|«Ju-lia»: «ia» es diptongo.], mirando a sus compañeros.",
+      "—Yo seré [el|td|«el» sin tilde es artículo (el portero); «él» con tilde es pronombre.] portero —le dice [Luis|diptongo|«Luis»: «ui» es diptongo; es monosílaba y no lleva tilde.] a [Julia|diptongo|«Ju-lia»: «ia» es diptongo.]—, porque [tú|td|«Tú» lleva tilde porque es pronombre personal; «tu» sin tilde es posesivo.] eres [más|td|«Más» lleva tilde cuando indica cantidad o comparación; «mas» sin tilde significa «pero».] rápida y [juegas|diptongo|«jue-gas»: «ue» es diptongo.] mejor de delantera.",
+      "[Aurora|diptongo|«Au-ro-ra»: «au» es diptongo.] les [recuerda|diptongo|«re-cuer-da»: «ue» es diptongo.] que lo [más|td|«Más» lleva tilde cuando indica cantidad; «mas» sin tilde significa «pero».] importante no es ganar, sino divertirse y jugar [limpio|diptongo|«lim-pio»: «io» es diptongo.].",
+      "En el primer [tiempo|diptongo|«tiem-po»: «ie» es diptongo.], [Julia|diptongo|«Ju-lia»: «ia» es diptongo.] marca un gol por la [escuadra|diptongo|«es-cua-dra»: «ua» es diptongo.] y [Luis|diptongo|«Luis»: «ui» es diptongo en una sola sílaba.] grita desde la portería: —¡[Qué|td|«Qué» lleva tilde porque exclama; «que» sin tilde solo une palabras.] golazo!",
+      "[Cuando|diptongo|«cuan-do»: «ua» es diptongo.] un jugador de los Leones [pierde|diptongo|«pier-de»: «ie» es diptongo.] una bota, [Luis|diptongo|«Luis»: «ui» es diptongo.] [se|td|«se» sin tilde es pronombre; «sé» con tilde es del verbo «saber».] la [devuelve|diptongo|«de-vuel-ve»: «ue» es diptongo.] y el árbitro [aplaude|diptongo|«a-plau-de»: «au» es diptongo.] su gesto.",
+      "—¿[Cuánto|td|«Cuánto» lleva tilde porque pregunta; «cuanto» sin tilde no pregunta.||diptongo|«cuán-to»: «ua» es diptongo; la tilde va sobre la vocal abierta (á).] [tiempo|diptongo|«tiem-po»: «ie» es diptongo.] queda? —pregunta [Julia|diptongo|«Ju-lia»: «ia» es diptongo.] al árbitro, que le enseña cinco dedos.",
+      "El [abuelo|diptongo|«a-bue-lo»: «ue» es diptongo.] de [Luis|diptongo|«Luis»: «ui» es diptongo.] grita desde la grada tan [fuerte|diptongo|«fuer-te»: «ue» es diptongo.] que [él|td|«Él» lleva tilde porque es pronombre personal; «el» sin tilde es artículo.] solo parece un equipo entero de animadores.",
+      "—Ya [sé|td|«Sé», del verbo «saber», lleva tilde; «se» sin tilde es pronombre.] que [estáis|diptongo|«es-táis»: «ai» es diptongo; la tilde va sobre la vocal abierta (á).] cansados, pero [aún|td|«Aún» lleva tilde cuando significa «todavía»; «aun» sin tilde significa «incluso».] queda la segunda parte —les dice [Aurora|diptongo|«Au-ro-ra»: «au» es diptongo.] en el descanso.",
+      "—¿[Dónde|td|«Dónde» lleva tilde porque pregunta; «donde» sin tilde solo indica lugar.] está [mi|td|«mi» sin tilde es posesivo (mi espinillera); «mí» con tilde es pronombre.] espinillera? —pregunta [Luis|diptongo|«Luis»: «ui» es diptongo; monosílaba sin tilde.], buscando debajo del banco.",
+      "—¿[Cuándo|td|«Cuándo» lleva tilde porque pregunta; «cuando» sin tilde no pregunta.||diptongo|«cuán-do»: «ua» es diptongo; la tilde va sobre la vocal abierta (á).] termina el partido? —pregunta un niño pequeño que [quiere|diptongo|«quie-re»: la «u» de «qu» no suena, pero «ie» es diptongo.] irse a merendar.",
+      "—Para [mí|td|«Mí» lleva tilde porque es pronombre (para mí); «mi» sin tilde es posesivo.], el mejor del partido eres [tú|td|«Tú» lleva tilde porque es pronombre personal; «tu» sin tilde es posesivo.] —le dice [Julia|diptongo|«Ju-lia»: «ia» es diptongo.] a [Luis|diptongo|«Luis»: «ui» es diptongo.] [después|diptongo|«des-pués»: «ue» es diptongo; la tilde va sobre la vocal abierta (é).] de una parada increíble.",
+      "—¿[Cuál|td|«Cuál» lleva tilde porque pregunta; «cual» sin tilde no pregunta.||diptongo|«cuál»: «ua» es diptongo; es una sola sílaba.] es la jugada para el segundo [tiempo|diptongo|«tiem-po»: «ie» es diptongo.]? —pregunta [Julia|diptongo|«Ju-lia»: «ia» es diptongo.], y [Aurora|diptongo|«Au-ro-ra»: «au» es diptongo.] dibuja flechas en una pizarra.",
+    ],
+    final: [
+      "[Cuando|diptongo|«Cuan-do»: «ua» es diptongo.] el árbitro pita el final, los dos equipos se dan la mano y [Aurora|diptongo|«Au-ro-ra»: «au» es diptongo.] los felicita a todos por su [juego|diptongo|«jue-go»: «ue» es diptongo.] [limpio|diptongo|«lim-pio»: «io» es diptongo.].",
+    ],
+  },
+
+  // ------------------------------------------------------------
+  // 7. Tilde diacrítica e hiatos
+  // ------------------------------------------------------------
+  {
+    id: "ac-teatro-piratas",
+    titulo: "Piratas sobre el escenario",
+    tema: "Preparar una obra de teatro en el colegio",
+    reglas: ["td", "hiato"],
+    inicio: [
+      "En el colegio de [Leo|hiato|«Le-o»: «e» y «o» son dos vocales abiertas y van en sílabas distintas (hiato).] y [Sofía|hiato|«So-fí-a»: la «í» es cerrada pero tónica y lleva tilde, así que se separa de la «a» (hiato).], en [Jaén|hiato|«Ja-én»: «a» y «e» son dos vocales abiertas y van en sílabas distintas (hiato).], los alumnos de sexto preparan una obra de [teatro|hiato|«te-a-tro»: «e» y «a» son vocales abiertas en sílabas distintas (hiato).] para fin de curso.",
+      "El [maestro|hiato|«ma-es-tro»: «a» y «e» son vocales abiertas en sílabas distintas (hiato).], [Rafael|hiato|«Ra-fa-el»: «a» y «e» son vocales abiertas en sílabas distintas (hiato).], ha elegido una historia de piratas que buscan un tesoro en una isla desierta.",
+    ],
+    episodios: [
+      "—¿[Quién|td|«Quién» lleva tilde porque pregunta; «quien» sin tilde no pregunta.] hará de capitán? —pregunta [Sofía|hiato|«So-fí-a»: la «í» tónica se separa de la «a» (hiato).] mientras [lee|hiato|«le-e»: dos «e» seguidas van en sílabas distintas (hiato).] la lista del reparto en el tablón.",
+      "[Rafael|hiato|«Ra-fa-el»: «a» y «e» forman hiato.] ha elegido a [Leo|hiato|«Le-o»: «e» y «o» forman hiato.] como capitán pirata, porque [él|td|«Él» lleva tilde porque es pronombre personal; «el» sin tilde es artículo.] tiene la voz [más|td|«Más» lleva tilde cuando indica cantidad o comparación; «mas» sin tilde significa «pero».] potente de toda la clase.",
+      "[Sofía|hiato|«So-fí-a»: la «í» tónica lleva tilde y se separa de la «a» (hiato).] interpreta a una exploradora valiente que [lee|hiato|«le-e»: dos vocales abiertas iguales en sílabas distintas (hiato).] mapas antiguos y habla con los loros.",
+      "—¿[Dónde|td|«Dónde» lleva tilde porque pregunta; «donde» sin tilde solo indica lugar.] está el [baúl|hiato|«ba-úl»: la «ú» tónica lleva tilde y se separa de la «a» (hiato).] del tesoro? —grita [Leo|hiato|«Le-o»: «e» y «o» forman hiato.], buscando entre los decorados.",
+      "—[Aún|td|«Aún» lleva tilde cuando significa «todavía»; «aun» sin tilde significa «incluso».||hiato|«a-ún»: la «ú» tónica lleva tilde y se separa de la «a» (hiato).] no me [sé|td|«Sé», del verbo «saber», lleva tilde; «se» sin tilde es pronombre.] el papel de memoria —se queja [Sofía|hiato|«So-fí-a»: la «í» tónica se separa de la «a» (hiato).], releyendo el guion.",
+      "Para no ponerse nerviosos, [Rafael|hiato|«Ra-fa-el»: «a» y «e» forman hiato.] les enseña a respirar hondo y a [reír|hiato|«re-ír»: la «í» tónica lleva tilde y se separa de la «e» (hiato).] antes de salir al escenario.",
+      "Los alumnos de quinto pintan un barco enorme de cartón y una palmera de papel que parece [real|hiato|«re-al»: «e» y «a» son vocales abiertas en sílabas distintas (hiato).].",
+      "—¡[Sí|td|«Sí» lleva tilde cuando afirma; «si» sin tilde expresa una condición.], me encanta, aunque el parche del ojo me pica un poco! —le dice [Leo|hiato|«Le-o»: «e» y «o» forman hiato.] a [Rafael|hiato|«Ra-fa-el»: «a» y «e» forman hiato.] al probarse el disfraz.",
+      "Durante el ensayo general, a [Sofía|hiato|«So-fí-a»: la «í» tónica se separa de la «a» (hiato).] se le [cae|hiato|«ca-e»: «a» y «e» son vocales abiertas en sílabas distintas (hiato).] el catalejo al suelo y todos se [ríen|hiato|«rí-en»: la «í» tónica lleva tilde y se separa de la «e» (hiato).] a carcajadas.",
+      "—Para [mí|td|«Mí» lleva tilde porque es pronombre (para mí); «mi» sin tilde es posesivo.], lo [más|td|«Más» lleva tilde cuando indica cantidad; «mas» sin tilde significa «pero».] difícil es cantar la canción final —confiesa [Leo|hiato|«Le-o»: «e» y «o» forman hiato.] a sus compañeros.",
+      "La [tía|hiato|«tí-a»: la «í» tónica lleva tilde y se separa de la «a» (hiato).] de [Leo|hiato|«Le-o»: «e» y «o» forman hiato.] ha cosido las velas del barco con unas sábanas viejas que [tenía|hiato|«te-ní-a»: la «í» tónica lleva tilde y se separa de la «a» (hiato).] guardadas en el desván.",
+      "—¿[Cómo|td|«Cómo» lleva tilde porque pregunta; «como» sin tilde compara o significa «ya que».] se pone el sombrero un pirata de verdad? —pregunta [Sofía|hiato|«So-fí-a»: la «í» tónica se separa de la «a» (hiato).], y [Rafael|hiato|«Ra-fa-el»: «a» y «e» forman hiato.] se lo coloca [ladeado|hiato|«la-de-a-do»: «e» y «a» son vocales abiertas en sílabas distintas (hiato).].",
+    ],
+    final: [
+      "Por fin, el [día|hiato|«dí-a»: la «í» tónica lleva tilde y se separa de la «a» (hiato).] del estreno, el [teatro|hiato|«te-a-tro»: «e» y «a» forman hiato.] se llena de familias y los piratas reciben un aplauso enorme.",
+      "—¡[Qué|td|«Qué» lleva tilde porque exclama; «que» sin tilde solo une palabras.] orgulloso estoy de vosotros! —les dice [Rafael|hiato|«Ra-fa-el»: «a» y «e» forman hiato.] al bajar el telón.",
+    ],
+  },
+
+  // ------------------------------------------------------------
+  // 8. Diptongos e hiatos
+  // ------------------------------------------------------------
+  {
+    id: "ac-tormenta-cortijo",
+    titulo: "Noche de tormenta en el cortijo",
+    tema: "Una tarde de tormenta en la sierra",
+    reglas: ["diptongo", "hiato"],
+    inicio: [
+      "[Aitana|diptongo|«Ai-ta-na»: «ai» es diptongo, vocal abierta (a) más cerrada (i) en la misma sílaba.] y su primo [Mateo|hiato|«Ma-te-o»: «e» y «o» son dos vocales abiertas y van en sílabas distintas (hiato).] pasan un fin de semana de otoño en el cortijo de su [abuela|diptongo|«a-bue-la»: «ue» es diptongo, vocal cerrada (u) más abierta (e).] [Eugenia|diptongo|«Eu-ge-nia» tiene dos diptongos: «eu» e «ia».], en la [sierra|diptongo|«sie-rra»: «ie» es diptongo.] de Aracena.",
+      "Una tarde, el [cielo|diptongo|«cie-lo»: «ie» es diptongo.] se oscurece de repente y [empiezan|diptongo|«em-pie-zan»: «ie» es diptongo.] a sonar los primeros [truenos|diptongo|«true-nos»: «ue» es diptongo.].",
+    ],
+    episodios: [
+      "Las gotas [caen|hiato|«ca-en»: «a» y «e» son vocales abiertas en sílabas distintas (hiato).] con tanta [fuerza|diptongo|«fuer-za»: «ue» es diptongo.] sobre el tejado que parece que [alguien|diptongo|«al-guien»: la «u» de «gu» no suena, pero «ie» es diptongo.] toca un tambor.",
+      "El gato se esconde debajo de una [almohada|hiato|«al-mo-ha-da»: la «h» intercalada no impide el hiato; «o» y «a» son vocales abiertas en sílabas distintas.] y [maúlla|hiato|«ma-ú-lla»: la «ú» tónica lleva tilde y se separa de la «a» (hiato).] cada vez que [suena|diptongo|«sue-na»: «ue» es diptongo.] un [trueno|diptongo|«true-no»: «ue» es diptongo.].",
+      "La [abuela|diptongo|«a-bue-la»: «ue» es diptongo.] [enciende|diptongo|«en-cien-de»: «ie» es diptongo.] la [chimenea|hiato|«chi-me-ne-a»: «e» y «a» son vocales abiertas en sílabas distintas (hiato).] y pone unas castañas a asar, porque dice que las tormentas dan hambre.",
+      "[Mateo|hiato|«Ma-te-o»: «e» y «o» forman hiato.] [cuenta|diptongo|«cuen-ta»: «ue» es diptongo.] los segundos entre el relámpago y el [trueno|diptongo|«true-no»: «ue» es diptongo.] para saber a qué [distancia|diptongo|«dis-tan-cia»: «ia» es diptongo.] está la tormenta.",
+      "[Aitana|diptongo|«Ai-ta-na»: «ai» es diptongo.] [lee|hiato|«le-e»: dos «e» seguidas van en sílabas distintas (hiato).] en voz alta un [cuento|diptongo|«cuen-to»: «ue» es diptongo.] de fantasmas [mientras|diptongo|«mien-tras»: «ie» es diptongo.] su primo se tapa los [oídos|hiato|«o-í-dos»: la «í» tónica lleva tilde y se separa de la «o» (hiato).] de broma.",
+      "Desde la ventana ven correr el [agua|diptongo|«a-gua»: «ua» es diptongo.] por el camino, convertido en un pequeño [río|hiato|«rí-o»: la «í» tónica lleva tilde y se separa de la «o» (hiato).] de barro.",
+      "Las gallinas se [refugian|diptongo|«re-fu-gian»: «ia» es diptongo.] en el gallinero y el perro se tumba, [muy|diptongo|«muy»: «uy» es diptongo; la «y» final suena como una «i».] [quieto|diptongo|«quie-to»: la «u» de «qu» no suena, pero «ie» es diptongo.], junto a la [puerta|diptongo|«puer-ta»: «ue» es diptongo.] de la cocina.",
+      "Para merendar, la [abuela|diptongo|«a-bue-la»: «ue» es diptongo.] saca pan [tierno|diptongo|«tier-no»: «ie» es diptongo.], [aceite|diptongo|«a-cei-te»: «ei» es diptongo, vocal abierta (e) más cerrada (i).] de oliva y un queso [ahumado|diptongo|«ahu-ma-do»: la «h» intercalada no impide el diptongo; «au» se pronuncia en la misma sílaba.] que hace ella misma.",
+      "[Mateo|hiato|«Ma-te-o»: «e» y «o» forman hiato.] [confiesa|diptongo|«con-fie-sa»: «ie» es diptongo.] que los rayos le dan un poco de [miedo|diptongo|«mie-do»: «ie» es diptongo.], y [Aitana|diptongo|«Ai-ta-na»: «ai» es diptongo.] le [aprieta|diptongo|«a-prie-ta»: «ie» es diptongo.] la mano para tranquilizarlo.",
+      "[Cuando|diptongo|«Cuan-do»: «ua» es diptongo.] se va la luz, los tres [juegan|diptongo|«jue-gan»: «ue» es diptongo.] a las cartas junto al [fuego|diptongo|«fue-go»: «ue» es diptongo.] y se [ríen|hiato|«rí-en»: la «í» tónica lleva tilde y se separa de la «e» (hiato).] sin parar.",
+      "Entre [trueno|diptongo|«true-no»: «ue» es diptongo.] y [trueno|diptongo|«true-no»: «ue» es diptongo.], un [búho|hiato|«bú-ho»: la «h» intercalada no impide el hiato; la «ú» tónica se separa de la «o».] ulula desde la encina que [hay|diptongo|«hay»: «ay» es diptongo; la «y» final suena como una «i».] junto al pozo.",
+      "La [abuela|diptongo|«a-bue-la»: «ue» es diptongo.] [recuerda|diptongo|«re-cuer-da»: «ue» es diptongo.] que de niña [oía|hiato|«o-í-a»: la «í» tónica lleva tilde y se separa de la «o» y de la «a» (hiato).] las tormentas desde ese mismo sillón, abrazada a su [propia|diptongo|«pro-pia»: «ia» es diptongo.] [abuela|diptongo|«a-bue-la»: «ue» es diptongo.].",
+    ],
+    final: [
+      "Al anochecer, la tormenta se aleja y el [aire|diptongo|«ai-re»: «ai» es diptongo.] [huele|diptongo|«hue-le»: «ue» es diptongo.] a [tierra|diptongo|«tie-rra»: «ie» es diptongo.] mojada y a leña [recién|diptongo|«re-cién»: «ie» es diptongo; la tilde va sobre la vocal abierta (é).] cortada.",
+      "[Aitana|diptongo|«Ai-ta-na»: «ai» es diptongo.] y [Mateo|hiato|«Ma-te-o»: «e» y «o» forman hiato.] se [duermen|diptongo|«duer-men»: «ue» es diptongo.] pronto, agotados, oyendo [caer|hiato|«ca-er»: «a» y «e» son vocales abiertas en sílabas distintas (hiato).] las últimas gotas sobre el tejado.",
+    ]
+  }
+);
