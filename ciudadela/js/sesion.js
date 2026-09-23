@@ -18,19 +18,28 @@
 
   var PASOS = ["portada", "historia", "pregunta", "juego", "idea", "reto"];
 
-  var estado = C.leer(CLAVE, { actual: 0, hechas: [] });
-  if (!(estado.actual >= 0 && estado.actual < SESIONES.length)) estado.actual = 0;
-  if (!Array.isArray(estado.hechas)) estado.hechas = [];
+  // Se guarda el id de cada sesión (no su número), para que añadir
+  // sesiones nuevas en medio no descoloque lo ya hecho.
+  var guardado = C.leer(CLAVE, {});
+  var estado = {
+    actual: 0,
+    hechas: Array.isArray(guardado.hechas) ? guardado.hechas.filter(function (h) { return typeof h === "string"; }) : [],
+  };
+  SESIONES.forEach(function (s, i) { if (s.id === guardado.actualId) estado.actual = i; });
 
   // ?n=5 abre directamente la sesión 5 (útil para enlazarla).
   var param = parseInt(new URLSearchParams(location.search).get("n"), 10);
   if (param >= 1 && param <= SESIONES.length) estado.actual = param - 1;
 
+  function estaHecha(s) { return estado.hechas.indexOf(s.id) >= 0; }
+
   var paso = 0;
   var temporizador = null;
 
   function $(id) { return document.getElementById(id); }
-  function guardarEstado() { C.guardar(CLAVE, estado); }
+  function guardarEstado() {
+    C.guardar(CLAVE, { actualId: SESIONES[estado.actual].id, hechas: estado.hechas });
+  }
   function sesion() { return SESIONES[estado.actual]; }
 
   function selloVirtud(v) {
@@ -54,7 +63,7 @@
     sello.innerHTML = selloVirtud(s.virtud);
     txt.appendChild(sello);
     txt.appendChild(C.el("h2", null, s.titulo));
-    txt.appendChild(C.el("p", "bloque", "Bloque " + (bloque.id + 1) + " · " + bloque.nombre + ": " + bloque.sub.toLowerCase()));
+    txt.appendChild(C.el("p", "bloque", "Bloque " + (bloque.id + 1) + " · " + bloque.nombre + " (" + bloque.mes.toLowerCase() + "): " + bloque.sub.toLowerCase()));
     cont.appendChild(txt);
     cuerpo.appendChild(cont);
     var pista = C.el("p", "pista");
@@ -179,14 +188,14 @@
     acc.style.gap = "12px";
     acc.style.alignItems = "center";
     acc.style.flexWrap = "wrap";
-    var hecha = estado.hechas.indexOf(s.num) >= 0;
+    var hecha = estaHecha(s);
     if (hecha) {
       acc.appendChild(C.el("span", "hecho-ok", "✓ Sesión hecha"));
     } else {
       var fin = C.el("button", "btn", "Terminar la sesión");
       fin.type = "button";
       fin.addEventListener("click", function () {
-        if (estado.hechas.indexOf(s.num) < 0) estado.hechas.push(s.num);
+        if (!estaHecha(s)) estado.hechas.push(s.id);
         guardarEstado();
         pintar();
       });
@@ -280,22 +289,31 @@
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
     var cuerpo = C.el("div", "modal-cuerpo");
-    cuerpo.appendChild(C.el("h2", null, "Las 22 sesiones"));
-    cuerpo.appendChild(C.el("p", "pista", "Están pensadas para hacerse en orden, una por día, pero puedes elegir cualquiera. Llevas " + estado.hechas.length + " de " + SESIONES.length + "."));
+    cuerpo.appendChild(C.el("h2", null, "Las " + SESIONES.length + " sesiones del curso"));
+    var hechas = SESIONES.filter(estaHecha).length;
+    cuerpo.appendChild(C.el("p", "pista", "Cuatro por semana, de septiembre a junio, en el orden del curso. Puedes elegir cualquiera. Llevas " + hechas + " de " + SESIONES.length + "."));
+    var saltos = C.el("div", "saltos-bloque");
+    cuerpo.appendChild(saltos);
     var lista = C.el("div", "lista-sesiones");
     BLOQUES.forEach(function (b) {
       var sec = C.el("section");
+      var salto = C.el("button", "chip", b.mes.split("-")[0].slice(0, 3) + " · " + (b.id + 1));
+      salto.type = "button";
+      salto.title = b.nombre;
+      salto.addEventListener("click", function () { lista.scrollTop = sec.offsetTop; });
+      saltos.appendChild(salto);
+      var enBloque = SESIONES.filter(function (s) { return s.bloque === b.id; });
       var h = C.el("h3", null, "Bloque " + (b.id + 1) + " · " + b.nombre);
-      h.appendChild(C.el("small", null, b.sub));
+      h.appendChild(C.el("small", null, b.mes + " · " + b.sub + " · " + enBloque.filter(estaHecha).length + "/" + enBloque.length + " hechas"));
       sec.appendChild(h);
       var ol = C.el("ol");
-      SESIONES.filter(function (s) { return s.bloque === b.id; }).forEach(function (s) {
+      enBloque.forEach(function (s) {
         var li = C.el("li");
         var btn = C.el("button", "fila-sesion v-" + s.virtud + (s.num - 1 === estado.actual ? " actual" : ""));
         btn.type = "button";
         btn.appendChild(C.el("span", "n", String(s.num)));
         btn.appendChild(C.el("span", "t", s.titulo));
-        if (estado.hechas.indexOf(s.num) >= 0) btn.appendChild(C.el("span", "ok", "✓ hecha"));
+        if (estaHecha(s)) btn.appendChild(C.el("span", "ok", "✓ hecha"));
         btn.addEventListener("click", function () { cerrar(); abrirSesion(s.num - 1); });
         li.appendChild(btn);
         ol.appendChild(li);
@@ -322,7 +340,10 @@
     velo.addEventListener("click", function (e) { if (e.target === velo) cerrar(); });
     document.addEventListener("keydown", tecla);
     var actual = lista.querySelector(".actual");
-    if (actual) actual.focus();
+    if (actual) {
+      lista.scrollTop = actual.offsetTop - 60;
+      actual.focus({ preventScroll: true });
+    }
   }
 
   // ---------- pantalla completa ----------

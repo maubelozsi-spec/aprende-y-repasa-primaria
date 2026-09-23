@@ -1,20 +1,22 @@
 // ============================================================
-// La Ciudadela · diario de la noche (privado, solo en el dispositivo)
+// La Ciudadela · diario de la noche (privado)
 //
-// Guarda en localStorage ("ciudadela_diario") dos tipos de entrada:
+// Guarda dos tipos de entrada:
 //   - "noche": el repaso de Séneca (Sobre la ira, III, 36) con tres
 //     preguntas, el ánimo del día y las virtudes practicadas.
 //   - "calma": el plan que el alumno decide guardar al terminar el
 //     kit de calma (ver calma.js).
-// No hay envío a la nube por diseño: un diario que lee el docente
-// deja de ser un diario (el alumnado escribiría para él).
+// Con clave de alumno se guarda en la nube (students/{clave}/
+// ciudadelaDiario), legible solo por el propio alumno según
+// firestore.rules; sin clave, en localStorage. Ver C.diario en
+// comun.js. La app no enseña el diario al docente: un diario que lee
+// el maestro deja de ser un diario (el alumnado escribiría para él).
 // ============================================================
 
 (function () {
   "use strict";
 
   var C = window.Ciudadela;
-  var CLAVE = "ciudadela_diario";
   var CLAVE_NO_GUARDAR = "ciudadela_no_guardar";
 
   var ANIMOS = [
@@ -35,7 +37,6 @@
   var sel = { animo: null, virtudes: [] };
 
   function $(id) { return document.getElementById(id); }
-  function leerEntradas() { var e = C.leer(CLAVE, []); return Array.isArray(e) ? e : []; }
 
   function fechaBonita(iso) {
     try {
@@ -97,8 +98,19 @@
     });
   }
 
+  var cache = [];
   function pintarEntradas() {
-    var entradas = leerEntradas();
+    var cont = $("entradas");
+    return C.diario.listar().then(function (entradas) {
+      cache = entradas;
+      dibujar(entradas);
+    }).catch(function () {
+      cont.innerHTML = "";
+      cont.appendChild(C.el("p", "vacio", "No se ha podido cargar tu diario. Comprueba la conexión y recarga la página."));
+    });
+  }
+
+  function dibujar(entradas) {
     pintarSemana(entradas);
     var cont = $("entradas");
     cont.innerHTML = "";
@@ -123,8 +135,7 @@
       borrar.innerHTML = C.icono("papelera");
       borrar.addEventListener("click", function () {
         if (!confirm("¿Borrar esta entrada? No se puede recuperar.")) return;
-        C.guardar(CLAVE, leerEntradas().filter(function (x) { return x.id !== e.id; }));
-        pintarEntradas();
+        C.diario.borrar(e.id).then(pintarEntradas).catch(function () { alert("No se ha podido borrar."); });
       });
       cab.appendChild(borrar);
       art.appendChild(cab);
@@ -164,6 +175,10 @@
   document.addEventListener("DOMContentLoaded", function () {
     pintarAnimos();
     pintarChips();
+    $("texto-privado").appendChild(document.createTextNode(C.diario.enNube()
+      ? " Como has entrado con tu clave, lo tendrás en cualquier dispositivo desde el que entres."
+      : " Se guarda solo en este dispositivo. Si entras con tu clave, lo tendrás en cualquier dispositivo."));
+    $("entradas").appendChild(C.el("p", "vacio", "Cargando tu diario…"));
     pintarEntradas();
 
     var noGuardar = $("no-guardar");
@@ -192,8 +207,8 @@
         estado.textContent = "Borrado. Lo importante es que lo has pensado.";
         return;
       }
-      var entradas = leerEntradas();
-      entradas.unshift({
+      $("btn-guardar").disabled = true;
+      C.diario.anadir({
         id: Date.now(),
         fecha: new Date().toISOString(),
         tipo: "noche",
@@ -202,20 +217,22 @@
         mejor: mejor,
         manana: manana,
         virtudes: sel.virtudes.slice(),
-      });
-      if (C.guardar(CLAVE, entradas)) {
+      }).then(function () {
         limpiarFormulario();
         estado.textContent = "✓ Guardado. Buenas noches.";
         pintarEntradas();
-      } else {
-        estado.textContent = "No se ha podido guardar en este navegador.";
-      }
+      }).catch(function () {
+        estado.textContent = "No se ha podido guardar. Comprueba la conexión.";
+      }).then(function () {
+        $("btn-guardar").disabled = false;
+      });
     });
 
     $("btn-borrar-todo").addEventListener("click", function () {
-      if (!confirm("¿Borrar TODO tu diario de este dispositivo? No se puede recuperar.")) return;
-      C.guardar(CLAVE, []);
-      pintarEntradas();
+      if (!confirm("¿Borrar TODO tu diario? No se puede recuperar.")) return;
+      Promise.all(cache.map(function (e) { return C.diario.borrar(e.id); }))
+        .then(pintarEntradas)
+        .catch(function () { alert("No se ha podido borrar todo."); pintarEntradas(); });
     });
   });
 })();

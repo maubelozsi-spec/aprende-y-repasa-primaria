@@ -5,8 +5,9 @@
 // previsible para el alumnado:
 //   1. historia   -> una escena de su edad, en 3-4 frases
 //   2. pregunta   -> para pensar en pareja y comentar en voz alta
-//   3. juego      -> clasificar situaciones (casi siempre "¿depende
-//                    de…?"); el docente revela cada respuesta
+//   3. juego      -> clasificar situaciones (siete tipos: ¿depende de
+//                    mí?, hecho o pensamiento, virtud, punto justo…);
+//                    el docente revela cada respuesta
 //   4. idea+frase -> la idea clave en una frase y la cita estoica
 //   5. reto       -> algo pequeño y concreto para hacer hoy
 //
@@ -32,11 +33,36 @@
   ];
 
   var BLOQUES = [
-    { id: 0, nombre: "Mi ciudadela", sub: "Lo que depende de mí y lo que no" },
-    { id: 1, nombre: "Siento, pienso, elijo", sub: "Las emociones y lo que nos decimos" },
-    { id: 2, nombre: "Las cuatro virtudes", sub: "Sabiduría, justicia, coraje y templanza" },
-    { id: 3, nombre: "Convivir en la gran ciudad", sub: "Los demás, el perdón y la gratitud" },
+    { id: 0, nombre: "Mi ciudadela", mes: "Septiembre", sub: "Lo que depende de mí y lo que no" },
+    { id: 1, nombre: "Conozco mis emociones", mes: "Octubre", sub: "Todas valen: ponerles nombre y escucharlas" },
+    { id: 2, nombre: "Lo que me digo", mes: "Octubre-noviembre", sub: "Pensamientos que ayudan y pensamientos trampa" },
+    { id: 3, nombre: "La pausa", mes: "Noviembre-diciembre", sub: "El enfado, la calma y el espacio para elegir" },
+    { id: 4, nombre: "Sabiduría", mes: "Diciembre-enero", sub: "Pensar bien antes de actuar" },
+    { id: 5, nombre: "Justicia", mes: "Enero-febrero", sub: "Tratar bien y ser justo con todos" },
+    { id: 6, nombre: "Coraje", mes: "Febrero", sub: "Hacer lo correcto aunque cueste" },
+    { id: 7, nombre: "Templanza", mes: "Marzo", sub: "El punto justo" },
+    { id: 8, nombre: "Amistad y conflictos", mes: "Marzo-abril", sub: "Hacer amigos, discutir bien y perdonar" },
+    { id: 9, nombre: "Ciudadanos del mundo", mes: "Abril-mayo", sub: "Diversidad, naturaleza y bien común" },
+    { id: 10, nombre: "Pantallas y yo", mes: "Mayo", sub: "Templanza y justicia también en internet" },
+    { id: 11, nombre: "Cambios y despedidas", mes: "Junio", sub: "Cerrar el curso y prepararse para lo nuevo" },
   ];
+
+  // Tipos de juego: cada uno fija sus opciones (id -> texto). Las
+  // sesiones de los archivos js/sesiones/*.js indican solo el "tipo".
+  var TIPOS = {
+    DEPENDE: DEPENDE,
+    HECHO: [{ id: "si", t: "Hecho" }, { id: "no", t: "Lo que se dice" }],
+    REAL: [{ id: "si", t: "Es real" }, { id: "no", t: "Lo imagina" }],
+    RUMOR: [{ id: "si", t: "Se sabe" }, { id: "no", t: "Es un rumor" }],
+    VIRTUD: [
+      { id: "sabiduria", t: "Sabiduría" },
+      { id: "justicia", t: "Justicia" },
+      { id: "coraje", t: "Coraje" },
+      { id: "templanza", t: "Templanza" },
+    ],
+    PUNTO: [{ id: "pasa", t: "Me paso" }, { id: "justo", t: "Punto justo" }, { id: "corto", t: "Me quedo corto" }],
+    AYUDA: [{ id: "yo", t: "Puedo resolverlo yo" }, { id: "adulto", t: "Hay que avisar a un adulto" }],
+  };
 
   var SESIONES = [
     // ---------------- Bloque 1 · Mi ciudadela ----------------
@@ -180,7 +206,7 @@
       reto: "Hoy, cuando notes una emoción fuerte, ponle nombre en tu cabeza: «esto es enfado», «esto es vergüenza».",
     },
     {
-      bloque: 1,
+      bloque: 2,
       virtud: "sabiduria",
       titulo: "Lo que me digo",
       historia:
@@ -206,7 +232,7 @@
       reto: "Si hoy algo te molesta, busca otras dos explicaciones posibles antes de quedarte con la peor.",
     },
     {
-      bloque: 1,
+      bloque: 3,
       virtud: "templanza",
       titulo: "Diez segundos",
       historia:
@@ -228,7 +254,7 @@
       reto: "Practica la pausa: tres respiraciones lentas antes de contestar cuando algo te moleste.",
     },
     {
-      bloque: 1,
+      bloque: 2,
       virtud: "coraje",
       titulo: "Los miedos que imaginamos",
       historia:
@@ -254,7 +280,7 @@
       reto: "Piensa en algo que te dé miedo esta semana y escribe una cosa que puedes hacer para prepararte.",
     },
     {
-      bloque: 1,
+      bloque: 3,
       virtud: "templanza",
       titulo: "Enfadada por estar enfadada",
       historia:
@@ -278,7 +304,7 @@
 
     // ---------------- Bloque 3 · Las cuatro virtudes ----------------
     {
-      bloque: 2,
+      bloque: 4,
       virtud: "sabiduria",
       titulo: "Antes de creer, comprueba",
       historia:
@@ -299,11 +325,11 @@
         ],
       },
       idea: "Ser sabio no es saberlo todo: es comprobar antes de creer y pensar antes de repetir.",
-      frase: { t: "Tenemos dos orejas y una sola boca para escuchar más y hablar menos.", autor: "Zenón de Citio", obra: "según Diógenes Laercio, Vidas, VII, 23" },
+      frase: { t: "Si no está bien, no lo hagas. Si no es verdad, no lo digas.", autor: "Marco Aurelio", obra: "Meditaciones, XII, 17" },
       reto: "Hoy, antes de contar algo que te han contado, pregúntate: «¿Lo sé seguro? ¿Le hace daño a alguien?».",
     },
     {
-      bloque: 2,
+      bloque: 4,
       virtud: "sabiduria",
       titulo: "Aprender enseñando",
       historia:
@@ -325,7 +351,7 @@
       reto: "Explícale hoy a alguien, en clase o en casa, algo que hayas aprendido esta semana.",
     },
     {
-      bloque: 2,
+      bloque: 5,
       virtud: "justicia",
       titulo: "Cuando nadie mira",
       historia:
@@ -347,7 +373,7 @@
       reto: "Hoy di la verdad en algo pequeño, aunque sea más cómodo no decirla.",
     },
     {
-      bloque: 2,
+      bloque: 5,
       virtud: "justicia",
       titulo: "Como las manos y los pies",
       historia:
@@ -369,7 +395,7 @@
       reto: "En el próximo trabajo en grupo, pregunta a quien menos habla: «¿Tú qué piensas?».",
     },
     {
-      bloque: 2,
+      bloque: 6,
       virtud: "coraje",
       titulo: "La maceta rota",
       historia:
@@ -391,7 +417,7 @@
       reto: "Haz hoy algo pequeño que te dé un poco de miedo, pero que sepas que está bien.",
     },
     {
-      bloque: 2,
+      bloque: 6,
       virtud: "coraje",
       titulo: "Poco a poco, como las uvas",
       historia:
@@ -413,7 +439,7 @@
       reto: "Elige algo que te cueste y practícalo solo cinco minutos hoy. Mañana, otros cinco.",
     },
     {
-      bloque: 2,
+      bloque: 7,
       virtud: "templanza",
       titulo: "Solo un rato más",
       historia:
@@ -435,7 +461,7 @@
       reto: "Elige una cosa que te cueste dejar (pantallas, chuches…) y decide, antes de empezar, cuándo vas a parar.",
     },
     {
-      bloque: 2,
+      bloque: 7,
       virtud: "templanza",
       titulo: "La bandeja del banquete",
       historia:
@@ -463,7 +489,7 @@
 
     // ---------------- Bloque 4 · Convivir en la gran ciudad ----------------
     {
-      bloque: 3,
+      bloque: 9,
       virtud: "justicia",
       titulo: "Ciudadanos del mundo",
       historia:
@@ -485,7 +511,7 @@
       reto: "Aprende hoy a decir «hola» o «gracias» en otro idioma que se hable en tu clase o en tu barrio.",
     },
     {
-      bloque: 3,
+      bloque: 8,
       virtud: "justicia",
       titulo: "Perdonar no es aguantar",
       historia:
@@ -508,7 +534,7 @@
       reto: "Si tienes algo pendiente con alguien, dale la oportunidad de arreglarlo.",
     },
     {
-      bloque: 3,
+      bloque: 9,
       virtud: "sabiduria",
       titulo: "De mi abuelo aprendí…",
       historia:
@@ -530,7 +556,7 @@
       reto: "Escribe como Marco Aurelio: «De … aprendí …». Hazlo con tres personas.",
     },
     {
-      bloque: 3,
+      bloque: 11,
       virtud: "sabiduria",
       titulo: "El repaso de la noche",
       historia:
@@ -553,7 +579,28 @@
     },
   ];
 
-  SESIONES.forEach(function (s, i) { s.num = i + 1; });
+  // Se añaden las sesiones de js/sesiones/*.js (cargados antes que este
+  // archivo) y se ordenan por bloque. El orden es estable: dentro de
+  // cada bloque van primero las de este archivo y luego las demás, en
+  // el orden en que están escritas.
+  var todas = SESIONES.concat(window.CIUDADELA_NUEVAS || []);
+  todas = todas
+    .map(function (s, i) { return { s: s, i: i }; })
+    .sort(function (a, b) { return a.s.bloque - b.s.bloque || a.i - b.i; })
+    .map(function (x) { return x.s; });
 
-  window.CIUDADELA_SESIONES = { BLOQUES: BLOQUES, SESIONES: SESIONES };
+  function slug(t) {
+    return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  }
+
+  todas.forEach(function (s, i) {
+    s.num = i + 1;
+    // El id no cambia aunque se inserten sesiones nuevas: es lo que se
+    // guarda como "hecha" y como "sesión actual".
+    s.id = slug(s.titulo);
+    if (s.juego && !s.juego.opciones) s.juego.opciones = TIPOS[s.juego.tipo] || DEPENDE;
+  });
+
+  window.CIUDADELA_SESIONES = { BLOQUES: BLOQUES, SESIONES: todas, TIPOS: TIPOS };
 })();

@@ -30,6 +30,13 @@ document.addEventListener("DOMContentLoaded", () => {
     withAuth(() => {
       window.Auth.claimStudentCode(code)
         .then((profile) => {
+          // ?volver=ciudadela/diario.html: al entrar desde otra app del
+          // sitio se vuelve a ella. Solo rutas relativas del propio sitio.
+          const volver = new URLSearchParams(location.search).get("volver") || "";
+          if (/^[a-z0-9-]+\/[a-z0-9-]+\.html$/.test(volver)) {
+            window.location.href = volver;
+            return;
+          }
           window.location.href = "index.html?bienvenido=" + encodeURIComponent(profile.nickname);
         })
         .catch((err) => {

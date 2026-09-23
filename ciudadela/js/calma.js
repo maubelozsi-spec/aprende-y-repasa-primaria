@@ -250,12 +250,12 @@
     seg.appendChild(C.el("p", null, "¿Alguien te está haciendo daño, o te da miedo alguien?"));
     var fila = C.el("div", "fila");
     fila.appendChild(boton("Sí", "btn", function () {
-      C.abrirAyuda();
+      C.abrirAyuda("kit-calma");
     }));
     fila.appendChild(boton("No, es otra cosa", "btn suave", function () { ir(0); }));
     seg.appendChild(fila);
     t.appendChild(seg);
-    t.appendChild(C.el("p", "sub", "Si la respuesta es sí, este kit no es suficiente: lo importante es que se lo cuentes a un adulto. Si no, vamos paso a paso."));
+    t.appendChild(C.el("p", "sub", "Si la respuesta es sí, este kit no es suficiente: lo importante es que se lo cuentes a un adulto. Con el botón «Sí» puedes avisar a tu maestro o maestra. Si no, vamos paso a paso."));
     cont.appendChild(t);
   }
 
@@ -485,7 +485,7 @@
           ? "Sigue muy fuerte, y está bien que lo digas. Díselo a un adulto de confianza: no tienes que llevarlo tú solo ni tú sola."
           : "A veces tarda un poco en bajar. Ya sabes qué vas a hacer, y eso depende de ti.";
       t.appendChild(C.el("p", "sub", msg));
-      if (st.despues >= 4) t.appendChild(boton("Ver a quién pedir ayuda", "btn-ayuda", C.abrirAyuda));
+      if (st.despues >= 4) t.appendChild(boton("Pedir ayuda a mi maestro o maestra", "btn-ayuda", function () { C.abrirAyuda("kit-calma"); }));
     }
 
     var acc = C.el("div", "acciones-calma");
@@ -494,8 +494,8 @@
       pintar();
     }));
     var guardarBtn = boton("Guardar en mi diario", "btn", function () {
-      var entradas = C.leer("ciudadela_diario", []);
-      entradas.unshift({
+      guardarBtn.disabled = true;
+      C.diario.anadir({
         id: Date.now(),
         fecha: new Date().toISOString(),
         tipo: "calma",
@@ -505,13 +505,12 @@
         pensamiento: st.pensamiento && st.pensamiento !== "ninguna" ? st.pensamiento.t : "",
         virtud: st.virtud,
         accion: e.virtudes[st.virtud],
-      });
-      if (C.guardar("ciudadela_diario", entradas)) {
-        guardarBtn.disabled = true;
+      }).then(function () {
         guardarBtn.textContent = "✓ Guardado en tu diario";
-      } else {
+      }).catch(function () {
+        guardarBtn.disabled = false;
         guardarBtn.textContent = "No se ha podido guardar";
-      }
+      });
     });
     acc.appendChild(guardarBtn);
     t.appendChild(acc);

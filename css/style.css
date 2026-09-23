@@ -3143,3 +3143,20 @@ main.content.content-ancha {
   font-size: 14px;
   color: var(--text-soft);
 }
+
+/* ============================================================
+   Panel docente · avisos de La Ciudadela (js/docente-avisos.js)
+   ============================================================ */
+.avisos-card { margin-bottom: 20px; border-left: 4px solid var(--border, #d6d9e4); }
+.avisos-card.avisos-hay { border-left-color: var(--color-error); background: var(--color-error-tint); }
+.avisos-cab { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.avisos-card.avisos-hay .avisos-cab h2 { color: var(--color-error); }
+.avisos-lista { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.avisos-vacio { margin: 0; color: var(--color-success); font-weight: 600; }
+.aviso-item { background: #fff; border: 1px solid var(--color-error); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.aviso-item.atendido { border-color: #d6d9e4; opacity: .75; }
+.aviso-item-cab { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.aviso-item-cab strong { font-size: 1.05rem; }
+.aviso-motivo { margin: 0; font-weight: 700; color: var(--color-error); }
+.aviso-item.atendido .aviso-motivo { color: inherit; }
+.aviso-mensaje { margin: 0; padding: 8px 12px; border-left: 3px solid var(--color-error); background: var(--color-error-tint); white-space: pre-wrap; }

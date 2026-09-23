@@ -6,12 +6,14 @@
 //   - La barra superior, con la vuelta a Aprende y Repasa, el modo
 //     de lectura fácil y el botón rojo de "Necesito ayuda", que está
 //     en TODAS las páginas: es la salida para lo que el estoicismo
-//     no debe resolver (acoso, maltrato, miedo a alguien).
+//     no debe resolver (acoso, maltrato, miedo a alguien). Manda un
+//     aviso al panel del docente.
 //   - La voz: lectura en voz alta en castellano.
 //
-// Nada de lo que se hace en la Ciudadela sale del dispositivo: no
-// hay Firebase ni cuentas. El diario y la sesión en curso se guardan
-// en localStorage y solo en este navegador.
+// Sin clave, todo se queda en el navegador (localStorage). Con la
+// clave de alumno de Aprende y Repasa se carga js/nube.js: el botón
+// «Necesito ayuda» avisa al docente y el diario se guarda en la nube,
+// visible solo para el propio alumno.
 // ============================================================
 
 (function () {
@@ -50,8 +52,6 @@
       '<svg viewBox="0 0 24 24" ' + trazo + ' aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>',
     ayuda:
       '<svg viewBox="0 0 24 24" ' + trazo + ' aria-hidden="true"><path d="M12 21s-7.5-4.4-9.3-9.2C1.5 8.4 3.6 5 7 5c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.4 0 5.5 3.4 4.3 6.8C19.5 16.6 12 21 12 21z"/></svg>',
-    telefono:
-      '<svg viewBox="0 0 24 24" ' + trazo + ' aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2"/></svg>',
     persona:
       '<svg viewBox="0 0 24 24" ' + trazo + ' aria-hidden="true"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20.5c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>',
     candado:
@@ -154,41 +154,210 @@
     try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
   }
 
-  // ---------- modal de ayuda ----------
-  function abrirAyuda() {
+  // ---------- sesión de Aprende y Repasa ----------
+  // Las mismas claves de localStorage que usan js/layout.js y js/auth.js.
+  function alumno() {
+    if (leer("ar_vista_alumno", null)) return null; // vista previa del docente
+    var s = leer("ar_estudiante", null);
+    return s && s.code ? s : null;
+  }
+  function esDocente() {
+    return !!leer("ar_docente", null) && !leer("ar_estudiante", null);
+  }
+  function enVistaPrevia() {
+    return !!leer("ar_vista_alumno", null);
+  }
+
+  // Firebase solo se descarga si hay un alumno con clave en este
+  // dispositivo. nube() devuelve una promesa con window.CiudadelaNube,
+  // o null si no hay clave o no carga en 10 segundos.
+  var promesaNube = null;
+  function nube() {
+    if (promesaNube) return promesaNube;
+    if (!alumno()) return (promesaNube = Promise.resolve(null));
+    promesaNube = new Promise(function (resolve) {
+      if (window.CiudadelaNube) return resolve(window.CiudadelaNube);
+      var hecho = false;
+      function fin(v) { if (!hecho) { hecho = true; resolve(v); } }
+      document.addEventListener("ciudadela:nube-lista", function () { fin(window.CiudadelaNube); }, { once: true });
+      setTimeout(function () { fin(window.CiudadelaNube || null); }, 10000);
+      var config = document.createElement("script");
+      config.src = "../js/firebase-config.js";
+      config.onload = function () {
+        var m = document.createElement("script");
+        m.type = "module";
+        m.src = "js/nube.js";
+        m.onerror = function () { fin(null); };
+        document.head.appendChild(m);
+      };
+      config.onerror = function () { fin(null); };
+      document.head.appendChild(config);
+    });
+    return promesaNube;
+  }
+
+  // ---------- modal «Necesito ayuda» ----------
+  // Sin teléfonos: el botón crea un aviso que el docente ve en su panel
+  // (js/docente-avisos.js). Como el panel no es una alarma instantánea,
+  // SIEMPRE se insiste en decírselo también en persona.
+  var MOTIVOS_AVISO = [
+    { id: "dano", t: "Alguien me está haciendo daño" },
+    { id: "miedo", t: "Tengo miedo de alguien" },
+    { id: "triste", t: "Estoy muy triste o muy mal" },
+    { id: "otro", t: "Otra cosa" },
+  ];
+
+  function abrirAyuda(origen) {
     if (document.getElementById("velo-ayuda")) return;
+    origen = typeof origen === "string" ? origen : (document.body.getAttribute("data-pagina") || "");
+    var yo = alumno();
     var velo = el("div", "velo");
     velo.id = "velo-ayuda";
-    velo.innerHTML =
-      '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="ayuda-titulo">' +
-      '<div class="modal-cuerpo">' +
-      '<p class="eyebrow" style="color:var(--ayuda)">Necesito ayuda</p>' +
-      '<h2 id="ayuda-titulo">Hay cosas que no tienes que aguantar tú solo ni tú sola</h2>' +
-      '<p class="grande">Si alguien te hace daño, te amenaza o te da miedo, o si estás muy triste desde hace tiempo, eso <b>no</b> se arregla aguantando. ' +
-      "Lo que sí depende de ti es contarlo. Pedir ayuda es de valientes.</p>" +
-      '<div class="contacto">' + icono("persona") +
-      "<div><b>Un adulto de confianza</b><span>Tu maestro o maestra, tu familia, el orientador u orientadora del cole. Díselo hoy.</span></div></div>" +
-      '<div class="contacto">' + icono("telefono") +
-      '<div><b><a href="tel:900202010">900 20 20 10</a></b><span>Teléfono de la Fundación ANAR para niños, niñas y adolescentes. Gratis, confidencial y a cualquier hora.</span></div></div>' +
-      '<div class="contacto">' + icono("telefono") +
-      '<div><b><a href="tel:112">112</a></b><span>Si hay peligro ahora mismo.</span></div></div>' +
-      '<div class="modal-pie"><button type="button" class="btn" id="cerrar-ayuda">Entendido</button></div>' +
-      "</div></div>";
+    var modal = el("div", "modal");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-labelledby", "ayuda-titulo");
+    var cuerpo = el("div", "modal-cuerpo");
+    var ojo = el("p", "eyebrow", "Necesito ayuda");
+    ojo.style.color = "var(--ayuda)";
+    cuerpo.appendChild(ojo);
+    var h = el("h2", null, "No tienes que aguantarlo tú solo ni tú sola");
+    h.id = "ayuda-titulo";
+    cuerpo.appendChild(h);
+    var intro = el("p", "grande");
+    intro.innerHTML = "Si alguien te hace daño, te amenaza o te da miedo, o si estás muy triste desde hace tiempo, eso <b>no</b> se arregla aguantando. Lo que sí depende de ti es contarlo. Pedir ayuda es de valientes.";
+    cuerpo.appendChild(intro);
+
+    var zona = el("div");
+    zona.style.display = "flex";
+    zona.style.flexDirection = "column";
+    zona.style.gap = "12px";
+    cuerpo.appendChild(zona);
+
+    function contactoPersona() {
+      var c = el("div", "contacto");
+      c.innerHTML = icono("persona");
+      var t = el("div");
+      t.appendChild(el("b", null, "Díselo también en persona"));
+      t.appendChild(el("span", null, "A tu maestro o maestra, a tu familia o al orientador u orientadora del cole. Hoy mismo."));
+      c.appendChild(t);
+      return c;
+    }
+
+    if (yo) {
+      zona.appendChild(el("p", null, "Puedes mandarle un aviso a tu maestro o maestra. Lo verá en su panel, con tu nombre."));
+      var form = el("form", "form-aviso");
+      var fs = el("fieldset", "motivos-aviso");
+      fs.appendChild(el("legend", null, "¿Qué te pasa?"));
+      MOTIVOS_AVISO.forEach(function (m, i) {
+        var lab = el("label", "motivo-aviso");
+        var inp = document.createElement("input");
+        inp.type = "radio";
+        inp.name = "motivo-aviso";
+        inp.value = m.id;
+        if (i === 0) inp.required = true;
+        lab.appendChild(inp);
+        lab.appendChild(el("span", null, m.t));
+        fs.appendChild(lab);
+      });
+      form.appendChild(fs);
+      var lt = el("label", "etiqueta-aviso", "Si quieres, cuéntalo un poco (no es obligatorio):");
+      lt.setAttribute("for", "mensaje-aviso");
+      form.appendChild(lt);
+      var ta = document.createElement("textarea");
+      ta.id = "mensaje-aviso";
+      ta.maxLength = 500;
+      ta.rows = 3;
+      form.appendChild(ta);
+      var enviar = el("button", "btn btn-avisar", "Avisar a mi maestro o maestra");
+      enviar.type = "submit";
+      form.appendChild(enviar);
+      var estado = el("p", "estado-aviso");
+      estado.setAttribute("role", "status");
+      form.appendChild(estado);
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var elegido = form.querySelector("input[name=motivo-aviso]:checked");
+        if (!elegido) { estado.textContent = "Elige una opción."; return; }
+        enviar.disabled = true;
+        estado.textContent = "Enviando…";
+        nube()
+          .then(function (n) {
+            if (!n) throw new Error("sin-nube");
+            return n.enviarAviso({ motivo: elegido.value, mensaje: ta.value.trim(), origen: origen });
+          })
+          .then(function (res) {
+            form.innerHTML = "";
+            var ok = el("div", "aviso-ok");
+            ok.appendChild(el("b", null, res === "en-cola" ? "Aviso guardado" : "Aviso enviado"));
+            ok.appendChild(el("span", null, res === "en-cola"
+              ? "Ahora mismo no hay conexión: se enviará en cuanto vuelva internet."
+              : "Tu maestro o maestra lo verá en su panel."));
+            form.appendChild(ok);
+          })
+          .catch(function () {
+            enviar.disabled = false;
+            estado.textContent = "No se ha podido enviar. Díselo en persona a tu maestro o maestra.";
+          });
+      });
+      zona.appendChild(form);
+    } else if (esDocente()) {
+      var d = el("p", "aviso-docente");
+      d.innerHTML = "Has entrado como docente. Cuando un alumno o alumna con clave pulsa este botón, el aviso te llega al <a href=\"../docente/dashboard.html\">panel docente</a>.";
+      zona.appendChild(d);
+    } else {
+      var sin = el("div", "aviso-sin-clave");
+      sin.appendChild(el("p", null, enVistaPrevia()
+        ? "Estás en la vista previa del docente: desde aquí no se envían avisos."
+        : "Para mandar un aviso a tu maestro o maestra, entra con tu clave de Aprende y Repasa."));
+      if (!enVistaPrevia()) {
+        var a = el("a", "btn", "Entrar con mi clave");
+        a.href = "../alumno-login.html?volver=" + encodeURIComponent("ciudadela/" + (location.pathname.split("/").pop() || "index.html"));
+        sin.appendChild(a);
+      }
+      zona.appendChild(sin);
+    }
+    zona.appendChild(contactoPersona());
+
+    var pie = el("div", "modal-pie");
+    var cerrarBtn = el("button", "btn suave", "Cerrar");
+    cerrarBtn.type = "button";
+    cerrarBtn.id = "cerrar-ayuda";
+    pie.appendChild(cerrarBtn);
+    cuerpo.appendChild(pie);
+    modal.appendChild(cuerpo);
+    velo.appendChild(modal);
     document.body.appendChild(velo);
+
     var cerrar = function () {
       velo.remove();
       document.removeEventListener("keydown", tecla);
     };
     var tecla = function (e) { if (e.key === "Escape") cerrar(); };
     velo.addEventListener("click", function (e) { if (e.target === velo) cerrar(); });
-    document.getElementById("cerrar-ayuda").addEventListener("click", cerrar);
+    cerrarBtn.addEventListener("click", cerrar);
     document.addEventListener("keydown", tecla);
-    document.getElementById("cerrar-ayuda").focus();
+    var primero = modal.querySelector("input, .btn");
+    (primero || cerrarBtn).focus();
+    // Se empieza a cargar Firebase ya, para que el envío sea rápido.
+    if (yo) nube();
   }
 
   // ---------- lectura fácil ----------
   function aplicarLectura(activa) {
     document.body.classList.toggle("lectura-facil", !!activa);
+  }
+
+  function chipAlumno() {
+    var yo = alumno();
+    if (yo) {
+      return '<span class="chip-alumno" title="Has entrado con tu clave">' + icono("persona") +
+        String(yo.nickname || yo.code).replace(/[<>&"]/g, "") +
+        ' <button type="button" id="btn-salir-alumno">Salir</button></span>';
+    }
+    if (esDocente() || enVistaPrevia()) return "";
+    var volver = encodeURIComponent("ciudadela/" + (location.pathname.split("/").pop() || "index.html"));
+    return '<a class="volver-ar" href="../alumno-login.html?volver=' + volver + '">Entrar con mi clave</a>';
   }
 
   // ---------- barra superior ----------
@@ -206,6 +375,7 @@
       (enPortada
         ? '<a class="volver-ar" href="../index.html">← Aprende y Repasa</a>'
         : '<a class="volver-ar" href="index.html">← Inicio</a>') +
+      chipAlumno() +
       '<button type="button" class="chip" id="btn-lectura" aria-pressed="false">Lectura fácil</button>' +
       '<button type="button" class="btn-ayuda" id="btn-ayuda">' + icono("ayuda") + "Necesito ayuda</button>" +
       "</div></div></div>";
@@ -220,7 +390,18 @@
       aplicarLectura(nueva);
       guardar("ciudadela_lectura", nueva);
     });
-    document.getElementById("btn-ayuda").addEventListener("click", abrirAyuda);
+    document.getElementById("btn-ayuda").addEventListener("click", function () { abrirAyuda(); });
+    // En tablets compartidas, salir es lo que impide que el siguiente
+    // alumno vea el diario del anterior. Borra lo mismo que
+    // clearStudentSession() en js/auth.js.
+    var salir = document.getElementById("btn-salir-alumno");
+    if (salir) salir.addEventListener("click", function () {
+      if (!confirm("¿Salir de tu clave en este dispositivo? Para volver a entrar necesitarás tu clave.")) return;
+      try {
+        ["ar_estudiante", "ar_visibilidad", "ar_soluciones"].forEach(function (k) { localStorage.removeItem(k); });
+      } catch (e) {}
+      location.reload();
+    });
   }
 
   // Sustituye <i data-icono="nombre"></i> por el SVG correspondiente.
@@ -230,6 +411,45 @@
       nodos[i].innerHTML = icono(nodos[i].getAttribute("data-icono"));
     }
   }
+
+  // ---------- diario: en la nube con clave, en el navegador sin ella ----------
+  var CLAVE_DIARIO = "ciudadela_diario";
+  var diario = {
+    enNube: function () { return !!alumno(); },
+    listar: function () {
+      if (!alumno()) {
+        var e = leer(CLAVE_DIARIO, []);
+        return Promise.resolve(Array.isArray(e) ? e : []);
+      }
+      return nube().then(function (n) {
+        if (!n) throw new Error("sin-nube");
+        return n.diario.listar();
+      });
+    },
+    anadir: function (entrada) {
+      if (!alumno()) {
+        var e = leer(CLAVE_DIARIO, []);
+        e = Array.isArray(e) ? e : [];
+        e.unshift(entrada);
+        return guardar(CLAVE_DIARIO, e) ? Promise.resolve(entrada.id) : Promise.reject(new Error("local"));
+      }
+      return nube().then(function (n) {
+        if (!n) throw new Error("sin-nube");
+        return n.diario.anadir(entrada);
+      });
+    },
+    borrar: function (id) {
+      if (!alumno()) {
+        var e = leer(CLAVE_DIARIO, []);
+        guardar(CLAVE_DIARIO, (Array.isArray(e) ? e : []).filter(function (x) { return String(x.id) !== String(id); }));
+        return Promise.resolve();
+      }
+      return nube().then(function (n) {
+        if (!n) throw new Error("sin-nube");
+        return n.diario.borrar(id);
+      });
+    },
+  };
 
   window.Ciudadela = {
     ICONOS: ICONOS,
@@ -242,6 +462,10 @@
     callar: callar,
     hayVoz: hayVoz,
     abrirAyuda: abrirAyuda,
+    alumno: alumno,
+    esDocente: esDocente,
+    nube: nube,
+    diario: diario,
     pintarIconos: pintarIconos,
   };
 

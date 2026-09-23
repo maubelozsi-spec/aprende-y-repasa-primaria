@@ -694,3 +694,39 @@ body.proyectando .escenario-cuerpo{padding-inline:clamp(28px,6vw,110px)}
 .articulo th{font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--tinta-suave)}
 .tabla-scroll{overflow-x:auto}
 .fuera{border-left:5px solid var(--ayuda)}
+
+/* ============================================================
+   Aviso al docente (modal «Necesito ayuda») y chip del alumno
+   ============================================================ */
+.chip-alumno{display:inline-flex; align-items:center; gap:6px; font-weight:800; font-size:14px; padding:6px 12px; border-radius:999px; background:var(--templanza-suave); color:var(--templanza)}
+.chip-alumno svg{width:16px; height:16px}
+.form-aviso{display:flex; flex-direction:column; gap:10px}
+.motivos-aviso{border:0; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
+.motivos-aviso legend{font-weight:800; margin-bottom:6px; padding:0}
+.motivo-aviso{display:flex; gap:10px; align-items:center; padding:10px 12px; border-radius:10px; border:2px solid var(--linea); background:var(--papel-2); cursor:pointer; font-weight:700}
+.motivo-aviso input{width:20px; height:20px; accent-color:var(--ayuda); margin:0}
+.motivo-aviso:has(input:checked){border-color:var(--ayuda); background:var(--ayuda-suave)}
+.etiqueta-aviso{font-weight:700; font-size:15px}
+.form-aviso textarea{font:inherit; font-size:16px; padding:10px 12px; border-radius:10px; border:2px solid var(--linea); background:var(--papel-2); color:var(--tinta); resize:vertical}
+.form-aviso textarea:focus{outline:none; border-color:var(--ayuda)}
+.btn-avisar{background:var(--ayuda); border-color:var(--ayuda); align-self:flex-start}
+.estado-aviso{font-size:15px; font-weight:700; color:var(--tinta-suave); min-height:1.2em}
+.aviso-ok{display:flex; flex-direction:column; gap:4px; padding:14px 16px; border-radius:12px; background:var(--templanza-suave); border-left:5px solid var(--templanza)}
+.aviso-ok b{font-family:var(--disp); font-size:22px}
+.aviso-sin-clave{display:flex; flex-direction:column; gap:10px; align-items:flex-start; padding:14px 16px; border-radius:12px; background:var(--papel-2)}
+.aviso-docente{padding:14px 16px; border-radius:12px; background:var(--papel-2)}
+
+/* colores de los tipos de juego nuevos */
+.r-sabiduria{--r-color:var(--sabiduria); --r-suave:var(--sabiduria-suave)}
+.r-justicia{--r-color:var(--justicia); --r-suave:var(--justicia-suave)}
+.r-coraje{--r-color:var(--coraje); --r-suave:var(--coraje-suave)}
+.r-templanza{--r-color:var(--templanza); --r-suave:var(--templanza-suave)}
+.r-justo{--r-color:var(--templanza); --r-suave:var(--templanza-suave)}
+.r-pasa{--r-color:var(--coraje); --r-suave:var(--coraje-suave)}
+.r-corto{--r-color:var(--sabiduria); --r-suave:var(--sabiduria-suave)}
+.r-yo{--r-color:var(--templanza); --r-suave:var(--templanza-suave)}
+.r-adulto{--r-color:var(--ayuda); --r-suave:var(--ayuda-suave)}
+.chip-alumno button{border:0; background:transparent; color:inherit; font:inherit; font-size:12.5px; text-decoration:underline; cursor:pointer; padding:0 0 0 4px}
+.saltos-bloque{display:flex; flex-wrap:wrap; gap:6px}
+.saltos-bloque .chip{padding:4px 10px; font-size:13px}
+.lista-sesiones{position:relative}

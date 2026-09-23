@@ -5,7 +5,8 @@ rules_version = '2';
 // "aprende-y-repasa-cc321", que aloja CINCO apps distintas:
 //
 //   - App educativa "Aprende y Repasa" (colecciones "teachers",
-//     "classes", "students", "udiHistorial").
+//     "classes", "students", "udiHistorial"), incluida La Ciudadela
+//     ("ciudadelaAvisos" y la subcolección students/*/ciudadelaDiario).
 //   - App del viaje a Finlandia (colecciones "trips", "tripInvites").
 //   - App "Reunión de familias" (colecciones "reunionFamilias",
 //     "reunionFamiliasSecciones", "reunionFamiliasSecret",
@@ -99,6 +100,40 @@ service cloud.firestore {
                        && get(/databases/$(database)/documents/students/$(code)).data.authUid == request.auth.uid;
         allow read: if isOwnerTeacher(get(/databases/$(database)/documents/students/$(code)).data.teacherId);
       }
+
+      // Diario de La Ciudadela: SOLO el propio alumno (su dispositivo
+      // activo). A propósito, sin regla de lectura para el docente: un
+      // diario que lee el maestro deja de ser un diario.
+      match /ciudadelaDiario/{entryId} {
+        allow read, write: if signedIn()
+                       && get(/databases/$(database)/documents/students/$(code)).data.authUid == request.auth.uid;
+      }
+    }
+
+    // Avisos del botón «Necesito ayuda» de La Ciudadela. Los crea el
+    // dispositivo activo de un alumno, con su docente y su clase tal y
+    // como constan en su ficha (no puede avisar "en nombre" de otro ni
+    // a otro docente). Solo los lee su docente, que puede marcarlos
+    // como atendidos; el alumno no puede leerlos ni borrarlos después.
+    match /ciudadelaAvisos/{avisoId} {
+      function fichaAlumno() {
+        return get(/databases/$(database)/documents/students/$(request.resource.data.studentCode)).data;
+      }
+      allow create: if signedIn()
+                    && request.resource.data.studentCode is string
+                    && fichaAlumno().authUid == request.auth.uid
+                    && request.resource.data.teacherId == fichaAlumno().teacherId
+                    && request.resource.data.classId == fichaAlumno().get("classId", "")
+                    && request.resource.data.atendido == false
+                    && request.resource.data.mensaje is string
+                    && request.resource.data.mensaje.size() <= 500
+                    && request.resource.data.keys().hasOnly(["teacherId", "classId", "studentCode", "nickname",
+                         "motivo", "mensaje", "origen", "atendido", "createdAt"]);
+      allow read: if signedIn() && resource.data.teacherId == request.auth.uid;
+      allow update: if signedIn()
+                    && resource.data.teacherId == request.auth.uid
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["atendido", "atendidoAt"]);
+      allow delete: if isOwnerTeacher(resource.data.teacherId);
     }
 
     // ================= App Reunión de familias =================
