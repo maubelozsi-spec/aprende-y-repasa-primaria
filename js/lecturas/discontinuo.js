@@ -607,12 +607,6 @@ window.LECTURAS["discontinuo"] = [
         ["Lluvia (mm)", "69", "60", "52", "44", "20", "6", "0", "6", "20", "57", "100", "100"],
         ["Horas de sol", "180", "180", "222", "244", "292", "329", "347", "316", "255", "215", "172", "160"],
       ] }, nota: "Fuente: AEMET. Cada letra es la inicial de un mes, de enero (E) a diciembre (D). En total, en Málaga hay de media unas 2.900 horas de sol al año." },
-      { lista: [
-        "Lee el título: dice qué se mide, dónde y en qué años.",
-        "Mira la fila de cabecera para saber qué hay en cada columna.",
-        "Busca la unidad de cada dato: °C, mm, días u horas.",
-        "Compara filas o columnas para sacar conclusiones, no te quedes con un solo número.",
-      ], ordenada: true, titulo: "Cómo leer una tabla de datos del clima" },
       { dato: "En el valle del Guadalquivir, donde están Córdoba y Sevilla, se registran algunas de las temperaturas más altas de España en verano." },
     ],
     vocabulario: [
