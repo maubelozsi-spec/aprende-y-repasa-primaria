@@ -5,15 +5,23 @@
 // preguntas de comprensión lectora, opinión personal y reflexión.
 // ============================================================
 
+// `banco`: clave de window.LECTURAS (js/lecturas/*.js) con las lecturas
+// de «Textos y literatura» que también se ofrecen aquí.
 const TIPOS_TEXTO_LECTURA = [
-  { id: "narrativo", label: "Narrativo (cuento)" },
-  { id: "descriptivo", label: "Descriptivo" },
+  { id: "narrativo", label: "Narrativo (cuento)", banco: "narrativa" },
+  { id: "descriptivo", label: "Descriptivo", banco: "descriptivo" },
   { id: "expositivo", label: "Expositivo" },
-  { id: "argumentativo", label: "Argumentativo" },
-  { id: "instructivo", label: "Instructivo" },
-  { id: "noticia", label: "Noticia" },
-  { id: "cientifico", label: "Científico" },
-  { id: "poetico", label: "Poético" },
+  { id: "argumentativo", label: "Argumentativo", banco: "argumentativo" },
+  { id: "dialogo", label: "Diálogo, entrevista y debate", banco: "dialogo" },
+  { id: "instructivo", label: "Instructivo", banco: "instructivo" },
+  { id: "noticia", label: "Noticia", banco: "noticia" },
+  { id: "cientifico", label: "Científico", banco: "cientifico" },
+  { id: "historico", label: "Histórico", banco: "historico" },
+  { id: "discontinuo", label: "Discontinuo (tablas y datos)", banco: "discontinuo" },
+  { id: "predictivo", label: "Predictivo", banco: "predictivo" },
+  { id: "poetico", label: "Poético", banco: "poesia" },
+  { id: "teatral", label: "Teatral", banco: "teatro" },
+  { id: "tira", label: "Tira cómica", banco: "tira" },
 ];
 
 const TEXTOS_LECTURA = {
@@ -329,15 +337,80 @@ function randomIntLectura(min, max) {
 
 const LECTURA_DISCALCULIA_SCAFFOLD = " Tómate tu tiempo.";
 
-function generarLectura(tipoId, dificultad) {
-  const pool = TEXTOS_LECTURA[tipoId];
-  if (!pool) throw new Error("Tipo de texto no reconocido: " + tipoId);
+// Convierte una lectura de window.LECTURAS al formato de este generador.
+// `parrafos` conserva la estructura (versos, parlamentos, tablas, viñetas)
+// y `cuerpo` es el texto plano (para leer en voz alta y para los recortes).
+function lecturaDesdeBanco(l) {
+  const parrafos = [];
+  (l.texto || []).forEach((b) => {
+    if (b.titular) {
+      parrafos.push({ texto: b.titular, negrita: true });
+      if (b.subtitulo) parrafos.push({ texto: b.subtitulo, cursiva: true });
+      if (b.entradilla) parrafos.push({ texto: b.entradilla, negrita: true });
+    } else if (b.h) parrafos.push({ texto: b.h, negrita: true });
+    else if (b.p) parrafos.push({ texto: b.p });
+    else if (b.estrofa) parrafos.push({ texto: b.estrofa.join("\n") });
+    else if (b.personaje) parrafos.push({ texto: `${b.personaje}. ${b.acot ? "(" + b.acot + ") " : ""}${b.dice}` });
+    else if (b.acot) parrafos.push({ texto: `(${b.acot})`, cursiva: true });
+    else if (b.lista) {
+      if (b.titulo) parrafos.push({ texto: b.titulo, negrita: true });
+      parrafos.push({ texto: b.lista.map((x, i) => (b.ordenada ? `${i + 1}. ` : "• ") + x).join("\n") });
+    } else if (b.tabla) {
+      parrafos.push({ tabla: b.tabla });
+      if (b.nota) parrafos.push({ texto: b.nota, cursiva: true });
+    } else if (b.vinetas) {
+      b.vinetas.forEach((v, i) => {
+        const lineas = [`Viñeta ${i + 1}.` + (v.cartela ? ` [${v.cartela}]` : "") + (v.escena ? ` ${v.escena}` : "")];
+        (v.bocadillos || []).forEach((x) => lineas.push(`${x.quien}${x.forma === "piensa" ? " (piensa)" : x.forma === "grita" ? " (grita)" : ""}: ${x.t}`));
+        parrafos.push({ texto: lineas.join("\n") });
+      });
+    } else if (b.cita) parrafos.push({ texto: b.cita, cursiva: true });
+    else if (b.dato) parrafos.push({ texto: b.dato, cursiva: true });
+  });
+  const cuerpo = parrafos
+    .map((x) => (x.tabla ? [x.tabla.titulo, (x.tabla.cab || []).join(" · ")].concat((x.tabla.filas || []).map((f) => f.join(" · "))).filter(Boolean).join("\n") : x.texto))
+    .join("\n\n");
+
+  const ps = l.preguntas || [];
+  const enunciado = (p) => p.q + (p.opciones ? " " + p.opciones.map((o, i) => `${"abcdef"[i]}) ${o}`).join("   ") : "");
+  const preguntas = ps
+    .filter((p) => p.tipo === "comprension" || p.tipo === "texto")
+    .map((p) => ({ pregunta: enunciado(p), respuesta: p.r || "Respuesta libre." }));
+  const opinion = ps.find((p) => p.tipo === "opinion");
+  const reflexion = ps.find((p) => p.tipo === "reflexion");
+  return {
+    titulo: l.titulo,
+    fuente: l.fuente,
+    cuerpo,
+    parrafos,
+    preguntas,
+    opinion: opinion ? enunciado(opinion) : "¿Qué te ha parecido el texto? ¿Por qué?",
+    reflexion: reflexion ? enunciado(reflexion) : "¿Qué has aprendido con este texto?",
+  };
+}
+
+// Textos disponibles para un tipo y un curso: los de este generador y los de «Textos y literatura».
+function textosDisponiblesLectura(tipoId, curso) {
+  const tipo = TIPOS_TEXTO_LECTURA.find((t) => t.id === tipoId);
+  if (!tipo) return [];
+  const propios = TEXTOS_LECTURA[tipoId] || [];
+  const banco = (tipo.banco && typeof window !== "undefined" && window.LECTURAS && window.LECTURAS[tipo.banco]) || [];
+  const delBanco = banco
+    .filter((l) => !curso || !l.curso || l.curso.indexOf(String(curso)) !== -1)
+    .map(lecturaDesdeBanco);
+  return propios.concat(delBanco);
+}
+
+function generarLectura(tipoId, dificultad, curso) {
+  const pool = textosDisponiblesLectura(tipoId, curso);
+  if (!pool.length) throw new Error("Tipo de texto no reconocido: " + tipoId);
   const original = pool[randomIntLectura(0, pool.length - 1)];
   const texto = Object.assign({ tipoId }, original, { preguntas: original.preguntas.map((p) => Object.assign({}, p)) });
 
   const easyOnly = dificultad === "acs" || dificultad === "discalculia";
   if (easyOnly) {
     texto.cuerpo = texto.cuerpo.split("\n\n").slice(0, 2).join("\n\n");
+    if (texto.parrafos) texto.parrafos = texto.parrafos.slice(0, 3);
     texto.preguntas = texto.preguntas.slice(0, 2);
     if (dificultad === "discalculia") {
       texto.opinion += LECTURA_DISCALCULIA_SCAFFOLD;
@@ -451,6 +524,25 @@ function applyDislexiaStylingLectura(blocks) {
   });
 }
 
+function tablaDocxLectura(t) {
+  const out = [];
+  if (t.titulo) out.push({ runs: [{ text: t.titulo, bold: true }], spacingAfter: 60 });
+  const n = Math.max((t.cab || []).length, ...(t.filas || []).map((f) => f.length));
+  const ancho = Math.floor(9638 / n);
+  const celda = (text, cab) => ({
+    shading: cab ? "D9D9D9" : undefined,
+    borders: allBordersLectura("808080", 4),
+    margins: { top: 40, bottom: 40, left: 80, right: 80 },
+    paragraphs: [{ runs: [{ text: String(text), bold: !!cab, size: 20 }] }],
+  });
+  const rows = [];
+  if (t.cab) rows.push({ cells: t.cab.map((c) => celda(c, true)) });
+  (t.filas || []).forEach((f) => rows.push({ cells: f.map((c) => celda(c, false)) }));
+  out.push({ table: { columnWidths: new Array(n).fill(ancho), rows } });
+  out.push({ runs: [{ text: " " }], spacingAfter: 60 });
+  return out;
+}
+
 function buildLecturaDocument({ curso, fecha, texto, dificultad, showSolutions }) {
   const blocks = [];
   const tipoLabel = (TIPOS_TEXTO_LECTURA.find((t) => t.id === texto.tipoId) || {}).label || "";
@@ -461,10 +553,18 @@ function buildLecturaDocument({ curso, fecha, texto, dificultad, showSolutions }
   const answerLines = isDisgrafia ? 1 : 3;
 
   blocks.push(sectionBarLectura(`Texto: ${texto.titulo}`));
-  texto.cuerpo.split("\n\n").forEach((paragraph, i) => {
+  const parrafos = texto.parrafos || texto.cuerpo.split("\n\n").map((t) => ({ texto: t }));
+  parrafos.forEach((par, i) => {
     if (isTdah && i > 0 && i % 2 === 0) blocks.push(pauseDividerLectura());
-    blocks.push(bodyParaLectura(paragraph));
+    if (par.tabla) {
+      blocks.push(...tablaDocxLectura(par.tabla));
+      return;
+    }
+    const b = bodyParaLectura(par.texto);
+    if (par.negrita || par.cursiva) b.runs = b.runs.map((r) => (r.break ? r : Object.assign({}, r, { bold: !!par.negrita, italic: !!par.cursiva })));
+    blocks.push(b);
   });
+  if (texto.fuente) blocks.push({ runs: [{ text: "Fuente: " + texto.fuente, italic: true, size: 16, color: "595959" }], spacingAfter: 120 });
 
   blocks.push(sectionBarLectura("Comprensión lectora", true));
   texto.preguntas.forEach((p, i) => {
@@ -499,7 +599,7 @@ function buildLecturaDocument({ curso, fecha, texto, dificultad, showSolutions }
 // ---------------- API pública ----------------
 
 function generarLecturaYSoluciones(tipoId, curso, dificultad = "none") {
-  const texto = generarLectura(tipoId, dificultad);
+  const texto = generarLectura(tipoId, dificultad, curso);
   const fecha = todayEsLectura();
   const fichaBlocks = buildLecturaDocument({ curso, fecha, texto, dificultad, showSolutions: false });
   const solucionesBlocks = buildLecturaDocument({ curso, fecha, texto, dificultad, showSolutions: true });

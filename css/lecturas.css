@@ -123,6 +123,7 @@ body.lect-pizarra-abierta { overflow: hidden; }
   body.lect-imprimiendo #lect-imprimir { display: block; }
 
   .lf { font-family: var(--font, Arial, sans-serif); font-size: 10.6pt; line-height: 1.42; color: #000; }
+  .lf .lect-texto { font-size: 11.5pt; line-height: 1.45; }
   .lf-cab { display: flex; gap: 10pt; border-bottom: 1.5pt solid #000; padding-bottom: 4pt; margin-bottom: 8pt; font-size: 9.5pt; }
   .lf-cab span { flex: 1; }
   .lf-cab span:first-child { flex: 2.4; }
