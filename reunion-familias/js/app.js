@@ -436,6 +436,8 @@ function escucharNube() {
       if (snap.exists()) {
         const datos = snap.data();
         if (datos && Array.isArray(datos.secciones)) {
+          const retiradas = window.SECCIONES_RETIRADAS || [];
+          datos.secciones = datos.secciones.filter((s) => !retiradas.includes(s.id));
           estado.app = datos;
           aplicarTema();
           render();

@@ -18,6 +18,11 @@
 //   img       → imagen (src + cap); las añade el docente al editar
 // ============================================================
 
+// Apartados retirados de la presentación. Si el documento guardado en
+// Firestore todavía los lista, la app los descarta al cargarlo y el
+// siguiente guardado ya los elimina de la nube.
+window.SECCIONES_RETIRADAS = ["viaje"];
+
 window.CONTENIDO_INICIAL = {
   app: {
     curso: "2026/2027",
@@ -50,7 +55,6 @@ window.CONTENIDO_INICIAL = {
       { id: "digital",        titulo: "Entorno digital",           visible: true },
       { id: "tutorias",       titulo: "Tutorías",                  visible: true },
       { id: "extraescolares", titulo: "Extraescolares",            visible: true },
-      { id: "viaje",          titulo: "Viaje fin de curso",        visible: true },
       { id: "contacto",       titulo: "Contacto y despedida",      visible: true },
     ],
   },
@@ -124,7 +128,7 @@ window.CONTENIDO_INICIAL = {
           "<b style=\"color:var(--tiza-azul)\">FALTAS LEVES</b><br>Se registran diariamente por cualquier maestro/a a través de la aplicación Séneca:<br>– Perturbar el desarrollo de la clase.<br>– No hacer la tarea.<br>– Molestar a los compañer@s…<br>Pueden derivar en un Parte de Incidencias si son reiteradas.",
           "<b style=\"color:var(--tiza-rosa)\">FALTAS GRAVES</b><br>Tendrán un Parte de Incidencias inmediato. Se comunicará inmediatamente a las familias a través de las observaciones de iPasen:<br>– Agresiones físicas o verbales.<br>– Humillar, amenazar o coaccionar.<br>– Sustraer materiales o documentos.<br>– Dañar las instalaciones.",
         ] },
-        { t: "destacado", html: "<b>Compromisos educativos o de convivencia:</b> dependiendo de la falta que se cometa, se establecerá con el alumno/a y con la familia un compromiso educativo o de convivencia. Tanto la acumulación de faltas leves como tener alguna falta grave supone no poder asistir a la próxima salida que haga el grupo. <u>Estas faltas pueden llevar a la suspensión de actividades extraescolares, incluido el viaje fin de curso.</u>" },
+        { t: "destacado", html: "<b>Compromisos educativos o de convivencia:</b> dependiendo de la falta que se cometa, se establecerá con el alumno/a y con la familia un compromiso educativo o de convivencia. Tanto la acumulación de faltas leves como tener alguna falta grave supone no poder asistir a la próxima salida que haga el grupo. <u>Estas faltas pueden llevar a la suspensión de actividades extraescolares.</u>" },
       ],
     },
 
@@ -244,19 +248,6 @@ window.CONTENIDO_INICIAL = {
         { t: "h", html: "Actividades complementarias y extraescolares" },
         { t: "ul", html: "<ul><li><b>Primer trimestre:</b> <span class=\"por-confirmar\">[POR CONFIRMAR]</span></li><li><b>Segundo trimestre:</b> <span class=\"por-confirmar\">[POR CONFIRMAR]</span></li><li><b>Tercer trimestre:</b> <span class=\"por-confirmar\">[POR CONFIRMAR]</span></li></ul>" },
         { t: "p", html: "Durante el curso: asistencia a teatros, conciertos, salidas por el entorno…" },
-      ],
-    },
-
-    viaje: {
-      bloques: [
-        { t: "h", html: "Viaje fin de curso" },
-        { t: "p", html: "<span class=\"por-confirmar\">[POR CONFIRMAR si se realiza en 5º o se deja para 6º. Si no procede este curso, este apartado puede ocultarse desde Configuración]</span>" },
-        { t: "p", html: "Como referencia, el itinerario del último viaje realizado (Madrid, 4 días):" },
-        { t: "ul", html: "<ul><li><b>Día 1 · Almería - Madrid:</b> salida en autocar desde el centro, paseo por El Retiro y visita guiada a pie por el centro histórico de Madrid. Llegada al alojamiento.</li><li><b>Día 2 · Puy du Fou:</b> espectáculos históricos y por la noche «El Sueño de Toledo».</li><li><b>Día 3 · Parque Warner:</b> atracciones y espectáculos, con ticket de almuerzo en el interior.</li><li><b>Día 4 · Regreso:</b> visita al Museo del Prado, almuerzo picnic y regreso a casa.</li></ul>" },
-        { t: "cols", cols: [
-          "<b>Transporte:</b> traslados desde el centro educativo ida y vuelta y todas las actividades del itinerario.<br><br><b>Alojamiento:</b> bungalows a las afueras de Madrid, habitaciones múltiples (4-5 plazas) con baño privado.<br><br><b>Comidas:</b> pensión completa (entrada con cena y salida con almuerzo).",
-          "<b>Presupuesto:</b> <span class=\"por-confirmar\">[POR CONFIRMAR, referencia anterior: desde 385 € · 4 días]</span>.<br><br><b>Seguro de cancelación</b> (opcional): hasta 22 coberturas; cada familia elige si lo contrata en el momento de la inscripción.<br><br>Si queréis hacer alguna modificación estamos abiertos a sugerencias: los programas son 100% personalizados.",
-        ] },
       ],
     },
 
