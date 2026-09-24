@@ -216,6 +216,7 @@ body {
   border: 3px solid var(--tarjeta-borde);
   background: #fff;
 }
+.bloque-img a { display: inline-block; cursor: zoom-in; }
 .bloque-img figcaption { color: var(--texto-suave); font-size: 17px; margin-top: 6px; }
 
 .bloque-tabla { overflow-x: auto; }
@@ -231,6 +232,10 @@ body {
   text-align: center;
 }
 .bloque-tabla th { color: var(--tiza-amarilla); }
+
+.bloque-tabla table.horario { font-size: clamp(12px, 1.5vw, 17px); line-height: 1.15; }
+.bloque-tabla table.horario td, .bloque-tabla table.horario th { padding: 4px 8px; border-color: rgba(31, 37, 48, .22); }
+.bloque-tabla table.horario small { font-size: .78em; opacity: .85; }
 
 .por-confirmar { color: var(--tiza-amarilla); font-style: italic; }
 
@@ -264,6 +269,8 @@ body {
   margin: 8px 0 0;
 }
 .portada .grupo-centro { color: var(--texto-suave); font-size: clamp(18px, 2.2vw, 24px); margin-top: 6px; }
+.portada .fecha-reunion { color: var(--tiza-rosa); font-family: var(--fuente-titulos); font-size: clamp(22px, 2.8vw, 32px); margin-top: 14px; }
+.portada .fecha-reunion:empty { display: none; }
 
 .deco { position: absolute; font-family: var(--fuente-titulos); font-weight: 700; opacity: .8; pointer-events: none; user-select: none; }
 .deco-1 { top: 9%;  left: 10%; font-size: clamp(40px, 7vw, 90px);  color: var(--tiza-azul);    transform: rotate(-14deg); }

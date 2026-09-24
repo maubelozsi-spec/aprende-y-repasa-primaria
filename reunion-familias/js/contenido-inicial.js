@@ -21,9 +21,10 @@
 window.CONTENIDO_INICIAL = {
   app: {
     curso: "2026/2027",
-    grupo: "5º [POR CONFIRMAR grupo]",
+    grupo: "5º C",
     tutor: "Miguel Ángel Úbeda López",
     centro: "CEIP San Indalecio · La Cañada (Almería)",
+    fecha: "Reunión de familias · lunes, 28 de septiembre de 2026",
     tema: "pizarra-negra",
     fondoColor: null,
     fondoImagen: null,
@@ -59,7 +60,7 @@ window.CONTENIDO_INICIAL = {
       bloques: [
         { t: "h", html: "Me presento" },
         { t: "p", html: "Mi nombre es <b>Miguel Ángel Úbeda</b> y seré el tutor del grupo durante este curso." },
-        { t: "p", html: "En esta aula imparto las asignaturas de <span class=\"por-confirmar\">[POR CONFIRMAR: Lengua, Matemáticas, Ciudadanía y Plástica]</span>." },
+        { t: "p", html: "En esta aula imparto <b>Lengua, Matemáticas y Plástica</b>." },
         { t: "p", html: "<span class=\"por-confirmar\">[POR CONFIRMAR: otras asignaturas o grupos en los que imparto docencia y programas que coordino, p. ej. Programa STEAM]</span>" },
       ],
     },
@@ -67,26 +68,32 @@ window.CONTENIDO_INICIAL = {
     calendario: {
       bloques: [
         { t: "h", html: "Calendario escolar 2026/2027" },
-        { t: "ul", html: "<ul><li><b>Primer trimestre:</b> <span class=\"por-confirmar\">[POR CONFIRMAR: del 10 de septiembre al 22 de diciembre]</span>. Sesión de la 1ª evaluación: <span class=\"por-confirmar\">[fecha]</span>.</li><li><b>Segundo trimestre:</b> <span class=\"por-confirmar\">[POR CONFIRMAR: del 7 de enero al 19 de marzo]</span>. Sesión de la 2ª evaluación: <span class=\"por-confirmar\">[fecha]</span>.</li><li><b>Tercer trimestre:</b> <span class=\"por-confirmar\">[POR CONFIRMAR: del 5 de abril al 22 de junio]</span>. Sesión de la 3ª evaluación: <span class=\"por-confirmar\">[fecha]</span>.</li></ul>" },
-        { t: "destacado", html: "Los boletines de notas se entregarán a través del <b>Punto de Recogida de iPasen</b>." },
-        { t: "p", html: "<span class=\"por-confirmar\">[Sugerencia: añadir aquí una imagen del calendario escolar oficial de la provincia con el botón «Añadir bloque → Imagen»]</span>" },
+        { t: "ul", html: "<ul><li><b>Primer trimestre:</b> del 10 de septiembre al 22 de diciembre (68 días lectivos).</li><li><b>Segundo trimestre:</b> del 7 de enero al 19 de marzo (50 días lectivos).</li><li><b>Tercer trimestre:</b> del 30 de marzo al 22 de junio (60 días lectivos).</li></ul>" },
+        { t: "h", html: "Días sin clase" },
+        { t: "cols", cols: [
+          "<b>9 de octubre</b> · no lectivo<br><b>12 de octubre</b> · Fiesta Nacional<br><b>30 de octubre</b> · no lectivo<br><b>2 de noviembre</b> · Todos los Santos<br><b>7 y 8 de diciembre</b> · Constitución e Inmaculada<br><b>Navidad:</b> del 23 de diciembre al 6 de enero",
+          "<b>26 de febrero</b> · Día de la Comunidad Educativa<br><b>1 de marzo</b> · festivo por el Día de Andalucía<br><b>Semana Santa:</b> del 22 al 29 de marzo<br><b>30 de abril</b> · no lectivo<br><br><span class=\"por-confirmar\">[POR CONFIRMAR: fiestas locales de Almería, que no aparecen en el calendario provincial]</span>",
+        ] },
+        { t: "destacado", html: "Los boletines de notas se entregarán a través del <b>Punto de Recogida de iPasen</b> al final de cada trimestre." },
+        { t: "img", src: "img/calendario-escolar-almeria-2026-2027.png", cap: "Calendario escolar oficial de Almería 2026/2027 (Delegación Territorial). Pulsa la imagen para verla a tamaño completo." },
+        { t: "p", html: "<a href=\"img/calendario-escolar-almeria-2026-2027.pdf\" target=\"_blank\" rel=\"noopener\">📄 Descargar el calendario oficial (PDF)</a>" },
       ],
     },
 
     horario: {
       bloques: [
-        { t: "h", html: "Horario del grupo" },
-        { t: "tabla", html: "<table><thead><tr><th>Hora</th><th>Lunes</th><th>Martes</th><th>Miércoles</th><th>Jueves</th><th>Viernes</th></tr></thead><tbody><tr><td>9:00-9:45</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>9:45-10:30</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>10:30-11:30</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>11:30-12:00</td><td colspan=\"5\">RECREO</td></tr><tr><td>12:00-13:00</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>13:00-14:00</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody></table>" },
-        { t: "p", html: "<span class=\"por-confirmar\">[POR CONFIRMAR: rellenar el horario definitivo de 5º para 2026/2027 pinchando en cada casilla, o sustituir la tabla por una foto del horario]</span>" },
+        { t: "h", html: "Horario de 5º C" },
+        { t: "tabla", html: "<table class=\"horario\"><thead><tr><th style=\"background:#1B4A75;color:#fff\">Hora</th><th style=\"background:#1B4A75;color:#fff\">Lunes</th><th style=\"background:#1B4A75;color:#fff\">Martes</th><th style=\"background:#1B4A75;color:#fff\">Miércoles</th><th style=\"background:#1B4A75;color:#fff\">Jueves</th><th style=\"background:#1B4A75;color:#fff\">Viernes</th></tr></thead><tbody><tr><td style=\"color:#1f2530;background:#EEF3F8;white-space:nowrap\">9:00-9:30</td><td style=\"color:#1f2530;background:#FBE3D8\"><b>Matemáticas</b></td><td style=\"color:#1f2530;background:#D7EFEA\">E. Física<br><small>(Lectura)</small></td><td style=\"color:#1f2530;background:#FBE3D8\"><b>Matemáticas</b></td><td style=\"color:#1f2530;background:#E7E0F5\">Religión<br><small>o At. Educativa</small><br><small>(Lectura)</small></td><td style=\"color:#1f2530;background:#F8DEDE\">Francés<br><small>o ALCT</small></td></tr><tr><td style=\"color:#1f2530;background:#EEF3F8;white-space:nowrap\">9:30-10:00</td><td style=\"color:#1f2530;background:#FBE3D8\"><b>Matemáticas</b></td><td style=\"color:#1f2530;background:#D7EFEA\">E. Física</td><td style=\"color:#1f2530;background:#FBE3D8\"><b>Matemáticas</b></td><td style=\"color:#1f2530;background:#E7E0F5\">Religión<br><small>o At. Educativa</small></td><td style=\"color:#1f2530;background:#F8DEDE\">Francés<br><small>o ALCT</small></td></tr><tr><td style=\"color:#1f2530;background:#EEF3F8;white-space:nowrap\">10:00-10:30</td><td style=\"color:#1f2530;background:#FBE3D8\"><b>Matemáticas</b><br><small>(Resolución de problemas)</small></td><td style=\"color:#1f2530;background:#D7EFEA\">E. Física</td><td style=\"color:#1f2530;background:#DCE8F4\"><b>Lengua</b></td><td style=\"color:#1f2530;background:#E7E0F5\">Religión<br><small>o At. Educativa</small></td><td style=\"color:#1f2530;background:#F2E5D7\">Música</td></tr><tr><td style=\"color:#1f2530;background:#EEF3F8;white-space:nowrap\">10:30-11:00</td><td style=\"color:#1f2530;background:#E8F1DA\">C. Medio</td><td style=\"color:#1f2530;background:#FAECCE\">Inglés</td><td style=\"color:#1f2530;background:#DCE8F4\"><b>Lengua</b></td><td style=\"color:#1f2530;background:#D7EFEA\">E. Física</td><td style=\"color:#1f2530;background:#F2E5D7\">Música</td></tr><tr><td style=\"color:#1f2530;background:#EEF3F8;white-space:nowrap\">11:00-11:30</td><td style=\"color:#1f2530;background:#E8F1DA\">C. Medio</td><td style=\"color:#1f2530;background:#FAECCE\">Inglés</td><td style=\"color:#1f2530;background:#FADFEE\"><b>Plástica</b></td><td style=\"color:#1f2530;background:#D7EFEA\">E. Física</td><td style=\"color:#1f2530;background:#E8F1DA\">C. Medio</td></tr><tr><td style=\"color:#1f2530;background:#EEF3F8;white-space:nowrap\">11:30-12:00</td><td style=\"color:#1f2530;background:#E8F1DA\">C. Medio</td><td style=\"color:#1f2530;background:#FAECCE\">Inglés</td><td style=\"color:#1f2530;background:#FADFEE\"><b>Plástica</b></td><td style=\"color:#1f2530;background:#D7EFEA\">E. Física</td><td style=\"color:#1f2530;background:#E8F1DA\">C. Medio</td></tr><tr><td style=\"color:#1f2530;background:#E6E6E6\">12:00-12:30</td><td colspan=\"5\" style=\"color:#1f2530;background:#E6E6E6;letter-spacing:.3em\"><b>RECREO</b></td></tr><tr><td style=\"color:#1f2530;background:#EEF3F8;white-space:nowrap\">12:30-13:00</td><td style=\"color:#1f2530;background:#DCE8F4\"><b>Lengua</b><br><small>(PT)</small></td><td style=\"color:#1f2530;background:#FBE3D8\"><b>Matemáticas</b><br><small>(Resolución de problemas) (PT)</small></td><td style=\"color:#1f2530;background:#FAECCE\">Inglés<br><small>(Lectura)</small></td><td style=\"color:#1f2530;background:#DCE8F4\"><b>Lengua</b><br><small>(PT)</small></td><td style=\"color:#1f2530;background:#FBE3D8\"><b>Matemáticas</b></td></tr><tr><td style=\"color:#1f2530;background:#EEF3F8;white-space:nowrap\">13:00-13:30</td><td style=\"color:#1f2530;background:#DCE8F4\"><b>Lengua</b><br><small>(PT)</small></td><td style=\"color:#1f2530;background:#DCE8F4\"><b>Lengua</b><br><small>(PT)</small></td><td style=\"color:#1f2530;background:#FAECCE\">Inglés</td><td style=\"color:#1f2530;background:#DCE8F4\"><b>Lengua</b><br><small>(PT)</small></td><td style=\"color:#1f2530;background:#FBE3D8\"><b>Matemáticas</b><br><small>(Cálculo mental)</small></td></tr><tr><td style=\"color:#1f2530;background:#EEF3F8;white-space:nowrap\">13:30-14:00</td><td style=\"color:#1f2530;background:#DCE8F4\"><b>Lengua</b><br><small>(Lectura) (PT)</small></td><td style=\"color:#1f2530;background:#DCE8F4\"><b>Lengua</b><br><small>(PT)</small></td><td style=\"color:#1f2530;background:#FAECCE\">Inglés</td><td style=\"color:#1f2530;background:#FBE3D8\"><b>Matemáticas</b><br><small>(Resolución de problemas) (PT)</small></td><td style=\"color:#1f2530;background:#DCE8F4\"><b>Lengua</b><br><small>(Lectura)</small></td></tr></tbody></table>" },
+        { t: "p", html: "<small>En <b>negrita</b>, las áreas que imparte el tutor. <b>PT</b>: apoyo de Pedagogía Terapéutica. <b>ALCT</b>: Área Lingüística de Carácter Transversal, alternativa al Francés. Sesiones de 30 minutos: 45 a la semana (22,5 horas).</small>" },
         { t: "h", html: "Novedades" },
-        { t: "ul", html: "<ul><li>½ hora de <b>lectura diaria</b>.</li><li>2 medias horas de <b>cálculo</b> semanal.</li><li>½ hora de <b>resolución de problemas</b> 3 días a la semana.</li><li><span class=\"por-confirmar\">[POR CONFIRMAR: otras novedades del curso]</span></li></ul>" },
+        { t: "ul", html: "<ul><li>½ hora de <b>lectura diaria</b>.</li><li>½ hora de <b>resolución de problemas</b> 3 días a la semana.</li><li>½ hora semanal de <b>cálculo mental</b>.</li><li><span class=\"por-confirmar\">[POR CONFIRMAR: otras novedades del curso]</span></li></ul>" },
       ],
     },
 
     equipo: {
       bloques: [
         { t: "h", html: "Equipo docente" },
-        { t: "tabla", html: "<table><thead><tr><th>Asignaturas</th><th>Maestro/a</th></tr></thead><tbody><tr><td>Lengua, Matemáticas, Ciudadanía, Plástica</td><td>Miguel Ángel Úbeda</td></tr><tr><td>Inglés</td><td><span class=\"por-confirmar\">[POR CONFIRMAR]</span></td></tr><tr><td>Francés</td><td><span class=\"por-confirmar\">[POR CONFIRMAR]</span></td></tr><tr><td>Educación Física</td><td><span class=\"por-confirmar\">[POR CONFIRMAR]</span></td></tr><tr><td>Música</td><td><span class=\"por-confirmar\">[POR CONFIRMAR]</span></td></tr><tr><td>Ciencias</td><td><span class=\"por-confirmar\">[POR CONFIRMAR]</span></td></tr><tr><td>Religión / Valores</td><td><span class=\"por-confirmar\">[POR CONFIRMAR]</span></td></tr></tbody></table>" },
+        { t: "tabla", html: "<table><thead><tr><th>Área</th><th>Maestro/a</th><th>Horas/semana</th></tr></thead><tbody><tr><td>Lengua</td><td>M. Ángel Úbeda (tutor)</td><td>5 h</td></tr><tr><td>Matemáticas</td><td>M. Ángel Úbeda (tutor)</td><td>4,5 h</td></tr><tr><td>Plástica</td><td>M. Ángel Úbeda (tutor)</td><td>1 h</td></tr><tr><td>Conocimiento del Medio</td><td>Mª Victoria Ibáñez Figueredo</td><td>2,5 h</td></tr><tr><td>Inglés</td><td>Virginia Martín Ballesteros</td><td>3 h</td></tr><tr><td>Educación Física</td><td>Pendiente de incorporación (tutor/a de 4º B)</td><td>3 h</td></tr><tr><td>Francés</td><td>Mª Victoria Boixo</td><td>1 h</td></tr><tr><td>Música</td><td>Juan Tripiana Sánchez</td><td>1 h</td></tr><tr><td>Religión Católica</td><td>Luisa Mª Quero Balaguer</td><td>1,5 h</td></tr><tr><td>Religión Islámica</td><td>Salima Zakhnini</td><td>1,5 h</td></tr></tbody></table>" },
       ],
     },
 
@@ -95,7 +102,7 @@ window.CONTENIDO_INICIAL = {
         { t: "h", html: "Normas generales del centro" },
         { t: "cols", cols: [
           "<b>Entrada: 9:00 · Salida: 14:00</b><br>La puerta se abrirá a las 9:00 y se cierra a las 9:10.<br><br>Firmar en Secretaría un permiso para que los alumn@s salgan solos.<br><br>Avisar por iPasen si se va a salir durante la jornada escolar.<br><br>Rellenar en iPasen «Autorizaciones recogida».",
-          "Las faltas deben justificarse vía <b>iPasen</b> o con una nota.<br><br>Realizar la matrícula de forma digital.<br><br>El centro dispone de <b>página web</b> donde aparecen las novedades de cada curso.<br><br><b>RECREO:</b> de 11:30 a 12:00 (5º y 6º).",
+          "Las faltas deben justificarse vía <b>iPasen</b> o con una nota.<br><br>Realizar la matrícula de forma digital.<br><br>El centro dispone de <b>página web</b> donde aparecen las novedades de cada curso.<br><br><b>RECREO:</b> de 12:00 a 12:30.",
         ] },
       ],
     },
@@ -125,7 +132,7 @@ window.CONTENIDO_INICIAL = {
       bloques: [
         { t: "h", html: "Información sobre el grupo y resultados de la evaluación inicial" },
         { t: "p", html: "Tras los resultados de la evaluación inicial se establecen distintas medidas:" },
-        { t: "ul", html: "<ul><li>Aplicación de un <b>programa de refuerzo</b>.</li><li><span class=\"por-confirmar\">[POR CONFIRMAR: exención de cursar la asignatura de Francés en el caso de que las dificultades sean en el área de Lengua]</span></li><li><span class=\"por-confirmar\">[POR CONFIRMAR: otras medidas específicas del grupo]</span></li></ul>" },
+        { t: "ul", html: "<ul><li>Aplicación de un <b>programa de refuerzo</b>.</li><li>Si las dificultades están en Lengua, el alumno/a puede dejar el <b>Francés</b> y cursar en su lugar el <b>Área Lingüística de Carácter Transversal (ALCT)</b>.</li><li><span class=\"por-confirmar\">[POR CONFIRMAR: otras medidas específicas del grupo]</span></li></ul>" },
       ],
     },
 
