@@ -154,10 +154,15 @@ function renderPortada() {
   const raya = el("div", "raya");
   const tutor = el("p", "tutor-nombre", estado.app.tutor);
   const grupoCentro = el("p", "grupo-centro", estado.app.grupo + " · " + estado.app.centro);
-  d.append(bienvenida, curso, raya, tutor, grupoCentro);
+  // Los documentos guardados antes de existir este campo no lo traen:
+  // se toma el del contenido inicial hasta que se edite.
+  if (estado.app.fecha === undefined) estado.app.fecha = window.CONTENIDO_INICIAL.app.fecha || "";
+  const fecha = el("p", "fecha-reunion", estado.app.fecha);
+  d.append(bienvenida, curso, raya, tutor, grupoCentro, fecha);
 
   if (estado.editando) {
     vincularCampoPortada(curso, "curso", "Curso ");
+    vincularCampoPortada(fecha, "fecha", "");
     vincularCampoPortada(tutor, "tutor", "");
     grupoCentro.contentEditable = "true";
     grupoCentro.addEventListener("input", () => {
@@ -258,7 +263,17 @@ function renderBloque(secId, b, i) {
       const img = document.createElement("img");
       img.src = b.src;
       img.alt = b.cap || "";
-      contenido.appendChild(img);
+      if (estado.editando) {
+        contenido.appendChild(img);
+      } else {
+        const enlace = document.createElement("a");
+        enlace.href = b.src;
+        enlace.target = "_blank";
+        enlace.rel = "noopener";
+        enlace.title = "Ver a tamaño completo";
+        enlace.appendChild(img);
+        contenido.appendChild(enlace);
+      }
     } else {
       contenido.appendChild(el("p", "por-confirmar", "[Imagen sin cargar: usa «Cambiar imagen»]"));
     }
@@ -421,6 +436,8 @@ function escucharNube() {
       if (snap.exists()) {
         const datos = snap.data();
         if (datos && Array.isArray(datos.secciones)) {
+          const retiradas = window.SECCIONES_RETIRADAS || [];
+          datos.secciones = datos.secciones.filter((s) => !retiradas.includes(s.id));
           estado.app = datos;
           aplicarTema();
           render();
@@ -437,7 +454,10 @@ function escucharNube() {
       if (qs.metadata.hasPendingWrites) return;
       let hayCambios = false;
       qs.forEach((d) => {
-        estado.secciones[d.id] = d.data();
+        const datos = d.data();
+        const inicial = window.CONTENIDO_INICIAL.secciones[d.id];
+        if (inicial && (inicial.rev || 0) > (datos.rev || 0)) return;
+        estado.secciones[d.id] = datos;
         hayCambios = true;
       });
       if (hayCambios) render();
