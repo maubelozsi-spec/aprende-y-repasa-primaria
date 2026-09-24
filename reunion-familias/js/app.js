@@ -454,7 +454,10 @@ function escucharNube() {
       if (qs.metadata.hasPendingWrites) return;
       let hayCambios = false;
       qs.forEach((d) => {
-        estado.secciones[d.id] = d.data();
+        const datos = d.data();
+        const inicial = window.CONTENIDO_INICIAL.secciones[d.id];
+        if (inicial && (inicial.rev || 0) > (datos.rev || 0)) return;
+        estado.secciones[d.id] = datos;
         hayCambios = true;
       });
       if (hayCambios) render();
