@@ -1994,6 +1994,9 @@ function acsCrearSvgPuntos(ficha, { digital }) {
   (ficha.dibujo.detalles || []).forEach((d) => detalles.appendChild(acsCrearDetalleSvg(d)));
 
   svg.appendChild(relleno);
+  if (ficha.guia) {
+    svg.appendChild(acsCrearElementoSvg("polygon", { points: puntosAttr, class: "acs-puntos-guia" }));
+  }
   svg.appendChild(lineas);
   svg.appendChild(detalles);
 
@@ -2134,6 +2137,349 @@ function renderUnirPuntosSheet(ficha, container) {
   container.appendChild(sheet);
 }
 
+// ---------- trazo (repasar y seguir el trazo) ----------
+// ficha.modo = "repasar" (línea discontinua) | "seguir" (camino con
+//   bordes, ancho ficha.anchoCamino)
+// ficha.items = [
+//   { forma: "camino", d: "M12,35 ...", inicio: "perro", fin: "hueso" }
+//   { forma: "texto", texto: "casa", apoyo: "casa" }   (pictograma)
+//   { forma: "texto", texto: "4", puntos: 4 }          (4 puntos al lado)
+// ]
+// Los caminos se dibujan en un cuadro de 300 x 70; los textos, en uno
+// de 300 x 90.
+//
+// Esta es la única actividad del catálogo en la que, en pantalla, hay
+// que arrastrar el dedo: es justo lo que se trabaja. Por eso la
+// comprobación es muy tolerante (pincel gordo, basta con pasar por la
+// mayor parte del trazo) y se puede borrar y repetir las veces que haga
+// falta, sin marcar nada como error.
+
+const ACS_TRAZO_FUENTE = "Andika";
+const ACS_TRAZO_CAJA = { camino: { w: 300, h: 70 }, texto: { w: 300, h: 90 } };
+const ACS_TRAZO_TAM_TEXTO = 62;
+
+function acsTrazoCaja(item) {
+  return ACS_TRAZO_CAJA[item.forma];
+}
+
+// Lo que acompaña a cada fila a la izquierda (y a la derecha en los
+// caminos): el pictograma, o los puntos que dicen cuánto vale un número.
+function acsTrazoApoyo(clave, puntos, digital) {
+  if (typeof puntos === "number") {
+    const wrap = document.createElement("span");
+    wrap.className = "acs-pic acs-trazo-puntos";
+    for (let i = 0; i < puntos; i++) {
+      const punto = document.createElement("span");
+      punto.className = "acs-trazo-punto";
+      wrap.appendChild(punto);
+    }
+    return wrap;
+  }
+  if (!clave) return document.createElement("span");
+  return arasaacCrearImagen(clave, { color: digital });
+}
+
+function acsTrazoFilaBase(item, digital) {
+  const fila = document.createElement("div");
+  fila.className = "acs-trazo-fila acs-trazo-fila-" + item.forma;
+  fila.appendChild(acsTrazoApoyo(item.inicio || item.apoyo, item.puntos, digital));
+  const centro = document.createElement("div");
+  centro.className = "acs-trazo-centro";
+  fila.appendChild(centro);
+  if (item.forma === "camino") fila.appendChild(acsTrazoApoyo(item.fin, undefined, digital));
+  return { fila, centro };
+}
+
+function renderTrazoSheet(ficha, container) {
+  container.innerHTML = "";
+  const sheet = acsCrearSheetBase(ficha);
+
+  ficha.items.forEach((item) => {
+    const { fila, centro } = acsTrazoFilaBase(item, false);
+    const caja = acsTrazoCaja(item);
+    const svg = acsCrearElementoSvg("svg", { viewBox: `0 0 ${caja.w} ${caja.h}`, class: "acs-trazo-svg" });
+
+    if (item.forma === "camino") {
+      if (ficha.modo === "seguir") {
+        const ancho = ficha.anchoCamino;
+        const comun = { d: item.d, fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" };
+        svg.appendChild(acsCrearElementoSvg("path", Object.assign({ stroke: "#33363f", "stroke-width": ancho + 2.5 }, comun)));
+        svg.appendChild(acsCrearElementoSvg("path", Object.assign({ stroke: "#fff", "stroke-width": ancho }, comun)));
+      } else {
+        svg.appendChild(
+          acsCrearElementoSvg("path", {
+            d: item.d,
+            fill: "none",
+            stroke: "#8a8d96",
+            "stroke-width": "2.4",
+            "stroke-dasharray": "5 5",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+          })
+        );
+      }
+      // Punto gordo de salida, a la izquierda: se empieza por ahí.
+      const inicio = item.d.match(/^M([\d.]+),([\d.]+)/);
+      svg.appendChild(acsCrearElementoSvg("circle", { cx: inicio[1], cy: inicio[2], r: 4.5, fill: "#33363f" }));
+    } else {
+      const texto = acsCrearElementoSvg("text", {
+        x: caja.w / 2,
+        y: caja.h * 0.5,
+        class: "acs-trazo-texto",
+        "font-size": ACS_TRAZO_TAM_TEXTO,
+      });
+      texto.textContent = item.texto;
+      svg.appendChild(texto);
+    }
+
+    centro.appendChild(svg);
+    sheet.appendChild(fila);
+  });
+
+  container.appendChild(sheet);
+}
+
+// Dibuja el modelo (lo que hay que repasar) en un <canvas>. Con
+// "soloGuia" dibuja solo la línea central fina del camino, que es lo
+// que se usa para medir por dónde ha pasado el dedo; sin él, lo que se
+// ve en pantalla.
+function acsTrazoPintarModelo(ctx, ficha, item, escala, { soloGuia = false, soloCamino = false } = {}) {
+  const caja = acsTrazoCaja(item);
+  ctx.save();
+  ctx.scale(escala, escala);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  if (item.forma === "camino") {
+    const path = new Path2D(item.d);
+    if (soloGuia) {
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+      ctx.stroke(path);
+    } else if (soloCamino) {
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = ficha.anchoCamino + 6;
+      ctx.stroke(path);
+    } else if (ficha.modo === "seguir") {
+      ctx.strokeStyle = "#33363f";
+      ctx.lineWidth = ficha.anchoCamino + 2.5;
+      ctx.stroke(path);
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = ficha.anchoCamino;
+      ctx.stroke(path);
+    } else {
+      ctx.strokeStyle = "#b9bcc4";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([6, 6]);
+      ctx.stroke(path);
+      ctx.setLineDash([]);
+    }
+    if (!soloGuia && !soloCamino) {
+      const inicio = item.d.match(/^M([\d.]+),([\d.]+)/);
+      ctx.fillStyle = "#2a9d8f";
+      ctx.beginPath();
+      ctx.arc(Number(inicio[1]), Number(inicio[2]), 5.5, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+  } else {
+    ctx.font = `${ACS_TRAZO_TAM_TEXTO}px ${ACS_TRAZO_FUENTE}, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = soloGuia ? "#000" : "#d5d7dd";
+    ctx.fillText(item.texto, caja.w / 2, caja.h * 0.5);
+  }
+  ctx.restore();
+}
+
+// Puntos del modelo (en píxeles del canvas) que hay que cubrir, tomados
+// en una rejilla para no mirar píxel a píxel.
+function acsTrazoMuestras(ancho, alto, pintar) {
+  const lienzo = document.createElement("canvas");
+  lienzo.width = ancho;
+  lienzo.height = alto;
+  const ctx = lienzo.getContext("2d");
+  pintar(ctx);
+  const datos = ctx.getImageData(0, 0, ancho, alto).data;
+  const muestras = [];
+  for (let y = 0; y < alto; y += 3) {
+    for (let x = 0; x < ancho; x += 3) {
+      if (datos[(y * ancho + x) * 4 + 3] > 0) muestras.push([x, y]);
+    }
+  }
+  return { muestras, datos };
+}
+
+function renderTrazoDigital(ficha, container) {
+  container.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "acs-digital";
+
+  const instr = document.createElement("p");
+  instr.className = "acs-digital-instruccion";
+  instr.textContent = ficha.instruccion;
+  wrap.appendChild(instr);
+
+  const feedback = document.createElement("p");
+  feedback.className = "acs-feedback";
+
+  // Tamaño interno fijo de los canvas (se escalan por CSS al ancho que
+  // haya): así el dibujo, el modelo y la medición usan siempre las
+  // mismas coordenadas, sea cual sea la pantalla.
+  const ANCHO = 600;
+  const escala = ANCHO / 300;
+  let hechas = 0;
+
+  ficha.items.forEach((item) => {
+    const { fila, centro } = acsTrazoFilaBase(item, true);
+    const caja = acsTrazoCaja(item);
+    const alto = Math.round(caja.h * escala);
+
+    const marco = document.createElement("div");
+    marco.className = "acs-trazo-marco";
+    const modelo = document.createElement("canvas");
+    const dedo = document.createElement("canvas");
+    [modelo, dedo].forEach((c) => {
+      c.width = ANCHO;
+      c.height = alto;
+    });
+    modelo.className = "acs-trazo-canvas";
+    dedo.className = "acs-trazo-canvas acs-trazo-canvas-dedo";
+    marco.appendChild(modelo);
+    marco.appendChild(dedo);
+    centro.appendChild(marco);
+
+    const borrar = document.createElement("button");
+    borrar.type = "button";
+    borrar.className = "btn btn-secondary acs-trazo-borrar";
+    borrar.textContent = "Borrar";
+    // Al final de la fila, fuera del trazo: entre el camino y el
+    // dibujo de llegada estorbaría.
+    fila.appendChild(borrar);
+
+    wrap.appendChild(fila);
+
+    let muestras = [];
+    let camino = null;
+    function prepararModelo() {
+      const ctx = modelo.getContext("2d");
+      ctx.clearRect(0, 0, ANCHO, alto);
+      acsTrazoPintarModelo(ctx, ficha, item, escala);
+      muestras = acsTrazoMuestras(ANCHO, alto, (c) => acsTrazoPintarModelo(c, ficha, item, escala, { soloGuia: true })).muestras;
+      if (ficha.modo === "seguir" && item.forma === "camino") {
+        camino = acsTrazoMuestras(ANCHO, alto, (c) => acsTrazoPintarModelo(c, ficha, item, escala, { soloCamino: true })).datos;
+      }
+    }
+    // El texto usa una fuente web: hay que esperar a que esté cargada
+    // o se dibujaría (y se mediría) con la fuente de repuesto.
+    if (item.forma === "texto" && document.fonts && document.fonts.load) {
+      document.fonts.load(`${ACS_TRAZO_TAM_TEXTO}px ${ACS_TRAZO_FUENTE}`).then(prepararModelo, prepararModelo);
+    } else {
+      prepararModelo();
+    }
+
+    const ctxDedo = dedo.getContext("2d");
+    let dibujando = false;
+    let terminado = false;
+
+    function coordenadas(e) {
+      const r = dedo.getBoundingClientRect();
+      return [((e.clientX - r.left) * dedo.width) / r.width, ((e.clientY - r.top) * dedo.height) / r.height];
+    }
+
+    function comprobar() {
+      if (!muestras.length) return;
+      const datos = ctxDedo.getImageData(0, 0, ANCHO, alto).data;
+      // Un punto del modelo cuenta como repasado si el dedo ha pasado
+      // cerca, no necesariamente encima: en "seguir el camino" vale
+      // cualquier sitio dentro del camino, y al repasar se deja un
+      // margen para que un pulso poco firme no obligue a repetir.
+      const margenUnidades = item.forma === "texto" ? 3 : ficha.modo === "seguir" ? ficha.anchoCamino / 2 : 5;
+      const margen = Math.round(margenUnidades * escala);
+      const pintado = (x, y) => x >= 0 && y >= 0 && x < ANCHO && y < alto && datos[(y * ANCHO + x) * 4 + 3] > 0;
+      const cerca = (x, y) => {
+        if (pintado(x, y)) return true;
+        for (let dy = -margen; dy <= margen; dy += 3) {
+          for (let dx = -margen; dx <= margen; dx += 3) {
+            if (dx * dx + dy * dy <= margen * margen && pintado(x + dx, y + dy)) return true;
+          }
+        }
+        return false;
+      };
+      const cubiertas = muestras.filter(([x, y]) => cerca(x, y)).length;
+      const cobertura = cubiertas / muestras.length;
+      if (cobertura < (item.forma === "texto" ? 0.6 : 0.85)) return;
+
+      let fuera = 0;
+      if (camino) {
+        let pintados = 0;
+        for (let y = 0; y < alto; y += 3) {
+          for (let x = 0; x < ANCHO; x += 3) {
+            const i = (y * ANCHO + x) * 4 + 3;
+            if (datos[i] > 0) {
+              pintados++;
+              if (camino[i] === 0) fuera++;
+            }
+          }
+        }
+        fuera = pintados ? fuera / pintados : 0;
+      }
+
+      terminado = true;
+      fila.classList.add("hecho");
+      hechas++;
+      feedback.className = "acs-feedback ok";
+      feedback.textContent =
+        fuera > 0.2
+          ? "¡Muy bien! La próxima vez intenta ir más por dentro del camino."
+          : hechas === ficha.items.length
+            ? "¡Muy bien! Has repasado todos los trazos."
+            : "¡Muy bien! Sigue con el siguiente.";
+    }
+
+    dedo.addEventListener("pointerdown", (e) => {
+      if (terminado) return;
+      e.preventDefault();
+      dedo.setPointerCapture(e.pointerId);
+      dibujando = true;
+      const [x, y] = coordenadas(e);
+      ctxDedo.strokeStyle = "#2a9d8f";
+      ctxDedo.lineCap = "round";
+      ctxDedo.lineJoin = "round";
+      // Pincel gordo a propósito: el objetivo es seguir la forma, no
+      // la precisión de un lápiz fino.
+      ctxDedo.lineWidth = (item.forma === "texto" ? 11 : 14) * escala;
+      ctxDedo.beginPath();
+      ctxDedo.moveTo(x, y);
+      ctxDedo.lineTo(x + 0.1, y);
+      ctxDedo.stroke();
+    });
+    dedo.addEventListener("pointermove", (e) => {
+      if (!dibujando) return;
+      const [x, y] = coordenadas(e);
+      ctxDedo.lineTo(x, y);
+      ctxDedo.stroke();
+    });
+    const soltar = () => {
+      if (!dibujando) return;
+      dibujando = false;
+      comprobar();
+    };
+    dedo.addEventListener("pointerup", soltar);
+    dedo.addEventListener("pointercancel", soltar);
+
+    borrar.addEventListener("click", () => {
+      ctxDedo.clearRect(0, 0, ANCHO, alto);
+      if (terminado) hechas--;
+      terminado = false;
+      fila.classList.remove("hecho");
+      feedback.textContent = "";
+      feedback.className = "acs-feedback";
+    });
+  });
+
+  wrap.appendChild(feedback);
+  container.appendChild(wrap);
+}
+
 // ---------- registro de tipos y arranque ----------
 
 const ACS_RENDERERS = {
@@ -2151,6 +2497,7 @@ const ACS_RENDERERS = {
   "operacion-numerica": { digital: renderOperacionNumericaDigital, sheet: renderOperacionNumericaSheet },
   "serie-numerica": { digital: renderSerieNumericaDigital, sheet: renderSerieNumericaSheet },
   "unir-puntos": { digital: renderUnirPuntosDigital, sheet: renderUnirPuntosSheet },
+  "trazo": { digital: renderTrazoDigital, sheet: renderTrazoSheet },
 };
 
 function initAcsFicha(ficha, digitalEl, sheetEl) {
@@ -2204,6 +2551,9 @@ function acsClaveRespuestas(ficha) {
       return ["Faltan: " + acsFaltantesDeLaSerie(ficha).join(", ")];
     case "unir-puntos":
       return ["Dibujo: " + ficha.dibujo.nombre, "Orden: " + ficha.numeros.join(", ")];
+    case "trazo":
+      // No hay una respuesta que comprobar: se valora el trazo.
+      return ficha.items.map((item, i) => `${i + 1}. ${item.forma === "camino" ? item.nombre : item.texto} (valorar el trazo)`);
     default:
       return [];
   }

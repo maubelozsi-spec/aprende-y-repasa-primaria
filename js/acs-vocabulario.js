@@ -123,3 +123,37 @@ const ACS_PALABRAS_CONTEO_SILABAS = [
   { palabra: "elefante", silabas: 4 },
   { palabra: "bicicleta", silabas: 4 },
 ];
+
+// Parejas de pictogramas para "repasa el trazo" y "sigue el camino":
+// el trazo lleva del primero al segundo ("lleva al perro hasta su
+// hueso"), para que la línea tenga un sentido y un final claros.
+const ACS_PAREJAS_TRAZO = [
+  ["perro", "hueso"],
+  ["abeja", "flor"],
+  ["conejo", "zanahoria"],
+  ["ratón", "queso"],
+  ["mono", "plátano"],
+  ["coche", "casa"],
+  ["pájaro", "nido"],
+  ["niño", "pelota"],
+  ["gato", "leche"],
+  ["pez", "agua"],
+];
+
+// Vocales con una palabra que empieza por ella (su pictograma
+// acompaña a la letra que se repasa).
+const ACS_VOCALES_TRAZO = [
+  { letra: "a", palabra: "avión" },
+  { letra: "e", palabra: "elefante" },
+  { letra: "i", palabra: "iglú" },
+  { letra: "o", palabra: "oso" },
+  { letra: "u", palabra: "uva" },
+];
+
+// Palabras para repasar: de 2 sílabas en 1º y de 3 en 2º, todas con
+// pictograma fácil de reconocer y sílabas directas (consonante +
+// vocal), que son las que se leen primero.
+const ACS_PALABRAS_TRAZO = {
+  1: ["casa", "gato", "mesa", "luna", "pato", "vaca", "taza", "mano", "sopa", "foca", "rosa", "pera"],
+  2: ["pelota", "tomate", "conejo", "zapato", "camisa", "paloma", "patata", "tortuga", "maleta", "cometa"],
+};

@@ -1122,6 +1122,176 @@ button.acs-serie-celda.error {
   max-width: 150mm;
 }
 
+/* Trazo fácil: el contorno ya viene marcado para repasarlo. */
+.acs-puntos-guia {
+  fill: none;
+  stroke: #9a9da6;
+  stroke-width: 0.7;
+  stroke-dasharray: 1.6 1.6;
+  stroke-linecap: round;
+}
+
+/* ---------- Repasar y seguir el trazo ---------- */
+
+.acs-trazo-fila {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 8px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+}
+
+.acs-trazo-fila-texto {
+  grid-template-columns: auto 1fr;
+}
+
+/* En pantalla, cada fila lleva además su botón de borrar al final. */
+.acs-digital .acs-trazo-fila-camino {
+  grid-template-columns: auto 1fr auto auto;
+}
+
+.acs-digital .acs-trazo-fila-texto {
+  grid-template-columns: auto 1fr auto;
+}
+
+.acs-trazo-fila .acs-pic {
+  width: 84px;
+  height: 84px;
+}
+
+/* En el móvil no cabe todo en una línea: los dibujos (salida a la
+   izquierda, llegada a la derecha) van arriba y el trazo debajo, a
+   todo el ancho, que es lo que necesita sitio para el dedo. */
+@media (max-width: 640px) {
+  .acs-digital .acs-trazo-fila-camino,
+  .acs-digital .acs-trazo-fila-texto {
+    grid-template-columns: auto 1fr auto;
+    gap: 6px;
+    padding: 4px;
+  }
+  .acs-digital .acs-trazo-fila > :first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .acs-digital .acs-trazo-fila-camino > :nth-child(3) {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .acs-digital .acs-trazo-centro {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .acs-digital .acs-trazo-borrar {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: end;
+  }
+  .acs-digital .acs-trazo-fila .acs-pic {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+.acs-trazo-fila.hecho {
+  border-color: var(--color-success);
+  background: var(--color-success-tint);
+}
+
+.acs-trazo-centro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.acs-trazo-marco {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.acs-trazo-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* El canvas del dedo va encima del modelo. touch-action: none para
+   que en una tableta el dedo dibuje en vez de desplazar la página. */
+.acs-trazo-canvas-dedo {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.acs-trazo-borrar {
+  flex: none;
+}
+
+.acs-trazo-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.acs-trazo-texto {
+  font-family: "Andika", var(--acs-font);
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: #e1e3e8;
+  stroke: #8a8d96;
+  stroke-width: 1;
+  stroke-dasharray: 2.5 2;
+}
+
+/* Puntos que acompañan a un número (tantos como vale). */
+.acs-trazo-puntos {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.acs-trazo-punto {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-teal);
+}
+
+.acs-sheet .acs-trazo-fila {
+  margin-bottom: 8px;
+  padding: 2px 0;
+}
+
+.acs-sheet .acs-trazo-fila .acs-pic {
+  width: 22mm;
+  height: 22mm;
+}
+
+/* Letras y números: con todo el ancho del folio cada fila medía más
+   de 4cm y cinco vocales no cabían en una hoja. Con 28mm de alto la
+   letra sigue saliendo de unos 2cm, grande para repasar. */
+.acs-sheet .acs-trazo-fila-texto .acs-trazo-svg {
+  height: 28mm;
+  width: auto;
+  max-width: 100%;
+}
+
+.acs-sheet .acs-trazo-punto {
+  background: #33363f;
+  width: 13px;
+  height: 13px;
+}
+
 .acs-sheet .acs-puntos-tira-num {
   min-width: 32px;
   height: 32px;
@@ -1694,7 +1864,7 @@ button.acs-serie-celda.error {
      resta-bloque", que solo se usa en la versión digital). */
   .acs-pareja-item, .acs-opcion-bloque, .acs-mmi-bloque, .acs-resta-bloque, .acs-letras-bloque,
   .acs-clasificar-categoria, .acs-secuencia-slot, .acs-recortar-objetivo, .acs-recortar-pieza,
-  .acs-mmi-fila, .acs-resta-fila, .acs-serie-celda, .acs-puntos-lienzo {
+  .acs-mmi-fila, .acs-resta-fila, .acs-serie-celda, .acs-puntos-lienzo, .acs-trazo-fila {
     page-break-inside: avoid;
     break-inside: avoid;
   }
