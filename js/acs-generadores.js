@@ -794,8 +794,13 @@ function acsRepartirPuntosContorno(vertices, total) {
 // 6...); de 3 en 3, en el 3 (3, 6, 9...). En 1º la ficha trae además
 // una tira con la serie entera a la vista, de apoyo para quien todavía
 // no cuenta de 2 en 2 o de 3 en 3 de memoria.
+//
+// Con "guia" (trazo fácil) el contorno ya viene dibujado con una línea
+// discontinua: en papel solo hay que repasarla, sin tener que buscar
+// el siguiente punto y trazar a la vez. Pensado para quien tiene
+// dificultades de motricidad fina.
 function generarUnirPuntos(opciones) {
-  const { paso = 1, hasta = 20, curso = "1" } = opciones || {};
+  const { paso = 1, hasta = 20, curso = "1", guia = false } = opciones || {};
   const limite = Math.floor(Math.min(30, hasta) / paso) * paso;
   const numeros = [];
   for (let n = paso; n <= limite; n += paso) numeros.push(n);
@@ -819,8 +824,146 @@ function generarUnirPuntos(opciones) {
     puntos,
     dibujo: { nombre: dibujo.nombre, color: dibujo.color, detalles: dibujo.detalles },
     ayuda: curso !== "2",
-    titulo: paso === 1 ? `Une los puntos del 1 al ${ultimo}` : `Une los puntos de ${paso} en ${paso}`,
+    guia,
+    titulo: guia
+      ? `Repasa y une los puntos del ${primero} al ${ultimo}`
+      : paso === 1
+        ? `Une los puntos del 1 al ${ultimo}`
+        : `Une los puntos de ${paso} en ${paso}`,
     instruccion: `Toca los puntos ${comoContar} Empieza en el ${primero}. ¿Qué dibujo sale?`,
-    instruccionImpresion: `Une los puntos ${comoContar} Empieza en el ${primero} (el punto rodeado) y, al llegar al ${ultimo}, vuelve al ${primero}. Después, colorea el dibujo.`,
+    instruccionImpresion: guia
+      ? `Repasa la línea de puntitos pasando por los números en orden: ${serieInicio}... Empieza en el ${primero} (el punto rodeado). Después, colorea el dibujo.`
+      : `Une los puntos ${comoContar} Empieza en el ${primero} (el punto rodeado) y, al llegar al ${ultimo}, vuelve al ${primero}. Después, colorea el dibujo.`,
+  };
+}
+
+// ---------- repasar y seguir el trazo (grafomotricidad) ----------
+//
+// Cada fila es un trazo que va de un pictograma a otro (o una letra,
+// palabra o número junto a su pictograma o sus puntos). Los trazos se
+// dibujan en un cuadro de 300 x 70 y van siempre de izquierda a
+// derecha, del x=12 al x=288, que es por donde se empieza a escribir.
+//
+// Dos modos:
+//   - "repasar": línea discontinua encima de la que se pasa el lápiz.
+//   - "seguir": un camino con dos bordes y sin línea; hay que ir por
+//     dentro. En 1º el camino es más ancho que en 2º.
+
+const ACS_TRAZOS = {
+  recta: { nombre: "línea recta", d: "M12,35 H288" },
+  ondas: { nombre: "ondas", d: "M12,35 Q35,8 58,35 T104,35 T150,35 T196,35 T242,35 T288,35" },
+  picos: {
+    nombre: "picos",
+    d: "M12,55 L46.5,15 L81,55 L115.5,15 L150,55 L184.5,15 L219,55 L253.5,15 L288,55",
+  },
+  almenas: {
+    nombre: "almenas",
+    d: "M12,55 V15 H46.5 V55 H81 V15 H115.5 V55 H150 V15 H184.5 V55 H219 V15 H253.5 V55 H288",
+  },
+  arcos: {
+    nombre: "arcos hacia abajo",
+    d: "M12,18 Q35,78 58,18 Q81,78 104,18 Q127,78 150,18 Q173,78 196,18 Q219,78 242,18 Q265,78 288,18",
+  },
+  montes: {
+    nombre: "arcos hacia arriba",
+    d: "M12,52 Q35,-8 58,52 Q81,-8 104,52 Q127,-8 150,52 Q173,-8 196,52 Q219,-8 242,52 Q265,-8 288,52",
+  },
+  escalera: {
+    nombre: "escalera",
+    d: "M12,60 H46.5 V47 H81 V34 H115.5 V21 H150 V8 H184.5 V21 H219 V34 H253.5 V47 H288 V60",
+  },
+  bucles: { nombre: "bucles", d: acsTrazoBucles() },
+};
+
+// Ocho bucles seguidos, como una fila de "e" de la letra ligada.
+function acsTrazoBucles() {
+  let d = "M12,56";
+  for (let k = 0; k < 8; k++) {
+    const x = 12 + k * 34.5;
+    d += ` C${x + 22},56 ${x + 32},40 ${x + 32},26 C${x + 32},8 ${x + 12},8 ${x + 12},26 C${x + 12},44 ${x + 22},56 ${x + 34.5},56`;
+  }
+  return d;
+}
+
+// Trazos por curso. Los bucles se cruzan consigo mismos, así que en
+// "seguir el camino" no sirven: el camino se taparía a sí mismo.
+const ACS_TRAZOS_POR_CURSO = {
+  repasar: { 1: ["recta", "ondas", "picos", "almenas", "arcos", "montes"], 2: ["ondas", "picos", "almenas", "arcos", "montes", "escalera", "bucles"] },
+  seguir: { 1: ["recta", "ondas", "picos", "almenas", "arcos", "montes"], 2: ["ondas", "picos", "almenas", "arcos", "montes", "escalera"] },
+};
+
+function generarTrazoLineas(opciones) {
+  const { cantidad = 4, curso = "1", modo = "repasar" } = opciones || {};
+  const claves = acsElegirAlAzar(ACS_TRAZOS_POR_CURSO[modo][curso === "2" ? 2 : 1], cantidad);
+  const parejas = acsElegirAlAzar(ACS_PAREJAS_TRAZO, claves.length);
+
+  return {
+    tipo: "trazo",
+    modo,
+    // Ancho del camino (solo en "seguir"): más holgado en 1º.
+    anchoCamino: acsPorCurso(curso, 24, 16),
+    titulo: modo === "seguir" ? "Sigue el camino" : "Repasa el trazo",
+    instruccion:
+      modo === "seguir"
+        ? "Lleva cada dibujo hasta su pareja por dentro del camino, sin salirte."
+        : "Repasa la línea con el dedo, desde el punto verde hasta el final.",
+    instruccionImpresion:
+      modo === "seguir"
+        ? "Lleva cada dibujo hasta su pareja: traza una línea por dentro del camino, sin salirte."
+        : "Repasa cada línea con el lápiz, empezando por el punto gordo.",
+    items: claves.map((clave, i) => ({
+      forma: "camino",
+      d: ACS_TRAZOS[clave].d,
+      nombre: ACS_TRAZOS[clave].nombre,
+      inicio: parejas[i][0],
+      fin: parejas[i][1],
+    })),
+  };
+}
+
+function generarTrazoVocales() {
+  return {
+    tipo: "trazo",
+    modo: "repasar",
+    titulo: "Repasa las vocales",
+    instruccion: "Mira el dibujo y repasa su vocal con el dedo, la grande y la pequeña.",
+    instruccionImpresion: "Repasa cada vocal con el lápiz. Di en voz alta el nombre del dibujo.",
+    items: ACS_VOCALES_TRAZO.map((v) => ({ forma: "texto", texto: `${v.letra.toUpperCase()} ${v.letra}`, apoyo: v.palabra })),
+  };
+}
+
+function generarTrazoPalabras(opciones) {
+  const { cantidad = 4, curso = "1" } = opciones || {};
+  const palabras = acsElegirAlAzar(ACS_PALABRAS_TRAZO[curso === "2" ? 2 : 1], cantidad);
+  return {
+    tipo: "trazo",
+    modo: "repasar",
+    titulo: "Repasa las palabras",
+    instruccion: "Lee la palabra, mira su dibujo y repásala con el dedo.",
+    instruccionImpresion: "Lee cada palabra y repásala con el lápiz.",
+    items: palabras.map((p) => ({ forma: "texto", texto: p, apoyo: p })),
+  };
+}
+
+// Números para repasar: del 0 al 9 en 1º, cada uno con tantos puntos
+// como indica (para unir la cifra con la cantidad); del 10 al 20 en
+// 2º, en orden, como en el cuaderno de numeración.
+function generarTrazoNumeros(opciones) {
+  const { cantidad = 5, curso = "1" } = opciones || {};
+  const numeros =
+    curso === "2"
+      ? (() => {
+          const inicio = 10 + Math.floor(Math.random() * Math.max(1, 12 - cantidad));
+          return Array.from({ length: cantidad }, (_, i) => Math.min(20, inicio + i));
+        })()
+      : acsElegirAlAzar([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], cantidad).sort((a, b) => a - b);
+
+  return {
+    tipo: "trazo",
+    modo: "repasar",
+    titulo: "Repasa los números",
+    instruccion: "Repasa cada número con el dedo.",
+    instruccionImpresion: curso === "2" ? "Repasa cada número con el lápiz." : "Repasa cada número con el lápiz y cuenta sus puntos.",
+    items: numeros.map((n) => ({ forma: "texto", texto: String(n), puntos: curso === "2" ? null : n })),
   };
 }
