@@ -646,3 +646,181 @@ function generarFracciones(opciones) {
     items,
   };
 }
+
+// ---------- unir los puntos ----------
+//
+// Banco de dibujos para "une los puntos". Cada dibujo es el contorno
+// cerrado de una silueta sencilla (coordenadas en un cuadro de 0 a
+// 100), dado SOLO por sus esquinas: el generador reparte después
+// tantos puntos extra por los lados como números haga falta colocar
+// (ver acsRepartirPuntosContorno), así el mismo dibujo sirve para una
+// serie del 1 al 12 o del 1 al 30 sin perder su forma. Por eso un
+// dibujo solo puede salir si tiene como mucho tantas esquinas como
+// números tiene la serie.
+//
+// "detalles" son trazos sueltos (ojos, puerta, ventanas...) que no se
+// unen con puntos: en papel ya vienen dibujados y en pantalla aparecen
+// al terminar, como premio, junto con el color de relleno.
+
+function acsVerticesEstrella() {
+  const vertices = [];
+  for (let k = 0; k < 10; k++) {
+    const angulo = ((-90 + k * 36) * Math.PI) / 180;
+    const radio = k % 2 === 0 ? 42 : 17;
+    vertices.push([Math.round(50 + radio * Math.cos(angulo)), Math.round(53 + radio * Math.sin(angulo))]);
+  }
+  return vertices;
+}
+
+const ACS_DIBUJOS_PUNTOS = [
+  {
+    nombre: "una estrella",
+    color: "#ffd166",
+    vertices: acsVerticesEstrella(),
+    detalles: [],
+  },
+  {
+    nombre: "una casa",
+    color: "#f4a261",
+    vertices: [[50, 14], [82, 44], [82, 88], [18, 88], [18, 44]],
+    detalles: [{ d: "M42,88 V66 H58 V88" }, { d: "M26,54 H38 V66 H26 Z" }, { d: "M62,54 H74 V66 H62 Z" }],
+  },
+  {
+    nombre: "un pez",
+    color: "#4cc9f0",
+    vertices: [[10, 50], [28, 32], [52, 27], [70, 40], [90, 24], [90, 76], [70, 60], [52, 73], [28, 68]],
+    detalles: [{ circulo: [24, 46, 2.5], relleno: true }, { d: "M36,38 Q43,50 36,62" }],
+  },
+  {
+    nombre: "un barco",
+    color: "#e76f51",
+    vertices: [[44, 10], [90, 64], [76, 86], [24, 86], [8, 64], [44, 64]],
+    detalles: [{ circulo: [36, 75, 3] }, { circulo: [52, 75, 3] }],
+  },
+  {
+    nombre: "una cometa",
+    color: "#9b5de5",
+    vertices: [[50, 8], [80, 40], [50, 76], [20, 40]],
+    detalles: [{ d: "M50,8 L50,76 M20,40 L80,40" }, { d: "M50,76 Q64,80 70,88 T90,92" }],
+  },
+  {
+    nombre: "un gato",
+    color: "#ffb703",
+    vertices: [[18, 14], [38, 32], [62, 32], [82, 14], [86, 52], [82, 86], [18, 86], [14, 52]],
+    detalles: [
+      { circulo: [36, 54, 4], relleno: true },
+      { circulo: [64, 54, 4], relleno: true },
+      { d: "M46,64 L54,64 L50,69 Z", relleno: true },
+      { d: "M50,69 Q46,76 41,73 M50,69 Q54,76 59,73" },
+      { d: "M40,68 L24,64 M40,72 L24,75 M60,68 L76,64 M60,72 L76,75" },
+    ],
+  },
+  {
+    nombre: "una corona",
+    color: "#ffd60a",
+    vertices: [[50, 18], [67, 55], [85, 30], [85, 82], [15, 82], [15, 30], [33, 55]],
+    detalles: [{ circulo: [50, 70, 4] }, { circulo: [31, 70, 3] }, { circulo: [69, 70, 3] }],
+  },
+  {
+    nombre: "un cohete",
+    color: "#ef476f",
+    vertices: [[50, 8], [63, 30], [63, 66], [76, 84], [58, 76], [42, 76], [24, 84], [37, 66], [37, 30]],
+    detalles: [{ circulo: [50, 42, 6] }, { d: "M37,58 H63" }],
+  },
+  {
+    nombre: "un corazón",
+    color: "#f28482",
+    vertices: [[50, 28], [60, 15], [74, 11], [86, 19], [90, 33], [84, 49], [68, 67], [50, 88], [32, 67], [16, 49], [10, 33], [14, 19], [26, 11], [40, 15]],
+    detalles: [],
+  },
+  {
+    nombre: "un árbol",
+    color: "#2a9d8f",
+    vertices: [[50, 10], [78, 50], [64, 50], [86, 76], [56, 76], [56, 92], [44, 92], [44, 76], [14, 76], [36, 50], [22, 50]],
+    detalles: [{ circulo: [47, 38, 2.5], relleno: true }, { circulo: [60, 62, 2.5], relleno: true }, { circulo: [38, 64, 2.5], relleno: true }],
+  },
+  {
+    nombre: "una seta",
+    color: "#e63946",
+    vertices: [[50, 12], [68, 16], [84, 30], [90, 52], [64, 52], [68, 90], [32, 90], [36, 52], [10, 52], [16, 30], [32, 16]],
+    detalles: [{ circulo: [40, 28, 5] }, { circulo: [62, 30, 4] }, { circulo: [25, 42, 3] }, { circulo: [76, 42, 3] }],
+  },
+];
+
+// Convierte las esquinas de un dibujo en exactamente "total" puntos
+// sobre su contorno: se conservan todas las esquinas (para que la
+// forma no se deforme) y los puntos que faltan se reparten por los
+// lados en proporción a lo largo que es cada uno, a distancias
+// iguales dentro de cada lado.
+function acsRepartirPuntosContorno(vertices, total) {
+  const n = vertices.length;
+  const lados = vertices.map((a, i) => {
+    const b = vertices[(i + 1) % n];
+    return Math.hypot(b[0] - a[0], b[1] - a[1]);
+  });
+  const perimetro = lados.reduce((s, l) => s + l, 0);
+  const extras = Math.max(0, total - n);
+
+  // Reparto proporcional con "restos mayores": primero la parte
+  // entera de cada lado y los puntos que sobran, a los lados a los
+  // que más les faltaba.
+  const exactos = lados.map((l) => (extras * l) / perimetro);
+  const enteros = exactos.map(Math.floor);
+  let sobrantes = extras - enteros.reduce((s, k) => s + k, 0);
+  exactos
+    .map((x, i) => ({ i, resto: x - enteros[i] }))
+    .sort((a, b) => b.resto - a.resto)
+    .forEach(({ i }) => {
+      if (sobrantes > 0) {
+        enteros[i]++;
+        sobrantes--;
+      }
+    });
+
+  const puntos = [];
+  vertices.forEach((a, i) => {
+    const b = vertices[(i + 1) % n];
+    puntos.push({ x: a[0], y: a[1] });
+    for (let k = 1; k <= enteros[i]; k++) {
+      const t = k / (enteros[i] + 1);
+      puntos.push({ x: Math.round((a[0] + (b[0] - a[0]) * t) * 10) / 10, y: Math.round((a[1] + (b[1] - a[1]) * t) * 10) / 10 });
+    }
+  });
+  return puntos;
+}
+
+// Une los puntos contando de "paso" en "paso" hasta "hasta" (como
+// mucho 30). De 1 en 1 empieza en el 1; de 2 en 2, en el 2 (2, 4,
+// 6...); de 3 en 3, en el 3 (3, 6, 9...). En 1º la ficha trae además
+// una tira con la serie entera a la vista, de apoyo para quien todavía
+// no cuenta de 2 en 2 o de 3 en 3 de memoria.
+function generarUnirPuntos(opciones) {
+  const { paso = 1, hasta = 20, curso = "1" } = opciones || {};
+  const limite = Math.floor(Math.min(30, hasta) / paso) * paso;
+  const numeros = [];
+  for (let n = paso; n <= limite; n += paso) numeros.push(n);
+
+  const candidatos = ACS_DIBUJOS_PUNTOS.filter((d) => d.vertices.length <= numeros.length);
+  const dibujo = candidatos.length
+    ? candidatos[Math.floor(Math.random() * candidatos.length)]
+    : ACS_DIBUJOS_PUNTOS.reduce((a, b) => (b.vertices.length < a.vertices.length ? b : a));
+
+  const puntos = acsRepartirPuntosContorno(dibujo.vertices, numeros.length).map((p, i) => Object.assign(p, { n: numeros[i] }));
+
+  const primero = numeros[0];
+  const ultimo = numeros[numeros.length - 1];
+  const serieInicio = numeros.slice(0, 3).join(", ");
+  const comoContar = paso === 1 ? `en orden: ${serieInicio}...` : `de ${paso} en ${paso}: ${serieInicio}...`;
+
+  return {
+    tipo: "unir-puntos",
+    paso,
+    numeros,
+    puntos,
+    dibujo: { nombre: dibujo.nombre, color: dibujo.color, detalles: dibujo.detalles },
+    ayuda: curso !== "2",
+    titulo: paso === 1 ? `Une los puntos del 1 al ${ultimo}` : `Une los puntos de ${paso} en ${paso}`,
+    instruccion: `Toca los puntos ${comoContar} Empieza en el ${primero}. ¿Qué dibujo sale?`,
+    instruccionImpresion: `Une los puntos ${comoContar} Empieza en el ${primero} (el punto rodeado) y, al llegar al ${ultimo}, vuelve al ${primero}. Después, colorea el dibujo.`,
+  };
+}
