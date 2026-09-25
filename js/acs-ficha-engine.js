@@ -1868,6 +1868,272 @@ function renderOrdenarSecuenciaSheet(ficha, container) {
   container.appendChild(sheet);
 }
 
+// ---------- unir-puntos ----------
+// ficha.puntos = [{ x, y, n }, ...] en el orden en que se unen (x, y
+//   de 0 a 100; n es el número que se escribe al lado)
+// ficha.dibujo = { nombre: "un pez", color: "#4cc9f0", detalles: [...] }
+// ficha.ayuda = true para poner la serie entera a la vista (1º)
+
+// Dónde escribir el número de cada punto: hacia FUERA del dibujo,
+// para que no quede encima de la línea que se va a trazar. Se usa la
+// bisectriz de las normales exteriores de los dos lados que llegan al
+// punto; el signo del área (fórmula del lazo) dice hacia qué lado
+// queda "fuera", sea cual sea el sentido en que está escrito el
+// contorno.
+function acsPosicionesEtiquetasPuntos(puntos) {
+  const n = puntos.length;
+  let area = 0;
+  puntos.forEach((p, i) => {
+    const q = puntos[(i + 1) % n];
+    area += p.x * q.y - q.x * p.y;
+  });
+  const sentido = area >= 0 ? 1 : -1;
+
+  function normalExterior(a, b) {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const largo = Math.hypot(dx, dy) || 1;
+    return { x: (sentido * dy) / largo, y: (-sentido * dx) / largo };
+  }
+
+  const etiquetas = puntos.map((p, i) => {
+    const anterior = puntos[(i - 1 + n) % n];
+    const siguiente = puntos[(i + 1) % n];
+    const n1 = normalExterior(anterior, p);
+    const n2 = normalExterior(p, siguiente);
+    let nx = n1.x + n2.x;
+    let ny = n1.y + n2.y;
+    const largo = Math.hypot(nx, ny);
+    if (largo < 0.2) {
+      nx = n1.x;
+      ny = n1.y;
+    } else {
+      nx /= largo;
+      ny /= largo;
+    }
+    // En una esquina hacia dentro (las muescas de la corona, el pie
+    // del mástil...) "fuera" es un rincón estrecho donde se amontonan
+    // los números de los puntos vecinos. Ahí el número va dentro del
+    // dibujo, donde hay sitio y no lo cruza ninguna línea.
+    // Seno del giro en ese punto. Los puntos intermedios de un lado
+    // recto dan casi cero (no exactamente, por el redondeo de las
+    // coordenadas), así que solo cuenta un giro claro.
+    const giro =
+      ((p.x - anterior.x) * (siguiente.y - p.y) - (p.y - anterior.y) * (siguiente.x - p.x)) /
+      ((Math.hypot(p.x - anterior.x, p.y - anterior.y) * Math.hypot(siguiente.x - p.x, siguiente.y - p.y)) || 1);
+    if (Math.abs(giro) > 0.15 && Math.sign(giro) !== sentido) {
+      nx = -nx;
+      ny = -ny;
+    }
+    return { x: p.x + nx * 5, y: p.y + ny * 5 };
+  });
+
+  // Unos cuantos pasos de "empujar": si dos números quedan casi
+  // encima el uno del otro, o un número queda pegado a un punto que no
+  // es el suyo, se separan un poco. Sin esto, en las zonas con muchos
+  // puntos juntos se leía "46" donde había un 4 y un 6.
+  const DIST_ETIQUETAS = 4.6;
+  const DIST_PUNTO = 3.2;
+  for (let paso = 0; paso < 40; paso++) {
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const dx = etiquetas[j].x - etiquetas[i].x;
+        const dy = etiquetas[j].y - etiquetas[i].y;
+        // Un número de dos cifras es más ancho que alto: en horizontal
+        // necesita más separación que en vertical.
+        const d = Math.hypot(dx / 1.4, dy) || 0.01;
+        if (d < DIST_ETIQUETAS) {
+          const empuje = (DIST_ETIQUETAS - d) / 2;
+          etiquetas[i].x -= (dx / d) * empuje;
+          etiquetas[i].y -= (dy / d) * empuje;
+          etiquetas[j].x += (dx / d) * empuje;
+          etiquetas[j].y += (dy / d) * empuje;
+        }
+      }
+      puntos.forEach((q) => {
+        const dx = etiquetas[i].x - q.x;
+        const dy = etiquetas[i].y - q.y;
+        const d = Math.hypot(dx, dy) || 0.01;
+        if (d < DIST_PUNTO) {
+          etiquetas[i].x += (dx / d) * (DIST_PUNTO - d);
+          etiquetas[i].y += (dy / d) * (DIST_PUNTO - d);
+        }
+      });
+      etiquetas[i].x = Math.min(96, Math.max(4, etiquetas[i].x));
+      etiquetas[i].y = Math.min(97, Math.max(4, etiquetas[i].y));
+    }
+  }
+  return etiquetas;
+}
+
+function acsCrearDetalleSvg(detalle) {
+  const attrs = {
+    fill: detalle.relleno ? "#33363f" : "none",
+    stroke: "#33363f",
+    "stroke-width": "1.4",
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round",
+  };
+  if (detalle.circulo) {
+    const [cx, cy, r] = detalle.circulo;
+    return acsCrearElementoSvg("circle", Object.assign({ cx, cy, r }, attrs));
+  }
+  return acsCrearElementoSvg("path", Object.assign({ d: detalle.d }, attrs));
+}
+
+// Dibuja los puntos con su número. Devuelve el <svg> y, por separado,
+// las capas que la versión digital necesita ir completando (relleno,
+// líneas, detalles) y el grupo de cada punto, para engancharle el clic.
+function acsCrearSvgPuntos(ficha, { digital }) {
+  const svg = acsCrearElementoSvg("svg", { viewBox: "0 0 100 100", class: "acs-puntos-svg" });
+
+  const puntosAttr = ficha.puntos.map((p) => `${p.x},${p.y}`).join(" ");
+  const relleno = acsCrearElementoSvg("polygon", { points: puntosAttr, class: "acs-puntos-relleno", fill: ficha.dibujo.color });
+  const lineas = acsCrearElementoSvg("g", { class: "acs-puntos-lineas" });
+  const detalles = acsCrearElementoSvg("g", { class: "acs-puntos-detalles" });
+  (ficha.dibujo.detalles || []).forEach((d) => detalles.appendChild(acsCrearDetalleSvg(d)));
+
+  svg.appendChild(relleno);
+  svg.appendChild(lineas);
+  svg.appendChild(detalles);
+
+  const etiquetas = acsPosicionesEtiquetasPuntos(ficha.puntos);
+  const grupos = ficha.puntos.map((p, i) => {
+    const g = acsCrearElementoSvg("g", { class: "acs-punto" });
+    if (digital) {
+      // Zona de toque mucho más grande que el punto que se ve, que
+      // abarca también el número: se puede acertar tocando cualquiera
+      // de los dos, sin precisión de motricidad fina.
+      const cx = (p.x + etiquetas[i].x) / 2;
+      const cy = (p.y + etiquetas[i].y) / 2;
+      g.appendChild(acsCrearElementoSvg("circle", { cx, cy, r: 5, class: "acs-punto-zona" }));
+    }
+    if (i === 0) {
+      // El punto de salida va rodeado, en pantalla y en papel.
+      g.appendChild(acsCrearElementoSvg("circle", { cx: p.x, cy: p.y, r: 2.6, class: "acs-punto-inicio" }));
+    }
+    g.appendChild(acsCrearElementoSvg("circle", { cx: p.x, cy: p.y, r: digital ? 1.5 : 1.2, class: "acs-punto-dot" }));
+    const texto = acsCrearElementoSvg("text", { x: etiquetas[i].x, y: etiquetas[i].y, class: "acs-punto-num" });
+    texto.textContent = String(p.n);
+    g.appendChild(texto);
+    svg.appendChild(g);
+    return g;
+  });
+
+  return { svg, relleno, lineas, detalles, grupos };
+}
+
+// Tira con la serie completa (2, 4, 6... 30): apoyo visual para 1º.
+function acsCrearTiraSerie(numeros) {
+  const tira = document.createElement("div");
+  tira.className = "acs-puntos-tira";
+  numeros.forEach((n) => {
+    const celda = document.createElement("span");
+    celda.className = "acs-puntos-tira-num";
+    celda.textContent = String(n);
+    tira.appendChild(celda);
+  });
+  return tira;
+}
+
+function renderUnirPuntosDigital(ficha, container) {
+  container.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "acs-digital";
+
+  const instr = document.createElement("p");
+  instr.className = "acs-digital-instruccion";
+  instr.textContent = ficha.instruccion;
+  wrap.appendChild(instr);
+
+  const tira = ficha.ayuda ? acsCrearTiraSerie(ficha.numeros) : null;
+  if (tira) wrap.appendChild(tira);
+
+  const lienzo = document.createElement("div");
+  lienzo.className = "acs-puntos-lienzo";
+  const { svg, relleno, lineas, detalles, grupos } = acsCrearSvgPuntos(ficha, { digital: true });
+  lienzo.appendChild(svg);
+  wrap.appendChild(lienzo);
+
+  const feedback = document.createElement("p");
+  feedback.className = "acs-feedback";
+  wrap.appendChild(feedback);
+  container.appendChild(wrap);
+
+  const puntos = ficha.puntos;
+  let siguiente = 0;
+  let fallosSeguidos = 0;
+
+  function trazar(a, b) {
+    lineas.appendChild(acsCrearElementoSvg("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y }));
+  }
+
+  function acertar(i) {
+    const g = grupos[i];
+    g.classList.add("hecho");
+    g.removeAttribute("tabindex");
+    if (i > 0) trazar(puntos[i - 1], puntos[i]);
+    if (tira) tira.children[i].classList.add("hecho");
+    siguiente++;
+    fallosSeguidos = 0;
+    feedback.textContent = "";
+    feedback.className = "acs-feedback";
+
+    if (siguiente === puntos.length) {
+      trazar(puntos[puntos.length - 1], puntos[0]);
+      svg.classList.add("completo");
+      feedback.textContent = `¡Muy bien! Has dibujado ${ficha.dibujo.nombre}.`;
+      feedback.className = "acs-feedback ok";
+    }
+  }
+
+  function fallar(i) {
+    const g = grupos[i];
+    g.classList.add("error");
+    setTimeout(() => g.classList.remove("error"), 500);
+    fallosSeguidos++;
+    const buscado = puntos[siguiente].n;
+    let mensaje =
+      siguiente === 0
+        ? `Hay que empezar por el ${buscado}: es el punto rodeado.`
+        : `Ese no es. ¿Qué número va después del ${puntos[siguiente - 1].n}?`;
+    // Al segundo fallo seguido se da la respuesta: más vale seguir
+    // avanzando que atascarse y abandonar la ficha.
+    if (fallosSeguidos >= 2 && siguiente > 0) mensaje += ` Busca el ${buscado}.`;
+    feedback.textContent = mensaje;
+    feedback.className = "acs-feedback ko";
+  }
+
+  grupos.forEach((g, i) => {
+    g.setAttribute("role", "button");
+    g.setAttribute("tabindex", "0");
+    g.setAttribute("aria-label", "Punto " + puntos[i].n);
+    const pulsar = () => {
+      if (g.classList.contains("hecho") || siguiente >= puntos.length) return;
+      if (i === siguiente) acertar(i);
+      else fallar(i);
+    };
+    g.addEventListener("click", pulsar);
+    g.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        pulsar();
+      }
+    });
+  });
+}
+
+function renderUnirPuntosSheet(ficha, container) {
+  container.innerHTML = "";
+  const sheet = acsCrearSheetBase(ficha);
+  if (ficha.ayuda) sheet.appendChild(acsCrearTiraSerie(ficha.numeros));
+  const lienzo = document.createElement("div");
+  lienzo.className = "acs-puntos-lienzo";
+  lienzo.appendChild(acsCrearSvgPuntos(ficha, { digital: false }).svg);
+  sheet.appendChild(lienzo);
+  container.appendChild(sheet);
+}
+
 // ---------- registro de tipos y arranque ----------
 
 const ACS_RENDERERS = {
@@ -1884,6 +2150,7 @@ const ACS_RENDERERS = {
   "ordenar-secuencia": { digital: renderOrdenarSecuenciaDigital, sheet: renderOrdenarSecuenciaSheet },
   "operacion-numerica": { digital: renderOperacionNumericaDigital, sheet: renderOperacionNumericaSheet },
   "serie-numerica": { digital: renderSerieNumericaDigital, sheet: renderSerieNumericaSheet },
+  "unir-puntos": { digital: renderUnirPuntosDigital, sheet: renderUnirPuntosSheet },
 };
 
 function initAcsFicha(ficha, digitalEl, sheetEl) {
@@ -1935,6 +2202,8 @@ function acsClaveRespuestas(ficha) {
       return ficha.items.map((item, i) => `${i + 1}. ${item.a} ${item.operador} ${item.b} = ${acsResultadoOperacionNumerica(item)}`);
     case "serie-numerica":
       return ["Faltan: " + acsFaltantesDeLaSerie(ficha).join(", ")];
+    case "unir-puntos":
+      return ["Dibujo: " + ficha.dibujo.nombre, "Orden: " + ficha.numeros.join(", ")];
     default:
       return [];
   }
