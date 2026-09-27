@@ -45,24 +45,28 @@ body[data-tema="pizarra-negra"] {
    "confetis" son capas de radial-gradient repetidas (ver la regla de
    background-size más abajo). */
 body[data-tema="arcoiris"] {
-  --fondo: #43257e;
+  /* Fondo oscurecido para máximo contraste con el texto blanco
+     (relación de contraste > 12:1); los garabatos escolares y el
+     confeti se mantienen, pero más tenues, para que nunca compitan
+     con la letra. */
+  --fondo: #2c1e5c;
   --fondo-deco:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.17' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M40 34l6 12 13 2-9 9 2 13-12-6-12 6 2-13-9-9 13-2z'/%3E%3Cpath d='M150 40q20-12 40 0v34q-20-12-40 0z'/%3E%3Cpath d='M170 46v30'/%3E%3Cpath d='M60 150l36-36 12 12-36 36-16 4z'/%3E%3Ccircle cx='204' cy='150' r='14'/%3E%3Cpath d='M108 224q10-14 20 0t20 0'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='0.17' font-family='Segoe Print, Comic Sans MS, cursive' font-size='26'%3E%3Ctext x='188' y='230'%3E2+3%3C/text%3E%3Ctext x='22' y='232'%3Eabc%3C/text%3E%3C/g%3E%3C/svg%3E"),
-    radial-gradient(circle, rgba(255,213,79,.55) 5px, transparent 6px),
-    radial-gradient(circle, rgba(110,231,255,.5) 4px, transparent 5px),
-    radial-gradient(circle, rgba(255,143,192,.5) 6px, transparent 7px),
-    radial-gradient(circle, rgba(129,255,176,.4) 4px, transparent 5px),
-    linear-gradient(135deg, #4a2d8f 0%, #7a2f9e 40%, #2b4bab 100%);
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.09' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M40 34l6 12 13 2-9 9 2 13-12-6-12 6 2-13-9-9 13-2z'/%3E%3Cpath d='M150 40q20-12 40 0v34q-20-12-40 0z'/%3E%3Cpath d='M170 46v30'/%3E%3Cpath d='M60 150l36-36 12 12-36 36-16 4z'/%3E%3Ccircle cx='204' cy='150' r='14'/%3E%3Cpath d='M108 224q10-14 20 0t20 0'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='0.09' font-family='Segoe Print, Comic Sans MS, cursive' font-size='26'%3E%3Ctext x='188' y='230'%3E2+3%3C/text%3E%3Ctext x='22' y='232'%3Eabc%3C/text%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(circle, rgba(255,213,79,.32) 5px, transparent 6px),
+    radial-gradient(circle, rgba(110,231,255,.28) 4px, transparent 5px),
+    radial-gradient(circle, rgba(255,143,192,.28) 6px, transparent 7px),
+    radial-gradient(circle, rgba(129,255,176,.22) 4px, transparent 5px),
+    linear-gradient(135deg, #322260 0%, #4b2678 45%, #1e3376 100%);
   --texto: #ffffff;
-  --texto-suave: #dcd3f5;
-  --tiza-azul: #6ee7ff;
-  --tiza-rosa: #ff9fce;
-  --tiza-amarilla: #ffd54f;
+  --texto-suave: #cfc7ea;
+  --tiza-azul: #7fe9ff;
+  --tiza-rosa: #ffabd6;
+  --tiza-amarilla: #ffdd66;
   --linea: rgba(255,255,255,.6);
-  --tarjeta: rgba(255,255,255,.12);
+  --tarjeta: rgba(0,0,0,.22);
   --tarjeta-borde: rgba(255,255,255,.45);
-  --panel: #37246b;
-  --sombra-texto: 0 2px 8px rgba(0,0,0,.35);
+  --panel: #2b1d54;
+  --sombra-texto: 0 2px 10px rgba(0,0,0,.5);
 }
 body[data-tema="arcoiris"] {
   background-size: 340px 340px, 190px 170px, 230px 210px, 300px 260px, 170px 230px, cover;

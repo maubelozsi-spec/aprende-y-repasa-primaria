@@ -52,7 +52,7 @@ const COL_SECRETO = "reunionFamiliasSecret";
 const COL_EDITORES = "reunionFamiliasEditores";
 
 const TEMAS = [
-  { id: "arcoiris", nombre: "Colores vivos", fondo: "linear-gradient(135deg,#4a2d8f,#7a2f9e,#2b4bab)", tinta: "#ffffff" },
+  { id: "arcoiris", nombre: "Colores vivos", fondo: "linear-gradient(135deg,#322260,#4b2678,#1e3376)", tinta: "#ffffff" },
   { id: "pizarra-negra", nombre: "Pizarra negra", fondo: "#1d1e22", tinta: "#f2f0e9" },
   { id: "pizarra-verde", nombre: "Pizarra verde", fondo: "#2c473a", tinta: "#f5f2e4" },
   { id: "noche", nombre: "Cielo nocturno", fondo: "#121a33", tinta: "#eef1ff" },
@@ -769,7 +769,7 @@ function renderConfig() {
   // (fondo no hexadecimal) se ofrece un morado acorde como punto de partida.
   inpColor.value =
     estado.app.fondoColor ||
-    (temaActual.fondo.startsWith("#") ? temaActual.fondo : "#43257e");
+    (temaActual.fondo.startsWith("#") ? temaActual.fondo : "#2c1e5c");
   inpColor.addEventListener("input", () => {
     estado.app.fondoColor = inpColor.value;
     aplicarTema();
