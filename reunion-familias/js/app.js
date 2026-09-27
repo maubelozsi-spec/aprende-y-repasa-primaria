@@ -287,17 +287,15 @@ function renderBloque(secId, b, i) {
       const img = document.createElement("img");
       img.src = b.src;
       img.alt = b.cap || "";
-      if (estado.editando) {
-        contenido.appendChild(img);
-      } else {
-        const enlace = document.createElement("a");
-        enlace.href = b.src;
-        enlace.target = "_blank";
-        enlace.rel = "noopener";
-        enlace.title = "Ver a tamaño completo";
-        enlace.appendChild(img);
-        contenido.appendChild(enlace);
+      if (!estado.editando) {
+        // Las imágenes subidas se guardan como data URL y el navegador
+        // bloquea abrirlas en una pestaña nueva (se quedaba en blanco):
+        // se amplían en un visor propio dentro de la página.
+        img.style.cursor = "zoom-in";
+        img.title = "Ver a tamaño completo";
+        img.addEventListener("click", () => abrirVisorImagen(b.src, b.cap));
       }
+      contenido.appendChild(img);
     } else {
       contenido.appendChild(el("p", "por-confirmar", "[Imagen sin cargar: usa «Cambiar imagen»]"));
     }
@@ -339,6 +337,24 @@ function renderBloque(secId, b, i) {
   }
 
   return w;
+}
+
+// Visor de imágenes a pantalla completa: se cierra pinchando en
+// cualquier sitio o con Escape.
+function abrirVisorImagen(src, alt) {
+  let visor = document.getElementById("visor-imagen");
+  if (!visor) {
+    visor = document.createElement("div");
+    visor.id = "visor-imagen";
+    visor.addEventListener("click", () => { visor.hidden = true; });
+    document.body.appendChild(visor);
+  }
+  visor.innerHTML = "";
+  const img = document.createElement("img");
+  img.src = src;
+  img.alt = alt || "";
+  visor.appendChild(img);
+  visor.hidden = false;
 }
 
 function moverBloque(secId, i, delta) {
@@ -1101,6 +1117,11 @@ $("#btn-cerrar-config").addEventListener("click", () => { $("#panel-config").hid
 document.addEventListener("keydown", (ev) => {
   const enEditable = ev.target.isContentEditable ||
     ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA";
+  const visor = document.getElementById("visor-imagen");
+  if (visor && !visor.hidden) {
+    if (ev.key === "Escape") visor.hidden = true;
+    return;
+  }
   if (!$("#fondo-modal").hidden) {
     if (ev.key === "Escape") cerrarModal();
     return;

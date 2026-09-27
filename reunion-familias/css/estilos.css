@@ -388,6 +388,27 @@ body {
    fondo pastel: dentro de la infografía se fuerza legibilidad. */
 .diapositiva-infografia .por-confirmar { color: #b45309; }
 
+/* ---------- Visor de imágenes a pantalla completa ---------- */
+
+#visor-imagen {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 0, 0, .86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  cursor: zoom-out;
+}
+#visor-imagen img {
+  max-width: 96vw;
+  max-height: 94vh;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, .6);
+}
+
 /* ---------- Índice ---------- */
 
 .rejilla-indice {
@@ -783,7 +804,7 @@ body.editando .btn-anadir-bloque { display: block; }
 
 @media print {
   .flecha, #barra-inferior, #barra-formato, #panel-config,
-  #fondo-modal, .btn-pdf, .btn-anadir-bloque, .controles-bloque {
+  #fondo-modal, #visor-imagen, .btn-pdf, .btn-anadir-bloque, .controles-bloque {
     display: none !important;
   }
 
