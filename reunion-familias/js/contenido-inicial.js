@@ -35,11 +35,12 @@ window.CONTENIDO_INICIAL = {
     tutor: "Miguel Ángel Úbeda López",
     centro: "CEIP San Indalecio · La Cañada (Almería)",
     fecha: "Reunión de familias · lunes, 28 de septiembre de 2026",
-    tema: "pizarra-negra",
+    tema: "arcoiris",
     fondoColor: null,
     fondoImagen: null,
     fondoVelo: 0.45,
     secciones: [
+      { id: "infografia",     titulo: "Toda la info en un vistazo", visible: true },
       { id: "presentacion",   titulo: "Presentación",              visible: true },
       { id: "calendario",     titulo: "Calendario escolar",        visible: true },
       { id: "horario",        titulo: "Horario",                   visible: true },
@@ -65,6 +66,21 @@ window.CONTENIDO_INICIAL = {
   },
 
   secciones: {
+    // Infografía-resumen (página 2): tarjetas pastel al estilo póster
+    // escolar con lo esencial de toda la presentación.
+    infografia: {
+      bloques: [
+        { t: "tarjeta", titulo: "¿Quién soy?", html: "<img class=\"avatar-foto\" src=\"" + (window.AVATAR_TUTOR || "") + "\" alt=\"Foto del tutor\">Soy <b>Miguel Ángel Úbeda</b>, el tutor del grupo. Estaré a vuestro lado (y al de vuestros hijos e hijas) durante todo el curso." },
+        { t: "tarjeta", titulo: "Para recordar", html: "<b>Familia y escuela en una misma dirección</b>, para ayudar y acompañar. No siempre pensaremos igual, pero trabajamos por el mismo niño." },
+        { t: "tarjeta", titulo: "¿Cómo nos comunicamos?", html: "<ul><li><b>iPasen:</b> avisos, autorizaciones y justificación de faltas.</li><li><b>Agenda:</b> para el día a día.</li><li><b>Correo electrónico:</b> <span class=\"por-confirmar\">[por confirmar]</span>.</li><li><b>Tutorías:</b> con cita previa, para hablar y acompañar.</li></ul>" },
+        { t: "tarjeta", titulo: "Las normas también cuidan", html: "<ul><li><b>Entradas y salidas:</b> puntualidad y recogida responsable (9:00–14:00).</li><li><b>Material:</b> cuidamos lo propio y lo ajeno.</li><li><b>Patio:</b> jugamos, compartimos y nos respetamos.</li><li><b>Dispositivos:</b> sin móviles ni relojes inteligentes.</li><li><b>Asistencia:</b> venir con regularidad es clave.</li><li><b>Comunicación respetuosa:</b> hablamos desde el respeto y la solución.</li></ul>" },
+        { t: "tarjeta", titulo: "Evaluar para aprender", html: "<b>¿Qué valoramos?</b> El esfuerzo, la evolución, la autonomía y la actitud.<br><b>¿Cómo observamos?</b> Tareas, pruebas, diario de clase, rúbricas y autoevaluación.<br><b>¿Cómo informamos?</b> iPasen, boletines y tutorías.<br><i>La nota del examen no lo es todo.</i>" },
+        { t: "tarjeta", titulo: "¿Qué queremos conseguir?", html: "No solo contenidos: también <b>autonomía, hábitos, responsabilidad y convivencia</b>. Aprenderemos con lectura diaria, práctica, trabajo cooperativo y resolución de problemas." },
+        { t: "tarjeta", titulo: "Ante una dificultad", html: "Aparecerán, y es normal. No buscamos culpables: <b>compartimos información, acordamos actuaciones y revisamos si funcionan</b>. Si algo preocupa, preguntamos antes de interpretar." },
+        { t: "tarjeta", titulo: "Y ahora, lo más importante…", html: "<b>¡A construir juntos!</b><br>FAMILIA + ESCUELA = UNA MISMA DIRECCIÓN 💜" },
+      ],
+    },
+
     presentacion: {
       rev: 1,
       bloques: [
@@ -72,6 +88,10 @@ window.CONTENIDO_INICIAL = {
         { t: "p", html: "Mi nombre es <b>Miguel Ángel Úbeda</b> y seré el tutor del grupo durante este curso." },
         { t: "p", html: "En esta aula imparto <b>Lengua, Matemáticas, Plástica, Atención Educativa y ALCT</b>." },
         { t: "p", html: "Además imparto Plástica en 5º A y 5º B, y Atención Educativa en 5º B y 5º C." },
+        { t: "h", html: "Qué queremos conseguir este curso" },
+        { t: "p", html: "No solo contenidos: también <b>autonomía, hábitos, responsabilidad y convivencia</b>. Por ejemplo: organizar su material, pedir ayuda cuando la necesiten, respetar los turnos, revisar su trabajo y asumir pequeñas responsabilidades." },
+        { t: "h", html: "Cómo vamos a aprender" },
+        { t: "p", html: "Combinaremos la explicación y la práctica con <b>lectura diaria, trabajo cooperativo, proyectos y resolución de problemas</b>: cada estrategia refuerza a las demás y nos permite atender los distintos ritmos del aula." },
       ],
     },
 
@@ -162,6 +182,7 @@ window.CONTENIDO_INICIAL = {
           "<b>Exámenes:</b> tener en cuenta que pueden juntarse varios la misma semana e incluso el mismo día.<br><br>En Conocimiento del Medio, un <span class=\"por-confirmar\">[POR CONFIRMAR: 20%]</span> de las preguntas serán en inglés.",
           "<b>Notas de clase y tareas:</b> se tendrán en cuenta la realización de tareas, el estudio diario y el comportamiento.<br><br><b>Libreta:</b> se valorará la limpieza y el orden, márgenes, buena letra… y que las actividades estén hechas, corregidas y auto-revisadas (autoevaluación trimestral).",
         ] },
+        { t: "destacado", html: "<b>¿Con qué evidencias evaluamos?</b> Tareas y producciones diarias, pruebas orales y escritas, diario de clase, rúbricas y autoevaluación. Evaluar no significa depender únicamente de un examen." },
       ],
     },
 
@@ -170,6 +191,10 @@ window.CONTENIDO_INICIAL = {
         { t: "h", html: "Implicación y colaboración de las familias" },
         { t: "ul", html: "<ul><li>Necesidad del <b>seguimiento</b> por parte de las familias del trabajo escolar, facilitarles el tiempo y las condiciones ambientales para realizar las tareas.</li><li>Importancia de la <b>lectura</b>.</li><li>Importancia de la fluida <b>comunicación</b> con los maestros.</li><li>Inculcar el <b>respeto</b> a los demás y fomentar la convivencia.</li><li>Promover la <b>autonomía personal</b> y la responsabilidad.</li></ul>" },
         { t: "destacado", html: "Importancia de colaborar y ser socio/a del <b>AMPA</b>." },
+        { t: "destacado", html: "Familia y escuela <b>no siempre vamos a pensar igual</b>, pero trabajamos por el mismo niño. Ante una discrepancia, la pregunta no es quién tiene razón, sino: <b>¿qué podemos hacer, desde casa y desde la escuela, para ayudarle a avanzar?</b>" },
+        { t: "p", html: "Y, sobre todo: <b>no hagáis por el niño aquello que ya puede empezar a hacer solo</b>. Favoreced las rutinas, el sueño, la lectura, la autonomía, la asistencia y la comunicación." },
+        { t: "h", html: "Cuando aparezca una dificultad" },
+        { t: "p", html: "Aparecerán: académicas, emocionales, de convivencia o de comportamiento. No se trata de <b>buscar culpables</b>, sino de <b>compartir información, acordar actuaciones y revisar si están funcionando</b>." },
       ],
     },
 
@@ -248,6 +273,7 @@ window.CONTENIDO_INICIAL = {
         { t: "h", html: "Tutorías" },
         { t: "destacado", html: "Horario de tutoría: <b><span class=\"por-confirmar\">[POR CONFIRMAR: lunes de 16:00 a 17:00]</span></b>" },
         { t: "ul", html: "<ul><li>Petición de <b>cita previa</b> a través de Séneca/iPasen.</li><li>Para llevar un seguimiento de las tutorías se elaborará un <b>acta</b> durante la realización de las mismas, que deberán firmar ambas partes.</li><li>Es importante tener una comunicación fluida, por lo que se recomienda al menos <b>1 visita al trimestre</b>.</li></ul>" },
+        { t: "destacado", html: "Si algo os preocupa, <b>preguntad antes de interpretar</b>: una comunicación a tiempo evita malentendidos." },
       ],
     },
 

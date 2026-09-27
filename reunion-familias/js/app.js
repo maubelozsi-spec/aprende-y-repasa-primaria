@@ -52,6 +52,7 @@ const COL_SECRETO = "reunionFamiliasSecret";
 const COL_EDITORES = "reunionFamiliasEditores";
 
 const TEMAS = [
+  { id: "arcoiris", nombre: "Colores vivos", fondo: "linear-gradient(135deg,#4a2d8f,#7a2f9e,#2b4bab)", tinta: "#ffffff" },
   { id: "pizarra-negra", nombre: "Pizarra negra", fondo: "#1d1e22", tinta: "#f2f0e9" },
   { id: "pizarra-verde", nombre: "Pizarra verde", fondo: "#2c473a", tinta: "#f5f2e4" },
   { id: "noche", nombre: "Cielo nocturno", fondo: "#121a33", tinta: "#eef1ff" },
@@ -76,9 +77,14 @@ const estado = {
 // editarlas; en modo normal solo se muestran las visibles.
 function listaDiapositivas() {
   const secs = estado.app.secciones.filter((s) => estado.editando || s.visible);
-  return [{ tipo: "portada" }, { tipo: "indice" }].concat(
-    secs.map((s) => ({ tipo: "seccion", id: s.id }))
-  );
+  // La infografía-resumen va justo después de la portada (página 2),
+  // antes del índice; el resto de secciones sigue el orden normal.
+  const info = secs.find((s) => s.id === "infografia");
+  const resto = secs.filter((s) => s.id !== "infografia");
+  const lista = [{ tipo: "portada" }];
+  if (info) lista.push({ tipo: "seccion", id: "infografia" });
+  lista.push({ tipo: "indice" });
+  return lista.concat(resto.map((s) => ({ tipo: "seccion", id: s.id })));
 }
 
 // ---------------- Utilidades DOM ----------------
@@ -160,6 +166,14 @@ function renderPortada() {
   const fecha = el("p", "fecha-reunion", estado.app.fecha);
   d.append(bienvenida, curso, raya, tutor, grupoCentro, fecha);
 
+  // Botón para llevarse la presentación completa en PDF (apaisado).
+  // Usa la impresión del navegador: en el diálogo basta con elegir
+  // "Guardar como PDF" como destino.
+  const btnPdf = el("button", "btn-pdf", "📄 Descargar en PDF");
+  btnPdf.title = "En el diálogo que se abre, elige «Guardar como PDF»";
+  btnPdf.addEventListener("click", () => window.print());
+  d.appendChild(btnPdf);
+
   if (estado.editando) {
     vincularCampoPortada(curso, "curso", "Curso ");
     vincularCampoPortada(fecha, "fecha", "");
@@ -216,7 +230,7 @@ function renderIndice(lista) {
 function renderSeccion(id) {
   const conf = estado.app.secciones.find((s) => s.id === id) || { titulo: id };
   const datos = estado.secciones[id] || { bloques: [] };
-  const d = el("section", "diapositiva");
+  const d = el("section", "diapositiva" + (id === "infografia" ? " diapositiva-infografia" : ""));
 
   const titulo = el("h2", "titulo-seccion", conf.titulo);
   d.appendChild(titulo);
@@ -256,6 +270,16 @@ function renderBloque(secId, b, i) {
       if (estado.editando) c.contentEditable = "true";
       contenido.appendChild(c);
     });
+  } else if (b.t === "tarjeta") {
+    // Tarjeta de infografía: título + cuerpo sobre fondo pastel.
+    contenido = el("div", "tarjeta-info");
+    const tit = el("div", "tarjeta-titulo", b.titulo || "");
+    const cuerpo = el("div", "tarjeta-cuerpo", b.html || "");
+    if (estado.editando) {
+      tit.contentEditable = "true";
+      cuerpo.contentEditable = "true";
+    }
+    contenido.append(tit, cuerpo);
   } else if (b.t === "img") {
     contenido = el("figure", "");
     contenido.style.margin = "0";
@@ -341,6 +365,9 @@ $("#diapositivas").addEventListener("input", (ev) => {
   if (b.t === "cols") {
     const cols = bloque.querySelectorAll(".col");
     b.cols = [cols[0].innerHTML, cols[1] ? cols[1].innerHTML : ""];
+  } else if (b.t === "tarjeta") {
+    b.titulo = bloque.querySelector(".tarjeta-titulo").innerHTML;
+    b.html = bloque.querySelector(".tarjeta-cuerpo").innerHTML;
   } else if (b.t === "img") {
     const cap = bloque.querySelector("figcaption");
     b.cap = cap ? cap.textContent : "";
@@ -556,6 +583,7 @@ const PLANTILLAS_BLOQUE = {
   cols: { t: "cols", cols: ["Columna izquierda.", "Columna derecha."] },
   tabla: { t: "tabla", html: "<table><thead><tr><th>Columna 1</th><th>Columna 2</th></tr></thead><tbody><tr><td>—</td><td>—</td></tr><tr><td>—</td><td>—</td></tr></tbody></table>" },
   img: { t: "img", src: "", cap: "Pie de foto" },
+  tarjeta: { t: "tarjeta", titulo: "Título de la tarjeta", html: "Contenido de la tarjeta. Haz clic para editarlo." },
 };
 
 async function menuAnadirBloque(secId) {
@@ -721,7 +749,11 @@ function renderConfig() {
   inpColor.type = "color";
   inpColor.id = "inp-color-fondo";
   const temaActual = TEMAS.find((t) => t.id === estado.app.tema) || TEMAS[0];
-  inpColor.value = estado.app.fondoColor || temaActual.fondo;
+  // input type=color solo admite "#rrggbb"; para temas con degradado
+  // (fondo no hexadecimal) se ofrece un morado acorde como punto de partida.
+  inpColor.value =
+    estado.app.fondoColor ||
+    (temaActual.fondo.startsWith("#") ? temaActual.fondo : "#43257e");
   inpColor.addEventListener("input", () => {
     estado.app.fondoColor = inpColor.value;
     aplicarTema();
@@ -1035,6 +1067,7 @@ function elegirTipoBloque() {
         <button data-tipo="cols">◫ Dos columnas</button>
         <button data-tipo="tabla">⊞ Tabla</button>
         <button data-tipo="img">🖼 Imagen</button>
+        <button data-tipo="tarjeta">🗂 Tarjeta de infografía</button>
       </div>
       <div class="acciones">
         <button class="secundario" id="m-cancelar">Cancelar</button>

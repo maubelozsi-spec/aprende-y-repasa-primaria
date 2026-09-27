@@ -39,6 +39,33 @@ body[data-tema="pizarra-negra"] {
   --sombra-texto: 0 0 6px rgba(255,255,255,.12);
 }
 
+/* Tema llamativo y escolar: degradado vivo violeta-azul con confeti
+   de colores. Los "confetis" son capas de radial-gradient repetidas
+   (ver la regla de background-size más abajo). */
+body[data-tema="arcoiris"] {
+  --fondo: #43257e;
+  --fondo-deco:
+    radial-gradient(circle, rgba(255,213,79,.55) 5px, transparent 6px),
+    radial-gradient(circle, rgba(110,231,255,.5) 4px, transparent 5px),
+    radial-gradient(circle, rgba(255,143,192,.5) 6px, transparent 7px),
+    radial-gradient(circle, rgba(129,255,176,.4) 4px, transparent 5px),
+    linear-gradient(135deg, #4a2d8f 0%, #7a2f9e 40%, #2b4bab 100%);
+  --texto: #ffffff;
+  --texto-suave: #dcd3f5;
+  --tiza-azul: #6ee7ff;
+  --tiza-rosa: #ff9fce;
+  --tiza-amarilla: #ffd54f;
+  --linea: rgba(255,255,255,.6);
+  --tarjeta: rgba(255,255,255,.12);
+  --tarjeta-borde: rgba(255,255,255,.45);
+  --panel: #37246b;
+  --sombra-texto: 0 2px 8px rgba(0,0,0,.35);
+}
+body[data-tema="arcoiris"] {
+  background-size: 190px 170px, 230px 210px, 300px 260px, 170px 230px, cover;
+  background-position: 0 0, 60px 90px, 130px 40px, 30px 150px, 0 0;
+}
+
 body[data-tema="pizarra-verde"] {
   --fondo: #2c473a;
   --fondo-deco:
@@ -279,6 +306,84 @@ body {
 .deco-2 { bottom: 12%; left: 14%; font-size: clamp(46px, 8vw, 105px); color: var(--tiza-rosa); transform: rotate(9deg); }
 .deco-3 { top: 8%;  right: 11%; font-size: clamp(46px, 8vw, 105px); color: var(--tiza-azul);   transform: rotate(12deg); }
 .deco-4 { bottom: 10%; right: 15%; font-size: clamp(40px, 7vw, 90px); color: var(--tiza-rosa); transform: rotate(-8deg); }
+
+/* ---------- Botón de PDF en la portada ---------- */
+
+.btn-pdf {
+  margin-top: 26px;
+  border: 2px solid var(--tarjeta-borde);
+  border-radius: 999px;
+  background: var(--tarjeta);
+  color: var(--texto);
+  font-family: var(--fuente-texto);
+  font-size: 18px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease;
+}
+.btn-pdf:hover { transform: scale(1.05); background: rgba(255,255,255,.2); }
+
+/* ---------- Infografía (resumen en una página) ----------
+   Es una diapositiva especial con aspecto de póster claro,
+   independiente del tema elegido: tarjetas pastel en columnas,
+   como una infografía escolar. */
+
+.diapositiva-infografia {
+  background: #fdf6ec;
+  color: #333a4d;
+}
+.diapositiva-infografia .titulo-seccion { color: #7c3aed; text-shadow: none; }
+.diapositiva-infografia .titulo-seccion::after { background: rgba(124,58,237,.5); }
+
+.diapositiva-infografia .cuerpo-seccion {
+  width: min(1180px, 100%);
+  column-count: 3;
+  column-gap: 18px;
+}
+@media (max-width: 1000px) { .diapositiva-infografia .cuerpo-seccion { column-count: 2; } }
+@media (max-width: 640px)  { .diapositiva-infografia .cuerpo-seccion { column-count: 1; } }
+
+.diapositiva-infografia .bloque { break-inside: avoid; margin-bottom: 14px; }
+
+.tarjeta-info {
+  border-radius: 14px;
+  border: 2px solid rgba(51,58,77,.12);
+  background: #ffffff;
+  box-shadow: 2px 3px 0 rgba(51,58,77,.08);
+  padding: 12px 16px;
+}
+.diapositiva-infografia .bloque:nth-child(6n+1) .tarjeta-info { background: #fde7ef; }
+.diapositiva-infografia .bloque:nth-child(6n+2) .tarjeta-info { background: #e6f4fb; }
+.diapositiva-infografia .bloque:nth-child(6n+3) .tarjeta-info { background: #eaf6dd; }
+.diapositiva-infografia .bloque:nth-child(6n+4) .tarjeta-info { background: #fdf3d7; }
+.diapositiva-infografia .bloque:nth-child(6n+5) .tarjeta-info { background: #efe7fb; }
+
+.tarjeta-titulo {
+  font-family: var(--fuente-titulos);
+  font-size: 25px;
+  font-weight: 700;
+  color: #6d28d9;
+  margin-bottom: 4px;
+}
+.tarjeta-cuerpo { font-size: 16.5px; line-height: 1.4; }
+.tarjeta-cuerpo ul { margin: 4px 0 4px 4px; padding-left: 20px; }
+.tarjeta-cuerpo li { margin: 2px 0; }
+.tarjeta-cuerpo b { color: #444c63; }
+
+.avatar-foto {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #7c3aed;
+  float: left;
+  margin: 2px 12px 6px 0;
+  background: #fff;
+}
+
+/* La tinta de tiza de colores del editor puede quedar clara sobre el
+   fondo pastel: dentro de la infografía se fuerza legibilidad. */
+.diapositiva-infografia .por-confirmar { color: #b45309; }
 
 /* ---------- Índice ---------- */
 
@@ -666,7 +771,45 @@ body.editando .btn-anadir-bloque { display: block; }
   .deco { display: none; }
 }
 
+/* ---------- PDF (botón "Descargar en PDF" → imprimir) ----------
+   Una página apaisada por diapositiva. Cada bloque es indivisible
+   (break-inside: avoid): si una sección no cabe en una página, sigue
+   en la siguiente sin cortar ningún bloque por la mitad. */
+
+@page { size: A4 landscape; margin: 0; }
+
 @media print {
-  .flecha, #barra-inferior, #barra-formato, #panel-config { display: none !important; }
-  .diapositiva { display: flex !important; position: static; page-break-after: always; }
+  .flecha, #barra-inferior, #barra-formato, #panel-config,
+  #fondo-modal, .btn-pdf, .btn-anadir-bloque, .controles-bloque {
+    display: none !important;
+  }
+
+  html, body { height: auto; overflow: visible; background: none; }
+
+  #escenario, #diapositivas { position: static; inset: auto; }
+
+  .diapositiva {
+    display: flex !important;
+    position: static;
+    inset: auto;
+    min-height: 100vh;
+    height: auto;
+    overflow: visible;
+    page-break-after: always;
+    break-after: page;
+    padding: 34px 60px 40px;
+    /* El fondo del tema se pinta en cada página */
+    background-color: var(--fondo);
+    background-image: var(--fondo-deco);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body[data-tema="arcoiris"] .diapositiva {
+    background-size: 190px 170px, 230px 210px, 300px 260px, 170px 230px, cover;
+  }
+  .diapositiva-infografia { background: #fdf6ec !important; background-image: none !important; }
+
+  .diapositiva.activa { animation: none; }
+  .bloque, .tarjeta-info, .bloque-img, .bloque-tabla table { break-inside: avoid; page-break-inside: avoid; }
+  .titulo-seccion, .bloque-h { break-after: avoid; }
 }
