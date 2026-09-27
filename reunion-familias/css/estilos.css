@@ -271,6 +271,16 @@ body {
 
 .por-confirmar { color: var(--tiza-amarilla); font-style: italic; }
 
+/* Enlaces dentro de las diapositivas (p. ej. a la app Aprende y Repasa) */
+.diapositiva a {
+  color: var(--tiza-amarilla);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 700;
+}
+.diapositiva a:hover { filter: brightness(1.15); }
+.diapositiva-infografia a { color: #6d28d9; }
+
 /* ---------- Portada ---------- */
 
 .portada { justify-content: center; text-align: center; }
