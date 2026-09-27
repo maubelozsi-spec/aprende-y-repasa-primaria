@@ -155,7 +155,7 @@ body {
   background-attachment: fixed;
   color: var(--texto);
   font-family: var(--fuente-texto);
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.45;
   overflow: hidden;
 }
@@ -185,7 +185,7 @@ body {
 
 .titulo-seccion {
   font-family: var(--fuente-titulos);
-  font-size: clamp(34px, 5.2vw, 56px);
+  font-size: clamp(38px, 5.6vw, 62px);
   font-weight: 700;
   margin: 6px 0 4px;
   text-align: center;
@@ -208,18 +208,28 @@ body {
   margin-top: 14px;
 }
 
+/* Reparto automático en dos columnas cuando una sección es muy larga
+   (lo activa ajustarEscala() antes de reducir la letra). */
+.cuerpo-seccion.auto-columnas {
+  width: min(1220px, 100%);
+  column-count: 2;
+  column-gap: 38px;
+}
+.cuerpo-seccion.auto-columnas .bloque { break-inside: avoid; }
+.cuerpo-seccion.auto-columnas .bloque-h { break-after: avoid-column; }
+
 /* Bloques de contenido */
 .bloque { position: relative; margin: 0 0 16px; }
 
 .bloque-h {
   font-family: var(--fuente-titulos);
-  font-size: clamp(26px, 3.4vw, 36px);
+  font-size: clamp(30px, 3.8vw, 42px);
   font-weight: 700;
   color: var(--tiza-azul);
   text-shadow: var(--sombra-texto);
 }
 
-.bloque-p { font-size: clamp(18px, 2.2vw, 23px); }
+.bloque-p { font-size: clamp(21px, 2.6vw, 28px); }
 
 .bloque-ul ul, .bloque-p ul, .cols ul { margin: 6px 0 6px 8px; padding-left: 22px; }
 .bloque-ul li, .cols li { margin: 4px 0; }
@@ -229,7 +239,7 @@ body {
   border-radius: 10px;
   background: var(--tarjeta);
   padding: 12px 18px;
-  font-size: clamp(18px, 2.2vw, 23px);
+  font-size: clamp(21px, 2.6vw, 28px);
   transform: rotate(-.3deg);
 }
 
@@ -260,7 +270,7 @@ body {
   border-collapse: collapse;
   margin: 0 auto;
   background: var(--tarjeta);
-  font-size: clamp(15px, 1.9vw, 20px);
+  font-size: clamp(17px, 2.1vw, 24px);
 }
 .bloque-tabla th, .bloque-tabla td {
   border: 1.5px solid var(--tarjeta-borde);
@@ -269,7 +279,7 @@ body {
 }
 .bloque-tabla th { color: var(--tiza-amarilla); }
 
-.bloque-tabla table.horario { font-size: clamp(12px, 1.5vw, 17px); line-height: 1.15; }
+.bloque-tabla table.horario { font-size: clamp(14px, 1.7vw, 20px); line-height: 1.15; }
 .bloque-tabla table.horario td, .bloque-tabla table.horario th { padding: 4px 8px; border-color: rgba(31, 37, 48, .22); }
 .bloque-tabla table.horario small { font-size: .78em; opacity: .85; }
 
@@ -377,12 +387,12 @@ body {
 
 .tarjeta-titulo {
   font-family: var(--fuente-titulos);
-  font-size: 25px;
+  font-size: 27px;
   font-weight: 700;
   color: #6d28d9;
   margin-bottom: 4px;
 }
-.tarjeta-cuerpo { font-size: 16.5px; line-height: 1.4; }
+.tarjeta-cuerpo { font-size: 18px; line-height: 1.4; }
 .tarjeta-cuerpo ul { margin: 4px 0 4px 4px; padding-left: 20px; }
 .tarjeta-cuerpo li { margin: 2px 0; }
 .tarjeta-cuerpo b { color: #444c63; }
@@ -442,7 +452,7 @@ body {
   background: var(--tarjeta);
   color: var(--texto);
   font-family: var(--fuente-texto);
-  font-size: 18px;
+  font-size: 20px;
   text-align: left;
   padding: 8px 12px;
   cursor: pointer;
@@ -850,4 +860,7 @@ body.editando .btn-anadir-bloque { display: block; }
   .diapositiva.activa { animation: none; }
   .bloque, .tarjeta-info, .bloque-img, .bloque-tabla table { break-inside: avoid; page-break-inside: avoid; }
   .titulo-seccion, .bloque-h { break-after: avoid; }
+  /* El autoajuste de pantalla (zoom) no aplica al PDF: ahí el
+     contenido pagina y la letra va siempre a tamaño completo. */
+  .cuerpo-seccion, .rejilla-indice { zoom: 1 !important; }
 }

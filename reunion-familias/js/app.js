@@ -136,7 +136,63 @@ function mostrarDiapo() {
   $("#contador").textContent = `${estado.idx + 1} / ${lista.length}`;
   $("#btn-anterior").disabled = estado.idx === 0;
   $("#btn-siguiente").disabled = estado.idx === lista.length - 1;
+  ajustarEscala();
+  // Segundo ajuste por si las imágenes terminan de cargar y cambian la altura
+  setTimeout(ajustarEscala, 250);
 }
+
+// Autoajuste "cabe en una página": la letra base es grande y, si el
+// contenido de la diapositiva activa no entra en pantalla, se reduce
+// solo lo justo (con zoom) para que se vea todo sin hacer scroll.
+// En el móvil (pantallas estrechas) y en modo edición se deja el
+// scroll natural; al imprimir, el CSS anula el zoom (el PDF pagina).
+function ajustarEscala() {
+  const activa = document.querySelector(".diapositiva.activa");
+  if (!activa) return;
+  const objetivo = activa.querySelector(".cuerpo-seccion, .rejilla-indice");
+  if (!objetivo) return;
+  objetivo.style.zoom = "";
+  objetivo.classList.remove("auto-columnas");
+  if (estado.editando || window.innerWidth < 900) return;
+
+  const encoger = () => {
+    for (let i = 0; i < 5; i++) {
+      if (activa.scrollHeight - activa.clientHeight <= 2) break;
+      const actual = Number(objetivo.style.zoom || 1);
+      // 0.98 de margen para que el redondeo del reflujo no deje restos
+      const nuevo = Math.max(0.55, actual * (activa.clientHeight / activa.scrollHeight) * 0.98);
+      if (nuevo >= actual) break;
+      objetivo.style.zoom = String(nuevo);
+    }
+    return Number(objetivo.style.zoom || 1);
+  };
+  const cabe = () => activa.scrollHeight - activa.clientHeight <= 2;
+
+  // 1º intento: una columna
+  const z1 = encoger();
+  const cabe1 = cabe();
+  const esCuerpo = objetivo.classList.contains("cuerpo-seccion");
+  const esInfografia = activa.classList.contains("diapositiva-infografia");
+  if ((cabe1 && z1 >= 0.75) || !esCuerpo || esInfografia) return;
+
+  // 2º intento: dos columnas; se conserva la disposición que permita
+  // la letra más grande (una tabla ancha, p. ej., empeora en columnas).
+  objetivo.classList.add("auto-columnas");
+  objetivo.style.zoom = "";
+  const z2 = encoger();
+  const cabe2 = cabe();
+  const mejoraConColumnas = (cabe2 && !cabe1) || (cabe2 === cabe1 && z2 > z1);
+  if (!mejoraConColumnas) {
+    objetivo.classList.remove("auto-columnas");
+    objetivo.style.zoom = z1 === 1 ? "" : String(z1);
+  }
+}
+
+let temporizadorEscala = null;
+window.addEventListener("resize", () => {
+  clearTimeout(temporizadorEscala);
+  temporizadorEscala = setTimeout(ajustarEscala, 150);
+});
 
 function ir(idx) {
   estado.idx = idx;
