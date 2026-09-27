@@ -40,11 +40,14 @@ body[data-tema="pizarra-negra"] {
 }
 
 /* Tema llamativo y escolar: degradado vivo violeta-azul con confeti
-   de colores. Los "confetis" son capas de radial-gradient repetidas
-   (ver la regla de background-size más abajo). */
+   de colores y garabatos escolares (estrella, libro abierto, lápiz,
+   pelota, "abc", "2+3") dibujados en un patrón SVG incrustado. Los
+   "confetis" son capas de radial-gradient repetidas (ver la regla de
+   background-size más abajo). */
 body[data-tema="arcoiris"] {
   --fondo: #43257e;
   --fondo-deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.17' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M40 34l6 12 13 2-9 9 2 13-12-6-12 6 2-13-9-9 13-2z'/%3E%3Cpath d='M150 40q20-12 40 0v34q-20-12-40 0z'/%3E%3Cpath d='M170 46v30'/%3E%3Cpath d='M60 150l36-36 12 12-36 36-16 4z'/%3E%3Ccircle cx='204' cy='150' r='14'/%3E%3Cpath d='M108 224q10-14 20 0t20 0'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='0.17' font-family='Segoe Print, Comic Sans MS, cursive' font-size='26'%3E%3Ctext x='188' y='230'%3E2+3%3C/text%3E%3Ctext x='22' y='232'%3Eabc%3C/text%3E%3C/g%3E%3C/svg%3E"),
     radial-gradient(circle, rgba(255,213,79,.55) 5px, transparent 6px),
     radial-gradient(circle, rgba(110,231,255,.5) 4px, transparent 5px),
     radial-gradient(circle, rgba(255,143,192,.5) 6px, transparent 7px),
@@ -62,8 +65,8 @@ body[data-tema="arcoiris"] {
   --sombra-texto: 0 2px 8px rgba(0,0,0,.35);
 }
 body[data-tema="arcoiris"] {
-  background-size: 190px 170px, 230px 210px, 300px 260px, 170px 230px, cover;
-  background-position: 0 0, 60px 90px, 130px 40px, 30px 150px, 0 0;
+  background-size: 340px 340px, 190px 170px, 230px 210px, 300px 260px, 170px 230px, cover;
+  background-position: 20px 30px, 0 0, 60px 90px, 130px 40px, 30px 150px, 0 0;
 }
 
 body[data-tema="pizarra-verde"] {
@@ -805,7 +808,7 @@ body.editando .btn-anadir-bloque { display: block; }
     print-color-adjust: exact;
   }
   body[data-tema="arcoiris"] .diapositiva {
-    background-size: 190px 170px, 230px 210px, 300px 260px, 170px 230px, cover;
+    background-size: 340px 340px, 190px 170px, 230px 210px, 300px 260px, 170px 230px, cover;
   }
   .diapositiva-infografia { background: #fdf6ec !important; background-image: none !important; }
 
