@@ -217,7 +217,7 @@ window.CONTENIDO_INICIAL = {
         ] },
         { t: "p", html: "En los siguientes apartados vemos los que más afectan al día a día del grupo." },
         { t: "h", html: "Proyecto personal: «Aprende y Repasa»" },
-        { t: "destacado", html: "🎓 Además de los planes del centro, pongo a vuestra disposición <b>«Aprende y Repasa»</b>, una aplicación web gratuita que he creado como <b>apoyo al docente, al alumnado y a las familias</b>: explicaciones y juegos de Lengua y Matemáticas, fichas para practicar, repaso personalizado y seguimiento del progreso desde casa.<br><br>👉 <a href=\"https://maubelozsi-spec.github.io/aprende-y-repasa-primaria/\" target=\"_blank\" rel=\"noopener\">Abrir «Aprende y Repasa»</a>" },
+        { t: "destacado", html: "🎓 Además de los planes del centro, pongo a vuestra disposición <b>«Aprende y Repasa»</b>, una aplicación web gratuita que he creado como <b>apoyo al docente, al alumnado y a las familias</b>: explicaciones y juegos de Lengua y Matemáticas, fichas para practicar, repaso personalizado y seguimiento del progreso desde casa.<br><br>👉 <a href=\"https://maubelozsi-spec.github.io/aprende-y-repasa-primaria/\" target=\"_blank\" rel=\"noopener\">Abrir «Aprende y Repasa»</a><br>🔗 Dirección para copiar: <span class=\"url-copiable\">https://maubelozsi-spec.github.io/aprende-y-repasa-primaria/</span>" },
       ],
     },
 
