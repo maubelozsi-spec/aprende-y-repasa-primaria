@@ -26,6 +26,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- lista de actividades ----------
 
+  // Casilla "Marcar todas" (general y una por área) para no tener que
+  // ir marcando actividad por actividad. Se queda a medias
+  // (indeterminate) cuando solo hay algunas marcadas. Mismo aspecto
+  // que la casilla de recortar (.acs-recortar-toggle en css/acs.css).
+  function crearCasillaTodas(texto) {
+    const label = document.createElement("label");
+    label.className = "acs-recortar-toggle acs-gen-todas";
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    label.appendChild(check);
+    label.appendChild(document.createTextNode(texto));
+    return { label, check };
+  }
+
+  const todasGeneral = crearCasillaTodas("Marcar todas las actividades");
+  listaEl.appendChild(todasGeneral.label);
+  todasGeneral.check.addEventListener("change", () => {
+    marcarFilas(listaEl, todasGeneral.check.checked);
+  });
+
+  function marcarFilas(contenedor, marcado) {
+    contenedor.querySelectorAll(".acs-gen-fila input[type=checkbox]").forEach((checkbox) => {
+      checkbox.checked = marcado;
+      checkbox.closest(".acs-gen-fila").querySelector(".acs-gen-fila-cantidad").disabled = !marcado;
+    });
+    actualizarResumen();
+  }
+
+  function sincronizarCasillaTodas(check, contenedor) {
+    const filas = [...contenedor.querySelectorAll(".acs-gen-fila input[type=checkbox]")];
+    const marcadas = filas.filter((c) => c.checked).length;
+    check.checked = filas.length > 0 && marcadas === filas.length;
+    check.indeterminate = marcadas > 0 && marcadas < filas.length;
+  }
+
   ["lengua", "matematicas"].forEach((area) => {
     const grupo = document.createElement("div");
     grupo.className = "acs-gen-grupo";
@@ -33,6 +68,12 @@ document.addEventListener("DOMContentLoaded", () => {
     titulo.className = `acs-area-titulo acs-area-titulo-${area}`;
     titulo.textContent = ACS_GEN_AREA_LABEL[area];
     grupo.appendChild(titulo);
+
+    const todasArea = crearCasillaTodas(`Marcar todas de ${ACS_GEN_AREA_LABEL[area]}`);
+    todasArea.check.addEventListener("change", () => {
+      marcarFilas(grupo, todasArea.check.checked);
+    });
+    grupo.appendChild(todasArea.label);
 
     ACS_FICHAS.filter((f) => f.area === area).forEach((ficha) => {
       const fila = document.createElement("label");
@@ -90,6 +131,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function actualizarResumen() {
+    sincronizarCasillaTodas(todasGeneral.check, listaEl);
+    listaEl.querySelectorAll(".acs-gen-grupo").forEach((grupo) => {
+      sincronizarCasillaTodas(grupo.querySelector(".acs-gen-todas input"), grupo);
+    });
+
     const seleccion = getSeleccion();
     resumenEl.textContent = seleccion.length
       ? `${seleccion.length} actividad${seleccion.length === 1 ? "" : "es"} seleccionada${seleccion.length === 1 ? "" : "s"}.`
@@ -183,62 +229,170 @@ document.addEventListener("DOMContentLoaded", () => {
   // propia cabecera" a "ejercicio numerado" dentro del mismo examen:
   // se quita el Nombre/Fecha y el título grande (ya están una vez en
   // la cabecera del examen) y la instrucción pasa a ser el enunciado
-  // numerado ("1. ...", "2. ...").
-  //
-  // Si el ejercicio es de recortar y pegar, además se sacan las
-  // piezas de recortar de su sitio (y el aviso de "recorta cada
-  // cuadro..."): en un examen con varias actividades no tiene sentido
-  // dejarlas sueltas justo detrás de cada ejercicio, donde pueden caer
-  // en una página aparte en medio del examen. Se devuelven aquí para
-  // que quien llama las junte todas en una sola página al final.
+  // numerado ("1. ...", "2. ..."). El número va en su propio <span>
+  // porque el orden final no se sabe hasta haber repartido los
+  // ejercicios en páginas (ver repartirEnPaginas): luego se renumera.
   function convertirEnEjercicioExamen(sheetDiv, numero) {
     sheetDiv.classList.add("acs-examen-ejercicio");
-    const nombreRow = sheetDiv.querySelector(".acs-sheet-nombre");
-    if (nombreRow) nombreRow.remove();
     const tituloEl = sheetDiv.querySelector(".acs-sheet-titulo");
     if (tituloEl) tituloEl.remove();
     const instruccionEl = sheetDiv.querySelector(".acs-sheet-instruccion");
     if (instruccionEl) {
       instruccionEl.classList.add("acs-examen-enunciado");
-      instruccionEl.textContent = `${numero}. ${instruccionEl.textContent}`;
+      const numeroEl = document.createElement("span");
+      numeroEl.className = "acs-examen-numero";
+      numeroEl.textContent = `${numero}. `;
+      instruccionEl.prepend(numeroEl);
     }
-
-    const avisoEl = sheetDiv.querySelector(".acs-recortar-aviso");
-    if (avisoEl) avisoEl.remove();
-    const piezasEl = sheetDiv.querySelector(".acs-recortar-piezas");
-    if (piezasEl) {
-      piezasEl.remove();
-      return piezasEl;
-    }
-    return null;
   }
 
-  // Página final de recortables de un examen: junta las piezas de
-  // todos los ejercicios de recortar y pegar, cada grupo con su
-  // propia etiqueta ("Del ejercicio N"), para que se recorte todo de
-  // una vez en vez de ir buscando piezas sueltas por el examen.
-  function crearPaginaRecortables(grupos) {
-    const pagina = document.createElement("div");
-    pagina.className = "acs-sheet acs-examen-ejercicio acs-examen-recortables";
+  // Las piezas de recortar nunca se quedan junto a su ejercicio: al
+  // imprimir a doble cara, recortarlas destrozaría lo que haya en la
+  // otra cara del folio (u otro ejercicio de la misma cara). Se sacan
+  // de su sitio y van todas a las hojas de recortables del final, que
+  // empiezan en un folio nuevo y llevan el reverso en blanco. En el
+  // ejercicio queda solo una nota diciendo dónde están.
+  function sacarRecortables(sheetDiv) {
+    const piezasEl = sheetDiv.querySelector(".acs-recortar-piezas");
+    if (!piezasEl) return null;
+    piezasEl.remove();
+    const avisoEl = sheetDiv.querySelector(".acs-recortar-aviso");
+    if (avisoEl) avisoEl.remove();
 
-    const titulo = document.createElement("h2");
-    titulo.className = "acs-examen-titulo";
-    titulo.textContent = "Recortables";
-    pagina.appendChild(titulo);
+    const remite = document.createElement("p");
+    remite.className = "acs-recortar-remite";
+    remite.textContent = "✂ Las piezas para recortar están en la hoja de recortables, al final.";
+    sheetDiv.appendChild(remite);
+    return piezasEl;
+  }
 
-    const nota = document.createElement("p");
-    nota.className = "acs-examen-enunciado";
-    nota.textContent = "✂ Recorta cada cuadro y pégalo junto a su pareja en el ejercicio correspondiente.";
-    pagina.appendChild(nota);
+  // ---------- reparto en páginas ----------
+  //
+  // El cuaderno se pagina aquí y no lo decide el navegador al
+  // imprimir, por dos motivos:
+  //  - Para no dejar medio folio en blanco: cada ejercicio va a la
+  //    primera página donde quepa entero, no solo a la última. Así un
+  //    ejercicio corto rellena el hueco que dejó uno largo.
+  //  - Para saber en qué cara cae cada página al imprimir a doble
+  //    cara (impar = delante, par = detrás), cosa que hace falta para
+  //    colocar los recortables en un folio propio.
+  // Cada página es un ".acs-pagina" con salto de página detrás (ver
+  // css/acs.css); como todo lo que se mete en ella se ha medido, cada
+  // una sale exactamente en una cara.
 
-    grupos.forEach(({ numero, piezasEl }) => {
-      const etiqueta = document.createElement("p");
-      etiqueta.className = "acs-recortables-etiqueta";
-      etiqueta.textContent = `Del ejercicio ${numero}:`;
-      pagina.appendChild(etiqueta);
-      pagina.appendChild(piezasEl);
+  const ALTO_UTIL_PAGINA = ACS_ALTO_FOLIO_PX - ACS_COLCHON_FOLIO_PX;
+
+  // Página de prueba (dentro del medidor, fuera de la vista) para
+  // comprobar si un conjunto de bloques cabe en una cara.
+  function crearProbadorDePagina() {
+    const prueba = document.createElement("div");
+    prueba.className = "acs-pagina acs-pagina-medir";
+    acsMedidorDeFolio().appendChild(prueba);
+    return {
+      cabe(elementos) {
+        prueba.replaceChildren(...elementos);
+        return prueba.getBoundingClientRect().height <= ALTO_UTIL_PAGINA;
+      },
+      cerrar() {
+        prueba.remove();
+      },
+    };
+  }
+
+  // Reparte los ejercicios en páginas: cada uno va a la primera
+  // página abierta donde quepa entero, o a una nueva. Una página solo
+  // admite ejercicios de su área y de la siguiente (la última página
+  // de Lengua puede terminar con Matemáticas), para que no aparezca
+  // una suma en mitad de las fichas de Lengua. "cabecera" va siempre
+  // arriba de la primera página.
+  function repartirEnPaginas(cabecera, bloques) {
+    const probador = crearProbadorDePagina();
+    const paginas = [{ elementos: [cabecera], bloques: [] }];
+    let primeraAbierta = 0;
+    let areaAnterior = null;
+
+    bloques.forEach((bloque) => {
+      if (areaAnterior && bloque.area !== areaAnterior) primeraAbierta = paginas.length - 1;
+      areaAnterior = bloque.area;
+
+      let destino = paginas.slice(primeraAbierta).find((p) => probador.cabe([...p.elementos, bloque.el]));
+      if (!destino) {
+        destino = { elementos: [], bloques: [] };
+        paginas.push(destino);
+      }
+      destino.elementos.push(bloque.el);
+      destino.bloques.push(bloque);
     });
 
+    // Si ningún ejercicio cabía debajo de la cabecera, no se deja la
+    // cabecera sola en una cara: se sube a la página siguiente si cabe.
+    if (paginas.length > 1 && !paginas[0].bloques.length && probador.cabe([cabecera, ...paginas[1].elementos])) {
+      paginas[1].elementos.unshift(cabecera);
+      paginas.shift();
+    }
+
+    probador.cerrar();
+    return paginas;
+  }
+
+  // Hojas de recortables: todas las piezas juntas, cada grupo con su
+  // etiqueta ("Del ejercicio 3:"), en tantas caras como hagan falta
+  // y sin partir ningún grupo entre dos caras.
+  function crearPaginasRecortables(grupos) {
+    const probador = crearProbadorDePagina();
+    const paginas = [];
+    let hoja = null;
+
+    const nuevaHoja = () => {
+      hoja = document.createElement("div");
+      hoja.className = "acs-sheet acs-examen-ejercicio acs-examen-recortables";
+      const titulo = document.createElement("h2");
+      titulo.className = "acs-examen-titulo";
+      titulo.textContent = paginas.length ? "Recortables (continuación)" : "Recortables";
+      hoja.appendChild(titulo);
+      const nota = document.createElement("p");
+      nota.className = "acs-examen-enunciado";
+      nota.textContent = "✂ Recorta cada cuadro y pégalo junto a su pareja en el ejercicio correspondiente.";
+      hoja.appendChild(nota);
+      paginas.push(hoja);
+    };
+
+    grupos.forEach(({ etiqueta, piezasEl }) => {
+      const grupo = document.createElement("div");
+      grupo.className = "acs-recortables-grupo";
+      const etiquetaEl = document.createElement("p");
+      etiquetaEl.className = "acs-recortables-etiqueta";
+      etiquetaEl.textContent = etiqueta;
+      grupo.appendChild(etiquetaEl);
+      grupo.appendChild(piezasEl);
+
+      if (!hoja) nuevaHoja();
+      hoja.appendChild(grupo);
+      if (!probador.cabe([hoja]) && hoja.querySelectorAll(".acs-recortables-grupo").length > 1) {
+        grupo.remove();
+        nuevaHoja();
+        hoja.appendChild(grupo);
+      }
+    });
+
+    probador.cerrar();
+    return paginas;
+  }
+
+  function crearPagina(elementos) {
+    const pagina = document.createElement("div");
+    pagina.className = "acs-pagina";
+    elementos.forEach((el) => pagina.appendChild(el));
+    return pagina;
+  }
+
+  function crearPaginaEnBlanco(motivo) {
+    const pagina = crearPagina([]);
+    pagina.classList.add("acs-pagina-blanco");
+    const nota = document.createElement("p");
+    nota.className = "acs-pagina-blanco-nota";
+    nota.textContent = motivo;
+    pagina.appendChild(nota);
     return pagina;
   }
 
@@ -255,9 +409,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Dibuja la hoja de una sección tal y como va a salir impresa (en
-  // examen, ya convertida en ejercicio numerado). Devuelve aparte las
-  // piezas de recortar: van a su propia página al final, así que no
-  // cuentan para el alto del ejercicio.
+  // examen, ya convertida en ejercicio numerado). Sin Nombre/Fecha:
+  // va una sola vez en la cabecera del cuaderno o del examen.
+  // Devuelve aparte las piezas de recortar: van a las hojas de
+  // recortables del final, así que no cuentan para el alto del
+  // ejercicio.
   function crearHojaDeSeccion(seccion, numero) {
     const temporal = document.createElement("div");
     if (seccion.tipo === "unir-parejas" && recortarCheck.checked) {
@@ -265,7 +421,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     ACS_RENDERERS[seccion.tipo].sheet(seccion, temporal);
     const sheetDiv = temporal.firstElementChild;
-    const piezasEl = modo === "examen" ? convertirEnEjercicioExamen(sheetDiv, numero) : null;
+    const nombreRow = sheetDiv.querySelector(".acs-sheet-nombre");
+    if (nombreRow) nombreRow.remove();
+    if (modo === "examen") convertirEnEjercicioExamen(sheetDiv, numero);
+    const piezasEl = sacarRecortables(sheetDiv);
     return { sheetDiv, piezasEl };
   }
 
@@ -314,8 +473,57 @@ document.addEventListener("DOMContentLoaded", () => {
     // regenera con menos ítems (ver ajustarSeccionAlFolio). La hoja
     // que sale de aquí es la definitiva: se reutiliza tal cual más
     // abajo en vez de volver a dibujarla.
-    const ajustes = seleccion.map(({ id, cantidad }, i) => ajustarSeccionAlFolio(id, cantidad, i + 1));
+    const ajustesPedidos = seleccion.map(({ id, cantidad }, i) => ajustarSeccionAlFolio(id, cantidad, i + 1));
+
+    // Imprimir: se reparten los ejercicios en páginas (ver
+    // repartirEnPaginas) y el orden final es el de las páginas: puede
+    // cambiar un poco respecto a la lista para rellenar huecos, así
+    // que a partir de aquí todo (numeración, pantalla, respuestas)
+    // sigue ese orden.
+    const cabecera = modo === "examen"
+      ? crearCabeceraExamen(ajustesPedidos.map((a) => a.seccion), curso)
+      : crearCabeceraCuaderno(ajustesPedidos.map((a) => a.seccion), curso);
+    const paginasEjercicios = repartirEnPaginas(
+      cabecera,
+      ajustesPedidos.map((a) => ({ el: a.hoja.sheetDiv, area: a.seccion.area, ajuste: a }))
+    );
+    const ajustes = paginasEjercicios.flatMap((p) => p.bloques.map((b) => b.ajuste));
     const secciones = ajustes.map((a) => a.seccion);
+    ajustes.forEach((a, i) => {
+      const numeroEl = a.hoja.sheetDiv.querySelector(".acs-examen-numero");
+      if (numeroEl) numeroEl.textContent = `${i + 1}. `;
+    });
+
+    const paginas = paginasEjercicios.map((p) => crearPagina(p.elementos));
+
+    // Recortables a doble cara: tienen que ir en un folio para ellas
+    // solas, porque al recortar se destroza lo que haya detrás.
+    //  - Empiezan siempre en cara impar (la de delante de un folio): si
+    //    los ejercicios acaban en cara impar, se deja su reverso en
+    //    blanco.
+    //  - Cada hoja de recortables lleva el reverso en blanco (la última
+    //    no lo necesita: detrás ya no hay nada).
+    const gruposRecortables = ajustes
+      .map((a, i) => ({
+        etiqueta: modo === "examen" ? `Del ejercicio ${i + 1}:` : `De «${a.seccion.tituloSeccion}»:`,
+        piezasEl: a.hoja.piezasEl,
+      }))
+      .filter((g) => g.piezasEl);
+    if (gruposRecortables.length) {
+      if (paginas.length % 2 === 1) {
+        paginas.push(crearPaginaEnBlanco("Página en blanco a propósito: así los recortables empiezan en un folio nuevo y, al recortar, no se estropea ningún ejercicio."));
+      }
+      const paginasRecortables = crearPaginasRecortables(gruposRecortables);
+      paginasRecortables.forEach((hoja, i) => {
+        paginas.push(crearPagina([hoja]));
+        if (i < paginasRecortables.length - 1) {
+          paginas.push(crearPaginaEnBlanco("Reverso de los recortables: en blanco a propósito para poder recortar sin estropear nada."));
+        }
+      });
+    }
+
+    const sheetRoot = document.getElementById("acs-gen-sheet");
+    sheetRoot.replaceChildren(...paginas);
 
     // Digital: una sección tras otra, cada una con su propio título.
     const digitalEl = document.getElementById("acs-gen-digital");
@@ -331,33 +539,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ACS_RENDERERS[seccion.tipo].digital(seccion, subDiv);
       digitalEl.appendChild(bloque);
     });
-
-    // Imprimir: cada sección genera su propio ".acs-sheet"; se anexan
-    // como hermanos directos (no dentro de envoltorios) para que la
-    // regla de impresión ".acs-sheet:not(:last-child)" meta un salto
-    // de página entre cada una (en modo repaso: una ficha por hoja,
-    // con su propio título y colores). En modo examen es al revés: se
-    // parece a un examen en papel real, con una sola cabecera arriba
-    // y los ejercicios numerados uno detrás de otro sin saltar de
-    // página entre ellos (ver ".acs-examen-ejercicio" en css/acs.css).
-    const sheetRoot = document.getElementById("acs-gen-sheet");
-    sheetRoot.innerHTML = "";
-    sheetRoot.appendChild(
-      modo === "examen" ? crearCabeceraExamen(secciones, curso) : crearCabeceraCuaderno(secciones, curso)
-    );
-    const recortablesExamen = [];
-    ajustes.forEach(({ hoja }, i) => {
-      if (hoja.piezasEl) recortablesExamen.push({ numero: i + 1, piezasEl: hoja.piezasEl });
-      if (modo !== "examen") {
-        // El Nombre/Fecha ya está arriba, una vez para todo el cuaderno.
-        const nombreRow = hoja.sheetDiv.querySelector(".acs-sheet-nombre");
-        if (nombreRow) nombreRow.remove();
-      }
-      sheetRoot.appendChild(hoja.sheetDiv);
-    });
-    if (modo === "examen" && recortablesExamen.length) {
-      sheetRoot.appendChild(crearPaginaRecortables(recortablesExamen));
-    }
 
     // Hoja de respuestas: solo en modo examen y solo si quien está
     // usando la app puede ver las soluciones. En una clase que no las
@@ -399,8 +580,11 @@ document.addEventListener("DOMContentLoaded", () => {
     statusEl.classList.add("show", "ok");
     const partes = [
       "<p class=\"feedback-title\">¡Listo!</p>",
-      `<p>Cuaderno de ${secciones.length} actividad${secciones.length === 1 ? "" : "es"} generado en modo ${modo === "examen" ? "examen" : "repaso"}.</p>`,
+      `<p>Cuaderno de ${secciones.length} actividad${secciones.length === 1 ? "" : "es"} generado en modo ${modo === "examen" ? "examen" : "repaso"}: ${paginas.length} página${paginas.length === 1 ? "" : "s"}.</p>`,
     ];
+    if (gruposRecortables.length) {
+      partes.push("<p>Lleva hojas de recortables al final, con el reverso en blanco: imprímelo a doble cara (borde largo) para poder recortarlas sin estropear ningún ejercicio.</p>");
+    }
 
     // Si ha habido que quitar ítems para que un ejercicio no se
     // partiera entre dos folios, se dice cuáles y cuántos: la maestra

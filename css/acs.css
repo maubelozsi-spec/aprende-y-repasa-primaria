@@ -362,6 +362,88 @@
   padding: 6mm 16mm;
 }
 
+/* Páginas del cuaderno generado (ver repartirEnPaginas en
+   js/acs-generador-ui.js). En pantalla cada una se ve como un folio
+   A4 con su número abajo, blancas incluidas, para que la vista previa
+   enseñe exactamente las caras que van a salir: 12mm arriba y abajo
+   son los márgenes de @page, y los 273mm que quedan son el alto útil
+   con el que mide el generador. */
+#acs-gen-sheet {
+  counter-reset: acs-pagina;
+}
+
+.acs-pagina {
+  display: flow-root;
+  position: relative;
+  counter-increment: acs-pagina;
+  background: #fff;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto 24px;
+  padding: 12mm 0;
+}
+
+.acs-pagina::after {
+  content: "Página " counter(acs-pagina);
+  position: absolute;
+  right: 16mm;
+  bottom: 4mm;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* Dentro de una página, las hojas ya no son folios sueltos: sin
+   marco propio, y separadas por una línea de puntos (la misma que al
+   imprimir, para que midan igual en pantalla y en papel). */
+.acs-pagina .acs-sheet {
+  max-width: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.acs-pagina > .acs-sheet + .acs-sheet {
+  margin-top: 4mm;
+  padding-top: 4mm;
+  border-top: 2px dashed #999;
+}
+
+/* La página de prueba con la que se mide: sin marco, márgenes ni
+   alto mínimo, solo el contenido. */
+.acs-pagina.acs-pagina-medir {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+}
+
+.acs-pagina-blanco-nota {
+  margin: 110mm 16mm 0;
+  text-align: center;
+  font-size: 13px;
+  font-style: italic;
+  color: #888;
+}
+
+/* Nota que queda en un ejercicio de recortar y pegar en lugar de las
+   piezas, que se van a las hojas de recortables del final. */
+.acs-recortar-remite {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.acs-recortables-grupo {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
 .acs-actions-row {
   display: flex;
   gap: 10px;
@@ -1011,6 +1093,293 @@ button.acs-serie-celda.error {
   background: var(--color-error-tint);
 }
 
+/* ---------- Une los puntos ---------- */
+
+.acs-puntos-lienzo {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.acs-puntos-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+  border-radius: var(--radius-md);
+}
+
+.acs-puntos-relleno {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.acs-puntos-lineas line {
+  stroke: var(--color-teal);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.acs-punto-dot {
+  fill: #33363f;
+}
+
+.acs-punto-inicio {
+  fill: none;
+  stroke: var(--color-amber);
+  stroke-width: 0.8;
+}
+
+.acs-punto-num {
+  font-family: var(--acs-font);
+  font-size: 3.6px;
+  font-weight: 700;
+  fill: #111;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* Zona de toque: invisible pero pulsable (fill transparente sí
+   recibe clics; fill "none" no). */
+.acs-punto-zona {
+  fill: transparent;
+}
+
+.acs-digital .acs-punto {
+  cursor: pointer;
+  outline: none;
+}
+
+.acs-digital .acs-punto:focus-visible .acs-punto-zona {
+  stroke: var(--color-amber);
+  stroke-width: 0.5;
+}
+
+.acs-punto.hecho .acs-punto-dot { fill: var(--color-teal); }
+.acs-punto.hecho .acs-punto-num { fill: var(--color-teal); }
+.acs-punto.hecho { cursor: default; }
+.acs-punto.error .acs-punto-dot { fill: var(--color-error); }
+.acs-punto.error .acs-punto-num { fill: var(--color-error); }
+
+/* En pantalla, los detalles (ojos, puerta...) y el color salen al
+   terminar, como premio. En papel se ven desde el principio. */
+.acs-digital .acs-puntos-detalles {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.acs-puntos-svg.completo .acs-puntos-relleno { opacity: 0.85; }
+.acs-puntos-svg.completo .acs-puntos-detalles { opacity: 1; }
+
+.acs-puntos-tira {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.acs-puntos-tira-num {
+  min-width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--color-amber);
+  border-radius: var(--radius-sm);
+  background: var(--color-amber-tint);
+  font-family: var(--acs-font);
+  font-size: 19px;
+  font-weight: 800;
+  color: #111;
+}
+
+.acs-puntos-tira-num.hecho {
+  border-color: var(--color-success);
+  background: var(--color-success-tint);
+  color: var(--color-success);
+}
+
+.acs-sheet .acs-puntos-lienzo {
+  max-width: 150mm;
+}
+
+/* Trazo fácil: el contorno ya viene marcado para repasarlo. */
+.acs-puntos-guia {
+  fill: none;
+  stroke: #9a9da6;
+  stroke-width: 0.7;
+  stroke-dasharray: 1.6 1.6;
+  stroke-linecap: round;
+}
+
+/* ---------- Repasar y seguir el trazo ---------- */
+
+.acs-trazo-fila {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 8px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+}
+
+.acs-trazo-fila-texto {
+  grid-template-columns: auto 1fr;
+}
+
+/* En pantalla, cada fila lleva además su botón de borrar al final. */
+.acs-digital .acs-trazo-fila-camino {
+  grid-template-columns: auto 1fr auto auto;
+}
+
+.acs-digital .acs-trazo-fila-texto {
+  grid-template-columns: auto 1fr auto;
+}
+
+.acs-trazo-fila .acs-pic {
+  width: 84px;
+  height: 84px;
+}
+
+/* En el móvil no cabe todo en una línea: los dibujos (salida a la
+   izquierda, llegada a la derecha) van arriba y el trazo debajo, a
+   todo el ancho, que es lo que necesita sitio para el dedo. */
+@media (max-width: 640px) {
+  .acs-digital .acs-trazo-fila-camino,
+  .acs-digital .acs-trazo-fila-texto {
+    grid-template-columns: auto 1fr auto;
+    gap: 6px;
+    padding: 4px;
+  }
+  .acs-digital .acs-trazo-fila > :first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .acs-digital .acs-trazo-fila-camino > :nth-child(3) {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .acs-digital .acs-trazo-centro {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .acs-digital .acs-trazo-borrar {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: end;
+  }
+  .acs-digital .acs-trazo-fila .acs-pic {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+.acs-trazo-fila.hecho {
+  border-color: var(--color-success);
+  background: var(--color-success-tint);
+}
+
+.acs-trazo-centro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.acs-trazo-marco {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.acs-trazo-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* El canvas del dedo va encima del modelo. touch-action: none para
+   que en una tableta el dedo dibuje en vez de desplazar la página. */
+.acs-trazo-canvas-dedo {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.acs-trazo-borrar {
+  flex: none;
+}
+
+.acs-trazo-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.acs-trazo-texto {
+  font-family: "Andika", var(--acs-font);
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: #e1e3e8;
+  stroke: #8a8d96;
+  stroke-width: 1;
+  stroke-dasharray: 2.5 2;
+}
+
+/* Puntos que acompañan a un número (tantos como vale). */
+.acs-trazo-puntos {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.acs-trazo-punto {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-teal);
+}
+
+.acs-sheet .acs-trazo-fila {
+  margin-bottom: 8px;
+  padding: 2px 0;
+}
+
+.acs-sheet .acs-trazo-fila .acs-pic {
+  width: 22mm;
+  height: 22mm;
+}
+
+/* Letras y números: con todo el ancho del folio cada fila medía más
+   de 4cm y cinco vocales no cabían en una hoja. Con 28mm de alto la
+   letra sigue saliendo de unos 2cm, grande para repasar. */
+.acs-sheet .acs-trazo-fila-texto .acs-trazo-svg {
+  height: 28mm;
+  width: auto;
+  max-width: 100%;
+}
+
+.acs-sheet .acs-trazo-punto {
+  background: #33363f;
+  width: 13px;
+  height: 13px;
+}
+
+.acs-sheet .acs-puntos-tira-num {
+  min-width: 32px;
+  height: 32px;
+  font-size: 16px;
+}
+
 /* Flecha de "anterior / posterior": señala hacia el hueco que hay que
    completar (ver acsCrearFilaAntesDespues). */
 .acs-flecha {
@@ -1559,12 +1928,31 @@ button.acs-serie-celda.error {
     break-after: avoid;
   }
 
-  /* Página de recortables al final del examen: siempre en una página
-     nueva propia, para que no se mezcle con el final del último
-     ejercicio (así se recorta todo de una vez, sin ir buscando
-     piezas sueltas por el examen). */
-  .acs-sheet.acs-examen-recortables {
-    page-break-before: always;
+  /* Páginas del cuaderno generado (ver repartirEnPaginas en
+     js/acs-generador-ui.js): una ".acs-pagina" es exactamente una
+     cara de folio. El generador ya ha medido que su contenido cabe,
+     así que basta con saltar de página detrás de cada una. En papel
+     no llevan marco ni alto mínimo (el alto mínimo de la vista previa
+     aquí empujaría a una página de más). */
+  .acs-pagina {
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .acs-pagina:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .acs-pagina::after {
+    content: none;
   }
 
   /* Si una ficha tiene más ítems de los que caben en un folio, que
@@ -1577,7 +1965,7 @@ button.acs-serie-celda.error {
      resta-bloque", que solo se usa en la versión digital). */
   .acs-pareja-item, .acs-opcion-bloque, .acs-mmi-bloque, .acs-resta-bloque, .acs-letras-bloque,
   .acs-clasificar-categoria, .acs-secuencia-slot, .acs-recortar-objetivo, .acs-recortar-pieza,
-  .acs-mmi-fila, .acs-resta-fila, .acs-serie-celda {
+  .acs-mmi-fila, .acs-resta-fila, .acs-serie-celda, .acs-puntos-lienzo, .acs-trazo-fila {
     page-break-inside: avoid;
     break-inside: avoid;
   }
