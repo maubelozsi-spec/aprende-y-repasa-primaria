@@ -295,6 +295,15 @@ body {
 .diapositiva a:hover { filter: brightness(1.15); }
 .diapositiva-infografia a { color: #6d28d9; }
 
+/* Dirección web escrita para poder copiarla (también sale en el PDF):
+   un clic selecciona la URL entera. */
+.url-copiable {
+  color: var(--tiza-azul);
+  font-weight: 700;
+  word-break: break-all;
+  user-select: all;
+}
+
 /* ---------- Portada ---------- */
 
 .portada { justify-content: center; text-align: center; }
