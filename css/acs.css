@@ -362,6 +362,88 @@
   padding: 6mm 16mm;
 }
 
+/* Páginas del cuaderno generado (ver repartirEnPaginas en
+   js/acs-generador-ui.js). En pantalla cada una se ve como un folio
+   A4 con su número abajo, blancas incluidas, para que la vista previa
+   enseñe exactamente las caras que van a salir: 12mm arriba y abajo
+   son los márgenes de @page, y los 273mm que quedan son el alto útil
+   con el que mide el generador. */
+#acs-gen-sheet {
+  counter-reset: acs-pagina;
+}
+
+.acs-pagina {
+  display: flow-root;
+  position: relative;
+  counter-increment: acs-pagina;
+  background: #fff;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto 24px;
+  padding: 12mm 0;
+}
+
+.acs-pagina::after {
+  content: "Página " counter(acs-pagina);
+  position: absolute;
+  right: 16mm;
+  bottom: 4mm;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* Dentro de una página, las hojas ya no son folios sueltos: sin
+   marco propio, y separadas por una línea de puntos (la misma que al
+   imprimir, para que midan igual en pantalla y en papel). */
+.acs-pagina .acs-sheet {
+  max-width: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.acs-pagina > .acs-sheet + .acs-sheet {
+  margin-top: 4mm;
+  padding-top: 4mm;
+  border-top: 2px dashed #999;
+}
+
+/* La página de prueba con la que se mide: sin marco, márgenes ni
+   alto mínimo, solo el contenido. */
+.acs-pagina.acs-pagina-medir {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+}
+
+.acs-pagina-blanco-nota {
+  margin: 110mm 16mm 0;
+  text-align: center;
+  font-size: 13px;
+  font-style: italic;
+  color: #888;
+}
+
+/* Nota que queda en un ejercicio de recortar y pegar en lugar de las
+   piezas, que se van a las hojas de recortables del final. */
+.acs-recortar-remite {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.acs-recortables-grupo {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
 .acs-actions-row {
   display: flex;
   gap: 10px;
@@ -1846,12 +1928,31 @@ button.acs-serie-celda.error {
     break-after: avoid;
   }
 
-  /* Página de recortables al final del examen: siempre en una página
-     nueva propia, para que no se mezcle con el final del último
-     ejercicio (así se recorta todo de una vez, sin ir buscando
-     piezas sueltas por el examen). */
-  .acs-sheet.acs-examen-recortables {
-    page-break-before: always;
+  /* Páginas del cuaderno generado (ver repartirEnPaginas en
+     js/acs-generador-ui.js): una ".acs-pagina" es exactamente una
+     cara de folio. El generador ya ha medido que su contenido cabe,
+     así que basta con saltar de página detrás de cada una. En papel
+     no llevan marco ni alto mínimo (el alto mínimo de la vista previa
+     aquí empujaría a una página de más). */
+  .acs-pagina {
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .acs-pagina:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .acs-pagina::after {
+    content: none;
   }
 
   /* Si una ficha tiene más ítems de los que caben en un folio, que
