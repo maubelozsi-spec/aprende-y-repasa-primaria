@@ -155,7 +155,15 @@ tr.skip td:not(.val){color:var(--muted);text-decoration:line-through;text-decora
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .date-out{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
-ul.plain{margin:0;padding-left:1.2em;display:grid;gap:6px;max-width:72ch}
+ul.plain{margin:0;padding-left:1.2em;display:grid;gap:8px;max-width:72ch}
+.src{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border-radius:4px;background:var(--surface-2);color:var(--muted);vertical-align:.1em;margin-right:4px}
+blockquote{margin:0;padding:10px 14px;border-left:3px solid var(--line);background:var(--surface);border-radius:0 8px 8px 0;font-size:.95rem;max-width:72ch}
+blockquote cite{display:block;font-style:normal;font-size:.8rem;color:var(--muted);margin-top:4px}
+.resolved{color:var(--st-aceptada);font-weight:700}
+.open{color:var(--st-proceso);font-weight:700}
+.moments{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.moments div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.93rem;display:grid;gap:4px;align-content:start}
+.detail li .src{margin-right:6px}
 footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted);display:grid;gap:4px}
 </style>
 </head>
@@ -168,9 +176,10 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
   <p class="lede">Qué hay que hacer, quién lo hace y qué pasa después en cada pantalla del procedimiento, desde que un docente da de alta al alumno o alumna hasta que Orientación decide si hay evaluación psicopedagógica.</p>
   <div class="meta">
     <span>Módulo de Séneca en vigor desde <strong>30/10/2025</strong></span>
-    <span>Base: manual del EOE Córdoba Valdeolleros-Brillante</span>
-    <span>Norma de referencia: Instrucciones de 8 de marzo de 2017</span>
+    <span>Norma: Instrucciones de 8 de marzo de 2017, apartados 2.3.2 y 2.3.3</span>
+    <span>Pantallas: manual de usuario de Séneca, v2 (noviembre 2025)</span>
   </div>
+  <p class="note">Cada dato lleva su fuente: <span class="src">Norma</span> es texto de las Instrucciones de 2017; <span class="src">Séneca</span> es el funcionamiento del módulo según su manual de usuario. Cuando la norma y el módulo no coinciden, se indica.</p>
 </header>
 
 <nav class="toc" aria-label="Secciones">
@@ -181,21 +190,29 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
   <a href="#familia">Actas con la familia</a>
   <a href="#errores">Errores y accesos</a>
   <a href="#micaso">Seguimiento</a>
-  <a href="#dudas">Lagunas</a>
+  <a href="#dudas">Norma y lagunas</a>
 </nav>
 
 <section id="inicio">
   <h2>Cómo empezar el procedimiento</h2>
+  <p class="intro"><span class="src">Norma</span> Hay cuatro momentos en los que pueden aparecer indicios. En la evaluación inicial y en las trimestrales, la propia sesión de evaluación «equivaldría a la reunión del equipo docente» del procedimiento (apartado 2.3.1.1).</p>
+  <div class="moments">
+    <div><strong>Evaluación inicial</strong><span>La sesión puede hacer de reunión del equipo docente (I).</span></div>
+    <div><strong>Evaluaciones trimestrales</strong><span>Igual: la sesión puede hacer de reunión del equipo docente (I).</span></div>
+    <div><strong>Cualquier momento del curso</strong><span>Cualquier docente que observe indicios puede activar el procedimiento.</span></div>
+    <div><strong>Desde la familia</strong><span>La familia pide una entrevista con la tutoría. Si trae informes externos, se registran en Secretaría y se archivan en el expediente. Son información complementaria y no sustituyen a la evaluación psicopedagógica (apartado 2.3.1.2).</span></div>
+  </div>
   <div class="path">
     <p class="eyebrow">Ruta en Séneca</p>
-    <p><code>Alumnado › Gestión de la orientación › Detección signos de alerta</code></p>
+    <p><code>Alumnado › Gestión de la Orientación › Detección Signos de Alerta</code></p>
     <ol>
-      <li>Pulsa el símbolo <strong>+</strong> y elige <strong>Añadir alumno</strong>. Esta opción está habilitada para el profesorado.</li>
-      <li>Al <strong>Aceptar</strong>, el alumno o alumna aparece en la pantalla <em>Relación de alumnos con detección de indicios de NEAE</em>.</li>
-      <li>En ese momento empieza el procedimiento. La persona que lo ha añadido es la que rellena el cuestionario (fase 1).</li>
+      <li>Pulsa el botón <strong>Nuevo</strong>. Solo aparece activo para el perfil Profesorado y solo si das clase en el curso o grupo de ese alumno o alumna.</li>
+      <li>Elige al alumno o alumna y pulsa <strong>Aceptar</strong>. Pasa a la pantalla <em>Relación de alumnos con detección de indicios de NEAE</em> y el procedimiento queda iniciado.</li>
+      <li>El cuestionario (fase 1) solo lo puede rellenar la persona que ha añadido al alumno o alumna.</li>
     </ol>
   </div>
-  <p class="warn">Funciona en cascada: cuando se abre una fase, la anterior se cierra y ya no se puede modificar. Solo Dirección y Jefatura de Estudios pueden rectificarla (ver <a href="#errores">Errores y accesos</a>).</p>
+  <p class="note"><span class="src">Séneca</span> Aunque la sesión de evaluación haga de reunión del equipo docente, el procedimiento solo avanza en Séneca si se rellena y firma la pantalla Reunión del equipo docente (I).</p>
+  <p class="warn"><span class="src">Séneca</span> Funciona en cascada: cuando se abre una fase, la anterior se cierra y ya no se puede modificar. Para corregirla hay que pedir a Dirección o Jefatura de Estudios que la rectifique (ver <a href="#errores">Errores y accesos</a>).</p>
 </section>
 
 <section id="estados">
@@ -203,8 +220,8 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
   <p class="intro">Cada caso aparece en la relación con uno de estos cinco estados. Es lo primero que conviene mirar para saber en qué punto está.</p>
   <div class="legend">
     <div><span class="chip st-proceso">En proceso</span><p>Procedimiento iniciado y abierto.</p></div>
-    <div><span class="chip st-cerrado">Cerrado</span><p>Lo cierra el equipo docente: no procede o las medidas generales han sido suficientes.</p></div>
-    <div><span class="chip st-solicitada">Evaluación solicitada</span><p>El tutor o tutora ha firmado la solicitud y Orientación la ha recibido.</p></div>
+    <div><span class="chip st-cerrado">Cerrado</span><p>El equipo docente cierra el procedimiento porque considera que no hace falta pedir evaluación psicopedagógica.</p></div>
+    <div><span class="chip st-solicitada">Evaluación solicitada</span><p>Orientación ha recibido la solicitud, pero aún no ha decidido. Desde aquí ya no se puede rectificar nada.</p></div>
     <div><span class="chip st-aceptada">Solicitud aceptada</span><p>Orientación admite la solicitud. La evaluación psicopedagógica queda pendiente.</p></div>
     <div><span class="chip st-noprocede">No procede evaluación</span><p>Orientación rechaza la solicitud y propone atención educativa ordinaria.</p></div>
   </div>
@@ -218,17 +235,17 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
 
 <section id="simulador">
   <h2>¿Qué camino sigue este caso?</h2>
-  <p class="intro">Responde a las decisiones clave. A la derecha verás qué fases se hacen (<span class="mono">SI</span>) y cuáles no son necesarias (<span class="mono">--</span>), igual que en la columna de Séneca, y el estado final.</p>
+  <p class="intro">Responde a las decisiones clave. A la derecha verás qué fases se hacen (<span class="mono">Sí</span>) y cuáles no son necesarias (<span class="mono">--</span>), igual que en la columna «Completo» de Séneca, y el estado final.</p>
   <div class="sim">
     <div class="qs">
       <fieldset id="q1">
         <legend>1. Reunión del equipo docente (I)</legend>
-        <label class="opt"><input type="radio" name="q1" value="cierre"><span><strong>3.1 No procede.</strong> El equipo docente no ve necesario tomar medidas.</span></label>
-        <label class="opt"><input type="radio" name="q1" value="ordinaria" checked><span><strong>Aplicar medidas generales</strong> durante tres meses y volver a valorar.</span></label>
-        <label class="opt"><input type="radio" name="q1" value="extra"><span><strong>3.5 Solicitud de evaluación sin esperar.</strong> Indicios evidentes apoyados por informes externos.</span></label>
+        <label class="opt"><input type="radio" name="q1" value="cierre"><span><strong>3.1 marcado.</strong> El equipo docente entiende que no procede seguir.</span></label>
+        <label class="opt"><input type="radio" name="q1" value="ordinaria" checked><span><strong>Ni 3.1 ni 3.5.</strong> Se aplican medidas generales durante al menos tres meses y se vuelve a valorar.</span></label>
+        <label class="opt"><input type="radio" name="q1" value="extra"><span><strong>3.5 marcado (urgencia).</strong> Indicios evidentes que requieren atención específica, apoyados o no por informes externos.</span></label>
       </fieldset>
       <fieldset id="q2">
-        <legend>2. Reunión del equipo docente (II), tras 3 meses</legend>
+        <legend>2. Reunión del equipo docente (II), tras al menos 3 meses</legend>
         <label class="opt"><input type="radio" name="q2" value="sigue" checked><span>Las dificultades persisten: <strong>se continúa</strong> hacia la solicitud de evaluación.</span></label>
         <label class="opt"><input type="radio" name="q2" value="cierra"><span>Las medidas han funcionado: <strong>se cierra</strong> el procedimiento.</span></label>
       </fieldset>
@@ -249,6 +266,8 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
 <section id="familia">
   <h2>Reunión con la familia: ¿cuántas actas?</h2>
   <p class="intro">La rellena el tutor o tutora. Se aplica igual en la reunión (I) y en la (II).</p>
+  <blockquote>«Tras esta reunión el tutor o tutora mantendrá una entrevista con la familia del alumno o alumna con objeto de informarles de las decisiones y acuerdos adoptados, así como de las medidas y estrategias que se van a aplicar y el cronograma de seguimiento. Así mismo en esta entrevista también se establecerán los mecanismos y actuaciones para la participación de la familia.»<cite>Instrucciones de 8 de marzo de 2017, apartado 2.3.2.2</cite></blockquote>
+  <p class="intro">En la práctica, la reunión tiene que cubrir cuatro puntos: qué indicios se han visto, qué medidas se aplicarán, cuándo se revisarán y qué hará la familia en casa.</p>
   <div class="fam">
     <fieldset>
       <legend>¿Hay situación de separación?</legend>
@@ -286,37 +305,42 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
     <div class="box">
       <h3>Rectificar</h3>
       <ul>
-        <li>Solo <strong>Dirección y Jefatura de Estudios</strong>.</li>
-        <li>Sirve para corregir fases ya superadas.</li>
-        <li>Hay que detallar el motivo de la reapertura.</li>
-        <li>Genera un <strong>nuevo documento que firmar</strong>. En la columna aparece <span class="mono">*</span>.</li>
-        <li>Rectificar una fase <strong>no abre sola la siguiente</strong>.</li>
-        <li>En estado <span class="chip st-solicitada">Evaluación solicitada</span> no se puede rectificar nada.</li>
+        <li>La hacen <strong>Dirección o Jefatura de Estudios</strong>, a petición del tutor o tutora del grupo.</li>
+        <li>Sirve para corregir una fase ya cerrada: una casilla mal marcada, un documento subido por error, etc.</li>
+        <li>Al reabrir la fase aparece un campo obligatorio para explicar el motivo. Ese texto no sale en el documento.</li>
+        <li>Se genera un <strong>documento nuevo</strong> que firma el tutor o tutora. Queda encima de los anteriores.</li>
+        <li>Si el error afecta a fases posteriores ya cerradas, hay que rectificarlas también.</li>
+        <li>Al terminar una fase rectificada, <strong>la siguiente no se abre sola</strong>.</li>
+        <li>En estado <span class="chip st-solicitada">Evaluación solicitada</span> no se puede rectificar ninguna fase.</li>
       </ul>
     </div>
     <div class="box">
       <h3>Borrar</h3>
       <ul>
-        <li>Solo mientras el caso está al principio: cuestionario de detección y reunión del equipo docente <strong>sin firmar</strong>.</li>
-        <li>Una vez firmada el acta del equipo docente, solo queda rectificar.</li>
+        <li>Borra al alumno o alumna de la relación.</li>
+        <li>Solo está activo mientras el caso está en el cuestionario de detección o en la reunión del equipo docente (I) sin firmar.</li>
+        <li>En cuanto la reunión del equipo docente (I) pasa a <span class="mono">Sí</span>, ya no se puede borrar.</li>
       </ul>
     </div>
     <div class="box">
-      <h3>Valores de la columna de fases</h3>
+      <h3>Columna «Completo»</h3>
       <div class="vals">
-        <span class="mono">NO</span><span>Fase sin completar.</span>
-        <span class="mono">SI</span><span>Fase terminada y cerrada.</span>
-        <span class="mono">--</span><span>Fase no necesaria (cierre o vía extraordinaria).</span>
-        <span class="mono">*</span><span>Fase rectificada.</span>
+        <span class="mono">No</span><span>La fase aún no se ha completado.</span>
+        <span class="mono">Sí</span><span>Fase terminada y cerrada. No se puede editar.</span>
+        <span class="mono">--</span><span>Fase no necesaria (cierre o procedimiento extraordinario).</span>
+        <span class="mono">No*</span><span>Fase reabierta con «Rectificar», pendiente de corregir.</span>
+        <span class="mono">Sí*</span><span>Fase rectificada, con documento nuevo generado y firmado.</span>
       </div>
     </div>
     <div class="box">
-      <h3>Quién tiene acceso</h3>
+      <h3>Quién ve qué</h3>
       <ul>
-        <li>Dirección.</li>
-        <li>Profesorado, solo cuando forma parte del equipo docente del alumno o alumna.</li>
-        <li>EOE y Orientación.</li>
+        <li><strong>Dirección, Orientación y EOE:</strong> todo el alumnado del centro con procedimiento iniciado. El EOE lo ve después de seleccionar el centro.</li>
+        <li><strong>Profesorado, tutor o no:</strong> solo el alumnado al que da clase.</li>
+        <li><strong>Cuestionario:</strong> en el profesorado, solo lo ven quien lo rellenó y el tutor o tutora.</li>
+        <li><strong>Resto de actas y la solicitud:</strong> en el profesorado, solo el tutor o tutora.</li>
       </ul>
+      <p class="who">Para ir de una fase a otra sin salir, usa el desplegable «Fases» que hay en la cabecera de cada pantalla.</p>
     </div>
   </div>
 </section>
@@ -341,20 +365,50 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
 </section>
 
 <section id="dudas">
-  <h2>Lo que el manual no aclara</h2>
-  <p class="intro">Esta guía reorganiza el manual del EOE sin añadir pasos nuevos. Antes de actuar en un caso real, contrasta estos puntos con tu orientador u orientadora de referencia o con la normativa vigente.</p>
+  <h2>Lo que dice la norma y lo que sigue sin resolver</h2>
+  <p class="intro">La primera versión de esta guía se basaba solo en el Genially del EOE. Estos puntos se han contrastado con el texto de las Instrucciones de 8 de marzo de 2017 y con el manual de usuario del módulo de Séneca (v2, noviembre de 2025).</p>
+
+  <h3>El plazo de tres meses y sus excepciones</h3>
+  <blockquote>«Si tras la aplicación de las medidas […], durante un período no inferior a tres meses, y según el cronograma de seguimiento establecido, se evidencie que las medidas aplicadas no han resultado suficientes o no se apreciase una mejora de las circunstancias que dieron lugar a la aplicación de las mismas, se realizará el procedimiento de solicitud para la realización de la evaluación psicopedagógica.»<cite>Instrucciones de 8 de marzo de 2017, apartado 2.3.3</cite></blockquote>
+  <p class="intro">La misma norma permite pedir la evaluación <strong>antes</strong> de los tres meses en dos casos:</p>
   <ul class="plain">
-    <li><strong>Opciones 3.2 a 3.4 del acta del equipo docente.</strong> El manual solo describe la 3.1 (no procede) y la 3.5 (vía extraordinaria). Las demás se refieren a medidas generales, pero no se detallan.</li>
-    <li><strong>«Urgencia» y «3.5» parecen la misma vía.</strong> El manual las cuenta en dos lugares distintos con el mismo efecto: se salta a la solicitud de evaluación, pero antes hay que reunirse con la familia.</li>
-    <li><strong>Reunión con la familia (II).</strong> El original dice que «funciona igual que Reunión familia (II)». Casi seguro es una errata y quiere decir la reunión (I).</li>
-    <li><strong>Cierre tras el equipo docente (II).</strong> El manual dice que Jefatura «se da por enterada de la continuidad o cierre», pero no si la reunión con la familia (II) es obligatoria cuando se cierra. Informar a la familia es buena práctica en cualquier caso.</li>
-    <li><strong>Plazo de tres meses.</strong> Cuenta desde que se ponen en marcha las medidas acordadas, no desde que se rellena el cuestionario. La fecha del seguimiento es orientativa.</li>
-    <li><strong>Normativa.</strong> El manual cita las Instrucciones de 8 de marzo de 2017. Comprueba si hay actualizaciones posteriores publicadas por la Consejería antes de tomarlas como única referencia.</li>
+    <li>Cuando el equipo docente, con el asesoramiento de Orientación, ve que las circunstancias que motivaron la intervención se han <strong>agravado</strong>.</li>
+    <li>Cuando se aprecian <strong>indicios evidentes de NEAE</strong> que requieren atención específica «y/o» están apoyados por informes externos (médicos, logopédicos, psicológicos…). Con «y/o», el informe externo no es imprescindible. Si hay informes, se sigue el procedimiento de entrega en Secretaría (2.3.1.2).</li>
+  </ul>
+
+  <h3>Qué se resuelve con las fuentes oficiales</h3>
+  <ul class="plain">
+    <li><span class="resolved">Resuelto.</span> <strong>La opción 3.1 no cierra el caso al momento.</strong> El Genially decía que al marcar 3.1 el estado pasa a Cerrado. Según el manual de Séneca, las fases posteriores a la reunión con la familia (I) se desactivan y el caso pasa a Cerrado <em>cuando se firma el acta de esa reunión</em>. Es decir, Jefatura toma conocimiento y se informa a la familia.</li>
+    <li><span class="resolved">Resuelto.</span> <strong>«Urgencia» y «3.5» son la misma vía.</strong> El manual de Séneca la llama «Procedimiento Extraordinario». Desactiva la reunión del equipo docente (II), la toma de conocimiento (II) y la reunión con la familia (II).</li>
+    <li><span class="resolved">Resuelto.</span> <strong>La reunión con la familia (II) funciona como la (I).</strong> Lo de «igual que la (II)» del Genially era una errata. En la (II), el tutor o tutora vuelve a reunirse con la familia para informar de cómo va el procedimiento.</li>
+    <li><span class="resolved">Resuelto.</span> <strong>¿Quién firma el acta del equipo docente?</strong> Según la norma, la firman todos los asistentes. En Séneca la firma <strong>solo el tutor o tutora</strong> del grupo; el resto del profesorado no firma.</li>
+    <li><span class="resolved">Resuelto.</span> <strong>Asistencia de Orientación.</strong> A las reuniones del equipo docente (la inicial y la de solicitud) tiene que asistir al menos una persona del equipo de orientación del centro. Lo exige la norma aunque la pantalla de Séneca no lo controle.</li>
+    <li><span class="resolved">Resuelto.</span> <strong>Qué pasa si Orientación rechaza la solicitud.</strong> Elabora un informe que justifica la decisión y propone medidas generales. Se entrega al tutor o tutora, que coordina su aplicación con el equipo docente e informa a la familia. El contenido del informe y la valoración de la eficacia de las medidas se recogen en el informe final de curso, ciclo o etapa.</li>
+    <li><span class="resolved">Resuelto.</span> <strong>Procedimiento mal hecho.</strong> Si Orientación comprueba que el procedimiento no se ha seguido de forma correcta y completa, lo comunica a Jefatura de Estudios «para que se tomen las medidas oportunas». Es una tercera salida que el módulo no refleja como estado propio.</li>
+    <li><span class="resolved">Resuelto.</span> <strong>Orden de las solicitudes.</strong> En Infantil y Primaria, Jefatura de Estudios y el orientador u orientadora del EOE priorizan las solicitudes según tres criterios:
+      <ul>
+        <li>la naturaleza y la gravedad de las necesidades;</li>
+        <li>el nivel educativo: tienen prioridad el 2.º ciclo de Infantil y 1.º y 2.º de Primaria;</li>
+        <li>la existencia de valoraciones previas.</li>
+      </ul>
+      Cada centro puede concretar esos criterios en su plan de atención a la diversidad, con la aprobación del ETCP.</li>
+    <li><span class="resolved">Resuelto.</span> <strong>Vigencia de la norma.</strong> No he encontrado ninguna instrucción posterior que sustituya a las de 8 de marzo de 2017. El módulo de Séneca de 2025 aplica ese mismo procedimiento. Las altas capacidades intelectuales tienen su propio protocolo de detección (apartado 2.4).</li>
+  </ul>
+
+  <h3>Lo que sigue sin resolver</h3>
+  <ul class="plain">
+    <li><span class="open">Abierto.</span> <strong>Apartados 3.2 a 3.4 del acta.</strong> Ninguno de los manuales consultados los describe. El manual de Séneca solo dice que, si no se marcan ni 3.1 ni 3.5, el procedimiento sigue con normalidad. En el acta en papel, la toma de decisiones ofrece tres opciones: eliminar medidas, continuarlas o aplicar otras nuevas. Es probable, <em>pero no está comprobado</em>, que se correspondan con esos apartados.</li>
+    <li><span class="open">Abierto.</span> <strong>Agravamiento durante los tres meses.</strong> La norma permite adelantar la solicitud, pero el manual no explica cómo se hace en Séneca si la vía ordinaria ya está en marcha. Tampoco dice si la pantalla del equipo docente (II) puede abrirse antes de tiempo. Consúltalo con Orientación.</li>
+    <li><span class="open">Abierto.</span> <strong>Cierre en la reunión del equipo docente (II).</strong> El manual no detalla en qué momento pasa el caso a Cerrado ni qué fases quedan como <span class="mono">--</span>. El simulador supone que se cierra tras la reunión con la familia (II), igual que ocurre con la 3.1. Así, además, se cumple la obligación de informar a la familia de las decisiones.</li>
+    <li><span class="open">Abierto.</span> <strong>Paso de un curso a otro.</strong> El manual de Séneca tiene un apartado sobre la vigencia del procedimiento, que está ligado al equipo docente vigente del alumno o alumna. No he podido consultar su texto completo, así que no sé qué ocurre con un caso abierto si cambia de curso o de centro.</li>
   </ul>
 </section>
 
 <footer>
-  <p>Contenido basado en el Genially «Manual de Procedimiento de Detección de Indicios de NEAE (Séneca)», de Dulcenombre Trapero Ramírez (EOE Córdoba Valdeolleros-Brillante): <a href="https://view.genially.com/690cdc8930ca973c8a596b32" target="_blank" rel="noopener">ver original</a>.</p>
+  <p><strong>Fuentes.</strong></p>
+  <p>1. Instrucciones de 8 de marzo de 2017, de la Dirección General de Participación y Equidad, por las que se actualiza el protocolo de detección, identificación del alumnado con NEAE y organización de la respuesta educativa. Apartados 2.3 y 2.4: <a href="https://www.adideandalucia.es/normas/instruc/Instrucciones8marzo2017ActualizacionProtocoloNEAE.pdf" target="_blank" rel="noopener">texto en ADIDE Andalucía</a>.</p>
+  <p>2. «Procedimiento de Detección de Indicios de NEAE. Manual de usuario, versión 2 (noviembre 2025)», manual del módulo de Séneca.</p>
+  <p>3. Genially «Manual de Procedimiento de Detección de Indicios de NEAE (Séneca)», de Dulcenombre Trapero Ramírez (EOE Córdoba Valdeolleros-Brillante): <a href="https://view.genially.com/690cdc8930ca973c8a596b32" target="_blank" rel="noopener">ver original</a>.</p>
   <p>Guía de apoyo para el profesorado. No es un documento oficial de la Consejería.</p>
 </footer>
 </div>
@@ -367,37 +421,42 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
   // pintar los separadores de bloque en el recorrido.
   var FASES = [
     {id:1, grupo:"Primer bloque: detección", nombre:"Cuestionario de detección de indicios", quien:"Quien añadió al alumno o alumna", je:false,
-     hace:["Rellena los desplegables de cada ámbito, muy parecidos al formato en papel.","Pulsa Terminar y firmar cuestionario. El documento queda en Documentos solicitados."],
-     despues:["Séneca avisa al tutor o tutora de que el cuestionario está hecho y de que debe convocar al equipo docente.","Se activa la pantalla Reunión del equipo docente (I)."]},
-    {id:2, nombre:"Reunión del equipo docente (I)", quien:"Tutor o tutora", je:false,
-     hace:["Selecciona el profesorado implicado y el que asiste.","Rellena los apartados del acta y fírmala: Terminar y firmar acta."],
-     despues:["Mensaje a Jefatura de Estudios: se inicia la tramitación.","La pantalla queda bloqueada."],
-     aviso:"Aquí se decide la vía. Si se marca 3.1 (no procede), el estado pasa a Cerrado. Si se marca 3.5, se salta a la solicitud de evaluación después de la reunión con la familia (I). Si no, se aplican medidas generales durante tres meses."},
-    {id:3, nombre:"Toma de conocimiento de Jefatura (I)", quien:"Jefatura de Estudios", je:true,
-     hace:["Jefatura se da por enterada del inicio del procedimiento."], despues:["Se abre la reunión con la familia (I)."]},
-    {id:4, nombre:"Reunión con la familia (I)", quien:"Tutor o tutora", je:false,
-     hace:["Rellena el acta de la reunión. Si hay separación, consulta cuántas actas hacen falta.","Firma el tutor o tutora; después firma la familia desde iPASEN."],
-     despues:["Vía ordinaria: empiezan los tres meses de medidas generales.","Vía 3.5: se salta directamente a la solicitud de evaluación psicopedagógica."],
-     aviso:"Si hay dos reuniones (una con cada progenitor), pulsa Terminar y firmar actas solo cuando estén las dos completas."},
-    {id:5, grupo:"Segundo bloque: tras 3 meses de medidas generales", nombre:"Reunión del equipo docente (II)", quien:"Solo el tutor o tutora del grupo", je:false,
-     hace:["Se valora si las medidas generales acordadas han dado resultado.","Se decide continuar hacia la solicitud de evaluación o cerrar."],
-     despues:["Si se cierra, el estado pasa a Cerrado."],
-     aviso:"Solo se abre cuando han pasado tres meses desde que se pusieron en marcha las medidas."},
-    {id:6, nombre:"Toma de conocimiento de Jefatura (II)", quien:"Jefatura de Estudios", je:true,
-     hace:["Jefatura se da por enterada de si se continúa o se cierra."], despues:[]},
-    {id:7, nombre:"Reunión con la familia (II)", quien:"Tutor o tutora", je:false,
-     hace:["Igual que la reunión con la familia (I): mismas reglas de actas y firma por iPASEN."], despues:[]},
-    {id:8, grupo:"Tercer bloque: solicitud y valoración", nombre:"Solicitud de evaluación psicopedagógica", quien:"Tutor o tutora", je:false,
-     hace:["Rellena la solicitud para que el orientador u orientadora valore al alumno o alumna.","Fírmala."],
-     despues:["El estado pasa a Evaluación solicitada."],
-     aviso:"Desde aquí ya no se puede rectificar ninguna fase."},
-    {id:9, nombre:"Toma de conocimiento de Jefatura (III)", quien:"Jefatura de Estudios", je:true,
-     hace:["Jefatura se da por enterada de la solicitud."], despues:[]},
+     hace:["Rellena los desplegables de cada ámbito. Son muy parecidos al cuestionario en papel.","Pulsa Terminar y firmar cuestionario y fírmalo desde Documentos solicitados."],
+     despues:["El caso pasa a En proceso.","Séneca avisa al tutor o tutora de que tiene que convocar al equipo docente.","Se abre la Reunión del equipo docente (I)."],
+     aviso:"Si te equivocas de alumno o alumna, puedes usar Borrar mientras la reunión del equipo docente (I) no esté en Sí."},
+    {id:2, nombre:"Reunión del equipo docente (I)", quien:"Tutor o tutora del grupo", je:false,
+     hace:["Selecciona al profesorado implicado y al que asiste.","Rellena los apartados del acta y pulsa Terminar y firmar acta. En Séneca solo firma el tutor o tutora."],
+     despues:["Séneca avisa a Jefatura de Estudios de que empieza la tramitación.","La pantalla queda bloqueada."],
+     norma:["Tiene que asistir al menos una persona del equipo de orientación del centro.","Contenido obligatorio: a) análisis de los indicios; b) valoración de las medidas que ya se aplican; c) decisión sobre qué medidas continúan o se añaden; d) cronograma de seguimiento con indicadores, plazos y fechas de reunión.","Las medidas generales las aplica cada docente en cuanto ve indicios, sin esperar a esta reunión."],
+     aviso:"Aquí se elige la vía. 3.1: no procede, y el caso se cerrará al firmar la reunión con la familia (I). 3.5: urgencia, se salta de la familia (I) a la solicitud de evaluación. Sin 3.1 ni 3.5: vía ordinaria."},
+    {id:3, nombre:"Toma de conocimiento de Jefatura (I)", quien:"Jefatura de Estudios (perfil Dirección)", je:true,
+     hace:["Marca la casilla y pulsa Aceptar."], despues:["Se abre la reunión con la familia (I)."]},
+    {id:4, nombre:"Reunión con la familia (I)", quien:"Tutor o tutora del grupo", je:false,
+     hace:["Rellena el acta. Si hay separación, mira cuántas actas hacen falta en «Actas con la familia».","Primero firma el tutor o tutora y después la familia, desde iPASEN."],
+     despues:["Si se marcó 3.1, el caso pasa a Cerrado.","Si se marcó 3.5, se abre la solicitud de evaluación psicopedagógica.","Si no, se aplican las medidas durante al menos tres meses."],
+     norma:["Se informa a la familia de los acuerdos, de las medidas, del cronograma de seguimiento y de cómo va a participar ella."],
+     aviso:"Si hay dos reuniones (una con cada progenitor), pulsa Terminar y firmar actas solo cuando estén completas las dos."},
+    {id:5, grupo:"Segundo bloque: tras al menos 3 meses de medidas", nombre:"Reunión del equipo docente (II). Seguimiento", quien:"Tutor o tutora del grupo", je:false,
+     hace:["Se valoran las medidas acordadas en la primera reunión.","Se decide si se pide evaluación psicopedagógica o se cierra el caso."],
+     despues:["Se abre la toma de conocimiento de Jefatura (II)."],
+     norma:["Pasa cuando han transcurrido al menos tres meses y según el cronograma.","Tiene que asistir al menos una persona del equipo de orientación.","Si se va a pedir la evaluación, el tutor o tutora recoge qué medidas se han aplicado y por qué no han funcionado."],
+     aviso:"La norma permite adelantar la solicitud si las circunstancias se agravan. El manual de Séneca no explica cómo hacerlo en esta vía: consúltalo con Orientación."},
+    {id:6, nombre:"Toma de conocimiento de Jefatura (II)", quien:"Jefatura de Estudios (perfil Dirección)", je:true,
+     hace:["Marca la casilla y pulsa Aceptar. Jefatura queda informada de las decisiones de la reunión anterior."], despues:["Se abre la reunión con la familia (II)."]},
+    {id:7, nombre:"Reunión con la familia (II)", quien:"Tutor o tutora del grupo", je:false,
+     hace:["Informa a la familia de cómo va el procedimiento y de lo que se ha decidido.","Mismas reglas que la reunión (I): número de actas y firma por iPASEN."], despues:[]},
+    {id:8, grupo:"Tercer bloque: solicitud y valoración", nombre:"Solicitud de evaluación psicopedagógica", quien:"Tutor o tutora del grupo", je:false,
+     hace:["Rellena la solicitud formal y fírmala."],
+     despues:["El caso pasa a Evaluación solicitada.","Desde este momento no se puede rectificar ninguna fase."],
+     norma:["Motivos de la solicitud en el modelo de la norma: las medidas generales no han sido efectivas o no bastan, las circunstancias se han agravado o hay indicios evidentes de NEAE que requieren atención específica.","En Infantil y Primaria, Jefatura de Estudios y el orientador u orientadora del EOE ordenan las solicitudes con los criterios de priorización (ver «Norma y lagunas»)."]},
+    {id:9, nombre:"Toma de conocimiento de Jefatura (III)", quien:"Jefatura de Estudios (perfil Dirección)", je:true,
+     hace:["Jefatura queda informada de la solicitud."], despues:[]},
     {id:10, nombre:"Valoración de la solicitud de evaluación", quien:"Perfil de Orientación", je:false,
-     hace:["Acepta la solicitud marcando la casilla o la rechaza."],
-     despues:["Si acepta: estado Solicitud aceptada. Se genera el documento que hay que cumplimentar y se avisa a Jefatura y al tutor o tutora de que ha terminado el procedimiento de detección. Empieza la evaluación psicopedagógica.","Si rechaza: estado No procede evaluación. Se avisa al tutor o tutora y se propone atención educativa ordinaria."]},
-    {id:11, nombre:"Toma de conocimiento de Jefatura (IV)", quien:"Jefatura de Estudios", je:true,
-     hace:["Jefatura se da por enterada del resultado de la valoración."], despues:[]}
+     hace:["Analiza lo que se ha hecho hasta ahora y los motivos de la solicitud.","Acepta la solicitud marcando la casilla o la rechaza."],
+     despues:["Si la acepta, el caso pasa a Solicitud aceptada y empieza la evaluación psicopedagógica (apartado 3.4 de la norma).","Si la rechaza, el caso pasa a No procede evaluación."],
+     norma:["Si no procede, Orientación hace un informe con lo que justifica la decisión y una propuesta de medidas generales. El tutor o tutora coordina esas medidas con el equipo docente e informa a la familia.","Si el procedimiento no se ha seguido de forma correcta y completa, Orientación lo comunica a Jefatura de Estudios."]},
+    {id:11, nombre:"Toma de conocimiento de Jefatura (IV)", quien:"Jefatura de Estudios (perfil Dirección)", je:true,
+     hace:["Jefatura queda informada de la decisión de Orientación."], despues:["Se comunica la decisión al tutor o tutora del grupo."]}
   ];
 
   function el(tag, attrs, html){
@@ -420,6 +479,7 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
     var det = el("div", {"class":"detail", id:"det-"+f.id});
     var html = '<div><h4>Qué se hace</h4>'+lista(f.hace)+'</div>';
     if (f.despues.length) html += '<div><h4>Qué pasa al firmar</h4>'+lista(f.despues)+'</div>';
+    if (f.norma) html += '<div><h4>Qué exige la norma (Instrucciones 8/3/2017)</h4>'+lista(f.norma)+'</div>';
     if (f.aviso) html += '<p class="warn">'+f.aviso+'</p>';
     det.innerHTML = html;
     det.hidden = i !== 0;
@@ -435,18 +495,18 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
   // ---------- Rutas ----------
   // Devuelve {fases:[ids que se hacen], estado, texto}
   function ruta(q1, q2, q3){
-    if (q1 === "cierre") return {fases:[1,2], estado:"cerrado",
-      texto:"El equipo docente marca 3.1 en la primera reunión. El procedimiento se cierra y el resto de fases quedan como no necesarias."};
-    var base = q1 === "extra" ? [1,2,3,4] : [1,2,3,4,5,6];
+    if (q1 === "cierre") return {fases:[1,2,3,4], estado:"cerrado",
+      texto:"El equipo docente marca 3.1. Jefatura toma conocimiento y se informa a la familia. Al firmar el acta de la reunión con la familia (I), el caso pasa a Cerrado y el resto de fases quedan como no necesarias."};
+    var base = q1 === "extra" ? [1,2,3,4] : [1,2,3,4,5,6,7];
     if (q1 === "ordinaria" && q2 === "cierra") return {fases:base, estado:"cerrado",
-      texto:"Tras tres meses de medidas generales, el equipo docente considera que han funcionado y cierra el procedimiento. Jefatura toma conocimiento del cierre."};
-    var fases = q1 === "extra" ? base.concat([8,9,10,11]) : base.concat([7,8,9,10,11]);
+      texto:"Tras al menos tres meses de medidas generales, el equipo docente considera que han funcionado y cierra el procedimiento. Supuesto de esta guía: como con la 3.1, el cierre se produce después de informar a la familia en la reunión (II). El manual de Séneca no lo detalla."};
+    var fases = base.concat([8,9,10,11]);
     var intro = q1 === "extra"
-      ? "Vía extraordinaria (3.5): no se esperan los tres meses. Tras la reunión con la familia (I) se pasa a la solicitud de evaluación."
-      : "Vía ordinaria completa: tres meses de medidas generales, segunda reunión con equipo docente y familia, y solicitud de evaluación.";
+      ? "Procedimiento extraordinario (3.5): no se esperan los tres meses. Tras la reunión con la familia (I) se pasa a la solicitud de evaluación."
+      : "Vía ordinaria completa: al menos tres meses de medidas generales, segunda reunión con el equipo docente y con la familia, y solicitud de evaluación.";
     return q3 === "acepta"
       ? {fases:fases, estado:"aceptada", texto:intro+" Orientación acepta y empieza la evaluación psicopedagógica."}
-      : {fases:fases, estado:"noprocede", texto:intro+" Orientación rechaza la solicitud y propone atención educativa ordinaria."};
+      : {fases:fases, estado:"noprocede", texto:intro+" Orientación rechaza la solicitud y entrega al tutor o tutora un informe con una propuesta de atención educativa ordinaria."};
   }
   var ESTADOS = {cerrado:"Cerrado", aceptada:"Solicitud aceptada", noprocede:"No procede evaluación"};
 
@@ -463,7 +523,7 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
     FASES.forEach(function(f){
       var si = r.fases.indexOf(f.id) > -1;
       var tr = el("tr", si ? null : {"class":"skip"},
-        '<td>'+String(f.id).padStart(2,"0")+' · '+f.nombre+'</td><td class="val '+(si?"si":"dash")+'">'+(si?"SI":"--")+'</td>');
+        '<td>'+String(f.id).padStart(2,"0")+' · '+f.nombre+'</td><td class="val '+(si?"si":"dash")+'">'+(si?"Sí":"--")+'</td>');
       tb.appendChild(tr);
     });
   }
@@ -518,7 +578,7 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
       });
       li.appendChild(cb);
       li.appendChild(el("label", {"for":id}, String(f.id).padStart(2,"0")+" · "+f.nombre));
-      li.appendChild(el("span", {"class":"mono"}, on ? (cb.checked ? "SI" : "NO") : "--"));
+      li.appendChild(el("span", {"class":"mono"}, on ? (cb.checked ? "Sí" : "No") : "--"));
       ul.appendChild(li);
     });
     resumen();
@@ -529,7 +589,7 @@ footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-si
     document.getElementById("c-bar").style.width = Math.round(hechas/activas.length*100) + "%";
     document.querySelectorAll("#c-checks li").forEach(function(li, i){
       var span = li.querySelector(".mono"), cb = li.querySelector("input");
-      if (!cb.disabled) span.textContent = cb.checked ? "SI" : "NO";
+      if (!cb.disabled) span.textContent = cb.checked ? "Sí" : "No";
     });
     var w = document.getElementById("c-when");
     if (estado.via === "extra") w.textContent = "Vía extraordinaria: no hay espera de tres meses. Tras la reunión con la familia (I), pasa a la solicitud de evaluación.";
