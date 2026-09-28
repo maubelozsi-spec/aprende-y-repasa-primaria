@@ -26,6 +26,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- lista de actividades ----------
 
+  // Casilla "Marcar todas" (general y una por área) para no tener que
+  // ir marcando actividad por actividad. Se queda a medias
+  // (indeterminate) cuando solo hay algunas marcadas. Mismo aspecto
+  // que la casilla de recortar (.acs-recortar-toggle en css/acs.css).
+  function crearCasillaTodas(texto) {
+    const label = document.createElement("label");
+    label.className = "acs-recortar-toggle acs-gen-todas";
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    label.appendChild(check);
+    label.appendChild(document.createTextNode(texto));
+    return { label, check };
+  }
+
+  const todasGeneral = crearCasillaTodas("Marcar todas las actividades");
+  listaEl.appendChild(todasGeneral.label);
+  todasGeneral.check.addEventListener("change", () => {
+    marcarFilas(listaEl, todasGeneral.check.checked);
+  });
+
+  function marcarFilas(contenedor, marcado) {
+    contenedor.querySelectorAll(".acs-gen-fila input[type=checkbox]").forEach((checkbox) => {
+      checkbox.checked = marcado;
+      checkbox.closest(".acs-gen-fila").querySelector(".acs-gen-fila-cantidad").disabled = !marcado;
+    });
+    actualizarResumen();
+  }
+
+  function sincronizarCasillaTodas(check, contenedor) {
+    const filas = [...contenedor.querySelectorAll(".acs-gen-fila input[type=checkbox]")];
+    const marcadas = filas.filter((c) => c.checked).length;
+    check.checked = filas.length > 0 && marcadas === filas.length;
+    check.indeterminate = marcadas > 0 && marcadas < filas.length;
+  }
+
   ["lengua", "matematicas"].forEach((area) => {
     const grupo = document.createElement("div");
     grupo.className = "acs-gen-grupo";
@@ -33,6 +68,12 @@ document.addEventListener("DOMContentLoaded", () => {
     titulo.className = `acs-area-titulo acs-area-titulo-${area}`;
     titulo.textContent = ACS_GEN_AREA_LABEL[area];
     grupo.appendChild(titulo);
+
+    const todasArea = crearCasillaTodas(`Marcar todas de ${ACS_GEN_AREA_LABEL[area]}`);
+    todasArea.check.addEventListener("change", () => {
+      marcarFilas(grupo, todasArea.check.checked);
+    });
+    grupo.appendChild(todasArea.label);
 
     ACS_FICHAS.filter((f) => f.area === area).forEach((ficha) => {
       const fila = document.createElement("label");
@@ -90,6 +131,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function actualizarResumen() {
+    sincronizarCasillaTodas(todasGeneral.check, listaEl);
+    listaEl.querySelectorAll(".acs-gen-grupo").forEach((grupo) => {
+      sincronizarCasillaTodas(grupo.querySelector(".acs-gen-todas input"), grupo);
+    });
+
     const seleccion = getSeleccion();
     resumenEl.textContent = seleccion.length
       ? `${seleccion.length} actividad${seleccion.length === 1 ? "" : "es"} seleccionada${seleccion.length === 1 ? "" : "s"}.`
