@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Detección de indicios NEAE</title>
+<meta name="description" content="Guía paso a paso del procedimiento de detección de indicios de NEAE en Séneca (Andalucía).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --surface-2:#e9eef2; --ink:#18242f; --muted:#56636f; --line:#d3dbe2;
+  --accent:#0a6b47; --accent-soft:#dcefe6;
+  --st-proceso:#b76e00; --st-proceso-bg:#fdf0da;
+  --st-cerrado:#5b6670; --st-cerrado-bg:#e6e9ec;
+  --st-solicitada:#1f5fae; --st-solicitada-bg:#e0ebf8;
+  --st-aceptada:#0a6b47; --st-aceptada-bg:#dcefe6;
+  --st-noprocede:#b0322b; --st-noprocede-bg:#f8e1df;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --sans:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#11181e; --surface:#19232b; --surface-2:#223039; --ink:#e6edf2; --muted:#9eadb9; --line:#2f3f4a;
+    --accent:#5cc79a; --accent-soft:#17362a;
+    --st-proceso:#f0b04a; --st-proceso-bg:#3a2b12;
+    --st-cerrado:#aab4bd; --st-cerrado-bg:#2a333a;
+    --st-solicitada:#7fb0ec; --st-solicitada-bg:#172a42;
+    --st-aceptada:#5cc79a; --st-aceptada-bg:#17362a;
+    --st-noprocede:#f08a82; --st-noprocede-bg:#3d1c1a;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#11181e; --surface:#19232b; --surface-2:#223039; --ink:#e6edf2; --muted:#9eadb9; --line:#2f3f4a;
+  --accent:#5cc79a; --accent-soft:#17362a;
+  --st-proceso:#f0b04a; --st-proceso-bg:#3a2b12;
+  --st-cerrado:#aab4bd; --st-cerrado-bg:#2a333a;
+  --st-solicitada:#7fb0ec; --st-solicitada-bg:#172a42;
+  --st-aceptada:#5cc79a; --st-aceptada-bg:#17362a;
+  --st-noprocede:#f08a82; --st-noprocede-bg:#3d1c1a;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55}
+.wrap{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:28px 60px}
+h1,h2,h3{line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:clamp(1.7rem,4vw,2.3rem)}
+h2{font-size:1.4rem}
+h3{font-size:1.08rem}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--mono);font-size:.86em}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+header.top{display:grid;gap:10px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.lede{max-width:66ch;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.88rem;color:var(--muted)}
+
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;overflow-x:auto;padding-block:10px;border-bottom:1px solid var(--line);margin-bottom:26px}
+nav.toc a{flex:none;text-decoration:none;color:var(--ink);font-size:.9rem;padding:6px 12px;border-radius:999px;background:var(--surface-2)}
+nav.toc a:hover{background:var(--accent-soft)}
+
+section{display:grid;gap:14px;padding-block:22px;scroll-margin-top:64px}
+section + section{border-top:1px solid var(--line)}
+.intro{max-width:68ch;color:var(--muted)}
+
+.path{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:6px}
+.path code{font-family:var(--mono);font-size:.9rem;background:var(--surface-2);padding:2px 6px;border-radius:4px;word-break:break-word}
+.path ol{margin:0;padding-left:1.3em;display:grid;gap:4px}
+
+/* Estados */
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.st-proceso{color:var(--st-proceso);background:var(--st-proceso-bg)}
+.st-cerrado{color:var(--st-cerrado);background:var(--st-cerrado-bg)}
+.st-solicitada{color:var(--st-solicitada);background:var(--st-solicitada-bg)}
+.st-aceptada{color:var(--st-aceptada);background:var(--st-aceptada-bg)}
+.st-noprocede{color:var(--st-noprocede);background:var(--st-noprocede-bg)}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.legend div{display:grid;gap:4px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;align-content:start}
+.legend p{font-size:.92rem;color:var(--muted)}
+
+/* Recorrido */
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.step > button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;width:100%;padding:12px 14px;border-radius:10px}
+.step > button:focus-visible{outline:3px solid var(--accent)}
+.num{font-family:var(--mono);font-size:.95rem;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);font-variant-numeric:tabular-nums}
+.step.je .num{background:transparent;border:2px dashed var(--line)}
+.who{font-size:.85rem;color:var(--muted)}
+.tag{font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.step[aria-expanded="true"]{border-color:var(--accent)}
+.step[aria-expanded="true"] .num{background:var(--accent);color:var(--surface)}
+.detail{padding:0 16px 16px 70px;display:grid;gap:12px}
+.detail h4{margin:0;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.detail ul{margin:4px 0 0;padding-left:1.2em;display:grid;gap:4px}
+.warn{border-left:4px solid var(--st-proceso);background:var(--st-proceso-bg);padding:8px 12px;border-radius:0 6px 6px 0;font-size:.95rem}
+.note{border-left:4px solid var(--st-solicitada);background:var(--st-solicitada-bg);padding:8px 12px;border-radius:0 6px 6px 0;font-size:.95rem}
+@media (max-width:560px){
+  .step > button{grid-template-columns:40px 1fr}
+  .step > button .tag{grid-column:2;justify-self:start}
+  .detail{padding:0 14px 14px}
+}
+.phase-group{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 2px 0}
+
+/* Simulador */
+.sim{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:18px;align-items:start}
+@media (max-width:760px){.sim{grid-template-columns:1fr}}
+fieldset{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:12px 14px;margin:0;display:grid;gap:8px}
+fieldset[disabled]{opacity:.45}
+legend{font-weight:700;padding:0 6px}
+label.opt{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;cursor:pointer;font-size:.95rem}
+label.opt input{margin-top:5px;accent-color:var(--accent)}
+.qs{display:grid;gap:12px}
+.result{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:10px}
+.result-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.val{font-family:var(--mono);font-weight:500;width:56px;text-align:center}
+td.val.si{color:var(--accent)}
+td.val.dash{color:var(--muted)}
+tr.skip td:not(.val){color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.scroll{overflow-x:auto}
+
+/* Familia */
+.fam{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.answer{background:var(--accent-soft);border-radius:10px;padding:12px 14px;display:grid;gap:6px}
+.answer strong{font-size:1.1rem}
+
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.box ul{margin:0;padding-left:1.2em;display:grid;gap:4px}
+.vals{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:baseline}
+.vals .mono{font-weight:500;text-align:center;background:var(--surface-2);border-radius:4px;padding:1px 6px}
+
+/* Mi caso */
+.case-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.field{display:grid;gap:4px;font-size:.92rem}
+.field input,.field select{font:inherit;font-size:.95rem;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);width:100%}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.checks li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.checks li.off{opacity:.5}
+.checks input{width:18px;height:18px;accent-color:var(--accent)}
+.bar{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--accent);width:0}
+.btn{font:inherit;font-size:.92rem;padding:8px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.date-out{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+ul.plain{margin:0;padding-left:1.2em;display:grid;gap:6px;max-width:72ch}
+footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted);display:grid;gap:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">Zona docente · Atención a la diversidad</p>
+  <h1>Detección de indicios de NEAE en Séneca</h1>
+  <p class="lede">Qué hay que hacer, quién lo hace y qué pasa después en cada pantalla del procedimiento, desde que un docente da de alta al alumno o alumna hasta que Orientación decide si hay evaluación psicopedagógica.</p>
+  <div class="meta">
+    <span>Módulo de Séneca en vigor desde <strong>30/10/2025</strong></span>
+    <span>Base: manual del EOE Córdoba Valdeolleros-Brillante</span>
+    <span>Norma de referencia: Instrucciones de 8 de marzo de 2017</span>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Secciones">
+  <a href="#inicio">Cómo empezar</a>
+  <a href="#estados">Estados</a>
+  <a href="#recorrido">Las 11 fases</a>
+  <a href="#simulador">¿Qué camino sigue?</a>
+  <a href="#familia">Actas con la familia</a>
+  <a href="#errores">Errores y accesos</a>
+  <a href="#micaso">Seguimiento</a>
+  <a href="#dudas">Lagunas</a>
+</nav>
+
+<section id="inicio">
+  <h2>Cómo empezar el procedimiento</h2>
+  <div class="path">
+    <p class="eyebrow">Ruta en Séneca</p>
+    <p><code>Alumnado › Gestión de la orientación › Detección signos de alerta</code></p>
+    <ol>
+      <li>Pulsa el símbolo <strong>+</strong> y elige <strong>Añadir alumno</strong>. Esta opción está habilitada para el profesorado.</li>
+      <li>Al <strong>Aceptar</strong>, el alumno o alumna aparece en la pantalla <em>Relación de alumnos con detección de indicios de NEAE</em>.</li>
+      <li>En ese momento empieza el procedimiento. La persona que lo ha añadido es la que rellena el cuestionario (fase 1).</li>
+    </ol>
+  </div>
+  <p class="warn">Funciona en cascada: cuando se abre una fase, la anterior se cierra y ya no se puede modificar. Solo Dirección y Jefatura de Estudios pueden rectificarla (ver <a href="#errores">Errores y accesos</a>).</p>
+</section>
+
+<section id="estados">
+  <h2>Estados del procedimiento</h2>
+  <p class="intro">Cada caso aparece en la relación con uno de estos cinco estados. Es lo primero que conviene mirar para saber en qué punto está.</p>
+  <div class="legend">
+    <div><span class="chip st-proceso">En proceso</span><p>Procedimiento iniciado y abierto.</p></div>
+    <div><span class="chip st-cerrado">Cerrado</span><p>Lo cierra el equipo docente: no procede o las medidas generales han sido suficientes.</p></div>
+    <div><span class="chip st-solicitada">Evaluación solicitada</span><p>El tutor o tutora ha firmado la solicitud y Orientación la ha recibido.</p></div>
+    <div><span class="chip st-aceptada">Solicitud aceptada</span><p>Orientación admite la solicitud. La evaluación psicopedagógica queda pendiente.</p></div>
+    <div><span class="chip st-noprocede">No procede evaluación</span><p>Orientación rechaza la solicitud y propone atención educativa ordinaria.</p></div>
+  </div>
+</section>
+
+<section id="recorrido">
+  <h2>Las 11 fases, una a una</h2>
+  <p class="intro">Pulsa en una fase para ver quién la rellena, qué se hace en la pantalla y qué se activa al firmar. Las fases con borde discontinuo son tomas de conocimiento de Jefatura de Estudios.</p>
+  <ol class="steps" id="steps"></ol>
+</section>
+
+<section id="simulador">
+  <h2>¿Qué camino sigue este caso?</h2>
+  <p class="intro">Responde a las decisiones clave. A la derecha verás qué fases se hacen (<span class="mono">SI</span>) y cuáles no son necesarias (<span class="mono">--</span>), igual que en la columna de Séneca, y el estado final.</p>
+  <div class="sim">
+    <div class="qs">
+      <fieldset id="q1">
+        <legend>1. Reunión del equipo docente (I)</legend>
+        <label class="opt"><input type="radio" name="q1" value="cierre"><span><strong>3.1 No procede.</strong> El equipo docente no ve necesario tomar medidas.</span></label>
+        <label class="opt"><input type="radio" name="q1" value="ordinaria" checked><span><strong>Aplicar medidas generales</strong> durante tres meses y volver a valorar.</span></label>
+        <label class="opt"><input type="radio" name="q1" value="extra"><span><strong>3.5 Solicitud de evaluación sin esperar.</strong> Indicios evidentes apoyados por informes externos.</span></label>
+      </fieldset>
+      <fieldset id="q2">
+        <legend>2. Reunión del equipo docente (II), tras 3 meses</legend>
+        <label class="opt"><input type="radio" name="q2" value="sigue" checked><span>Las dificultades persisten: <strong>se continúa</strong> hacia la solicitud de evaluación.</span></label>
+        <label class="opt"><input type="radio" name="q2" value="cierra"><span>Las medidas han funcionado: <strong>se cierra</strong> el procedimiento.</span></label>
+      </fieldset>
+      <fieldset id="q3">
+        <legend>3. Valoración de Orientación</legend>
+        <label class="opt"><input type="radio" name="q3" value="acepta" checked><span>Orientación <strong>acepta</strong> la solicitud.</span></label>
+        <label class="opt"><input type="radio" name="q3" value="rechaza"><span>Orientación <strong>rechaza</strong> la solicitud.</span></label>
+      </fieldset>
+    </div>
+    <div class="result" aria-live="polite">
+      <div class="result-head"><h3>Resultado</h3><span id="sim-state"></span></div>
+      <p id="sim-text"></p>
+      <div class="scroll"><table><thead><tr><th>Fase</th><th>Valor</th></tr></thead><tbody id="sim-table"></tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section id="familia">
+  <h2>Reunión con la familia: ¿cuántas actas?</h2>
+  <p class="intro">La rellena el tutor o tutora. Se aplica igual en la reunión (I) y en la (II).</p>
+  <div class="fam">
+    <fieldset>
+      <legend>¿Hay situación de separación?</legend>
+      <label class="opt"><input type="radio" name="f1" value="no" checked><span>No</span></label>
+      <label class="opt"><input type="radio" name="f1" value="si"><span>Sí</span></label>
+    </fieldset>
+    <fieldset id="f2box">
+      <legend>¿Cómo se hace la reunión?</legend>
+      <label class="opt"><input type="radio" name="f2" value="juntos" checked><span>Asisten los dos progenitores a la misma reunión</span></label>
+      <label class="opt"><input type="radio" name="f2" value="separados"><span>Se hace una reunión distinta con cada progenitor</span></label>
+    </fieldset>
+    <div class="answer" id="fam-answer" aria-live="polite"></div>
+  </div>
+  <div class="two">
+    <div class="box">
+      <h3>Firma</h3>
+      <ul>
+        <li>Primero firma el tutor o tutora.</li>
+        <li>Después, Séneca envía un SMS a los progenitores con un enlace para firmar desde <strong>iPASEN</strong>.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Si la familia no acude, no firma o no hay contacto</h3>
+      <ul>
+        <li>Usa el campo de <strong>subida de documentos</strong> de la pantalla.</li>
+        <li>Deja constancia escrita de lo ocurrido: intentos de contacto, fechas y medio usado.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="errores">
+  <h2>Errores, valores de la columna y accesos</h2>
+  <div class="two">
+    <div class="box">
+      <h3>Rectificar</h3>
+      <ul>
+        <li>Solo <strong>Dirección y Jefatura de Estudios</strong>.</li>
+        <li>Sirve para corregir fases ya superadas.</li>
+        <li>Hay que detallar el motivo de la reapertura.</li>
+        <li>Genera un <strong>nuevo documento que firmar</strong>. En la columna aparece <span class="mono">*</span>.</li>
+        <li>Rectificar una fase <strong>no abre sola la siguiente</strong>.</li>
+        <li>En estado <span class="chip st-solicitada">Evaluación solicitada</span> no se puede rectificar nada.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Borrar</h3>
+      <ul>
+        <li>Solo mientras el caso está al principio: cuestionario de detección y reunión del equipo docente <strong>sin firmar</strong>.</li>
+        <li>Una vez firmada el acta del equipo docente, solo queda rectificar.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Valores de la columna de fases</h3>
+      <div class="vals">
+        <span class="mono">NO</span><span>Fase sin completar.</span>
+        <span class="mono">SI</span><span>Fase terminada y cerrada.</span>
+        <span class="mono">--</span><span>Fase no necesaria (cierre o vía extraordinaria).</span>
+        <span class="mono">*</span><span>Fase rectificada.</span>
+      </div>
+    </div>
+    <div class="box">
+      <h3>Quién tiene acceso</h3>
+      <ul>
+        <li>Dirección.</li>
+        <li>Profesorado, solo cuando forma parte del equipo docente del alumno o alumna.</li>
+        <li>EOE y Orientación.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="micaso">
+  <h2>Seguimiento de un caso</h2>
+  <p class="warn"><strong>No escribas nombres ni datos del alumnado.</strong> Usa una referencia neutra (por ejemplo, «Caso A»). Lo que marques aquí se guarda solo en este navegador y no sustituye a Séneca.</p>
+  <div class="case-grid">
+    <label class="field">Referencia del caso<input id="c-ref" type="text" maxlength="30" placeholder="Caso A"></label>
+    <label class="field">Fecha de la reunión del equipo docente (I)<input id="c-date" type="date"></label>
+    <label class="field">Vía
+      <select id="c-via">
+        <option value="ordinaria">Ordinaria (medidas generales 3 meses)</option>
+        <option value="extra">Extraordinaria (3.5)</option>
+      </select>
+    </label>
+  </div>
+  <p id="c-when" class="note"></p>
+  <div class="bar" aria-hidden="true"><span id="c-bar"></span></div>
+  <ul class="checks" id="c-checks"></ul>
+  <div class="row"><button class="btn" id="c-reset" type="button">Vaciar seguimiento</button><span id="c-confirm" class="who"></span></div>
+</section>
+
+<section id="dudas">
+  <h2>Lo que el manual no aclara</h2>
+  <p class="intro">Esta guía reorganiza el manual del EOE sin añadir pasos nuevos. Antes de actuar en un caso real, contrasta estos puntos con tu orientador u orientadora de referencia o con la normativa vigente.</p>
+  <ul class="plain">
+    <li><strong>Opciones 3.2 a 3.4 del acta del equipo docente.</strong> El manual solo describe la 3.1 (no procede) y la 3.5 (vía extraordinaria). Las demás se refieren a medidas generales, pero no se detallan.</li>
+    <li><strong>«Urgencia» y «3.5» parecen la misma vía.</strong> El manual las cuenta en dos lugares distintos con el mismo efecto: se salta a la solicitud de evaluación, pero antes hay que reunirse con la familia.</li>
+    <li><strong>Reunión con la familia (II).</strong> El original dice que «funciona igual que Reunión familia (II)». Casi seguro es una errata y quiere decir la reunión (I).</li>
+    <li><strong>Cierre tras el equipo docente (II).</strong> El manual dice que Jefatura «se da por enterada de la continuidad o cierre», pero no si la reunión con la familia (II) es obligatoria cuando se cierra. Informar a la familia es buena práctica en cualquier caso.</li>
+    <li><strong>Plazo de tres meses.</strong> Cuenta desde que se ponen en marcha las medidas acordadas, no desde que se rellena el cuestionario. La fecha del seguimiento es orientativa.</li>
+    <li><strong>Normativa.</strong> El manual cita las Instrucciones de 8 de marzo de 2017. Comprueba si hay actualizaciones posteriores publicadas por la Consejería antes de tomarlas como única referencia.</li>
+  </ul>
+</section>
+
+<footer>
+  <p>Contenido basado en el Genially «Manual de Procedimiento de Detección de Indicios de NEAE (Séneca)», de Dulcenombre Trapero Ramírez (EOE Córdoba Valdeolleros-Brillante): <a href="https://view.genially.com/690cdc8930ca973c8a596b32" target="_blank" rel="noopener">ver original</a>.</p>
+  <p>Guía de apoyo para el profesorado. No es un documento oficial de la Consejería.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Fases en el orden del índice del manual. "grupo" solo sirve para
+  // pintar los separadores de bloque en el recorrido.
+  var FASES = [
+    {id:1, grupo:"Primer bloque: detección", nombre:"Cuestionario de detección de indicios", quien:"Quien añadió al alumno o alumna", je:false,
+     hace:["Rellena los desplegables de cada ámbito, muy parecidos al formato en papel.","Pulsa Terminar y firmar cuestionario. El documento queda en Documentos solicitados."],
+     despues:["Séneca avisa al tutor o tutora de que el cuestionario está hecho y de que debe convocar al equipo docente.","Se activa la pantalla Reunión del equipo docente (I)."]},
+    {id:2, nombre:"Reunión del equipo docente (I)", quien:"Tutor o tutora", je:false,
+     hace:["Selecciona el profesorado implicado y el que asiste.","Rellena los apartados del acta y fírmala: Terminar y firmar acta."],
+     despues:["Mensaje a Jefatura de Estudios: se inicia la tramitación.","La pantalla queda bloqueada."],
+     aviso:"Aquí se decide la vía. Si se marca 3.1 (no procede), el estado pasa a Cerrado. Si se marca 3.5, se salta a la solicitud de evaluación después de la reunión con la familia (I). Si no, se aplican medidas generales durante tres meses."},
+    {id:3, nombre:"Toma de conocimiento de Jefatura (I)", quien:"Jefatura de Estudios", je:true,
+     hace:["Jefatura se da por enterada del inicio del procedimiento."], despues:["Se abre la reunión con la familia (I)."]},
+    {id:4, nombre:"Reunión con la familia (I)", quien:"Tutor o tutora", je:false,
+     hace:["Rellena el acta de la reunión. Si hay separación, consulta cuántas actas hacen falta.","Firma el tutor o tutora; después firma la familia desde iPASEN."],
+     despues:["Vía ordinaria: empiezan los tres meses de medidas generales.","Vía 3.5: se salta directamente a la solicitud de evaluación psicopedagógica."],
+     aviso:"Si hay dos reuniones (una con cada progenitor), pulsa Terminar y firmar actas solo cuando estén las dos completas."},
+    {id:5, grupo:"Segundo bloque: tras 3 meses de medidas generales", nombre:"Reunión del equipo docente (II)", quien:"Solo el tutor o tutora del grupo", je:false,
+     hace:["Se valora si las medidas generales acordadas han dado resultado.","Se decide continuar hacia la solicitud de evaluación o cerrar."],
+     despues:["Si se cierra, el estado pasa a Cerrado."],
+     aviso:"Solo se abre cuando han pasado tres meses desde que se pusieron en marcha las medidas."},
+    {id:6, nombre:"Toma de conocimiento de Jefatura (II)", quien:"Jefatura de Estudios", je:true,
+     hace:["Jefatura se da por enterada de si se continúa o se cierra."], despues:[]},
+    {id:7, nombre:"Reunión con la familia (II)", quien:"Tutor o tutora", je:false,
+     hace:["Igual que la reunión con la familia (I): mismas reglas de actas y firma por iPASEN."], despues:[]},
+    {id:8, grupo:"Tercer bloque: solicitud y valoración", nombre:"Solicitud de evaluación psicopedagógica", quien:"Tutor o tutora", je:false,
+     hace:["Rellena la solicitud para que el orientador u orientadora valore al alumno o alumna.","Fírmala."],
+     despues:["El estado pasa a Evaluación solicitada."],
+     aviso:"Desde aquí ya no se puede rectificar ninguna fase."},
+    {id:9, nombre:"Toma de conocimiento de Jefatura (III)", quien:"Jefatura de Estudios", je:true,
+     hace:["Jefatura se da por enterada de la solicitud."], despues:[]},
+    {id:10, nombre:"Valoración de la solicitud de evaluación", quien:"Perfil de Orientación", je:false,
+     hace:["Acepta la solicitud marcando la casilla o la rechaza."],
+     despues:["Si acepta: estado Solicitud aceptada. Se genera el documento que hay que cumplimentar y se avisa a Jefatura y al tutor o tutora de que ha terminado el procedimiento de detección. Empieza la evaluación psicopedagógica.","Si rechaza: estado No procede evaluación. Se avisa al tutor o tutora y se propone atención educativa ordinaria."]},
+    {id:11, nombre:"Toma de conocimiento de Jefatura (IV)", quien:"Jefatura de Estudios", je:true,
+     hace:["Jefatura se da por enterada del resultado de la valoración."], despues:[]}
+  ];
+
+  function el(tag, attrs, html){
+    var n = document.createElement(tag);
+    if (attrs) for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (html != null) n.innerHTML = html;
+    return n;
+  }
+  function lista(items){ return "<ul>" + items.map(function(t){return "<li>"+t+"</li>";}).join("") + "</ul>"; }
+
+  // ---------- Recorrido ----------
+  var steps = document.getElementById("steps");
+  FASES.forEach(function(f, i){
+    if (f.grupo) steps.appendChild(el("li", {"class":"phase-group"}, f.grupo));
+    var li = el("li", {"class":"step" + (f.je ? " je" : ""), "aria-expanded": i === 0 ? "true" : "false"});
+    var btn = el("button", {type:"button", "aria-controls":"det-"+f.id},
+      '<span class="num">'+String(f.id).padStart(2,"0")+'</span>' +
+      '<span style="display:grid"><strong>'+f.nombre+'</strong><span class="who">'+f.quien+'</span></span>' +
+      '<span class="tag">'+(f.je ? "Jefatura" : f.quien.indexOf("Orientación") > -1 ? "Orientación" : f.id === 1 ? "Cualquier docente" : "Tutoría")+'</span>');
+    var det = el("div", {"class":"detail", id:"det-"+f.id});
+    var html = '<div><h4>Qué se hace</h4>'+lista(f.hace)+'</div>';
+    if (f.despues.length) html += '<div><h4>Qué pasa al firmar</h4>'+lista(f.despues)+'</div>';
+    if (f.aviso) html += '<p class="warn">'+f.aviso+'</p>';
+    det.innerHTML = html;
+    det.hidden = i !== 0;
+    btn.addEventListener("click", function(){
+      var open = li.getAttribute("aria-expanded") === "true";
+      li.setAttribute("aria-expanded", open ? "false" : "true");
+      det.hidden = open;
+    });
+    li.appendChild(btn); li.appendChild(det);
+    steps.appendChild(li);
+  });
+
+  // ---------- Rutas ----------
+  // Devuelve {fases:[ids que se hacen], estado, texto}
+  function ruta(q1, q2, q3){
+    if (q1 === "cierre") return {fases:[1,2], estado:"cerrado",
+      texto:"El equipo docente marca 3.1 en la primera reunión. El procedimiento se cierra y el resto de fases quedan como no necesarias."};
+    var base = q1 === "extra" ? [1,2,3,4] : [1,2,3,4,5,6];
+    if (q1 === "ordinaria" && q2 === "cierra") return {fases:base, estado:"cerrado",
+      texto:"Tras tres meses de medidas generales, el equipo docente considera que han funcionado y cierra el procedimiento. Jefatura toma conocimiento del cierre."};
+    var fases = q1 === "extra" ? base.concat([8,9,10,11]) : base.concat([7,8,9,10,11]);
+    var intro = q1 === "extra"
+      ? "Vía extraordinaria (3.5): no se esperan los tres meses. Tras la reunión con la familia (I) se pasa a la solicitud de evaluación."
+      : "Vía ordinaria completa: tres meses de medidas generales, segunda reunión con equipo docente y familia, y solicitud de evaluación.";
+    return q3 === "acepta"
+      ? {fases:fases, estado:"aceptada", texto:intro+" Orientación acepta y empieza la evaluación psicopedagógica."}
+      : {fases:fases, estado:"noprocede", texto:intro+" Orientación rechaza la solicitud y propone atención educativa ordinaria."};
+  }
+  var ESTADOS = {cerrado:"Cerrado", aceptada:"Solicitud aceptada", noprocede:"No procede evaluación"};
+
+  function val(name){ var c = document.querySelector('input[name="'+name+'"]:checked'); return c ? c.value : null; }
+
+  function pintarSim(){
+    var q1 = val("q1"), q2 = val("q2"), q3 = val("q3");
+    document.getElementById("q2").disabled = q1 !== "ordinaria";
+    document.getElementById("q3").disabled = q1 === "cierre" || (q1 === "ordinaria" && q2 === "cierra");
+    var r = ruta(q1, q2, q3);
+    document.getElementById("sim-state").innerHTML = '<span class="chip st-'+r.estado+'">'+ESTADOS[r.estado]+'</span>';
+    document.getElementById("sim-text").textContent = r.texto;
+    var tb = document.getElementById("sim-table"); tb.innerHTML = "";
+    FASES.forEach(function(f){
+      var si = r.fases.indexOf(f.id) > -1;
+      var tr = el("tr", si ? null : {"class":"skip"},
+        '<td>'+String(f.id).padStart(2,"0")+' · '+f.nombre+'</td><td class="val '+(si?"si":"dash")+'">'+(si?"SI":"--")+'</td>');
+      tb.appendChild(tr);
+    });
+  }
+  document.querySelectorAll("#simulador input").forEach(function(i){ i.addEventListener("change", pintarSim); });
+  pintarSim();
+
+  // ---------- Familia ----------
+  function pintarFam(){
+    var sep = val("f1") === "si", modo = val("f2");
+    document.getElementById("f2box").disabled = !sep;
+    var a = document.getElementById("fam-answer");
+    if (!sep) a.innerHTML = '<strong>Una sola acta</strong><span>Sin situación de separación basta con un acta.</span>';
+    else if (modo === "juntos") a.innerHTML = '<strong>Una sola acta</strong><span>Si los dos progenitores asisten a la misma reunión, se hace un acta única.</span>';
+    else a.innerHTML = '<strong>Dos actas independientes</strong><span>Cada progenitor firma la suya. Pulsa Terminar y firmar actas solo cuando las dos reuniones estén completas: Séneca genera entonces las dos actas.</span>';
+  }
+  document.querySelectorAll("#familia input").forEach(function(i){ i.addEventListener("change", pintarFam); });
+  pintarFam();
+
+  // ---------- Seguimiento ----------
+  var KEY = "neae-deteccion-seguimiento";
+  function leer(){ try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch(e){ return null; } }
+  function guardar(s){ try { localStorage.setItem(KEY, JSON.stringify(s)); } catch(e){} }
+  var hoy = new Date();
+  var ejemplo = {ref:"Caso A", fecha:new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()-20).toISOString().slice(0,10), via:"ordinaria", hechas:[1,2,3]};
+  var estado = leer() || ejemplo;
+
+  var $ref = document.getElementById("c-ref"), $date = document.getElementById("c-date"), $via = document.getElementById("c-via");
+
+  function masTresMeses(iso){
+    var p = iso.split("-").map(Number);
+    var d = new Date(p[0], p[1]-1+3, p[2]);
+    if (d.getDate() !== p[2]) d.setDate(0); // p. ej. 30 de noviembre -> 28/29 de febrero
+    return d;
+  }
+  function fmt(d){ return d.toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"}); }
+
+  function pintarCaso(){
+    $ref.value = estado.ref || ""; $date.value = estado.fecha || ""; $via.value = estado.via;
+    var activas = ruta(estado.via, "sigue", "acepta").fases;
+    var ul = document.getElementById("c-checks"); ul.innerHTML = "";
+    FASES.forEach(function(f){
+      var on = activas.indexOf(f.id) > -1;
+      var id = "chk-"+f.id;
+      var li = el("li", on ? null : {"class":"off"});
+      var cb = el("input", {type:"checkbox", id:id});
+      cb.checked = on && estado.hechas.indexOf(f.id) > -1;
+      cb.disabled = !on;
+      cb.addEventListener("change", function(){
+        estado.hechas = estado.hechas.filter(function(x){return x !== f.id;});
+        if (cb.checked) estado.hechas.push(f.id);
+        guardar(estado); resumen();
+      });
+      li.appendChild(cb);
+      li.appendChild(el("label", {"for":id}, String(f.id).padStart(2,"0")+" · "+f.nombre));
+      li.appendChild(el("span", {"class":"mono"}, on ? (cb.checked ? "SI" : "NO") : "--"));
+      ul.appendChild(li);
+    });
+    resumen();
+  }
+  function resumen(){
+    var activas = ruta(estado.via, "sigue", "acepta").fases;
+    var hechas = estado.hechas.filter(function(x){ return activas.indexOf(x) > -1; }).length;
+    document.getElementById("c-bar").style.width = Math.round(hechas/activas.length*100) + "%";
+    document.querySelectorAll("#c-checks li").forEach(function(li, i){
+      var span = li.querySelector(".mono"), cb = li.querySelector("input");
+      if (!cb.disabled) span.textContent = cb.checked ? "SI" : "NO";
+    });
+    var w = document.getElementById("c-when");
+    if (estado.via === "extra") w.textContent = "Vía extraordinaria: no hay espera de tres meses. Tras la reunión con la familia (I), pasa a la solicitud de evaluación.";
+    else if (!estado.fecha) w.textContent = "Indica la fecha de la reunión del equipo docente (I) para calcular cuándo puede celebrarse la segunda.";
+    else {
+      var d = masTresMeses(estado.fecha);
+      var dias = Math.ceil((d - new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())) / 86400000);
+      w.innerHTML = "Reunión del equipo docente (II): no antes del <span class=\"date-out\">"+fmt(d)+"</span> " +
+        (dias > 0 ? "(faltan "+dias+" días)." : "(el plazo ya se ha cumplido).") +
+        " " + hechas + " de " + activas.length + " fases marcadas.";
+    }
+  }
+  $ref.addEventListener("input", function(){ estado.ref = $ref.value; guardar(estado); });
+  $date.addEventListener("change", function(){ estado.fecha = $date.value; guardar(estado); resumen(); });
+  $via.addEventListener("change", function(){ estado.via = $via.value; guardar(estado); pintarCaso(); });
+
+  var reset = document.getElementById("c-reset"), confirmTxt = document.getElementById("c-confirm"), pendiente = false;
+  reset.addEventListener("click", function(){
+    if (!pendiente){ pendiente = true; reset.textContent = "Pulsa otra vez para vaciar"; confirmTxt.textContent = "Se borrarán la referencia, la fecha y las marcas."; return; }
+    pendiente = false; reset.textContent = "Vaciar seguimiento"; confirmTxt.textContent = "Seguimiento vacío.";
+    estado = {ref:"", fecha:"", via:"ordinaria", hechas:[]}; guardar(estado); pintarCaso();
+  });
+  pintarCaso();
+})();
+</script>
+</body>
+</html>
