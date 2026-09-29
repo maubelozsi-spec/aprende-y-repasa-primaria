@@ -368,6 +368,56 @@ function buildSidebar(base, current) {
 // Páginas del panel docente (window.CURRENT_PAGE de docente/*.html).
 const PAGINAS_DEL_PANEL = ["docente-dashboard", "docente-actividad"];
 
+// ---------------- Acceso solo con clave o cuenta de docente ----------------
+//
+// Sin sesión de alumno, de docente o la vista del alumnado del panel,
+// solo se pueden ver las listas (el inicio, los índices de cada área y
+// el menú lateral) y las pantallas de acceso. Cualquier contenido, Mi
+// progreso y el repaso enseñan en su lugar cómo entrar. Las apps que
+// no usan este archivo hacen lo mismo con js/acceso.js.
+const PAGINAS_LIBRES = [
+  "", "lengua", "matematicas", "acs-index", "juegos", "pensamiento-computacional",
+  "alumno-login", "docente-login", "docente-dashboard", "docente-actividad",
+];
+
+function hayAcceso() {
+  const alumno = getStudentSessionCache();
+  const docente = getTeacherSessionCache();
+  return !!(alumno && alumno.code) || !!(docente && docente.uid) || !!getPreviewSessionCache();
+}
+
+function paginaBloqueada(current) {
+  return !hayAcceso() && PAGINAS_LIBRES.indexOf(current) === -1;
+}
+
+// Sustituye el contenido de la página por el aviso de acceso. Se hace
+// en cuanto se carga este archivo (va al final del <body>, con la página
+// ya leída) para que el contenido no llegue a verse ni a usarse.
+function pintarBloqueoDeAcceso(base) {
+  const main = document.querySelector("main.content");
+  if (!main) return;
+  const partes = location.pathname.split("/").filter(Boolean);
+  const volver = partes.slice(-2).join("/");
+  const tras = /^[a-z0-9-]+\/[a-z0-9-]+\.html$/.test(volver) ? "?volver=" + encodeURIComponent(volver) : "";
+  main.innerHTML = `
+    <header class="content-header">
+      <p class="eyebrow">Acceso</p>
+      <h1>🔒 Entra para ver este contenido</h1>
+      <p class="content-subtitle">Los contenidos de Aprende y Repasa solo se abren con tu clave de alumno o alumna, o con la cuenta de docente. Mientras tanto puedes ver las listas de contenidos en el menú.</p>
+    </header>
+    <div class="actions-row">
+      <a class="btn btn-primary" href="${base}alumno-login.html${tras}">Entrar con mi clave</a>
+      <a class="btn btn-secondary" href="${base}docente/login.html">Soy docente</a>
+      <a class="btn btn-secondary" href="${base}index.html">Volver al inicio</a>
+    </div>`;
+}
+
+(function bloquearSiNoHayAcceso() {
+  const current = typeof window.CURRENT_PAGE === "string" ? window.CURRENT_PAGE : "";
+  const base = typeof window.BASE_PATH === "string" ? window.BASE_PATH : "";
+  if (paginaBloqueada(current)) pintarBloqueoDeAcceso(base);
+})();
+
 // Aviso permanente de que se está mirando la app como el alumnado.
 // Va pegado arriba del contenido y no en la barra lateral porque en
 // móvil la barra está cerrada casi siempre: el riesgo real de esta
