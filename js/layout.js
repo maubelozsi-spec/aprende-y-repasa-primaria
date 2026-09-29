@@ -376,7 +376,7 @@ const PAGINAS_DEL_PANEL = ["docente-dashboard", "docente-actividad"];
 // progreso y el repaso enseñan en su lugar cómo entrar. Las apps que
 // no usan este archivo hacen lo mismo con js/acceso.js.
 const PAGINAS_LIBRES = [
-  "", "lengua", "matematicas", "acs-index", "juegos", "pensamiento-computacional",
+  "", "lengua", "matematicas", "acs-index", "juegos", "pensamiento-computacional", "educacion-financiera",
   "alumno-login", "docente-login", "docente-dashboard", "docente-actividad",
 ];
 
