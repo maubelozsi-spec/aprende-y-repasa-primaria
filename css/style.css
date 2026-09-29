@@ -3217,6 +3217,13 @@ main.content.content-ancha {
 .aviso-motivo { margin: 0; font-weight: 700; color: var(--color-error); }
 .aviso-item.atendido .aviso-motivo { color: inherit; }
 .aviso-mensaje { margin: 0; padding: 8px 12px; border-left: 3px solid var(--color-error); background: var(--color-error-tint); white-space: pre-wrap; }
+.aviso-item.atendido .aviso-mensaje { border-left-color: #d6d9e4; background: #f6f7fb; }
+.avisos-registro { margin-top: 16px; border-top: 1px solid #d6d9e4; padding-top: 12px; }
+.avisos-registro > summary { cursor: pointer; font-weight: 700; }
+.avisos-registro-barra { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.aviso-check { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
+.aviso-check input, .aviso-item-check { width: 18px; height: 18px; cursor: pointer; }
+.avisos-card.avisos-hay .aviso-item.atendido { background: #fff; }
 
 /* Panel docente · progreso en Chispa y la Fábrica de Robots */
 .progreso-chispa {
