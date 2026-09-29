@@ -306,6 +306,10 @@ const store = {
 const leerLS = k => { try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
 const ALUMNO = (s => s && s.code ? s : null)(leerLS('ar_estudiante'));
 const PROGRESS_KEY = ALUMNO ? 'progress_'+ALUMNO.code : 'progress';
+// Docente con la sesión del Panel docente abierta en este navegador (y
+// no mirando la app como el alumnado). Solo entonces existen los
+// botones de la guía del maestro; para el alumnado no aparecen.
+const DOCENTE = (d => d && d.uid && !leerLS('ar_vista_alumno') ? d : null)(leerLS('ar_docente'));
 
 /* ================= estado ================= */
 const S = {
@@ -513,12 +517,13 @@ function isUnlocked(c, idx){ if(S.settings.unlockAll) return true; if(idx===0) r
 
 /* ================= progreso en la nube (solo alumnado con clave) ================= */
 // Firebase solo se descarga si hay un alumno con clave en este
-// dispositivo. nube() devuelve una promesa con window.ChispaNube, o
-// null si no hay clave o no carga en 10 segundos.
+// dispositivo (o para comprobar que quien abre la guía es docente).
+// cargarFirebase() devuelve una promesa con window.ChispaNube, o null
+// si no carga en 10 segundos; nube() además exige que haya alumno.
 let promesaNube = null;
-function nube(){
+function nube(){ return ALUMNO ? cargarFirebase() : Promise.resolve(null); }
+function cargarFirebase(){
   if(promesaNube) return promesaNube;
-  if(!ALUMNO) return (promesaNube = Promise.resolve(null));
   promesaNube = new Promise(resolve=>{
     if(window.ChispaNube) return resolve(window.ChispaNube);
     let hecho=false; const fin=v=>{ if(!hecho){ hecho=true; resolve(v); } };
@@ -601,7 +606,8 @@ function topbar(title, sub, back, extra=[]){
   );
 }
 function teacherButton(label){
-  // Mantener pulsado 1,5 s para abrir (evita que el alumnado entre por accidente)
+  if(!DOCENTE) return null;
+  // Mantener pulsado 1,5 s para abrir (evita abrirla sin querer en la pizarra)
   const bar = h('i');
   const b = label
     ? h('button',{class:'btn hold',title:'Mantén pulsado para abrir'}, label, bar)
@@ -1471,7 +1477,26 @@ function showManual(tab){
 }
 
 /* ================= panel y guía del maestro ================= */
-function showTeacher(){
+// La guía tiene los códigos de todos los retos y el botón de
+// desbloquearlos: solo la abre un docente con la sesión del Panel
+// docente abierta en este navegador. Además de mirar ar_docente (que
+// cualquiera podría escribir a mano) se comprueba con Firebase que la
+// sesión es de verdad la de esa cuenta de docente. Para el alumnado no
+// hay botón ni pantalla de acceso: sencillamente no se abre.
+let comprobandoDocente = false;
+async function showTeacher(){
+  if(!DOCENTE || comprobandoDocente) return;
+  comprobandoDocente = true;
+  let ok = false;
+  try{
+    const f = await cargarFirebase();
+    ok = !!f && await f.esDocente(DOCENTE.uid);
+  }catch(e){}
+  finally{ comprobandoDocente = false; }
+  if(ok) mostrarGuia();
+  else toast('La guía del maestro se abre desde el Panel docente, con tu sesión iniciada.');
+}
+function mostrarGuia(){
   screen(null);
   const sw = (key, label, desc, after)=>{
     const b = h('button',{class:'switch'+(S.settings[key]?' on':''),'aria-label':label,onclick:()=>{ S.settings[key]=!S.settings[key]; saveSettings(); b.classList.toggle('on'); after&&after(); }});
@@ -1545,6 +1570,11 @@ function startTimer(min){
 if('speechSynthesis' in window){ try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }catch(e){} }
 showHome();
 sincronizarDesdeNube();
+// Enlace «Guía del maestro de Chispa» del Panel docente.
+if(location.hash==='#guia'){
+  try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+  showTeacher();
+}
 </script>
 </body>
 </html>

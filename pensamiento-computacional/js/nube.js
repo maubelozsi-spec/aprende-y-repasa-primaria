@@ -3,8 +3,9 @@
 //
 // Se carga desde chispa-fabrica-robots.html ÚNICAMENTE si en este
 // dispositivo hay un alumno que ha entrado con su clave de Aprende y
-// Repasa. Quien juega sin clave no descarga nada de Firebase y su
-// progreso se queda en el navegador, como antes.
+// Repasa, o si alguien intenta abrir la guía del maestro (para
+// comprobar que es docente). Quien juega sin clave no descarga nada de
+// Firebase y su progreso se queda en el navegador, como antes.
 //
 // Guarda un único documento por alumno en
 // students/{clave}/gamification/chispa, con las estrellas de cada reto
@@ -78,5 +79,16 @@ async function guardar(progress, resumen) {
   }).catch(() => {});
 }
 
-window.ChispaNube = { cargar: cargar, guardar: guardar };
+// Guía del maestro: solo se abre con una sesión real de docente
+// (correo y contraseña) en este navegador y que sea la misma cuenta que
+// consta en ar_docente. No basta con ar_docente en localStorage, que
+// cualquiera podría escribir a mano. La sesión de Firebase se guarda en
+// el navegador, así que la comprobación también funciona sin conexión.
+async function esDocente(uid) {
+  if (auth.authStateReady) await auth.authStateReady();
+  const u = auth.currentUser;
+  return !!u && !u.isAnonymous && u.uid === uid;
+}
+
+window.ChispaNube = { cargar: cargar, guardar: guardar, esDocente: esDocente };
 document.dispatchEvent(new CustomEvent("chispa:nube-lista"));
