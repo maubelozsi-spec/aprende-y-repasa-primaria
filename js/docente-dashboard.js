@@ -119,7 +119,7 @@ function ciclosChispaJugados(resumen) {
 function textoChispaCorto(resumen) {
   const jugados = ciclosChispaJugados(resumen);
   if (!jugados.length) return "—";
-  return jugados.map((r) => r.ciclo + ": " + r.retos + "/" + r.total).join(" · ");
+  return jugados.map((r) => r.ciclo + ": " + r.retos + "/" + r.total + (r.zona ? " (zona " + r.zona + ")" : "")).join(" · ");
 }
 
 function pintarProgresoChispa(container, resumen) {
@@ -135,7 +135,7 @@ function pintarProgresoChispa(container, resumen) {
             return (
               '<div class="progreso-tema ' + nivel + '">' +
               '<span class="progreso-tema-nombre">' + r.ciclo + "</span>" +
-              '<span class="progreso-tema-datos">' + r.retos + " de " + r.total + " retos · ⭐ " + (r.estrellas || 0) + " estrellas</span>" +
+              '<span class="progreso-tema-datos">' + (r.zona ? "Zona " + r.zona + " · " : "") + r.retos + " de " + r.total + " retos · ⭐ " + (r.estrellas || 0) + " estrellas</span>" +
               '<span class="progreso-tema-pct">' + pct + "%</span>" +
               "</div>"
             );
