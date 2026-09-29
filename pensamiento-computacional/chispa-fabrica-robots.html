@@ -205,6 +205,8 @@ canvas.turtle{background:var(--cell);border-radius:18px;max-width:100%;touch-act
 .pixcode div{display:flex;align-items:center;gap:.3em;flex-wrap:wrap}
 .pixcode .rn{font-weight:800;color:var(--muted);width:2.3em}
 .chip{display:inline-flex;align-items:center;gap:.15em;background:var(--panel2);padding:0 .45em;border-radius:8px;font-weight:800}
+.alumno-chip{display:inline-flex;align-items:center;gap:.35em;font-weight:700;min-width:0}
+.alumno-chip .btn{padding:.2em .7em;font-size:.85em}
 .sw{display:inline-block;width:1em;height:1em;border-radius:4px;border:2px solid rgba(0,0,0,.25)}
 .colors{display:flex;gap:.5em;justify-content:center;flex-wrap:wrap}
 .colors button{width:58px;height:58px;border-radius:50%;border:4px solid transparent;box-shadow:0 4px 0 rgba(0,0,0,.25)}
@@ -297,14 +299,22 @@ const store = {
   set(k,v){ try{ localStorage.setItem('chispa_'+k, JSON.stringify(v)); }catch(e){} }
 };
 
+/* ================= alumno con clave de Aprende y Repasa ================= */
+// Con clave, el progreso se guarda aparte para cada alumno (en un
+// ordenador compartido no se mezcla) y además en la nube, para seguir
+// en cualquier equipo y que el docente lo vea en su panel.
+const leerLS = k => { try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
+const ALUMNO = (s => s && s.code ? s : null)(leerLS('ar_estudiante'));
+const PROGRESS_KEY = ALUMNO ? 'progress_'+ALUMNO.code : 'progress';
+
 /* ================= estado ================= */
 const S = {
   settings: Object.assign({voice:true, sound:true, speed:1, theme:'dark', size:'auto', seenTut:{}}, store.get('settings',{})),
-  progress: store.get('progress', {1:{},2:{},3:{}}),
+  progress: Object.assign({1:{},2:{},3:{}}, store.get(PROGRESS_KEY, {})),
   timer: null
 };
 function saveSettings(){ store.set('settings', S.settings); }
-function saveProgress(){ store.set('progress', S.progress); }
+function saveProgress(){ store.set(PROGRESS_KEY, S.progress); guardarEnNube(); }
 function applyTheme(){ document.documentElement.dataset.theme = S.settings.theme; }
 applyTheme();
 
@@ -501,10 +511,77 @@ const allLevels = c => [...CICLOS[c].levels, CICLOS[c].boss];
 function doneCount(c){ return allLevels(c).filter(l=>S.progress[c][l.id]).length; }
 function isUnlocked(c, idx){ if(S.settings.unlockAll) return true; if(idx===0) return true; const all=allLevels(c); return !!S.progress[c][all[idx-1].id]; }
 
+/* ================= progreso en la nube (solo alumnado con clave) ================= */
+// Firebase solo se descarga si hay un alumno con clave en este
+// dispositivo. nube() devuelve una promesa con window.ChispaNube, o
+// null si no hay clave o no carga en 10 segundos.
+let promesaNube = null;
+function nube(){
+  if(promesaNube) return promesaNube;
+  if(!ALUMNO) return (promesaNube = Promise.resolve(null));
+  promesaNube = new Promise(resolve=>{
+    if(window.ChispaNube) return resolve(window.ChispaNube);
+    let hecho=false; const fin=v=>{ if(!hecho){ hecho=true; resolve(v); } };
+    document.addEventListener('chispa:nube-lista', ()=>fin(window.ChispaNube), {once:true});
+    setTimeout(()=>fin(window.ChispaNube||null), 10000);
+    const config=document.createElement('script');
+    config.src='../js/firebase-config.js';
+    config.onload=()=>{ const m=document.createElement('script'); m.type='module'; m.src='js/nube.js'; m.onerror=()=>fin(null); document.head.appendChild(m); };
+    config.onerror=()=>fin(null);
+    document.head.appendChild(config);
+  });
+  return promesaNube;
+}
+// Resumen por ciclo para el panel docente, que así no necesita
+// conocer la lista de retos.
+function resumenProgreso(){
+  const r={};
+  for(const c of [1,2,3]){
+    const all=allLevels(c);
+    r[c]={retos:all.filter(l=>S.progress[c][l.id]).length, total:all.length, estrellas:Object.values(S.progress[c]).reduce((a,b)=>a+b,0)};
+  }
+  return r;
+}
+function guardarEnNube(){ if(ALUMNO) nube().then(n=>{ if(n) return n.guardar(S.progress, resumenProgreso()); }).catch(()=>{}); }
+// Al abrir: se juntan el progreso de este equipo y el de la nube
+// quedándose con las mejores estrellas de cada reto, así no se pierde
+// nada de lo jugado en otro ordenador ni lo jugado aquí sin conexión.
+async function sincronizarDesdeNube(){
+  const n = await nube(); if(!n) return;
+  let remoto; try{ remoto = await n.cargar(); }catch(e){ return; }
+  let cambia=false, subir=!remoto;
+  for(const c of [1,2,3]){
+    const r=(remoto&&remoto[c])||{};
+    for(const [id,st] of Object.entries(r)) if((S.progress[c][id]||0)<st){ S.progress[c][id]=st; cambia=true; }
+    for(const [id,st] of Object.entries(S.progress[c])) if((r[id]||0)<st) subir=true;
+  }
+  store.set(PROGRESS_KEY, S.progress);
+  if(subir) guardarEnNube();
+  if(cambia && vistaActual) vistaActual();
+}
+function salirAlumno(){
+  if(!confirm('¿Salir de tu clave en este ordenador? Para volver a entrar necesitarás tu clave.')) return;
+  // Borra lo mismo que clearStudentSession() en js/auth.js.
+  try{ ['ar_estudiante','ar_visibilidad','ar_soluciones'].forEach(k=>localStorage.removeItem(k)); }catch(e){}
+  location.reload();
+}
+function chipAlumno(){
+  if(ALUMNO) return h('span',{class:'alumno-chip',title:'Tu progreso se guarda con tu clave: puedes seguir en cualquier ordenador'},
+    '👤 ', ALUMNO.nickname||ALUMNO.code, h('button',{class:'btn ghost',onclick:salirAlumno},'Salir'));
+  // El docente (o quien mira la app como el alumnado) no juega con clave.
+  if(leerLS('ar_docente') || leerLS('ar_vista_alumno')) return null;
+  return h('a',{class:'btn ghost',href:'../alumno-login.html?volver='+encodeURIComponent('pensamiento-computacional/chispa-fabrica-robots.html'),
+    style:'text-decoration:none;color:inherit',title:'Entra con la clave de Aprende y Repasa para guardar tu progreso'},'🔑 Entrar con mi clave');
+}
+
 /* ================= navegación ================= */
 const app = $('#app');
 let cleanup = [];
+// Pantalla que hay que repintar si llega progreso nuevo de la nube
+// (solo la portada y el mapa: a mitad de un reto no se interrumpe).
+let vistaActual = null;
 function screen(ciclo){
+  vistaActual = null;
   cleanup.forEach(f=>f()); cleanup=[];
   try{ speechSynthesis.cancel(); }catch(e){}
   app.innerHTML='';
@@ -545,7 +622,7 @@ function toast(msg, ok=false, ms=3200){
 
 /* ================= pantalla inicio ================= */
 function showHome(){
-  screen(null);
+  screen(null); vistaActual = showHome;
   const cards = [1,2,3].map(c=>{
     const C=CICLOS[c], d=doneCount(c), tot=allLevels(c).length;
     return h('div',{class:'card ciclo-card',style:`--cc:${C.color}`,tabindex:0,role:'button',onclick:()=>showMap(c),onkeydown:e=>{if(e.key==='Enter')showMap(c);}},
@@ -558,7 +635,7 @@ function showHome(){
     );
   });
   app.append(
-    h('div',{class:'topbar'}, h('a',{class:'btn ghost',href:'../index.html',style:'text-decoration:none;color:inherit',title:'Volver a Aprende y Repasa'},'⬅ Aprende y Repasa'), h('h1',{},''), h('button',{class:'btn icon-btn',onclick:()=>showManual(),title:'Manual'},'📖'), teacherButton()),
+    h('div',{class:'topbar'}, h('a',{class:'btn ghost',href:'../index.html',style:'text-decoration:none;color:inherit',title:'Volver a Aprende y Repasa'},'⬅ Aprende y Repasa'), chipAlumno(), h('h1',{},''), h('button',{class:'btn icon-btn',onclick:()=>showManual(),title:'Manual'},'📖'), teacherButton()),
     h('div',{class:'home'},
       h('div',{class:'logo'},
         h('h1',{html:'<span>Chispa</span> y la <b>Fábrica</b> de <i>Robots</i>'}),
@@ -575,7 +652,7 @@ function showHome(){
 /* ================= mapa del ciclo ================= */
 const NODE_POS = [[12,78],[30,55],[18,28],[45,18],[62,42],[84,30]];
 function showMap(c){
-  screen(c);
+  screen(c); vistaActual = () => showMap(c);
   const C = CICLOS[c], all = allLevels(c);
   const map = h('div',{class:'card map'});
   const pts = NODE_POS.map(p=>p.join(',')).join(' ');
@@ -1450,7 +1527,7 @@ function showTeacher(){
         h('h3',{},'Atención a la diversidad'),
         h('p',{},'Activa la voz y la velocidad lenta, desbloquea retos concretos o deja al alumnado repetir un reto ya superado. En pizarra, el alumnado con más dificultades puede ser el copiloto antes que el programador. La solución guiada aparece después de 4 intentos fallidos (nunca en el Guardián) y limita el reto a 1 estrella.')),
       h('div',{class:'card man-sec'}, h('h2',{},'ℹ️ Datos técnicos'),
-        h('p',{},'Es un único archivo HTML: funciona con doble clic y sin conexión (con internet usa una tipografía más redondeada). El progreso se guarda en el navegador del equipo; los códigos permiten recuperarlo en otro ordenador. No recoge datos del alumnado ni necesita cuentas.'))
+        h('p',{},'Funciona sin conexión (con internet usa una tipografía más redondeada). Sin clave, el progreso se guarda en el navegador del equipo y los códigos permiten recuperarlo en otro ordenador. Si el alumno entra con su clave de Aprende y Repasa («🔑 Entrar con mi clave» en la portada), su progreso se guarda aparte del de sus compañeros y en la nube: lo recupera en cualquier ordenador y lo veis en el panel docente.'))
     )
   );
 }
@@ -1467,6 +1544,7 @@ function startTimer(min){
 
 if('speechSynthesis' in window){ try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }catch(e){} }
 showHome();
+sincronizarDesdeNube();
 </script>
 </body>
 </html>

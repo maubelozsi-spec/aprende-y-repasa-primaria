@@ -93,6 +93,9 @@ service cloud.firestore {
                        && get(/databases/$(database)/documents/students/$(code)).data.authUid == request.auth.uid;
       }
 
+      // Aquí guarda su progreso «Chispa y la Fábrica de Robots»
+      // (documento "chispa", ver pensamiento-computacional/js/nube.js),
+      // que el docente ve en su panel.
       match /gamification/{doc} {
         allow read, write: if signedIn()
                        && get(/databases/$(database)/documents/students/$(code)).data.authUid == request.auth.uid;

@@ -3217,3 +3217,12 @@ main.content.content-ancha {
 .aviso-motivo { margin: 0; font-weight: 700; color: var(--color-error); }
 .aviso-item.atendido .aviso-motivo { color: inherit; }
 .aviso-mensaje { margin: 0; padding: 8px 12px; border-left: 3px solid var(--color-error); background: var(--color-error-tint); white-space: pre-wrap; }
+
+/* Panel docente · progreso en Chispa y la Fábrica de Robots */
+.progreso-chispa {
+  margin-top: 1rem;
+}
+.progreso-chispa-titulo {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
