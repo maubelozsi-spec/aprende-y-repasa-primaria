@@ -157,3 +157,57 @@ const ACS_PALABRAS_TRAZO = {
   1: ["casa", "gato", "mesa", "luna", "pato", "vaca", "taza", "mano", "sopa", "foca", "rosa", "pera"],
   2: ["pelota", "tomate", "conejo", "zapato", "camisa", "paloma", "patata", "tortuga", "maleta", "cometa"],
 };
+
+// Palabras de 3 sílabas directas, ya separadas, para "completa la
+// palabra" en 2º (en 1º se usa ACS_PALABRAS_SILABAS, de 2 sílabas).
+const ACS_PALABRAS_SILABAS_3 = [
+  { palabra: "pelota", silabas: ["pe", "lo", "ta"] },
+  { palabra: "tomate", silabas: ["to", "ma", "te"] },
+  { palabra: "conejo", silabas: ["co", "ne", "jo"] },
+  { palabra: "zapato", silabas: ["za", "pa", "to"] },
+  { palabra: "camisa", silabas: ["ca", "mi", "sa"] },
+  { palabra: "paloma", silabas: ["pa", "lo", "ma"] },
+  { palabra: "patata", silabas: ["pa", "ta", "ta"] },
+  { palabra: "maleta", silabas: ["ma", "le", "ta"] },
+  { palabra: "pepino", silabas: ["pe", "pi", "no"] },
+  { palabra: "muñeca", silabas: ["mu", "ñe", "ca"] },
+  { palabra: "gusano", silabas: ["gu", "sa", "no"] },
+  { palabra: "cometa", silabas: ["co", "me", "ta"] },
+];
+
+// Frases cortas para "¿sí o no?": cada palabra con contenido lleva
+// su pictograma encima ("p" es la palabra clave para ARASAAC: el
+// infinitivo en los verbos). Las palabras sin "p" (artículos,
+// preposiciones) van solo escritas. Mitad verdaderas y mitad falsas,
+// y las falsas son disparates claros, no trampas.
+const ACS_FRASES_SI_NO = [
+  { verdad: true, tokens: [{ t: "La" }, { t: "vaca", p: "vaca" }, { t: "da", p: "dar" }, { t: "leche", p: "leche" }] },
+  { verdad: false, tokens: [{ t: "El" }, { t: "gato", p: "gato" }, { t: "vuela", p: "volar" }] },
+  { verdad: true, tokens: [{ t: "El" }, { t: "pez", p: "pez" }, { t: "nada", p: "nadar" }] },
+  { verdad: false, tokens: [{ t: "La" }, { t: "mesa", p: "mesa" }, { t: "come", p: "comer" }] },
+  { verdad: true, tokens: [{ t: "El" }, { t: "sol", p: "sol" }, { t: "es" }, { t: "amarillo", p: "amarillo" }] },
+  { verdad: false, tokens: [{ t: "La" }, { t: "nieve", p: "nieve" }, { t: "es" }, { t: "negra", p: "negro" }] },
+  { verdad: true, tokens: [{ t: "El" }, { t: "perro", p: "perro" }, { t: "ladra", p: "ladrar" }] },
+  { verdad: false, tokens: [{ t: "El" }, { t: "coche", p: "coche" }, { t: "nada", p: "nadar" }] },
+  { verdad: true, tokens: [{ t: "El" }, { t: "pájaro", p: "pájaro" }, { t: "vuela", p: "volar" }] },
+  { verdad: false, tokens: [{ t: "La" }, { t: "vaca", p: "vaca" }, { t: "vuela", p: "volar" }] },
+  { verdad: true, tokens: [{ t: "Como", p: "comer" }, { t: "con" }, { t: "la" }, { t: "boca", p: "boca" }] },
+  { verdad: false, tokens: [{ t: "Veo", p: "ver" }, { t: "con" }, { t: "la" }, { t: "nariz", p: "nariz" }] },
+  { verdad: true, tokens: [{ t: "El" }, { t: "tomate", p: "tomate" }, { t: "es" }, { t: "rojo", p: "rojo" }] },
+  { verdad: false, tokens: [{ t: "El" }, { t: "pato", p: "pato" }, { t: "ladra", p: "ladrar" }] },
+  { verdad: true, tokens: [{ t: "Duermo", p: "dormir" }, { t: "en" }, { t: "la" }, { t: "cama", p: "cama" }] },
+  { verdad: false, tokens: [{ t: "La" }, { t: "luna", p: "luna" }, { t: "come", p: "comer" }] },
+];
+
+// Objetos para los problemas con dibujos, con su plural y su género
+// (para escribir "¿Cuántas...?" o "¿Cuántos...?" sin fallos).
+const ACS_OBJETOS_PROBLEMA = [
+  { clave: "manzana", plural: "manzanas", femenino: true },
+  { clave: "galleta", plural: "galletas", femenino: true },
+  { clave: "pelota", plural: "pelotas", femenino: true },
+  { clave: "flor", plural: "flores", femenino: true },
+  { clave: "globo", plural: "globos", femenino: false },
+  { clave: "caramelo", plural: "caramelos", femenino: false },
+  { clave: "lápiz", plural: "lápices", femenino: false },
+  { clave: "coche", plural: "coches", femenino: false },
+];

@@ -1200,8 +1200,10 @@ button.acs-serie-celda.error {
   color: var(--color-success);
 }
 
+/* 128mm y no más: debajo va el "¿Qué has dibujado?" y, en 1º, arriba
+   la tira de la serie, y todo tiene que caber en un folio. */
 .acs-sheet .acs-puntos-lienzo {
-  max-width: 150mm;
+  max-width: 128mm;
 }
 
 /* Trazo fácil: el contorno ya viene marcado para repasarlo. */
@@ -1372,6 +1374,353 @@ button.acs-serie-celda.error {
   background: #33363f;
   width: 13px;
   height: 13px;
+}
+
+/* ---------- Palabras en sílabas (completa la palabra, premio) ---------- */
+
+.acs-palabra-hueco {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.acs-palabra-hueco-imagen.acs-pic {
+  width: 110px;
+  height: 110px;
+}
+
+.acs-palabra-hueco-silabas,
+.acs-palabra-silabas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.acs-palabra-hueco-silaba,
+.acs-palabra-silabas-silaba {
+  min-width: 72px;
+  height: 72px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: #fff;
+  font-family: var(--acs-font);
+  font-size: 38px;
+  font-weight: 800;
+  color: #111;
+}
+
+.acs-palabra-hueco-silaba.vacia {
+  border-style: dashed;
+  border-color: var(--color-amber);
+  background: var(--color-amber-tint);
+}
+
+.acs-palabra-hueco-silaba.correcta {
+  border-color: var(--color-success);
+  background: var(--color-success-tint);
+  color: var(--color-success);
+}
+
+.acs-palabra-silabas-guion {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-soft);
+}
+
+.acs-sheet .acs-palabra-hueco {
+  margin-bottom: 0;
+}
+
+/* En papel, número + dibujo y palabra + opciones en una sola fila:
+   apiladas, solo cabían tres por folio. */
+.acs-sheet .acs-opcion-bloque-palabra {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 14px;
+}
+
+.acs-sheet .acs-opcion-bloque-palabra .acs-opcion-prompt {
+  margin: 0;
+}
+
+.acs-sheet .acs-opcion-bloque-palabra .acs-opciones {
+  margin-left: 28px;
+}
+
+.acs-sheet .acs-opcion-bloque-palabra .acs-opcion-item {
+  min-width: 64px;
+  min-height: 64px;
+  padding: 6px 10px;
+}
+
+.acs-sheet .acs-palabra-hueco-imagen.acs-pic {
+  width: 24mm;
+  height: 24mm;
+}
+
+.acs-sheet .acs-palabra-hueco-silaba {
+  min-width: 56px;
+  height: 56px;
+  font-size: 30px;
+}
+
+/* ---------- Une los puntos: premio y "¿Qué has dibujado?" ---------- */
+
+.acs-puntos-premio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 12px;
+}
+
+.acs-puntos-premio[hidden] {
+  display: none;
+}
+
+.acs-puntos-que-es {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.acs-puntos-que-es-pregunta {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.acs-puntos-que-es-opciones {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+
+.acs-puntos-que-es-opcion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.acs-sheet .acs-puntos-que-es-opcion .acs-pic {
+  width: 17mm;
+  height: 17mm;
+}
+
+/* ---------- Frases con pictogramas (¿sí o no?, problemas) ---------- */
+
+.acs-frase {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.acs-frase-palabra {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.acs-frase-palabra .acs-pic {
+  width: 72px;
+  height: 72px;
+}
+
+.acs-frase-texto {
+  font-family: var(--acs-font);
+  font-size: 26px;
+  font-weight: 700;
+  color: #111;
+}
+
+.acs-frase-numero .acs-frase-texto {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--color-teal);
+}
+
+.acs-frase-bloque,
+.acs-problema-bloque {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 22px;
+}
+
+.acs-frase-num {
+  font-size: 22px;
+  font-weight: 800;
+  align-self: flex-start;
+}
+
+.acs-problema-enunciado {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 100%;
+}
+
+.acs-problema-dibujos {
+  flex: 1 1 100%;
+}
+
+.acs-opcion-grande {
+  min-width: 110px;
+  min-height: 84px;
+}
+
+.acs-opcion-grande .acs-opcion-texto {
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.acs-opcion-si { border-color: var(--color-success); }
+.acs-opcion-no { border-color: var(--color-error); }
+
+/* En las restas, los dibujos que se van salen tachados con una X. */
+.acs-pic-tachado {
+  position: relative;
+  opacity: 0.55;
+}
+
+.acs-pic-tachado::after {
+  content: "";
+  position: absolute;
+  inset: 8%;
+  background:
+    linear-gradient(to top right, transparent calc(50% - 3px), var(--color-error) calc(50% - 3px), var(--color-error) calc(50% + 3px), transparent calc(50% + 3px)),
+    linear-gradient(to top left, transparent calc(50% - 3px), var(--color-error) calc(50% - 3px), var(--color-error) calc(50% + 3px), transparent calc(50% + 3px));
+}
+
+.acs-sheet .acs-pic-tachado {
+  opacity: 1;
+}
+
+.acs-sheet .acs-pic-tachado::after {
+  background:
+    linear-gradient(to top right, transparent calc(50% - 2px), #111 calc(50% - 2px), #111 calc(50% + 2px), transparent calc(50% + 2px)),
+    linear-gradient(to top left, transparent calc(50% - 2px), #111 calc(50% - 2px), #111 calc(50% + 2px), transparent calc(50% + 2px));
+}
+
+/* En papel el enunciado corre en línea (las tres frases seguidas) y
+   las opciones van al lado de los dibujos: apilado, cada problema
+   ocupaba media hoja. */
+.acs-sheet .acs-problema-bloque {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 6px 14px;
+}
+
+.acs-sheet .acs-problema-bloque .acs-frase-num {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.acs-sheet .acs-problema-enunciado {
+  grid-column: 2 / 4;
+  grid-row: 1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  column-gap: 26px;
+  row-gap: 4px;
+}
+
+.acs-sheet .acs-problema-dibujos {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+}
+
+.acs-sheet .acs-problema-bloque .acs-opciones {
+  grid-column: 3;
+  grid-row: 2;
+  margin: 0;
+  gap: 8px;
+}
+
+.acs-sheet .acs-problema-bloque .acs-frase-palabra .acs-pic {
+  width: 11mm;
+  height: 11mm;
+}
+
+.acs-sheet .acs-problema-bloque .acs-frase-texto {
+  font-size: 19px;
+}
+
+.acs-sheet .acs-problema-bloque .acs-opcion-grande {
+  min-width: 52px;
+  min-height: 46px;
+  padding: 4px 8px;
+}
+
+/* ¿Sí o no? en papel: frase a la izquierda, SÍ / NO a la derecha. */
+.acs-sheet .acs-frase-bloque {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: end;
+  gap: 14px;
+}
+
+.acs-sheet .acs-frase-bloque .acs-opciones {
+  margin: 0;
+  gap: 10px;
+}
+
+.acs-sheet .acs-frase-palabra .acs-pic {
+  width: 15mm;
+  height: 15mm;
+}
+
+.acs-sheet .acs-frase-texto {
+  font-size: 22px;
+}
+
+.acs-sheet .acs-frase-numero .acs-frase-texto {
+  font-size: 28px;
+  color: #111;
+}
+
+.acs-sheet .acs-opcion-grande {
+  min-width: 70px;
+  min-height: 56px;
+  padding: 6px 12px;
+}
+
+.acs-sheet .acs-opcion-grande .acs-opcion-texto {
+  font-size: 28px;
+}
+
+@media (max-width: 640px) {
+  .acs-frase-palabra .acs-pic {
+    width: 52px;
+    height: 52px;
+  }
+  .acs-frase-texto {
+    font-size: 21px;
+  }
+  .acs-palabra-hueco-silaba,
+  .acs-palabra-silabas-silaba {
+    min-width: 56px;
+    height: 56px;
+    font-size: 30px;
+  }
 }
 
 .acs-sheet .acs-puntos-tira-num {
