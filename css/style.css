@@ -25,6 +25,8 @@
   --color-sky-tint: #e0f2fe;
   --color-rose: #be185d;
   --color-rose-tint: #fce7f3;
+  --color-orange: #c2410c;
+  --color-orange-tint: #ffedd5;
 
   --color-success: #15803d;
   --color-success-tint: #e6f6ec;
@@ -986,6 +988,40 @@ table.rules-table tr:last-child td {
   gap: 2px;
   margin: 20px 0 8px;
   min-height: 72px;
+}
+
+/* Palabra de trabajo de la práctica de acentuación: se queda a la
+   vista en los pasos 2-4 (ver renderWordPanel en js/ortografia.js). */
+.word-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 18px 0 6px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #f7f8fb;
+}
+
+.word-panel-word {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+
+.word-panel-syllables {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.word-panel-tonica {
+  color: var(--color-indigo);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .letter {
@@ -3183,3 +3219,19 @@ main.content.content-ancha {
 .aviso-motivo { margin: 0; font-weight: 700; color: var(--color-error); }
 .aviso-item.atendido .aviso-motivo { color: inherit; }
 .aviso-mensaje { margin: 0; padding: 8px 12px; border-left: 3px solid var(--color-error); background: var(--color-error-tint); white-space: pre-wrap; }
+.aviso-item.atendido .aviso-mensaje { border-left-color: #d6d9e4; background: #f6f7fb; }
+.avisos-registro { margin-top: 16px; border-top: 1px solid #d6d9e4; padding-top: 12px; }
+.avisos-registro > summary { cursor: pointer; font-weight: 700; }
+.avisos-registro-barra { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.aviso-check { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
+.aviso-check input, .aviso-item-check { width: 18px; height: 18px; cursor: pointer; }
+.avisos-card.avisos-hay .aviso-item.atendido { background: #fff; }
+
+/* Panel docente · progreso en Chispa y la Fábrica de Robots */
+.progreso-chispa {
+  margin-top: 1rem;
+}
+.progreso-chispa-titulo {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}

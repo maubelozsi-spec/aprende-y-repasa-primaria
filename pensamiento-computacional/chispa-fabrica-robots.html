@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script src="../js/acceso.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chispa y la Fábrica de Robots</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a1230; --bg2:#101b47; --panel:#15235c; --panel2:#1b2c70; --line:rgba(130,170,255,.14);
+  --text:#eef3ff; --muted:#a6b5de; --c1:#22d39a; --c2:#ff9f36; --c3:#a67cff; --accent:#22d39a;
+  --danger:#ff5d73; --gold:#ffd23f; --cell:#1a2a66; --cell2:#20337a; --wall:#3a4a86; --shadow:0 10px 30px rgba(0,0,0,.35);
+  --mv:#4c8dff; --ctl:#ffab19; --sen:#2fb8d6;
+}
+:root[data-theme="light"]{
+  --bg:#eaf1ff; --bg2:#dbe6ff; --panel:#ffffff; --panel2:#f1f5ff; --line:rgba(40,70,160,.12);
+  --text:#14204a; --muted:#51608f; --cell:#e6edff; --cell2:#d6e1ff; --wall:#8a97c2; --shadow:0 8px 24px rgba(20,40,110,.15);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  font-family:"Baloo 2",ui-rounded,"Segoe UI Rounded","Arial Rounded MT Bold",system-ui,sans-serif;
+  color:var(--text); background:var(--bg);
+  background-image:
+    radial-gradient(circle at 15% 10%, color-mix(in srgb,var(--accent) 22%, transparent), transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(120,90,255,.18), transparent 45%),
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size:auto,auto,40px 40px,40px 40px;
+  overflow-x:hidden; -webkit-user-select:none; user-select:none;
+}
+button{font-family:inherit;cursor:pointer;color:inherit}
+input{font-family:inherit}
+#app{min-height:100vh;display:flex;flex-direction:column}
+.pdi{font-size:20px}
+.ind{font-size:17px}
+
+/* ---------- common ---------- */
+.btn{border:0;border-radius:18px;padding:.55em 1.1em;font-size:1em;font-weight:700;background:var(--panel2);
+  box-shadow:0 4px 0 rgba(0,0,0,.25);transition:transform .08s, filter .15s;display:inline-flex;align-items:center;gap:.4em;justify-content:center}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.btn:hover{filter:brightness(1.1)}
+.btn.primary{background:var(--accent);color:#08112e}
+.btn.gold{background:var(--gold);color:#2a1d00}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.ghost{background:transparent;box-shadow:none;border:2px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.icon-btn{width:2.6em;height:2.6em;border-radius:50%;padding:0;font-size:1.05em}
+.topbar{display:flex;align-items:center;gap:.6em;padding:.6em 1em;background:color-mix(in srgb,var(--bg) 70%,transparent);
+  backdrop-filter:blur(6px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.topbar h1{font-size:1.25em;margin:0;flex:1;line-height:1.1;min-width:0}
+.topbar h1 small{display:block;font-size:.62em;color:var(--muted);font-weight:500}
+.card{background:var(--panel);border-radius:24px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes float{50%{transform:translateY(-8px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes glow{50%{opacity:.35}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.robot-eye{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+.robot-bulb{animation:glow 1.4s infinite}
+.floaty{animation:float 3s ease-in-out infinite}
+
+/* ---------- home ---------- */
+.home{flex:1;display:flex;flex-direction:column;align-items:center;padding:2em 1em;gap:1.4em}
+.logo{text-align:center}
+.logo h1{font-size:clamp(2em,5vw,3.4em);margin:.1em 0 0;line-height:1;letter-spacing:.5px}
+.logo h1 span{color:var(--c1)} .logo h1 b{color:var(--c2)} .logo h1 i{font-style:normal;color:var(--c3)}
+.logo p{margin:.3em 0 0;color:var(--muted);font-size:1.1em}
+.ciclos{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.2em;width:min(1100px,100%)}
+.ciclo-card{padding:1.2em;text-align:center;cursor:pointer;position:relative;overflow:hidden;border:3px solid transparent;transition:transform .15s,border-color .15s}
+.ciclo-card:hover{transform:translateY(-4px);border-color:var(--cc)}
+.ciclo-card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0,color-mix(in srgb,var(--cc) 35%,transparent),transparent 65%)}
+.ciclo-card>*{position:relative}
+.ciclo-card h2{margin:.2em 0 0;font-size:1.6em;color:var(--cc)}
+.ciclo-card .zone{font-weight:700}
+.ciclo-card .tag{display:inline-block;margin-top:.5em;padding:.15em .8em;border-radius:99px;background:color-mix(in srgb,var(--cc) 20%,transparent);font-size:.85em}
+.ciclo-card .bar{height:10px;border-radius:9px;background:var(--panel2);margin-top:.8em;overflow:hidden}
+.ciclo-card .bar i{display:block;height:100%;background:var(--cc);border-radius:9px}
+.home-actions{display:flex;gap:.8em;flex-wrap:wrap;justify-content:center}
+
+/* ---------- map ---------- */
+.map-wrap{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:1em;padding:1em;max-width:1300px;width:100%;margin:0 auto}
+@media (max-width:860px){.map-wrap{grid-template-columns:1fr}}
+.map{position:relative;padding:1em;height:clamp(460px,78vh,760px);align-self:start}
+.side{align-self:start}
+.map svg.path{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.node{position:absolute;transform:translate(-50%,-50%);width:92px;height:92px;border-radius:50%;border:0;
+  background:var(--panel2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:1.5em;
+  box-shadow:0 6px 0 rgba(0,0,0,.3), 0 0 0 5px color-mix(in srgb,var(--accent) 35%,transparent)}
+.node.done{background:var(--accent);color:#08112e}
+.node.current{animation:pulse 1.6s infinite}
+@keyframes pulse{50%{box-shadow:0 6px 0 rgba(0,0,0,.3),0 0 0 14px color-mix(in srgb,var(--accent) 20%,transparent)}}
+.node.locked{opacity:.45;cursor:not-allowed}
+.node .stars{font-size:.5em;letter-spacing:-1px;line-height:1}
+.node .lbl{position:absolute;top:100%;margin-top:10px;font-size:.55em;white-space:nowrap;background:var(--panel);padding:.05em .6em;border-radius:9px;color:var(--text);font-weight:700}
+.node.boss{width:120px;height:120px;background:linear-gradient(135deg,#ff5d73,#ff9f36);color:#fff}
+.node.boss.locked{filter:grayscale(.7)}
+.side .card{padding:1em;margin-bottom:1em}
+.side h3{margin:.1em 0 .4em}
+.zones li{padding:.25em 0;display:flex;gap:.5em;align-items:center}
+.zones{list-style:none;padding:0;margin:0}
+.zones li.cur{color:var(--accent);font-weight:800}
+.zones li.lock{color:var(--muted)}
+.zones li.done{color:var(--c1)}
+.zones li button{all:unset;cursor:pointer;display:flex;gap:.5em;align-items:center;border-radius:8px}
+.zones li button:hover,.zones li button:focus-visible{text-decoration:underline}
+.code-in{display:flex;gap:.4em;margin-top:.5em}
+.code-in input{flex:1;min-width:0;border-radius:12px;border:2px solid var(--line);background:var(--panel2);color:var(--text);padding:.4em .6em;font-size:1em;text-transform:uppercase}
+
+/* ---------- level ---------- */
+.lvl{flex:1;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,1fr);gap:1em;padding:1em;max-width:1500px;width:100%;margin:0 auto}
+@media (max-width:900px){.lvl{grid-template-columns:1fr}}
+.board-card{padding:1em;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:360px;position:relative}
+.side-card{padding:1em;display:flex;flex-direction:column;gap:.8em}
+.instr{display:flex;gap:.7em;align-items:flex-start}
+.instr .bubble{background:var(--panel2);border-radius:18px;padding:.6em .9em;position:relative;flex:1;font-size:1.05em;line-height:1.3}
+.instr .bubble::before{content:"";position:absolute;left:-10px;top:18px;border:10px solid transparent;border-right-color:var(--panel2);border-left:0}
+.hint{background:color-mix(in srgb,var(--gold) 20%,transparent);border:2px dashed var(--gold);border-radius:16px;padding:.5em .8em;animation:pop .4s}
+.stars-row{font-size:1.2em;letter-spacing:2px}
+.boss-banner{background:linear-gradient(90deg,#ff5d73,#ff9f36);color:#fff;border-radius:16px;padding:.4em .8em;font-weight:800;display:flex;align-items:center;gap:.5em}
+
+/* grid board */
+.grid{position:relative;display:grid;gap:6px;padding:8px;border-radius:20px;background:color-mix(in srgb,var(--bg) 60%,transparent)}
+.cell{border-radius:12px;background:var(--cell);position:relative;display:flex;align-items:center;justify-content:center}
+.cell:nth-child(odd){background:var(--cell2)}
+.cell.wall{background:var(--wall);box-shadow:inset 0 -6px 0 rgba(0,0,0,.25)}
+.cell.goal{background:color-mix(in srgb,var(--gold) 45%,var(--cell));box-shadow:inset 0 0 0 4px var(--gold)}
+.cell .gem{font-size:.9em;animation:float 2s ease-in-out infinite}
+.cell .gem.got{opacity:0;transform:scale(2);transition:.3s}
+.bot{position:absolute;left:8px;top:8px;transition:transform .35s ease-in-out;z-index:3;pointer-events:none}
+.bot .dir{position:absolute;inset:0;transition:transform .25s}
+.bot .dir::after{content:"";position:absolute;left:50%;top:-4px;transform:translateX(-50%);border:10px solid transparent;border-bottom:16px solid var(--gold);border-top:0}
+.bot.crash{animation:shake .4s}
+.maptabs{display:flex;gap:.4em;margin-bottom:.6em}
+.maptabs span{padding:.1em .8em;border-radius:99px;background:var(--panel2);font-weight:700}
+.maptabs span.on{background:var(--accent);color:#08112e}
+.maptabs span.ok{background:var(--c1);color:#08112e}
+
+/* tap programming */
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:.5em;max-width:320px;margin:0 auto}
+.pad .btn{font-size:1.8em;padding:.25em 0;border-radius:20px}
+.pad .up{grid-column:2} .pad .left{grid-column:1;grid-row:2} .pad .down{grid-column:2;grid-row:2} .pad .right{grid-column:3;grid-row:2}
+.arrow-btn{background:var(--mv);color:#fff}
+.prog{min-height:92px;background:var(--panel2);border-radius:18px;padding:.5em;display:flex;flex-wrap:wrap;gap:.4em;align-content:flex-start;border:3px dashed var(--line)}
+.prog .empty{color:var(--muted);margin:auto;text-align:center}
+.pcard{width:58px;height:58px;border-radius:14px;background:var(--mv);color:#fff;font-size:1.9em;font-weight:800;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 0 rgba(0,0,0,.25);animation:pop .25s;position:relative;border:0}
+.pcard.run{outline:4px solid var(--gold);transform:scale(1.1)}
+.pcard.cyc::after{content:"↻";position:absolute;right:2px;bottom:-2px;font-size:.45em}
+.ploop{display:flex;align-items:center;gap:.3em;padding:.3em;border-radius:16px;background:color-mix(in srgb,var(--ctl) 30%,transparent);border:3px solid var(--ctl)}
+.ploop.open{border-style:dashed}
+.ploop.run{outline:4px solid var(--gold)}
+.ploop .times{background:var(--ctl);color:#2a1a00;border:0;border-radius:12px;font-weight:800;font-size:1.2em;padding:.1em .5em;min-width:3.2em}
+.ploop .slot{width:40px;height:50px;border:2px dashed var(--ctl);border-radius:12px}
+.ctrl-row{display:flex;gap:.5em;flex-wrap:wrap;justify-content:center}
+.ctrl-zone{display:flex;gap:1em;align-items:center;justify-content:center;flex-wrap:wrap}
+.ctrl-zone .pad{margin:0;flex:0 0 250px}
+.ctrl-col{display:flex;flex-direction:column;gap:.5em;align-items:stretch;min-width:200px}
+.ctrl-col>.btn{font-size:1.2em}
+.palette .blk{font-size:.8em}
+.palette .blk .body{min-height:10px!important;padding:0}
+.counter{font-weight:800}
+.counter.over{color:var(--danger)}
+
+/* block editor */
+.blk-area{display:grid;grid-template-columns:170px minmax(0,1fr);gap:.6em;min-height:320px}
+@media (max-width:520px){.blk-area{grid-template-columns:1fr}}
+.palette{background:var(--panel2);border-radius:16px;padding:.5em;display:flex;flex-direction:column;gap:.45em}
+.palette h4,.ws h4{margin:0;font-size:.85em;color:var(--muted)}
+.ws{background:var(--panel2);border-radius:16px;padding:.5em;min-height:300px;position:relative;overflow:auto;max-height:60vh}
+.blk{border-radius:10px;color:#fff;font-weight:700;font-size:.92em;position:relative;touch-action:none;cursor:grab}
+.blk .hd{padding:.35em .6em;display:flex;align-items:center;gap:.35em;flex-wrap:wrap}
+.blk input{width:3.4em;border:0;border-radius:8px;text-align:center;font-weight:800;font-size:1em;padding:.1em;color:#14204a;background:#fff}
+.blk.mv{background:var(--mv)} .blk.ctl{background:var(--ctl);color:#2a1a00} .blk.sen{background:var(--sen)}
+.blk .body{margin-left:14px;background:color-mix(in srgb,var(--panel2) 80%,transparent);border-radius:0 8px 8px 0;padding:2px 4px;min-height:34px}
+.blk .ft{height:12px}
+.blk .mid{padding:.15em .6em;font-size:.9em}
+.blk .x{margin-left:auto;background:rgba(0,0,0,.25);border:0;border-radius:50%;width:1.5em;height:1.5em;color:#fff;font-size:.8em;line-height:1}
+.blk.run>.hd{outline:3px solid var(--gold);border-radius:10px}
+.blk.ghost{position:fixed;z-index:100;pointer-events:none;opacity:.9;transform:rotate(3deg);box-shadow:var(--shadow);min-width:150px}
+.blk.dragging{opacity:.3}
+.slotz{height:6px;border-radius:4px;transition:height .1s}
+.slotz.act{height:30px;background:color-mix(in srgb,var(--gold) 45%,transparent);border:2px dashed var(--gold)}
+.ws .hint-empty{color:var(--muted);text-align:center;margin-top:3em;pointer-events:none}
+.palette.trash{outline:3px dashed var(--danger)}
+
+/* turtle */
+canvas.turtle{background:var(--cell);border-radius:18px;max-width:100%;touch-action:none}
+
+/* predecir */
+.pred-cell{cursor:pointer}
+.pred-cell:hover{filter:brightness(1.15)}
+.cell.pick{box-shadow:inset 0 0 0 5px var(--c2)}
+.cell.pick::after{content:"❓";position:absolute;right:3px;top:1px;font-size:.42em}
+.cell.fin{box-shadow:inset 0 0 0 5px var(--c1)}
+.pview{display:flex;flex-wrap:wrap;gap:.4em;align-items:center;background:var(--panel2);border-radius:18px;padding:.5em;border:3px solid var(--line)}
+.pview.col{flex-direction:column;align-items:stretch}
+.pview .blk{cursor:default}
+
+/* pattern / order / pixel / sorter */
+.series{display:flex;gap:.5em;flex-wrap:wrap;justify-content:center;align-items:center;margin:1em 0}
+.piece{width:78px;height:78px;border-radius:18px;background:var(--panel2);display:flex;align-items:center;justify-content:center;border:0;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.piece.q{border:4px dashed var(--gold);font-size:2.2em;color:var(--gold);background:transparent;box-shadow:none}
+.piece .num{font-weight:800;color:var(--text);line-height:1}
+.opts{display:flex;gap:1em;justify-content:center;flex-wrap:wrap}
+.opts .piece{width:96px;height:96px}
+.order-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8em;width:100%;max-width:560px}
+.ocard{padding:.8em;border-radius:20px;background:var(--panel2);border:0;font-size:1em;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:.2em;position:relative;box-shadow:0 5px 0 rgba(0,0,0,.25)}
+.ocard .em{font-size:2.8em;line-height:1}
+.ocard .num{position:absolute;top:-10px;left:-10px;width:2em;height:2em;border-radius:50%;background:var(--accent);color:#08112e;display:flex;align-items:center;justify-content:center;font-weight:800}
+.ocard.used{opacity:.55}
+.pix{display:grid;gap:3px;background:var(--wall);padding:3px;border-radius:12px}
+.pix button{border:0;border-radius:6px;background:#fff}
+.pixcode{font-size:.95em;display:grid;gap:.25em}
+.pixcode div{display:flex;align-items:center;gap:.3em;flex-wrap:wrap}
+.pixcode .rn{font-weight:800;color:var(--muted);width:2.3em}
+.chip{display:inline-flex;align-items:center;gap:.15em;background:var(--panel2);padding:0 .45em;border-radius:8px;font-weight:800}
+.alumno-chip{display:inline-flex;align-items:center;gap:.35em;font-weight:700;min-width:0}
+.alumno-chip .btn{padding:.2em .7em;font-size:.85em}
+.sw{display:inline-block;width:1em;height:1em;border-radius:4px;border:2px solid rgba(0,0,0,.25)}
+.colors{display:flex;gap:.5em;justify-content:center;flex-wrap:wrap}
+.colors button{width:58px;height:58px;border-radius:50%;border:4px solid transparent;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.colors button.sel{border-color:var(--gold);transform:scale(1.12)}
+.belt{width:100%;max-width:620px;position:relative;height:240px}
+.belt .track{position:absolute;left:0;right:0;top:70px;height:36px;border-radius:18px;background:repeating-linear-gradient(90deg,var(--wall) 0 20px,var(--cell2) 20px 40px)}
+.belt .item{position:absolute;top:44px;width:62px;height:62px;transition:left .6s ease-in-out, top .6s ease-in-out}
+.belt .box{position:absolute;bottom:0;width:44%;height:100px;border-radius:0 0 20px 20px;border:4px solid var(--muted);border-top:0;display:flex;align-items:flex-end;justify-content:center;flex-wrap:wrap;padding:.3em;font-weight:800}
+.belt .box .bl{position:absolute;top:-2.2em;left:0;right:0;text-align:center}
+.rule{background:var(--panel2);border-radius:16px;padding:.6em;display:grid;gap:.4em}
+.rule .row{display:flex;align-items:center;gap:.4em;flex-wrap:wrap}
+.rule .kw{font-weight:800;padding:.1em .6em;border-radius:10px;background:var(--ctl);color:#2a1a00}
+.sel-btn{border:3px solid var(--line);background:var(--panel);border-radius:14px;padding:.2em .6em;font-weight:700}
+.sel-btn.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 25%,var(--panel))}
+
+/* modal / overlay */
+.overlay{position:fixed;inset:0;background:rgba(5,10,30,.65);display:flex;align-items:center;justify-content:center;z-index:50;padding:1em;backdrop-filter:blur(3px)}
+.modal{max-width:620px;width:100%;padding:1.4em;text-align:center;animation:pop .35s;max-height:92vh;overflow:auto}
+.modal h2{margin:.2em 0;font-size:1.8em}
+.bigstars{font-size:3em;letter-spacing:6px}
+.bigstars .off{filter:grayscale(1);opacity:.3}
+.codebox{margin:.6em auto;display:inline-block;padding:.3em 1em;border-radius:14px;background:var(--panel2);border:3px dashed var(--accent);font-size:1.6em;font-weight:800;letter-spacing:2px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel);border:3px solid var(--danger);border-radius:18px;padding:.6em 1em;z-index:60;box-shadow:var(--shadow);display:flex;gap:.6em;align-items:center;max-width:92vw;animation:pop .3s;font-weight:700}
+.toast.ok{border-color:var(--c1)}
+canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:70}
+.tut-dots{display:flex;gap:.4em;justify-content:center;margin:.6em 0}
+.tut-dots i{width:10px;height:10px;border-radius:50%;background:var(--panel2)}
+.tut-dots i.on{background:var(--accent)}
+
+/* manual & teacher */
+.doc{max-width:1000px;margin:0 auto;padding:1em;width:100%}
+.tabs{display:flex;gap:.5em;flex-wrap:wrap;margin-bottom:1em}
+.tabs button{border:0;border-radius:14px;padding:.4em 1em;font-weight:800;background:var(--panel2)}
+.tabs button.on{background:var(--accent);color:#08112e}
+.man-sec{padding:1.2em;margin-bottom:1em}
+.man-sec h2{margin:.1em 0 .4em;color:var(--accent)}
+.man-sec h3{margin:.8em 0 .2em}
+.steps{counter-reset:s;list-style:none;padding:0;display:grid;gap:.6em}
+.steps li{counter-increment:s;display:flex;gap:.7em;align-items:flex-start;background:var(--panel2);border-radius:16px;padding:.6em .8em}
+.steps li::before{content:counter(s);flex:none;width:1.9em;height:1.9em;border-radius:50%;background:var(--accent);color:#08112e;display:flex;align-items:center;justify-content:center;font-weight:800}
+.kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.8em;height:1.8em;padding:0 .4em;border-radius:8px;background:var(--mv);color:#fff;font-weight:800;margin:0 .1em}
+.kbd.o{background:var(--ctl);color:#2a1a00}.kbd.g{background:var(--accent);color:#08112e}.kbd.s{background:var(--sen)}
+.retos{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8em}
+.reto{background:var(--panel2);border-radius:16px;padding:.8em}
+.reto b{display:block;font-size:1.05em}
+table.t{border-collapse:collapse;width:100%;font-size:.95em}
+table.t td,table.t th{border-bottom:1px solid var(--line);padding:.4em;text-align:left;vertical-align:top}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:1em;padding:.5em 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.switch{width:64px;height:34px;border-radius:99px;border:0;background:var(--panel2);position:relative}
+.switch::after{content:"";position:absolute;top:4px;left:4px;width:26px;height:26px;border-radius:50%;background:var(--muted);transition:.2s}
+.switch.on{background:var(--accent)}
+.switch.on::after{left:34px;background:#fff}
+.timer{position:fixed;right:14px;bottom:14px;z-index:40;padding:.4em .8em;font-size:1.6em;font-weight:800;display:flex;gap:.4em;align-items:center}
+.hold{position:relative;overflow:hidden}
+.hold i{position:absolute;left:0;bottom:0;height:4px;background:var(--accent);width:0}
+@media print{
+  body{background:#fff!important;color:#000;font-size:13px}
+  .topbar,.noprint,.timer{display:none!important}
+  .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+  .man-sec{display:block!important}
+  .steps li,.reto{background:#f3f5fb}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<canvas id="confetti"></canvas>
+<script>
+"use strict";
+/* ================= utilidades ================= */
+const $ = (s, r=document) => r.querySelector(s);
+const h = (tag, attrs={}, ...kids) => {
+  const e = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs||{})) {
+    if (v==null || v===false) continue;
+    if (k==='class') e.className = v;
+    else if (k==='style') e.style.cssText = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (k==='html') e.innerHTML = v;
+    else e.setAttribute(k, v===true?'':v);
+  }
+  for (const k of kids.flat()) if (k!=null && k!==false) e.append(k.nodeType?k:document.createTextNode(k));
+  return e;
+};
+{ const _ap = Element.prototype.append; Element.prototype.append = function(...a){ return _ap.apply(this, a.filter(x=>x!=null && x!==false)); }; }
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const clone = o => JSON.parse(JSON.stringify(o));
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem('chispa_'+k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem('chispa_'+k, JSON.stringify(v)); }catch(e){} }
+};
+
+/* ================= alumno con clave de Aprende y Repasa ================= */
+// Con clave, el progreso se guarda aparte para cada alumno (en un
+// ordenador compartido no se mezcla) y además en la nube, para seguir
+// en cualquier equipo y que el docente lo vea en su panel.
+const leerLS = k => { try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
+const ALUMNO = (s => s && s.code ? s : null)(leerLS('ar_estudiante'));
+const PROGRESS_KEY = ALUMNO ? 'progress_'+ALUMNO.code : 'progress';
+// Docente con la sesión del Panel docente abierta en este navegador (y
+// no mirando la app como el alumnado). Solo entonces existen los
+// botones de la guía del maestro; para el alumnado no aparecen.
+const DOCENTE = (d => d && d.uid && !leerLS('ar_vista_alumno') ? d : null)(leerLS('ar_docente'));
+
+/* ================= estado ================= */
+const S = {
+  settings: Object.assign({voice:true, sound:true, speed:1, theme:'dark', size:'auto', seenTut:{}}, store.get('settings',{})),
+  progress: Object.assign({1:{},2:{},3:{}}, store.get(PROGRESS_KEY, {})),
+  timer: null
+};
+function saveSettings(){ store.set('settings', S.settings); }
+function saveProgress(){ store.set(PROGRESS_KEY, S.progress); guardarEnNube(); }
+function applyTheme(){ document.documentElement.dataset.theme = S.settings.theme; }
+applyTheme();
+
+/* ================= sonido y voz ================= */
+let actx=null;
+function beep(type){
+  if(!S.settings.sound) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const seqs = {step:[[520,.06]], ok:[[523,.1],[659,.1],[784,.1],[1046,.25]], bad:[[300,.12],[200,.25]], tap:[[700,.04]], boss:[[392,.15],[523,.15],[659,.15],[784,.15],[1046,.4]]};
+    let t = actx.currentTime;
+    for(const [f,d] of seqs[type]||seqs.tap){
+      const o=actx.createOscillator(), g=actx.createGain();
+      o.type = type==='bad'?'sawtooth':'square'; o.frequency.value=f;
+      g.gain.setValueAtTime(.08,t); g.gain.exponentialRampToValueAtTime(.001,t+d);
+      o.connect(g).connect(actx.destination); o.start(t); o.stop(t+d); t+=d*.9;
+    }
+  }catch(e){}
+}
+function speak(txt){
+  if(!S.settings.voice || !('speechSynthesis' in window)) return;
+  try{
+    speechSynthesis.cancel();
+    const clean = String(txt).replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}▶↑↓←→↻↺⌫✔✕]/gu,' ').replace(/\s+/g,' ');
+    const u = new SpeechSynthesisUtterance(clean);
+    u.lang='es-ES'; u.rate=.95; u.pitch=1.15;
+    const v = speechSynthesis.getVoices().find(v=>v.lang==='es-ES') || speechSynthesis.getVoices().find(v=>v.lang.startsWith('es'));
+    if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ================= robot SVG (mascota original) ================= */
+function robotSVG(color='#22d39a', size=90, mood='happy'){
+  const mouth = mood==='sad' ? '<path d="M38 70 Q50 62 62 70" stroke="#08112e" stroke-width="4" fill="none" stroke-linecap="round"/>'
+    : mood==='boss' ? '<rect x="36" y="64" width="28" height="6" rx="3" fill="#08112e"/>'
+    : '<path d="M36 64 Q50 76 64 64" stroke="#08112e" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  const brows = mood==='boss' ? '<path d="M28 40 L44 46 M72 40 L56 46" stroke="#08112e" stroke-width="4" stroke-linecap="round"/>' : '';
+  return `<svg viewBox="0 0 100 110" width="${size}" height="${size*1.1}" aria-hidden="true">
+    <line x1="50" y1="6" x2="50" y2="22" stroke="#9fb0d9" stroke-width="4"/>
+    <circle class="robot-bulb" cx="50" cy="7" r="6" fill="#ffd23f"/>
+    <rect x="6" y="38" width="10" height="22" rx="5" fill="${color}" opacity=".7"/>
+    <rect x="84" y="38" width="10" height="22" rx="5" fill="${color}" opacity=".7"/>
+    <rect x="14" y="20" width="72" height="62" rx="22" fill="${color}"/>
+    <rect x="22" y="30" width="56" height="44" rx="16" fill="#e9fbff"/>
+    ${brows}
+    <g class="robot-eye"><circle cx="38" cy="50" r="7" fill="#08112e"/><circle cx="40" cy="47" r="2.5" fill="#fff"/></g>
+    <g class="robot-eye"><circle cx="62" cy="50" r="7" fill="#08112e"/><circle cx="64" cy="47" r="2.5" fill="#fff"/></g>
+    <circle cx="28" cy="62" r="4" fill="#ff8fa3" opacity=".7"/><circle cx="72" cy="62" r="4" fill="#ff8fa3" opacity=".7"/>
+    ${mouth}
+    <rect x="30" y="84" width="40" height="14" rx="6" fill="${color}" opacity=".85"/>
+    <circle cx="36" cy="102" r="7" fill="#3a4a86"/><circle cx="64" cy="102" r="7" fill="#3a4a86"/>
+    <circle cx="36" cy="102" r="2.5" fill="#cfd8f5"/><circle cx="64" cy="102" r="2.5" fill="#cfd8f5"/>
+  </svg>`;
+}
+const svgEl = html => { const d=document.createElement('div'); d.innerHTML=html; d.style.lineHeight=0; return d; };
+
+/* ================= piezas (formas) ================= */
+const COLORS = {rojo:'#ff5d73', azul:'#4c8dff', verde:'#22d39a', amarillo:'#ffd23f', morado:'#a67cff'};
+function shapeSVG(shape, color, size=60){
+  const c = COLORS[color]||color;
+  const shp = {
+    circulo:`<circle cx="30" cy="30" r="24" fill="${c}"/>`,
+    cuadrado:`<rect x="7" y="7" width="46" height="46" rx="8" fill="${c}"/>`,
+    triangulo:`<path d="M30 5 L56 52 L4 52Z" fill="${c}" stroke="${c}" stroke-linejoin="round" stroke-width="4"/>`,
+    tuerca:`<path d="M30 4 L53 17 L53 43 L30 56 L7 43 L7 17Z" fill="${c}"/><circle cx="30" cy="30" r="10" fill="#0a1230" opacity=".55"/>`,
+    tornillo:`<rect x="14" y="4" width="32" height="12" rx="4" fill="${c}"/><rect x="24" y="16" width="12" height="40" rx="3" fill="${c}"/><path d="M24 24h12M24 32h12M24 40h12M24 48h12" stroke="#0a1230" stroke-opacity=".4" stroke-width="2.5"/>`
+  }[shape];
+  return `<svg viewBox="0 0 60 60" width="${size}" height="${size}">${shp}</svg>`;
+}
+
+/* ================= mapas de cuadrícula ================= */
+function parseMap(m){
+  const rows = m.rows, H = rows.length, W = rows[0].length;
+  const o = {w:W, h:H, walls:new Set(), gems:[], start:null, goal:null, dir:m.dir||0};
+  rows.forEach((r,y)=>[...r].forEach((ch,x)=>{
+    if(ch==='#') o.walls.add(x+','+y);
+    if(ch==='*') o.gems.push([x,y]);
+    if(ch==='S') o.start=[x,y];
+    if(ch==='G') o.goal=[x,y];
+  }));
+  return o;
+}
+const DIRV = [[0,-1],[1,0],[0,1],[-1,0]];            // 0 arriba,1 derecha,2 abajo,3 izquierda
+const ABS = {up:0,right:1,down:2,left:3};
+const ARW = {up:'↑',right:'→',down:'↓',left:'←'};
+const ABS_NAME = {up:'arriba',right:'derecha',down:'abajo',left:'izquierda'};
+const mv = t => ({t});
+const rep = (n,...body) => ({t:'rep',n,body});
+const fwd = n => ({t:'fwd',n});
+const tr = n => (n==null?{t:'tr'}:{t:'tr',n});
+const tl = n => (n==null?{t:'tl'}:{t:'tl',n});
+const iff = (body,els) => ({t:'if',body,els});
+const R=mv('right'),L=mv('left'),U=mv('up'),D=mv('down');
+
+/* ================= contenido: ciclos y retos ================= */
+const ZONES = {
+  1:['El Taller de Chispa','El Almacén de Pilas','El Puente Mecánico','La Torre de Antenas','El Jardín de Tuercas','La Gran Fábrica'],
+  2:['La Mina de Engranajes','El Río de Aceite','La Cinta Transportadora','El Volcán de Chispas','La Ciudad Robot','El Castillo Digital'],
+  3:['El Laboratorio','La Estación Espacial','El Laberinto de Sensores','La Fábrica de Algoritmos','El Satélite Perdido','El Núcleo Central']
+};
+const CICLOS = {
+  1:{ name:'1.º Ciclo', sub:'1.º y 2.º de Primaria', color:'#22d39a', mode:'pdi', edit:'tap', tag:'Pizarra · toda la clase',
+      levels:[
+    {id:'1-1', type:'grid', title:'¡Hola, Chispa!', instr:'Chispa tiene poca batería. Llévala al cargador ⚡. Pulsa las flechas para hacer tu programa y luego pulsa ▶.',
+      hint:'Mira: el cargador está a la derecha. ¿Cuántos pasos tiene que dar Chispa?', max:6,
+      map:{rows:['...','S.G','...']}, sol:[R,R]},
+    {id:'1-2', type:'grid', title:'Cajas en el camino', instr:'Hay cajas 📦 en el camino. Chispa no puede atravesarlas. Busca otro camino hasta el cargador ⚡.',
+      hint:'Primero sube, después ve hacia la derecha.', max:8,
+      map:{rows:['....','..G.','.#..','S#..']}, sol:[U,U,R,R]},
+    {id:'1-3', type:'pattern', title:'Series de piezas', instr:'Chispa ordena piezas siguiendo una serie. ¿Qué pieza va en el hueco? Tócala.',
+      hint:'Di en voz alta las piezas: rojo, azul, rojo, azul... ¿Qué viene después?',
+      rounds:[
+        {seq:[['circulo','rojo'],['cuadrado','azul'],['circulo','rojo'],['cuadrado','azul'],['circulo','rojo']], ans:1, opts:[['circulo','rojo'],['cuadrado','azul'],['triangulo','verde']]},
+        {seq:[['triangulo','amarillo'],['triangulo','amarillo'],['circulo','verde'],['triangulo','amarillo'],['triangulo','amarillo']], ans:2, opts:[['triangulo','amarillo'],['cuadrado','rojo'],['circulo','verde']]},
+        {seq:[['circulo','rojo'],['cuadrado','azul'],['triangulo','verde'],['circulo','rojo'],['cuadrado','azul']], ans:0, opts:[['triangulo','verde'],['circulo','rojo'],['cuadrado','azul']]}
+      ]},
+    {id:'1-4', type:'order', title:'Los pasos de Chispa', instr:'Chispa quiere pintar un cuadro. Toca los dibujos en el orden correcto: ¿qué va primero?',
+      hint:'Piensa: ¿puedo pintar sin tener el pincel?',
+      steps:[['📄','Coge un papel'],['🖌️','Coge el pincel'],['🎨','Pinta el dibujo'],['🖼️','Cuelga el cuadro']]},
+    {id:'1-5', type:'grid', title:'¡Chispa se equivocó!', instr:'Este programa tiene un error y Chispa choca. Pulsa ▶ para verlo. Toca la flecha equivocada para cambiarla.',
+      hint:'La tercera flecha manda a Chispa hacia arriba, pero el cargador está abajo.', max:4, cycle:true,
+      map:{rows:['S*..','##..','.#G.','....']}, given:[R,R,U,D], sol:[R,R,D,D]}
+  ],
+    boss:{id:'1-B', type:'grid', boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián del Taller! Para pasar, Chispa debe coger la tuerca ⚙️ y llegar al cargador ⚡. Tienes como máximo 10 flechas.',
+      hint:'Primero la tuerca: está arriba. Luego ve a la derecha y vuelve a subir.', max:10,
+      map:{rows:['.#..G','.#.#.','*..#.','.#...','S#...']}, sol:[U,U,R,R,U,U,R,R]}
+  },
+  2:{ name:'2.º Ciclo', sub:'3.º y 4.º de Primaria', color:'#ff9f36', mode:'pdi', edit:'tap', loops:true, tag:'Pizarra · toda la clase',
+      levels:[
+    {id:'2-1', type:'grid', title:'Recoge los engranajes', instr:'Recoge los dos engranajes ⚙️ y lleva a Chispa al cargador ⚡. Planifica el camino antes de programar.',
+      hint:'Derecha, derecha (engranaje), arriba, arriba (engranaje)… ¿y después?', max:10, noLoop:true,
+      map:{rows:['.....','...#.','..*.G','.#.#.','S.*..']}, sol:[R,R,U,U,R,R]},
+    {id:'2-2', type:'grid', title:'La escalera: ¡bucles!', instr:'Solo puedes usar 3 bloques. Usa 🔁 REPETIR: pulsa Repetir, añade las flechas que se repiten, pulsa Cerrar y cambia el número.',
+      hint:'Cada escalón es: derecha y arriba. ¿Cuántos escalones hay? Cuenta.', max:3,
+      map:{rows:['....#G','...#..','..#...','.#....','#.....','S.....']}, sol:[rep(5,R,U)]},
+    {id:'2-3', type:'pixel', title:'Código de colores', instr:'Chispa ha enviado un mensaje secreto en código. Lee cada fila y pinta las casillas. Ejemplo: 2🟦 = dos casillas azules seguidas.',
+      hint:'Lee la fila de izquierda a derecha. Los números dicen cuántas casillas seguidas llevan ese color.',
+      palette:{A:'azul',Y:'amarillo',R:'rojo','.':'blanco'},
+      rows:['.AAAA.','AYAAYA','AAAAAA','ARRRRA','.AAAA.','.A..A.']},
+    {id:'2-4', type:'sorter', title:'La clasificadora', instr:'Programa la máquina con una regla SI… ENTONCES… SI NO… para que cada pieza caiga en su caja.',
+      hint:'Mira las cajas: en una van las tuercas y en la otra los tornillos. ¿Qué debe preguntar la máquina?',
+      boxes:['Tuercas','Tornillos'], target:it=>it[0]==='tuerca'?0:1,
+      items:[['tuerca','rojo'],['tornillo','azul'],['tornillo','rojo'],['tuerca','azul'],['tuerca','amarillo'],['tornillo','amarillo']]},
+    {id:'2-5', type:'grid', title:'Arregla el bucle', instr:'Este programa con bucle tiene un error. Pulsa ▶ para verlo y toca la flecha que falla para cambiarla.',
+      hint:'Chispa tiene que bajar, no subir.', max:3, cycle:true,
+      map:{rows:['S....','#....','.#*..','..#G.','.....']}, given:[rep(3,R,U)], sol:[rep(3,R,D)]}
+  ],
+    boss:{id:'2-B', type:'grid', boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián de la Mina! Recoge los 3 engranajes ⚙️ y llega al cargador ⚡ usando como máximo 5 bloques.',
+      hint:'Sube hasta arriba del todo con un bucle y luego ve a la derecha con otro bucle.', max:5,
+      map:{rows:['*..*.G','.#....','*...#.','...#..','..#...','S#....']}, sol:[rep(5,U),rep(5,R)]}
+  },
+  3:{ name:'3.º Ciclo', sub:'5.º y 6.º de Primaria', color:'#a67cff', mode:'ind', edit:'blocks', tag:'Ordenador · individual',
+      levels:[
+    {id:'3-1', type:'grid', rel:true, title:'Avanzar y girar', instr:'Ahora Chispa avanza hacia donde mira (flecha amarilla) y gira sobre sí misma. Arrastra bloques para llevarla al cargador ⚡.',
+      hint:'Avanzar 4 pasos, girar a la derecha, avanzar 4 pasos. Solo 3 bloques.', max:6, blocks:['fwd','tl','tr'],
+      map:{rows:['....G','.###.','.#...','.#.#.','S#...'], dir:0}, sol:[fwd(4),tr(),fwd(4)]},
+    {id:'3-2', type:'grid', rel:true, title:'La vuelta completa', instr:'Recoge los 3 cristales 💎 y llega al cargador ⚡ con 3 bloques como máximo. Pista: ¡un bucle!',
+      hint:'El camino es un cuadrado: 4 lados iguales. Repetir 4 veces: avanzar 4 y girar a la derecha.', max:3, blocks:['fwd','tl','tr','rep'],
+      map:{rows:['*...*','.###.','.###.','.###.','SG..*'], dir:0}, sol:[rep(4,fwd(4),tr())]},
+    {id:'3-3', type:'turtle', title:'Robot dibujante: triángulo', instr:'Chispa lleva un rotulador. Programa un triángulo equilátero (3 lados iguales de 130 pasos) igual al modelo punteado. Máximo 3 bloques.',
+      hint:'Para dar la vuelta completa, Chispa gira 360°. Si hay 3 giros iguales: 360 : 3 = ?', max:3, blocks:['fwd','tr','tl','rep'],
+      start:{x:125,y:250,a:270}, sol:[rep(3,fwd(130),tr(120))]},
+    {id:'3-4', type:'grid', rel:true, title:'El sensor de muros', instr:'Tu programa debe funcionar en LOS DOS mapas. Usa el sensor «si hay muro delante». Máximo 5 bloques.',
+      hint:'Repetir 15 veces: si hay muro delante → girar a la derecha; si no → avanzar 1.', max:5, blocks:['fwd','tl','tr','rep','if'],
+      maps:[{rows:['....G','.###.','.###.','.###.','S....'], dir:0},{rows:['S....','####.','####.','####.','.G...'], dir:1}],
+      sol:[rep(15,iff([tr()],[fwd(1)]))]},
+    {id:'3-5', type:'turtle', title:'El molinillo', instr:'Dibuja el molinillo: 4 cuadrados de 70 pasos. Necesitas un bucle DENTRO de otro bucle. Máximo 5 bloques.',
+      hint:'Un cuadrado = repetir 4 (avanzar 70, girar 90). Después de cada cuadrado, gira 90 más. Repite todo 4 veces.', max:5, blocks:['fwd','tr','tl','rep'],
+      start:{x:180,y:180,a:270}, sol:[rep(4,rep(4,fwd(70),tr(90)),tr(90))]}
+  ],
+    boss:{id:'3-B', type:'grid', rel:true, boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián del Laboratorio! Recorre la espiral, recoge los 3 cristales 💎 y llega al cargador ⚡. Máximo 4 bloques.',
+      hint:'El sensor te ayuda en cada esquina. ¿Cuántas veces tienes que repetir? Mejor que sobren a que falten.', max:4, blocks:['fwd','tl','tr','rep','if'],
+      map:{rows:['S....*','#####.','...*#.','.#G.#.','.####.','*.....'], dir:1}, sol:[rep(35,iff([tr()],[fwd(1)]))]}
+  }
+};
+const GEM = {1:'⚙️',2:'⚙️',3:'💎'};
+
+/* ================= zonas 2 a 6 de cada ciclo ================= */
+// Cada zona: 5 retos y un Guardián. Los ids llevan ciclo, zona y reto
+// (c1z2r1…, c1z2B) para no chocar nunca con los de la Zona 1, que ya
+// tienen progreso y códigos guardados por el alumnado.
+// gem / wall: emoji de los objetos que se recogen y de los obstáculos.
+const ZONA1 = {
+  1:{ badge:'Mecánico/a del Taller' },
+  2:{ badge:'Minero/a de Engranajes' },
+  3:{ badge:'Científico/a del Laboratorio' }
+};
+const ZONAS_EXTRA = {
+  /* ---------------- 1.º ciclo ---------------- */
+  1:[
+    { gem:'🔋', badge:'Guardián/a de las Pilas',
+      intro:'Chispa necesita pilas 🔋 para funcionar. En el Almacén tendréis que recoger pilas antes de ir al cargador. ¡Y aprenderéis a adivinar qué hará un programa sin pulsar ▶!',
+      levels:[
+      {id:'c1z2r1', type:'grid', title:'La primera pila', instr:'Chispa tiene que coger la pila 🔋 y después ir al cargador ⚡.',
+        hint:'La pila está arriba. Sube, cógela y luego baja hacia el cargador.', max:8,
+        map:{rows:['..*..','S...G','.....']}, sol:[R,R,U,R,R,D]},
+      {id:'c1z2r2', type:'pattern', title:'Pilas en fila', instr:'Las piezas del almacén están en fila siguiendo una serie. ¿Cuál va en el hueco? Tócala.',
+        hint:'Busca el trozo que se repite. ¿Cuántas piezas tiene?',
+        rounds:[
+          {seq:[['circulo','rojo'],['cuadrado','azul'],['cuadrado','azul'],['circulo','rojo'],['cuadrado','azul']], ans:1, opts:[['circulo','rojo'],['cuadrado','azul'],['triangulo','amarillo']]},
+          {seq:[['triangulo','amarillo'],['triangulo','amarillo'],['circulo','verde'],['circulo','verde'],['triangulo','amarillo']], ans:1, opts:[['circulo','verde'],['triangulo','amarillo'],['cuadrado','rojo']]},
+          {seq:[['tuerca','morado'],['tornillo','morado'],['circulo','morado'],['tuerca','morado'],['tornillo','morado']], ans:2, opts:[['tornillo','morado'],['tuerca','morado'],['circulo','morado']]}
+        ]},
+      {id:'c1z2r3', type:'grid', title:'Dos pilas', instr:'Hay dos pilas 🔋. Chispa tiene que coger las dos y después llegar al cargador ⚡.',
+        hint:'Coge primero la pila de la izquierda (está abajo) y luego la de la derecha.', max:10,
+        map:{rows:['S.#.','..#*','*...','##.G']}, sol:[D,D,R,R,R,U,D,D]},
+      {id:'c1z2r4', type:'order', title:'Cambiar las pilas', instr:'La linterna no se enciende. Toca los dibujos en el orden correcto para cambiarle las pilas.',
+        hint:'Antes de poner las pilas nuevas, ¿qué hay que hacer con las gastadas?',
+        steps:[['🔦','Abre la linterna'],['🪫','Saca las pilas gastadas'],['🔋','Pon las pilas nuevas'],['💡','Ciérrala y enciéndela']]},
+      {id:'c1z2r5', type:'predict', title:'¿Dónde acabará Chispa?', instr:'Mira el programa. Sin pulsar ▶, ¿en qué casilla se parará Chispa? Tócala y luego pulsa Comprobar.',
+        hint:'Pon el dedo en Chispa y muévelo con cada flecha, una a una.',
+        map:{rows:['....','....','....','S...']}, prog:[U,U,R,R,R]}
+    ],
+      boss:{id:'c1z2B', type:'grid', boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián del Almacén! Recoge las 3 pilas 🔋 y llega al cargador ⚡. Tienes como máximo 16 flechas.',
+        hint:'Ve primero a la derecha a por la pila de abajo. Luego sube por el pasillo del medio.', max:16,
+        map:{rows:['*...G','.##..','..*..','.##.#','S...*']}, sol:[R,R,R,R,L,U,U,L,L,L,U,U,R,R,R,R]}
+    },
+    { wall:'🌊', badge:'Detective de errores',
+      intro:'Para cruzar el río hay que ir por el puente. ¡Cuidado con el agua 🌊! En esta zona seréis detectives de errores 🐞: buscaréis la flecha que falla.',
+      levels:[
+      {id:'c1z3r1', type:'grid', title:'Cruzar el puente', instr:'Chispa no sabe nadar. Llévala al cargador ⚡ cruzando por el puente.',
+        hint:'Solo se puede cruzar por el puente, que está en la misma fila que Chispa.', max:7,
+        map:{rows:['..#..','S....','..#.G','..#..']}, sol:[R,R,R,R,D]},
+      {id:'c1z3r2', type:'grid', title:'El puente equivocado', instr:'Este programa tiene un error. Pulsa ▶ para verlo. Toca la flecha equivocada para cambiarla.',
+        hint:'La última flecha lleva a Chispa hacia arriba, pero el cargador está a la derecha.', max:6, cycle:true,
+        map:{rows:['S.#..','..#..','....G','..#..']}, given:[D,D,R,R,R,U], sol:[D,D,R,R,R,R]},
+      {id:'c1z3r3', type:'pattern', title:'Series del puente', instr:'Las tablas del puente siguen una serie. ¿Qué pieza va en el hueco? Tócala.',
+        hint:'Di las piezas en voz alta. ¿Qué trozo se repite?',
+        rounds:[
+          {seq:[['circulo','rojo'],['circulo','azul'],['circulo','verde'],['circulo','rojo'],['circulo','azul']], ans:0, opts:[['circulo','verde'],['circulo','rojo'],['cuadrado','verde']]},
+          {seq:[['cuadrado','amarillo'],['triangulo','amarillo'],['triangulo','amarillo'],['cuadrado','amarillo'],['triangulo','amarillo']], ans:1, opts:[['cuadrado','amarillo'],['triangulo','amarillo'],['triangulo','rojo']]},
+          {seq:[['tuerca','verde'],['tornillo','rojo'],['tornillo','rojo'],['circulo','azul'],['tuerca','verde']], ans:1, opts:[['circulo','azul'],['tornillo','rojo'],['tuerca','verde']]}
+        ]},
+      {id:'c1z3r4', type:'grid', title:'Dos errores', instr:'Este programa tiene DOS errores. Pulsa ▶, mira dónde falla Chispa y arregla las flechas una a una.',
+        hint:'Fíjate en la tercera flecha y en la última.', max:6, cycle:true,
+        map:{rows:['S..#','#..#','#...','##.G']}, given:[R,D,U,R,R,U], sol:[R,D,D,R,R,D]},
+      {id:'c1z3r5', type:'grid', title:'La serpiente', instr:'El camino hace curvas como una serpiente 🐍. Lleva a Chispa al cargador ⚡.',
+        hint:'Baja, ve a la derecha, sube, ve a la derecha y baja.', max:12,
+        map:{rows:['S#...','.#.#.','...#G']}, sol:[D,D,R,R,U,U,R,R,D,D]}
+    ],
+      boss:{id:'c1z3B', type:'grid', boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián del Puente! Recoge las 2 tuercas ⚙️, cruza el puente y llega al cargador ⚡. Máximo 12 flechas.',
+        hint:'Baja primero a por la tuerca de abajo, sube a por la otra y cruza por el puente del medio.', max:12,
+        map:{rows:['S..#.','.*.#G','.....','*..#.','...#.']}, sol:[D,D,D,R,U,U,D,R,R,R,U]}
+    },
+    { gem:'📡', badge:'Experto/a en antenas',
+      intro:'En la Torre de Antenas los mensajes viajan por el aire 📶. Aquí aprenderéis a LEER programas y a buscar el camino más corto.',
+      levels:[
+      {id:'c1z4r1', type:'predict', title:'Leer un programa', instr:'Lee el programa con atención. ¿En qué casilla acabará Chispa? Tócala y pulsa Comprobar.',
+        hint:'Pon el dedo en Chispa y muévelo con cada flecha.',
+        map:{rows:['.....','.#...','.....','S....']}, prog:[R,R,U,U,U,L]},
+      {id:'c1z4r2', type:'grid', title:'El camino más corto', instr:'Hay muchos caminos hasta el cargador ⚡, pero solo tienes 6 flechas. ¡Busca el más corto!',
+        hint:'No hace falta dar vueltas: ve hacia el cargador sin volver atrás.', max:6,
+        map:{rows:['S...','.##.','.#..','...G']}, sol:[R,R,R,D,D,D]},
+      {id:'c1z4r3', type:'order', title:'Construir la antena', instr:'Chispa va a montar una antena. Toca los dibujos en el orden correcto.',
+        hint:'¿Se puede poner la antena arriba si todavía no hay torre?',
+        steps:[['🧱','Coloca la base'],['🪜','Monta la torre'],['📡','Pon la antena arriba'],['🔌','Enchufa el cable'],['📶','¡Ya hay señal!']]},
+      {id:'c1z4r4', type:'predict', title:'Un programa más largo', instr:'Este programa es más largo. ¿Dónde se parará Chispa? Tócalo y pulsa Comprobar.',
+        hint:'Ve flecha a flecha. Podéis contar en voz alta: una derecha, dos derechas…',
+        map:{rows:['..#..','.....','#....','.....','S..#.']}, prog:[R,R,U,U,U,R,R,D]},
+      {id:'c1z4r5', type:'grid', title:'Dos antenas', instr:'Recoge las dos antenas 📡 y llega al cargador ⚡.',
+        hint:'Coge una antena, después la otra, y termina en el cargador.', max:14,
+        map:{rows:['..*..','.#.#.','S...G','.#.#.','..*..']}, sol:[R,R,U,U,D,D,D,D,U,U,R,R]}
+    ],
+      boss:{id:'c1z4B', type:'grid', boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián de la Torre! Recoge las 2 antenas 📡 y llega al cargador ⚡. Solo tienes 14 flechas: ¡busca el camino más corto!',
+        hint:'Baja primero a por la antena de la izquierda. Después ve por abajo y sube por el medio.', max:14,
+        map:{rows:['S...#','.##.*','.#...','*#.#.','...#G']}, sol:[D,D,D,D,R,R,U,U,R,R,U,D,D,D]}
+    },
+    { wall:'🌳', badge:'Jardinero/a de bucles',
+      intro:'En el jardín hay caminos muy largos y rectos. ¡Os presento un bloque mágico: 🔁 REPETIR! Sirve para no poner muchas veces la misma flecha.',
+      levels:[
+      {id:'c1z5r1', type:'pattern', title:'Flores en serie', instr:'Las flores del jardín están plantadas en serie. ¿Qué pieza va en el hueco?',
+        hint:'Mira cuántas veces se repite cada pieza antes de cambiar.',
+        rounds:[
+          {seq:[['circulo','amarillo'],['circulo','amarillo'],['triangulo','verde'],['circulo','amarillo'],['circulo','amarillo']], ans:1, opts:[['circulo','amarillo'],['triangulo','verde'],['cuadrado','morado']]},
+          {seq:[['tuerca','rojo'],['tuerca','azul'],['tornillo','verde'],['tuerca','rojo'],['tuerca','azul']], ans:0, opts:[['tornillo','verde'],['tuerca','rojo'],['tuerca','azul']]},
+          {seq:[['triangulo','rojo'],['triangulo','rojo'],['triangulo','rojo'],['cuadrado','azul'],['triangulo','rojo'],['triangulo','rojo']], ans:1, opts:[['cuadrado','azul'],['triangulo','rojo'],['circulo','rojo']]}
+        ]},
+      {id:'c1z5r2', type:'grid', loops:true, title:'El camino recto', instr:'Chispa tiene que avanzar 5 casillas, pero solo puedes usar 2 bloques. Pulsa 🔁 Repetir, pon una flecha → dentro, pulsa ✔ Cerrar y toca el número hasta que ponga ×5.',
+        hint:'Cuenta las casillas que hay hasta el cargador.', max:2,
+        map:{rows:['......','S....G','......']}, sol:[rep(5,R)]},
+      {id:'c1z5r3', type:'grid', loops:true, title:'La escalera del jardín', instr:'Sube la escalera hasta el cargador ⚡ con solo 3 bloques. Pista: ¡usa 🔁 Repetir!',
+        hint:'Cada escalón es → y ↑. ¿Cuántos escalones hay?', max:3,
+        map:{rows:['#..G','#...','#..#','S.##']}, sol:[rep(3,R,U)]},
+      {id:'c1z5r4', type:'pixel', title:'El dibujo secreto', instr:'Chispa ha dibujado algo en código. Lee cada fila y pinta las casillas. 2⬜ significa dos casillas blancas seguidas.',
+        hint:'Empieza por la fila 1. Los números dicen cuántas casillas seguidas llevan ese color.',
+        palette:{V:'verde','.':'blanco'},
+        rows:['..V..','.VVV.','VVVVV','..V..','..V..']},
+      {id:'c1z5r5', type:'grid', loops:true, title:'Arregla el repetir', instr:'Este programa tiene un error: Chispa se queda cerca, pero no llega. Pulsa ▶ para verlo y toca el número del repetir para arreglarlo.',
+        hint:'Chispa se queda a una casilla. ¿Cuántas veces hay que repetir la flecha →?', max:4, cycle:true,
+        map:{rows:['S....','.....','....G']}, given:[rep(3,R),D,D], sol:[rep(4,R),D,D]}
+    ],
+      boss:{id:'c1z5B', type:'grid', boss:true, loops:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián del Jardín! Recoge las 2 tuercas ⚙️ y llega al cargador ⚡ con 5 bloques como máximo. ¡Usa REPETIR!',
+        hint:'Primero muchas flechas → (con un repetir) y después muchas ↓ (con otro repetir).', max:5,
+        map:{rows:['S..*..','#####.','.....*','.....G']}, sol:[rep(5,R),rep(3,D)]}
+    },
+    { gem:'🔋', badge:'Maestro/a de la Gran Fábrica',
+      intro:'¡Habéis llegado a la Gran Fábrica! Aquí usaréis todo lo aprendido: caminos, series, pasos en orden, buscar errores y REPETIR. El Gran Guardián os espera al final.',
+      levels:[
+      {id:'c1z6r1', type:'grid', title:'La cinta larga', instr:'Recoge las 2 pilas 🔋 y llega al cargador ⚡. Máximo 14 flechas.',
+        hint:'Baja a por la pila de la izquierda, cruza por la fila de abajo y sube a por la otra.', max:14,
+        map:{rows:['S.#...','..#.*.','*.#...','......','.##..G']}, sol:[D,D,D,R,R,R,U,U,R,D,D,D,R]},
+      {id:'c1z6r2', type:'order', title:'Fabricar un robot', instr:'¿Cómo se fabrica un robot? Toca los pasos en el orden correcto.',
+        hint:'Lo primero es pensar cómo será el robot. Lo último, encenderlo.',
+        steps:[['📐','Dibuja el diseño'],['🔩','Junta las piezas'],['🔌','Conecta los cables'],['🔋','Pon la batería'],['🤖','¡Enciende el robot!']]},
+      {id:'c1z6r3', type:'predict', loops:true, title:'Leer un repetir', instr:'Este programa tiene un 🔁 REPETIR. ¿Dónde acabará Chispa? Toca la casilla y pulsa Comprobar.',
+        hint:'🔁×3 con → dentro es lo mismo que → → →.',
+        map:{rows:['.....','.....','.#...','S....']}, prog:[rep(3,R),U,U]},
+      {id:'c1z6r4', type:'pattern', title:'Series de la fábrica', instr:'Las series de la Gran Fábrica son más difíciles. ¿Qué va en el hueco?',
+        hint:'Busca el trozo que se repite. A veces es largo: puede tener 4 piezas.',
+        rounds:[
+          {seq:[['circulo','rojo'],['cuadrado','azul'],['triangulo','verde'],['cuadrado','azul'],['circulo','rojo'],['cuadrado','azul']], ans:0, opts:[['triangulo','verde'],['circulo','rojo'],['cuadrado','azul']]},
+          {seq:[['tuerca','amarillo'],['tuerca','amarillo'],['tornillo','azul'],['tornillo','azul'],['tornillo','azul'],['tuerca','amarillo']], ans:1, opts:[['tornillo','azul'],['tuerca','amarillo'],['circulo','morado']]},
+          {seq:['1','2','3','1','2'], ans:1, opts:['1','3','4']}
+        ]},
+      {id:'c1z6r5', type:'grid', loops:true, title:'Dos repetir', instr:'Llega al cargador ⚡ con 4 bloques como máximo. Necesitarás dos 🔁 REPETIR.',
+        hint:'Un repetir para ir a la derecha y otro para bajar. Cuenta las casillas de cada tramo.', max:4,
+        map:{rows:['S....','####.','.....','.....','....G']}, sol:[rep(4,R),rep(4,D)]}
+    ],
+      boss:{id:'c1z6B', type:'grid', boss:true, loops:true, title:'Prueba del Gran Guardián', instr:'¡Soy el Gran Guardián de la Fábrica! Recoge las 3 tuercas ⚙️ de la escalera y llega al cargador ⚡. Máximo 5 bloques.',
+        hint:'La escalera baja: cada escalón es → y ↓. Cuenta los escalones y termina con dos pasos →.', max:5,
+        map:{rows:['S.####','#*.###','##.*##','###.*G']}, sol:[rep(3,R,D),rep(2,R)], gem:'⚙️'}
+    }
+  ],
+  /* ---------------- 2.º ciclo ---------------- */
+  2:[
+    { gem:'🔧', wall:'🛢️', badge:'Navegante del Río de Aceite',
+      intro:'En el Río de Aceite los caminos hacen zigzag. Descubriréis que dentro de un REPETIR se pueden poner varias flechas… ¡y que los números también forman series!',
+      levels:[
+      {id:'c2z2r1', type:'grid', title:'El zigzag', instr:'Baja el zigzag hasta el cargador ⚡ con 3 bloques como máximo.',
+        hint:'Cada escalón es → y ↓. Mete las dos flechas dentro del repetir. ¿Cuántos escalones hay?', max:3,
+        map:{rows:['S.###','#..##','##..#','###..','####G']}, sol:[rep(4,R,D)]},
+      {id:'c2z2r2', type:'pixel', title:'El barco de aceite', instr:'Descodifica el mensaje y pinta el barco. Recuerda: 3⬜ = tres casillas blancas seguidas.',
+        hint:'Pinta fila a fila, de izquierda a derecha. Las casillas blancas también cuentan.',
+        palette:{R:'rojo',N:'negro',A:'azul','.':'blanco'},
+        rows:['...R...','..RR...','.RRR...','...N...','NNNNNNN','.NNNNN.','AAAAAAA']},
+      {id:'c2z2r3', type:'grid', title:'Tres tramos', instr:'El camino tiene tres tramos rectos. Llega al cargador ⚡ con 6 bloques como máximo.',
+        hint:'Un repetir para cada tramo: derecha, arriba y derecha otra vez.', max:6,
+        map:{rows:['###..G','###.##','###.##','S...##']}, sol:[rep(3,R),rep(3,U),rep(2,R)]},
+      {id:'c2z2r4', type:'pattern', title:'Series de números', instr:'Los números también forman series. ¿Qué número va en el hueco?',
+        hint:'Mira cuánto aumenta o disminuye cada vez.',
+        rounds:[
+          {seq:['2','4','6','8'], ans:1, opts:['9','10','12']},
+          {seq:['5','10','15','20'], ans:1, opts:['21','25','30']},
+          {seq:['30','27','24','21'], ans:0, opts:['18','19','20']}
+        ]},
+      {id:'c2z2r5', type:'grid', cycle:true, title:'Dos errores en el río', instr:'Este programa tiene DOS errores: uno en un número y otro en una flecha. Pulsa ▶, observa y arréglalos.',
+        hint:'Cuenta las casillas hasta la esquina. Luego piensa: ¿Chispa tiene que subir o bajar?', max:4,
+        map:{rows:['S....','####.','....G']}, given:[rep(3,R),rep(2,U)], sol:[rep(4,R),rep(2,D)]}
+    ],
+      boss:{id:'c2z2B', type:'grid', boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián del Río! Recoge las 3 llaves 🔧 y llega al cargador ⚡ con 5 bloques como máximo.',
+        hint:'El camino repite siempre lo mismo: dos pasos → y uno ↓. ¿Cuántas veces?', max:5,
+        map:{rows:['S.*####','##..*##','####..*','######G']}, sol:[rep(3,R,R,D)]}
+    },
+    { badge:'Ingeniero/a de la Cinta',
+      intro:'En la Cinta Transportadora las piezas no paran de llegar. Programaréis máquinas con reglas SI… ENTONCES… SI NO… para que cada pieza vaya a su sitio.',
+      levels:[
+      {id:'c2z3r1', type:'sorter', title:'Las piezas rojas', instr:'Programa la máquina para que las piezas ROJAS vayan a la caja 1 y todas las demás a la caja 2.',
+        hint:'La máquina tiene que preguntar por el color: SI la pieza es roja…',
+        boxes:['Rojas','Las demás'], boxIcons:[['circulo','rojo'],null], conds:['rojo','azul','amarillo','circulo'],
+        target:it=>it[1]==='rojo'?0:1,
+        items:[['circulo','rojo'],['cuadrado','azul'],['triangulo','rojo'],['circulo','amarillo'],['cuadrado','rojo'],['triangulo','azul']]},
+      {id:'c2z3r2', type:'sorter', title:'Formas redondas', instr:'Ahora la máquina separa por FORMAS: los círculos a la caja 1 y las demás formas a la caja 2.',
+        hint:'Da igual el color: la pregunta es sobre la forma.',
+        boxes:['Círculos','Otras formas'], boxIcons:[['circulo','morado'],null], conds:['circulo','triangulo','rojo','azul'],
+        target:it=>it[0]==='circulo'?0:1,
+        items:[['circulo','azul'],['triangulo','rojo'],['circulo','rojo'],['cuadrado','azul'],['circulo','amarillo'],['triangulo','azul']]},
+      {id:'c2z3r3', type:'order', title:'La fábrica de galletas', instr:'La máquina de galletas necesita un algoritmo. Toca los pasos en el orden correcto.',
+        hint:'¿Se puede cortar la masa antes de estirarla? ¿Y empaquetar las galletas calientes?',
+        steps:[['🥣','Mezcla los ingredientes'],['🫓','Estira la masa'],['⭐','Corta las formas'],['🔥','Hornea 15 minutos'],['❄️','Deja enfriar'],['📦','Empaqueta las galletas']]},
+      {id:'c2z3r4', type:'grid', title:'Piezas en la cinta', instr:'Recoge las 3 piezas ⚙️ de la cinta y llega al cargador ⚡. Máximo 4 bloques.',
+        hint:'Todo recto a la derecha y luego todo recto hacia arriba.', max:4,
+        map:{rows:['####G','####*','####.','S*.*.']}, sol:[rep(4,R),rep(3,U)]},
+      {id:'c2z3r5', type:'sorter', title:'Solo las amarillas', instr:'Las piezas AMARILLAS van a la caja 1 y las demás a la caja 2. ¡Cuidado, que hay tuercas y tornillos de todos los colores!',
+        hint:'No importa si es tuerca o tornillo. Solo importa el color.',
+        boxes:['Amarillas','Las demás'], boxIcons:[['tuerca','amarillo'],null], conds:['rojo','azul','amarillo','tuerca','tornillo'],
+        target:it=>it[1]==='amarillo'?0:1,
+        items:[['tuerca','amarillo'],['tornillo','rojo'],['tornillo','amarillo'],['tuerca','azul'],['circulo','amarillo'],['tornillo','azul']]}
+    ],
+      boss:{id:'c2z3B', type:'grid', boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián de la Cinta! Recoge las 4 piezas ⚙️ y llega al cargador ⚡. Máximo 6 bloques.',
+        hint:'El camino se repite: tres pasos →, dos pasos ↓… y otra vez.', max:6,
+        map:{rows:['S.*.###','###.###','###*.*.','######*','######G']}, sol:[rep(2,R,R,R,D,D)]}
+    },
+    { gem:'💠', wall:'🔥', badge:'Domador/a del Volcán',
+      intro:'En el Volcán de Chispas todo va muy rápido 🌋. Tendréis que encontrar errores, predecir qué hará un programa y hacer programas cada vez más cortos.',
+      levels:[
+      {id:'c2z4r1', type:'grid', cycle:true, title:'El bucle al revés', instr:'Este bucle tiene una flecha equivocada. Pulsa ▶ para ver el error y toca la flecha que falla para cambiarla.',
+        hint:'Chispa tiene que subir la escalera, no bajarla.', max:3,
+        map:{rows:['####G','###..','##..#','#..##','S.###']}, given:[rep(4,R,D)], sol:[rep(4,R,U)]},
+      {id:'c2z4r2', type:'grid', title:'El programa más corto', instr:'Hay mucho espacio, pero solo puedes usar 4 bloques. Busca lo que se repite en el camino hasta el cargador ⚡.',
+        hint:'Dos pasos → y uno ↑… y otra vez lo mismo. ¿Cuántas veces?', max:4,
+        map:{rows:['...#...','.#....G','...#...','.#.....','S...#..']}, sol:[rep(3,R,R,U)]},
+      {id:'c2z4r3', type:'predict', title:'Predice el bucle', instr:'¿Dónde acabará Chispa con este programa? Toca la casilla y pulsa Comprobar.',
+        hint:'Haz el repetir con el dedo dos veces: ↑ → →, ↑ → →. Y después la última flecha.',
+        map:{rows:['......','.#....','......','...#..','S.....']}, prog:[rep(2,U,R,R),U]},
+      {id:'c2z4r4', type:'grid', cycle:true, title:'Números equivocados', instr:'Las flechas están bien, pero hay números equivocados en los repetir. Pulsa ▶ y arregla los números.',
+        hint:'Cuenta las casillas de cada tramo: a la derecha, hacia abajo y a la izquierda.', max:6,
+        map:{rows:['S....','####.','####.','##G..']}, given:[rep(3,R),rep(3,D),rep(3,L)], sol:[rep(4,R),rep(3,D),rep(2,L)]},
+      {id:'c2z4r5', type:'pixel', title:'La erupción', instr:'Descodifica el mensaje secreto del volcán y pinta el dibujo.',
+        hint:'Empieza por la fila de arriba. Las casillas blancas también hay que contarlas.',
+        palette:{Y:'amarillo',R:'rojo',M:'marron','.':'blanco'},
+        rows:['...Y...','..RYR..','...R...','..MMM..','.MMMMM.','MMMMMMM','MMMMMMM']}
+    ],
+      boss:{id:'c2z4B', type:'grid', boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián del Volcán! Esquiva la lava 🔥, recoge los 2 cristales 💠 y llega al cargador ⚡. Máximo 6 bloques.',
+        hint:'Tres tramos rectos: derecha, abajo y derecha. Un repetir para cada uno.', max:6,
+        map:{rows:['S...###','###.###','###*###','###.###','###..*G']}, sol:[rep(3,R),rep(4,D),rep(3,R)]}
+    },
+    { gem:'🔋', wall:'🏢', badge:'Alcalde/sa de la Ciudad Robot',
+      intro:'La Ciudad Robot es enorme 🏙️. Para recorrerla hay que dividir el camino en partes y usar un REPETIR para cada parte. ¡Divide y vencerás!',
+      levels:[
+      {id:'c2z5r1', type:'grid', title:'Calles de la ciudad', instr:'Recorre las calles hasta el cargador ⚡ con 6 bloques como máximo.',
+        hint:'Divide el camino en 3 tramos rectos y cuenta las casillas de cada uno.', max:6,
+        map:{rows:['##G...','#####.','#####.','#####.','S.....']}, sol:[rep(5,R),rep(4,U),rep(3,L)]},
+      {id:'c2z5r2', type:'pattern', title:'Series que se multiplican', instr:'Estas series crecen muy rápido. ¿Qué número va en el hueco?',
+        hint:'No siempre se suma: a veces cada número es el doble del anterior.',
+        rounds:[
+          {seq:['1','2','4','8'], ans:2, opts:['10','12','16']},
+          {seq:['3','6','12','24'], ans:2, opts:['27','36','48']},
+          {seq:['100','90','80','70'], ans:0, opts:['60','65','69']}
+        ]},
+      {id:'c2z5r3', type:'order', title:'Cruzar la calle', instr:'Chispa quiere cruzar la calle con seguridad. Toca los pasos en el orden correcto.',
+        hint:'Aunque el semáforo esté en verde, hay que mirar antes de cruzar.',
+        steps:[['🚶','Llega al paso de peatones'],['🚦','Mira el semáforo'],['🟢','Espera a que se ponga en verde'],['👀','Mira a los dos lados'],['➡️','Cruza sin correr']]},
+      {id:'c2z5r4', type:'grid', title:'Repartir pilas', instr:'Reparte… mejor dicho, ¡recoge! las 3 pilas 🔋 y llega al cargador ⚡. Máximo 5 bloques.',
+        hint:'El camino es una escalera de escalones grandes: dos pasos → y dos pasos ↑.', max:5,
+        map:{rows:['#..#..G','.#..#..','#..#..*','..#..#.','#...*.#','.#.#...','S.*.#..']}, sol:[rep(3,R,R,U,U)]},
+      {id:'c2z5r5', type:'sorter', title:'Tuercas y tornillos', instr:'Separa los tornillos (caja 1) de las tuercas (caja 2). ¿Hay más de una regla que funcione?',
+        hint:'Puedes preguntar por los tornillos o por las tuercas. Piensa a qué caja va cada uno.',
+        boxes:['Tornillos','Tuercas'], boxIcons:[['tornillo','morado'],['tuerca','morado']], conds:['tuerca','tornillo','rojo','azul','amarillo'],
+        target:it=>it[0]==='tornillo'?0:1,
+        items:[['tuerca','rojo'],['tornillo','rojo'],['tuerca','amarillo'],['tornillo','azul'],['tornillo','amarillo'],['tuerca','azul']]}
+    ],
+      boss:{id:'c2z5B', type:'grid', boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián de la Ciudad! Da la vuelta a la manzana, recoge las 3 pilas 🔋 y llega al cargador ⚡. Máximo 6 bloques.',
+        hint:'Son tres calles rectas del mismo largo: derecha, abajo e izquierda.', max:6,
+        map:{rows:['S..*..','#####.','#####.','#####*','#####.','G.*...']}, sol:[rep(5,R),rep(5,D),rep(5,L)]}
+    },
+    { gem:'🗝️', wall:'🧱', badge:'Guardián/a del Castillo Digital',
+      intro:'Última parada: el Castillo Digital 🏰. Para entrar necesitaréis usar todo lo aprendido: bucles, reglas SI, códigos de colores y cazar errores. ¡Ánimo!',
+      levels:[
+      {id:'c2z6r1', type:'pixel', title:'El castillo', instr:'Descodifica los planos del castillo y píntalo.',
+        hint:'La fila 1 son las almenas: casillas grises y blancas alternadas.',
+        palette:{G:'gris',V:'verde','.':'blanco'},
+        rows:['G.G..G.G','GGGGGGGG','.GGGGGG.','.GG..GG.','.GG..GG.','.GGGGGG.','VVVVVVVV']},
+      {id:'c2z6r2', type:'grid', title:'Las almenas', instr:'Recoge las 3 llaves 🗝️ de las almenas y llega al cargador ⚡. Máximo 5 bloques.',
+        hint:'Para cada llave: →, ↑, → y ↓. ¡Mételo todo en un repetir!', max:5,
+        map:{rows:['#######','#.*.*.*','S.....G']}, sol:[rep(3,R,U,R,D)]},
+      {id:'c2z6r3', type:'predict', title:'El pasadizo secreto', instr:'¿Dónde acabará Chispa con este programa? Toca la casilla y pulsa Comprobar.',
+        hint:'Primero una escalera de 3 escalones (→ ↓). Después sube dos casillas.',
+        map:{rows:['S....#','......','#.....','....#.','.#....','......']}, prog:[rep(3,R,D),rep(2,U)]},
+      {id:'c2z6r4', type:'grid', cycle:true, title:'La puerta atascada', instr:'Este programa tiene DOS errores: una flecha y un número. Pulsa ▶, observa y arréglalos.',
+        hint:'La escalera es → ↑. Después, ¿cuántos pasos a la derecha faltan hasta el cargador?', max:5,
+        map:{rows:['###...G','##..###','#..####','S.#####']}, given:[rep(3,U,U),rep(2,R)], sol:[rep(3,R,U),rep(3,R)]},
+      {id:'c2z6r5', type:'sorter', title:'La puerta del castillo', instr:'Solo pueden entrar las piezas VERDES. Programa la puerta: las verdes a la caja 1 y las demás a la caja 2.',
+        hint:'La forma no importa. ¿Qué tienen en común las piezas que pasan?',
+        boxes:['Pasan','No pasan'], boxIcons:[['cuadrado','verde'],null], conds:['circulo','cuadrado','triangulo','verde','morado'],
+        target:it=>it[1]==='verde'?0:1,
+        items:[['circulo','verde'],['cuadrado','morado'],['triangulo','verde'],['circulo','morado'],['cuadrado','verde'],['triangulo','morado']]}
+    ],
+      boss:{id:'c2z6B', type:'grid', boss:true, title:'Prueba del Gran Guardián', instr:'¡Soy el Gran Guardián del Castillo! Recoge las 4 llaves 🗝️ y llega al trono ⚡. Máximo 8 bloques.',
+        hint:'Primero sube hacia la derecha (→ → ↑) y después hacia la izquierda (← ← ↑). ¿Cuántas veces cada parte?', max:8,
+        map:{rows:['#######','##G####','##.*.##','####..*','####...','##..*##','S.*####']}, sol:[rep(3,R,R,U),rep(2,L,L,U)]}
+    }
+  ],
+  /* ---------------- 3.er ciclo ---------------- */
+  3:[
+    { gem:'⭐', badge:'Astronauta de los polígonos',
+      intro:'En la Estación Espacial Chispa dibuja con su rotulador láser. Descubrirás la relación entre los giros y los polígonos regulares: ¡360° entre el número de lados!',
+      levels:[
+      {id:'c3z2r1', type:'turtle', title:'El cuadrado perfecto', instr:'Dibuja un cuadrado de 150 pasos de lado, igual al modelo punteado. Máximo 3 bloques.',
+        hint:'Un cuadrado tiene 4 lados iguales y 4 giros iguales. 360 : 4 = ?', max:3, blocks:['fwd','tr','tl','rep'],
+        start:{x:105,y:255,a:270}, sol:[rep(4,fwd(150),tr(90))]},
+      {id:'c3z2r2', type:'turtle', title:'El hexágono de la estación', instr:'Las ventanas de la estación son hexágonos regulares (6 lados de 90 pasos). Dibuja uno igual al modelo. Máximo 3 bloques.',
+        hint:'6 giros iguales para dar una vuelta completa: 360 : 6 = ?', max:3, blocks:['fwd','tr','tl','rep'],
+        start:{x:120,y:250,a:270}, sol:[rep(6,fwd(90),tr(60))]},
+      {id:'c3z2r3', type:'grid', rel:true, title:'Pasillos de la estación', instr:'Recoge las 3 estrellas ⭐ bajando por los pasillos hasta el cargador ⚡. Máximo 5 bloques.',
+        hint:'Cada tramo: avanzar 2, girar a la derecha, avanzar 2, girar a la izquierda. ¿Cuántos tramos?', max:5, blocks:['fwd','tl','tr','rep'],
+        map:{rows:['S.*####','##.####','##..*##','####.##','####..*','######.','######G'], dir:1}, sol:[rep(3,fwd(2),tr(),fwd(2),tl())]},
+      {id:'c3z2r4', type:'predict', rel:true, title:'Predice la ruta', instr:'Chispa mira hacia arriba (flecha amarilla). ¿En qué casilla acabará con este programa? Tócala y pulsa Comprobar.',
+        hint:'Después de cada giro, Chispa sigue avanzando hacia donde mira ahora.',
+        map:{rows:['......','......','....#.','.#....','......','S.....'], dir:0}, prog:[rep(2,fwd(3),tr())]},
+      {id:'c3z2r5', type:'turtle', title:'El pentágono', instr:'Dibuja un pentágono regular de 110 pasos de lado. Máximo 3 bloques.',
+        hint:'Un pentágono tiene 5 lados. 360 : 5 = ?', max:3, blocks:['fwd','tr','tl','rep'],
+        start:{x:125,y:260,a:270}, sol:[rep(5,fwd(110),tr(72))]}
+    ],
+      boss:{id:'c3z2B', type:'turtle', boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián de la Estación! Dibuja mi estrella de 5 puntas con lados de 200 pasos. Máximo 3 bloques.',
+        hint:'Para dibujar la estrella, Chispa da 2 vueltas completas: 720° entre 5 puntas = ?', max:3, blocks:['fwd','tr','tl','rep'],
+        start:{x:80,y:150,a:0}, sol:[rep(5,fwd(200),tr(144))]}
+    },
+    { badge:'Exploradora/or de sensores',
+      intro:'En el Laberinto de Sensores los caminos cambian. Un buen programa debe funcionar en TODOS los mapas: para eso Chispa usará su sensor 📡 «si hay muro delante».',
+      levels:[
+      {id:'c3z3r1', type:'grid', rel:true, title:'Pasillo con curva', instr:'Un mismo programa tiene que funcionar en los DOS mapas. Usa el sensor «si hay muro delante». Máximo 4 bloques.',
+        hint:'Repetir 10 veces: si hay muro delante → girar a la derecha; si no → avanzar 1.', max:4, blocks:['fwd','tl','tr','rep','if'],
+        maps:[{rows:['....G','.####','.####','.####','S####'], dir:0},{rows:['#####','#####','...G#','.####','S####'], dir:0}],
+        sol:[rep(10,iff([tr()],[fwd(1)]))]},
+      {id:'c3z3r2', type:'grid', rel:true, title:'Curvas a la izquierda', instr:'Ahora los pasillos giran hacia la IZQUIERDA. Un programa para los dos mapas. Máximo 4 bloques.',
+        hint:'Como el reto anterior, pero el giro es hacia el otro lado.', max:4, blocks:['fwd','tl','tr','rep','if'],
+        maps:[{rows:['####G','####.','####.','####.','S....'], dir:1},{rows:['#####','##G##','##.##','##.##','S..##'], dir:1}],
+        sol:[rep(12,iff([tl()],[fwd(1)]))]},
+      {id:'c3z3r3', type:'grid', rel:true, title:'El sensor despistado', instr:'Este programa no funciona en este laberinto. Pulsa ▶, observa el error y arréglalo cambiando UN solo bloque.',
+        hint:'Mira hacia dónde gira Chispa en la esquina. ¿Hacia dónde tendría que girar?', max:4, blocks:['fwd','tl','tr','rep','if'],
+        map:{rows:['####G','####.','####.','####.','S....'], dir:1}, given:[rep(10,iff([tr()],[fwd(1)]))], sol:[rep(10,iff([tl()],[fwd(1)]))]},
+      {id:'c3z3r4', type:'grid', rel:true, title:'Tres laberintos', instr:'¡Tres mapas distintos y un solo programa! Recoge el cristal 💎 del primer mapa y llega siempre al cargador ⚡. Máximo 4 bloques.',
+        hint:'El sensor decide en cada casilla. Pon un número de repeticiones grande: mejor que sobren a que falten.', max:4, blocks:['fwd','tl','tr','rep','if'],
+        maps:[{rows:['....*','.###.','.###.','.###.','S###G'], dir:0},{rows:['S....','####.','####G'], dir:1},{rows:['....','.##.','.##G','S###'], dir:0}],
+        sol:[rep(20,iff([tr()],[fwd(1)]))]},
+      {id:'c3z3r5', type:'predict', rel:true, title:'Predice el sensor', instr:'Chispa mira hacia la derecha. ¿Dónde estará al terminar este programa con sensor? Tócalo y pulsa Comprobar.',
+        hint:'En cada vuelta pregunta al sensor: ¿hay muro (o borde) delante? Si lo hay, gira; si no, avanza.',
+        map:{rows:['.....','.....','S..#.','.....','.....'], dir:1}, prog:[rep(6,iff([tr()],[fwd(1)]))]}
+    ],
+      boss:{id:'c3z3B', type:'grid', rel:true, boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián del Laberinto! Un solo programa para mis DOS laberintos, recogiendo todos los cristales 💎. Máximo 5 bloques.',
+        hint:'Sigue la pared con el sensor, girando siempre hacia el mismo lado. ¿Cuántas repeticiones hacen falta en el mapa más largo?', max:5, blocks:['fwd','tl','tr','rep','if'],
+        maps:[{rows:['S....*','#####.','....#.','.##G#.','.####.','*.....'], dir:1},{rows:['####S','####.','G###.','.###.','..*..'], dir:2}],
+        sol:[rep(30,iff([tr()],[fwd(1)]))]}
+    },
+    { badge:'Arquitecta/o de algoritmos',
+      intro:'En la Fábrica de Algoritmos se construyen programas dentro de programas: bucles dentro de bucles. Con muy pocas piezas se hacen dibujos increíbles.',
+      levels:[
+      {id:'c3z4r1', type:'turtle', title:'Tres cuadrados en fila', instr:'Dibuja 3 cuadrados de 70 pasos, uno al lado del otro. Necesitas un bucle DENTRO de otro bucle. Máximo 5 bloques.',
+        hint:'Un cuadrado = repetir 4 (avanzar 70, girar 90). Después de cada cuadrado, avanza 70 para ir al siguiente.', max:5, blocks:['fwd','tr','tl','rep'],
+        start:{x:75,y:220,a:0}, sol:[rep(3,rep(4,fwd(70),tr(90)),fwd(70))]},
+      {id:'c3z4r2', type:'turtle', title:'La flor de cuadrados', instr:'Dibuja la flor: 6 cuadrados de 70 pasos girados. Máximo 5 bloques.',
+        hint:'Dibuja un cuadrado y gira un poco. Para repartir 6 cuadrados en una vuelta: 360 : 6 = ?', max:5, blocks:['fwd','tr','tl','rep'],
+        start:{x:180,y:180,a:270}, sol:[rep(6,rep(4,fwd(70),tr(90)),tr(60))]},
+      {id:'c3z4r3', type:'grid', rel:true, title:'Escaleras con rellano', instr:'Sube las escaleras recogiendo los 2 cristales 💎 hasta el cargador ⚡. Máximo 7 bloques: ¡bucle dentro de bucle!',
+        hint:'Un escalón = avanzar 1, girar ↺, avanzar 1, girar ↻. Cada tramo tiene 2 escalones y un rellano (avanzar 1). ¿Cuántos tramos?', max:7, blocks:['fwd','tl','tr','rep'],
+        map:{rows:['#####.G','####*.#','##...##','#*.####','S.#####'], dir:1}, sol:[rep(2,rep(2,fwd(1),tl(),fwd(1),tr()),fwd(1))]},
+      {id:'c3z4r4', type:'order', title:'El algoritmo del problema', instr:'Resolver un problema de matemáticas también es seguir un algoritmo. Ordena los pasos.',
+        hint:'No se puede elegir la operación sin saber qué datos hay y qué te preguntan.',
+        steps:[['📖','Lee el problema con atención'],['🔍','Busca los datos y la pregunta'],['🧠','Piensa qué operación hay que hacer'],['✏️','Haz la operación'],['✅','Comprueba si el resultado tiene sentido'],['💬','Escribe la respuesta completa']]},
+      {id:'c3z4r5', type:'turtle', title:'El hexágono torcido', instr:'Este programa debería dibujar un hexágono, pero sale torcido. Pulsa ▶, observa y corrige UN número.',
+        hint:'En un hexágono regular hay 6 giros iguales que suman 360°.', max:3, blocks:['fwd','tr','tl','rep'],
+        start:{x:140,y:250,a:270}, given:[rep(6,fwd(80),tr(50))], sol:[rep(6,fwd(80),tr(60))]}
+    ],
+      boss:{id:'c3z4B', type:'turtle', boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián de los Algoritmos! Dibuja mi rosetón: 8 triángulos equiláteros de 90 pasos. Máximo 5 bloques.',
+        hint:'Un triángulo = repetir 3 (avanzar 90, girar 120). Después, gira para el siguiente: 360 : 8 = ?', max:5, blocks:['fwd','tr','tl','rep'],
+        start:{x:180,y:180,a:270}, sol:[rep(8,rep(3,fwd(90),tr(120)),tr(45))]}
+    },
+    { gem:'🛰️', badge:'Rescatadora/or de satélites',
+      intro:'Chispa ha perdido el contacto con un satélite 🛰️. Para encontrarlo tendrá que recorrer mapas grandes combinando bucles, sensores y un buen plan.',
+      levels:[
+      {id:'c3z5r1', type:'grid', rel:true, title:'El radar', instr:'Recoge las 3 piezas del satélite 🛰️ de las esquinas y llega al cargador ⚡. Máximo 4 bloques.',
+        hint:'El recorrido es un cuadrado: 4 lados iguales de 6 casillas.', max:4, blocks:['fwd','tl','tr','rep'],
+        map:{rows:['*.....*','.#####.','.#####.','.#####.','.#####.','.#####.','SG....*'], dir:0}, sol:[rep(4,fwd(6),tr())]},
+      {id:'c3z5r2', type:'pattern', title:'Series con truco', instr:'Estas series esconden una regla especial. ¿Qué número va en el hueco?',
+        hint:'Prueba: ¿se suma siempre lo mismo? ¿Se multiplica? ¿Cada número es la suma de los dos anteriores?',
+        rounds:[
+          {seq:['1','4','9','16'], ans:0, opts:['25','20','32']},
+          {seq:['1','1','2','3','5','8'], ans:2, opts:['11','16','13']},
+          {seq:['2','6','18','54'], ans:1, opts:['108','162','72']}
+        ]},
+      {id:'c3z5r3', type:'predict', rel:true, title:'Predice el escalón', instr:'Chispa mira hacia arriba. ¿Dónde acabará con este programa? Tócalo y pulsa Comprobar.',
+        hint:'Sigue el repetir dos veces. Recuerda que después de girar, «avanzar» va hacia la nueva dirección.',
+        map:{rows:['..#...','......','....#.','......','.#....','S.....'], dir:0}, prog:[rep(2,fwd(2),tr(),fwd(1),tl())]},
+      {id:'c3z5r4', type:'grid', rel:true, title:'Sensores y piezas', instr:'Un solo programa para los dos mapas, recogiendo todas las piezas 🛰️. Máximo 5 bloques.',
+        hint:'Estos pasillos giran hacia la izquierda. Usa el sensor dentro de un repetir.', max:5, blocks:['fwd','tl','tr','rep','if'],
+        maps:[{rows:['S###G','.###.','.###.','.###.','*...*'], dir:2},{rows:['S##G','.##.','*.*.'], dir:2}],
+        sol:[rep(20,iff([tl()],[fwd(1)]))]},
+      {id:'c3z5r5', type:'turtle', title:'La antena del satélite', instr:'La antena del satélite es un octógono regular de 60 pasos de lado. Dibújalo. Máximo 3 bloques.',
+        hint:'Un octógono tiene 8 lados. 360 : 8 = ?', max:3, blocks:['fwd','tr','tl','rep'],
+        start:{x:110,y:260,a:270}, sol:[rep(8,fwd(60),tr(45))]}
+    ],
+      boss:{id:'c3z5B', type:'grid', rel:true, boss:true, title:'Prueba del Guardián', instr:'¡Soy el Guardián del Satélite! Barre el campo como un radar, recoge las 4 piezas 🛰️ y llega al satélite ⚡. Máximo 9 bloques.',
+        hint:'Sube, pasa a la columna de al lado y baja. Luego otra vez: ¡la segunda vuelta es igual que la primera!', max:9, blocks:['fwd','tl','tr','rep','if'],
+        map:{rows:['*.*..','.....','.....','.....','S*.*G'], dir:0}, sol:[rep(2,fwd(4),tr(),fwd(1),tr(),fwd(4),tl(),fwd(1),tl())]}
+    },
+    { badge:'Ingeniera/o del Núcleo Central',
+      intro:'Has llegado al Núcleo Central de la fábrica ⚛️. Aquí te esperan los retos más difíciles: todo lo que has aprendido, junto. ¡Demuestra que piensas como un programador!',
+      levels:[
+      {id:'c3z6r1', type:'turtle', title:'La estrella de 8 puntas', instr:'Dibuja la estrella de 8 puntas con lados de 140 pasos. Máximo 3 bloques.',
+        hint:'Con 8 puntas, Chispa da 3 vueltas completas: 3 × 360 = 1080°. 1080 : 8 = ?', max:3, blocks:['fwd','tr','tl','rep'],
+        start:{x:110,y:125,a:0}, sol:[rep(8,fwd(140),tr(135))]},
+      {id:'c3z6r2', type:'grid', rel:true, title:'Tres mapas, un programa', instr:'Tres mapas distintos y un solo programa. Recoge los cristales 💎 y llega al cargador ⚡ en todos. Máximo 4 bloques.',
+        hint:'Todos los pasillos giran hacia la izquierda. El sensor hará el resto.', max:4, blocks:['fwd','tl','tr','rep','if'],
+        maps:[{rows:['S####','.###G','.###.','.###.','..*..'], dir:2},{rows:['#S##','#.##','#.#G','#.*.'], dir:2},{rows:['S#####','.####G','...*..'], dir:2}],
+        sol:[rep(20,iff([tl()],[fwd(1)]))]},
+      {id:'c3z6r3', type:'pixel', title:'El código binario', instr:'Así guardan las imágenes los ordenadores: cada fila, en código. Descodifica el mensaje y pinta el dibujo.',
+        hint:'Solo hay dos colores, como el 0 y el 1 de los ordenadores. Cuenta bien cada grupo.',
+        palette:{N:'negro','.':'blanco'},
+        rows:['...NN...','.NNNNNN.','.N.NN.N.','.NNNNNN.','.N....N.','.NNNNNN.','..N..N..','.NN..NN.']},
+      {id:'c3z6r4', type:'turtle', title:'La flor rota', instr:'Este programa debería dibujar 6 triángulos formando un hexágono, pero algo falla. Pulsa ▶, observa y corrige UN número.',
+        hint:'Los 6 triángulos tienen que repartirse en una vuelta completa: 360 : 6 = ?', max:5, blocks:['fwd','tr','tl','rep'],
+        start:{x:180,y:180,a:270}, given:[rep(6,rep(3,fwd(80),tr(120)),tr(50))], sol:[rep(6,rep(3,fwd(80),tr(120)),tr(60))]},
+      {id:'c3z6r5', type:'predict', rel:true, title:'Lee el algoritmo', instr:'Un bucle dentro de otro. Chispa mira hacia arriba: ¿dónde acabará? Tócalo y pulsa Comprobar.',
+        hint:'El bucle de dentro son dos «avanzar 1», es decir, 2 casillas. Luego gira, avanza 1 y vuelve a girar.',
+        map:{rows:['.....#.','...#...','...#...','#......','...#...','.#.....','S......'], dir:0}, prog:[rep(3,rep(2,fwd(1)),tr(),fwd(1),tl())]}
+    ],
+      boss:{id:'c3z6B', type:'grid', rel:true, boss:true, title:'Prueba del Gran Guardián', instr:'¡Soy el Gran Guardián del Núcleo! Recoge los 3 cristales 💎 de mis dos torres y llega al núcleo ⚡. Máximo 5 bloques.',
+        hint:'Cada torre es un cuadrado de 3 casillas de lado. Recorre una, sube a la siguiente y recorre la otra: ¡bucle dentro de bucle!', max:5, blocks:['fwd','tl','tr','rep','if'],
+        map:{rows:['*..*','.##.','.##.','.G..','.##.','.##.','S..*'], dir:0}, sol:[rep(2,rep(4,fwd(3),tr()),fwd(3))]}
+    }
+  ]
+};
+
+// Todas las zonas de un ciclo en orden (la 1 con sus datos de siempre)
+// y la lista plana de retos: el progreso avanza reto a reto y una zona
+// se abre al vencer al Guardián de la anterior.
+function zonasDe(c){ return [Object.assign({levels:CICLOS[c].levels, boss:CICLOS[c].boss}, ZONA1[c]), ...ZONAS_EXTRA[c]]; }
+const LEVELS = {};
+for(const c of [1,2,3]){
+  LEVELS[c] = [];
+  zonasDe(c).forEach((z,zi)=>[...z.levels, z.boss].forEach((l,k)=>{
+    l.zona = zi; l.nz = k+1;
+    if(z.gem && !l.gem) l.gem = z.gem;
+    if(z.wall && !l.wall) l.wall = z.wall;
+    LEVELS[c].push(l);
+  }));
+}
+
+/* ================= códigos de nivel ================= */
+const CODE_WORDS = ['TUERCA','CHIP','PISTON','SENSOR','CABLE','MOTOR'];
+// idx = posición del reto en el ciclo (0-35). Zona 1: los códigos de
+// siempre, que el alumnado ya tiene apuntados. Zonas 2-6: número de tres
+// cifras, así nunca coinciden con los de la Zona 1.
+function levelCode(c, idx){
+  const z = Math.floor(idx/6), n = idx%6+1;
+  if(z===0) return CODE_WORDS[n-1] + '-' + String((c*37 + n*11 + 7) % 90 + 10);
+  return CODE_WORDS[n-1] + '-' + String(100 + (c*211 + z*97 + n*31) % 900);
+}
+function redeemCode(txt){
+  const t = txt.trim().toUpperCase().replace(/\s+/g,'').replace('PISTÓN','PISTON');
+  for(const c of [1,2,3]) for(let i=0;i<LEVELS[c].length;i++){
+    if(levelCode(c,i)===t){
+      const all = allLevels(c);
+      for(let k=0;k<=i;k++) if(!S.progress[c][all[k].id]) S.progress[c][all[k].id]=1;
+      saveProgress(); return {c, n:i+1};
+    }
+  }
+  return null;
+}
+const allLevels = c => LEVELS[c];
+function doneCount(c){ return allLevels(c).filter(l=>S.progress[c][l.id]).length; }
+function isUnlocked(c, idx){ if(S.settings.unlockAll) return true; if(idx===0) return true; const all=allLevels(c); return !!S.progress[c][all[idx-1].id]; }
+function zoneUnlocked(c, z){ return S.settings.unlockAll || z===0 || !!S.progress[c][zonasDe(c)[z-1].boss.id]; }
+function zoneDone(c, z){ return allLevels(c).filter(l=>l.zona===z).every(l=>S.progress[c][l.id]); }
+// Zona por la que va: la del primer reto abierto y sin superar.
+function currentZone(c){
+  const all = allLevels(c);
+  const i = all.findIndex((l,k)=>isUnlocked(c,k) && !S.progress[c][l.id]);
+  return i<0 ? all[all.length-1].zona : all[i].zona;
+}
+
+/* ================= progreso en la nube (solo alumnado con clave) ================= */
+// Firebase solo se descarga si hay un alumno con clave en este
+// dispositivo (o para comprobar que quien abre la guía es docente).
+// cargarFirebase() devuelve una promesa con window.ChispaNube, o null
+// si no carga en 10 segundos; nube() además exige que haya alumno.
+let promesaNube = null;
+function nube(){ return ALUMNO ? cargarFirebase() : Promise.resolve(null); }
+function cargarFirebase(){
+  if(promesaNube) return promesaNube;
+  promesaNube = new Promise(resolve=>{
+    if(window.ChispaNube) return resolve(window.ChispaNube);
+    let hecho=false; const fin=v=>{ if(!hecho){ hecho=true; resolve(v); } };
+    document.addEventListener('chispa:nube-lista', ()=>fin(window.ChispaNube), {once:true});
+    setTimeout(()=>fin(window.ChispaNube||null), 10000);
+    const config=document.createElement('script');
+    config.src='../js/firebase-config.js';
+    config.onload=()=>{ const m=document.createElement('script'); m.type='module'; m.src='js/nube.js'; m.onerror=()=>fin(null); document.head.appendChild(m); };
+    config.onerror=()=>fin(null);
+    document.head.appendChild(config);
+  });
+  return promesaNube;
+}
+// Resumen por ciclo para el panel docente, que así no necesita
+// conocer la lista de retos.
+function resumenProgreso(){
+  const r={};
+  for(const c of [1,2,3]){
+    const all=allLevels(c);
+    r[c]={retos:all.filter(l=>S.progress[c][l.id]).length, total:all.length, estrellas:Object.values(S.progress[c]).reduce((a,b)=>a+b,0), zona:currentZone(c)+1};
+  }
+  return r;
+}
+function guardarEnNube(){ if(ALUMNO) nube().then(n=>{ if(n) return n.guardar(S.progress, resumenProgreso()); }).catch(()=>{}); }
+// Al abrir: se juntan el progreso de este equipo y el de la nube
+// quedándose con las mejores estrellas de cada reto, así no se pierde
+// nada de lo jugado en otro ordenador ni lo jugado aquí sin conexión.
+async function sincronizarDesdeNube(){
+  const n = await nube(); if(!n) return;
+  let remoto; try{ remoto = await n.cargar(); }catch(e){ return; }
+  let cambia=false, subir=!remoto;
+  for(const c of [1,2,3]){
+    const r=(remoto&&remoto[c])||{};
+    for(const [id,st] of Object.entries(r)) if((S.progress[c][id]||0)<st){ S.progress[c][id]=st; cambia=true; }
+    for(const [id,st] of Object.entries(S.progress[c])) if((r[id]||0)<st) subir=true;
+  }
+  store.set(PROGRESS_KEY, S.progress);
+  if(subir) guardarEnNube();
+  if(cambia && vistaActual) vistaActual();
+}
+function salirAlumno(){
+  if(!confirm('¿Salir de tu clave en este ordenador? Para volver a entrar necesitarás tu clave.')) return;
+  // Borra lo mismo que clearStudentSession() en js/auth.js.
+  try{ ['ar_estudiante','ar_visibilidad','ar_soluciones'].forEach(k=>localStorage.removeItem(k)); }catch(e){}
+  location.reload();
+}
+function chipAlumno(){
+  if(ALUMNO) return h('span',{class:'alumno-chip',title:'Tu progreso se guarda con tu clave: puedes seguir en cualquier ordenador'},
+    '👤 ', ALUMNO.nickname||ALUMNO.code, h('button',{class:'btn ghost',onclick:salirAlumno},'Salir'));
+  // El docente (o quien mira la app como el alumnado) no juega con clave.
+  if(leerLS('ar_docente') || leerLS('ar_vista_alumno')) return null;
+  return h('a',{class:'btn ghost',href:'../alumno-login.html?volver='+encodeURIComponent('pensamiento-computacional/chispa-fabrica-robots.html'),
+    style:'text-decoration:none;color:inherit',title:'Entra con la clave de Aprende y Repasa para guardar tu progreso'},'🔑 Entrar con mi clave');
+}
+
+/* ================= navegación ================= */
+const app = $('#app');
+let cleanup = [];
+// Pantalla que hay que repintar si llega progreso nuevo de la nube
+// (solo la portada y el mapa: a mitad de un reto no se interrumpe).
+let vistaActual = null;
+function screen(ciclo){
+  vistaActual = null;
+  cleanup.forEach(f=>f()); cleanup=[];
+  try{ speechSynthesis.cancel(); }catch(e){}
+  app.innerHTML='';
+  const col = ciclo ? CICLOS[ciclo].color : '#22d39a';
+  document.documentElement.style.setProperty('--accent', col);
+  const mode = S.settings.size==='auto' ? (ciclo ? CICLOS[ciclo].mode : 'pdi') : S.settings.size;
+  app.className = mode;
+  window.scrollTo(0,0);
+}
+function topbar(title, sub, back, extra=[]){
+  return h('div',{class:'topbar'},
+    back ? h('button',{class:'btn icon-btn',title:'Volver',onclick:back,'aria-label':'Volver'},'⬅') : null,
+    h('h1',{}, title, sub?h('small',{},sub):null),
+    ...extra,
+    h('button',{class:'btn icon-btn',title:'Manual',onclick:()=>showManual(), 'aria-label':'Manual'},'📖'),
+    teacherButton()
+  );
+}
+function teacherButton(label){
+  if(!DOCENTE) return null;
+  // Mantener pulsado 1,5 s para abrir (evita abrirla sin querer en la pizarra)
+  const bar = h('i');
+  const b = label
+    ? h('button',{class:'btn hold',title:'Mantén pulsado para abrir'}, label, bar)
+    : h('button',{class:'btn icon-btn hold',title:'Panel del maestro (mantén pulsado)','aria-label':'Panel del maestro'},'⚙️',bar);
+  let start=0, raf=null, opened=false;
+  const down = e=>{ e.preventDefault(); opened=false; start=performance.now(); const tick=()=>{ const p=(performance.now()-start)/1500; bar.style.width=Math.min(100,p*100)+'%'; if(p>=1){ opened=true; up(); showTeacher(); } else raf=requestAnimationFrame(tick); }; raf=requestAnimationFrame(tick); };
+  const up = ()=>{ cancelAnimationFrame(raf); bar.style.width='0'; };
+  b.addEventListener('pointerdown',down); b.addEventListener('pointerup',up); b.addEventListener('pointerleave',up);
+  b.addEventListener('click',()=>{ if(!opened) toast('Maestro/a: mantén pulsado este botón 2 segundos', true); });
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+  return b;
+}
+function toast(msg, ok=false, ms=3200){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t = h('div',{class:'toast'+(ok?' ok':'')}, svgEl(robotSVG(ok?'#22d39a':'#ff5d73',34, ok?'happy':'sad')), h('span',{},msg));
+  document.body.append(t); setTimeout(()=>t.remove(), ms);
+}
+
+/* ================= pantalla inicio ================= */
+function showHome(){
+  screen(null); vistaActual = showHome;
+  const cards = [1,2,3].map(c=>{
+    const C=CICLOS[c], d=doneCount(c), tot=allLevels(c).length, z=currentZone(c);
+    return h('div',{class:'card ciclo-card',style:`--cc:${C.color}`,tabindex:0,role:'button',onclick:()=>showMap(c),onkeydown:e=>{if(e.key==='Enter')showMap(c);}},
+      h('div',{class:'floaty'}, svgEl(robotSVG(C.color,100))),
+      h('h2',{},C.name), h('div',{class:'muted'},C.sub),
+      h('div',{class:'zone'},`Zona ${z+1} · ${ZONES[c][z]}`),
+      h('div',{class:'tag'}, C.tag),
+      h('div',{class:'bar'}, h('i',{style:`width:${d/tot*100}%`})),
+      h('div',{class:'muted',style:'font-size:.85em;margin-top:.2em'}, `${d} de ${tot} retos superados`)
+    );
+  });
+  app.append(
+    h('div',{class:'topbar'}, h('a',{class:'btn ghost',href:'../index.html',style:'text-decoration:none;color:inherit',title:'Volver a Aprende y Repasa'},'⬅ Aprende y Repasa'), chipAlumno(), h('h1',{},''), h('button',{class:'btn icon-btn',onclick:()=>showManual(),title:'Manual'},'📖'), teacherButton()),
+    h('div',{class:'home'},
+      h('div',{class:'logo'},
+        h('h1',{html:'<span>Chispa</span> y la <b>Fábrica</b> de <i>Robots</i>'}),
+        h('p',{},'Una aventura para aprender a pensar como un programador')),
+      h('div',{class:'ciclos'}, cards),
+      h('div',{class:'home-actions'},
+        h('button',{class:'btn primary',onclick:()=>showManual()},'📖 Manual del explorador'),
+        teacherButton('👩‍🏫 Guía del maestro (mantén pulsado)')
+      )
+    )
+  );
+}
+
+/* ================= mapa del ciclo ================= */
+const NODE_POS = [[12,78],[30,55],[18,28],[45,18],[62,42],[84,30]];
+function showMap(c, z){
+  if(z==null || !zoneUnlocked(c,z)) z = currentZone(c);
+  screen(c); vistaActual = () => showMap(c, z);
+  const C = CICLOS[c], all = allLevels(c);
+  const enZona = all.map((l,i)=>({l,i})).filter(o=>o.l.zona===z);
+  const map = h('div',{class:'card map'});
+  const pts = NODE_POS.map(p=>p.join(',')).join(' ');
+  map.append(h('div',{html:`<svg class="path" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="${C.color}" stroke-opacity=".45" stroke-width="1.4" stroke-dasharray="3 2" vector-effect="non-scaling-stroke" style="stroke-width:10px"/></svg>`}).firstChild);
+  const firstOpen = all.findIndex((l,i)=>isUnlocked(c,i) && !S.progress[c][l.id]);
+  enZona.forEach(({l,i},k)=>{
+    const st = S.progress[c][l.id], un = isUnlocked(c,i);
+    const n = h('button',{class:'node'+(st?' done':'')+(un?'':' locked')+(l.boss?' boss':'')+(i===firstOpen?' current':''),
+      style:`left:${NODE_POS[k][0]}%;top:${NODE_POS[k][1]}%`, 'aria-label':l.title,
+      onclick:()=>{ if(!un){ beep('bad'); toast('Primero supera el reto anterior'); return; } beep('tap'); showLevel(c,i); }},
+      l.boss ? h('span',{style:'line-height:0'}, svgEl(robotSVG('#fff',54,'boss'))) : h('span',{}, un? String(k+1) : '🔒'),
+      h('span',{class:'stars'}, st ? '⭐'.repeat(st) : ''),
+      h('span',{class:'lbl'}, l.boss?'Guardián':l.title)
+    );
+    map.append(n);
+  });
+  map.append(h('div',{style:'position:absolute;right:4%;bottom:6%;text-align:center',class:'floaty'}, svgEl(robotSVG(C.color,80)), h('div',{class:'muted',style:'font-weight:700'},'¡Vamos!')));
+  const d = enZona.filter(o=>S.progress[c][o.l.id]).length;
+  const est = enZona.reduce((a,o)=>a+(S.progress[c][o.l.id]||0),0);
+  const zones = h('ul',{class:'zones'}, ZONES[c].map((nombre,i)=>{
+    const un = zoneUnlocked(c,i), hecha = zoneDone(c,i);
+    const icono = i===z ? '📍' : hecha ? '✅' : un ? '🔓' : '🔒';
+    const txt = `Zona ${i+1}: ${nombre}`;
+    return h('li',{class: i===z?'cur': hecha?'done': un?'':'lock'},
+      un && i!==z ? h('button',{onclick:()=>showMap(c,i),title:'Ir a esta zona'}, icono, txt) : h('span',{style:'display:flex;gap:.5em'}, icono, txt));
+  }));
+  const inp = h('input',{placeholder:'Ej.: CHIP-42','aria-label':'Código de nivel'});
+  const side = h('div',{class:'side'},
+    h('div',{class:'card'}, h('h3',{},`Zona ${z+1}: ${ZONES[c][z]}`), h('div',{},`${d} de ${enZona.length} retos`), h('div',{class:'stars-row'}, '⭐ '+est+' estrellas'),
+      h('div',{class:'muted',style:'font-size:.9em;margin-top:.3em'}, `En todo el ciclo: ${doneCount(c)} de ${all.length} retos`)),
+    h('div',{class:'card'}, h('h3',{},'🗺️ Zonas de la fábrica'), zones),
+    h('div',{class:'card'}, h('h3',{},'🔑 Tengo un código'),
+      h('div',{class:'muted',style:'font-size:.9em'}, c===3?'Escribe el último código que apuntaste en tu cuaderno para seguir donde lo dejaste.':'Si cambiáis de ordenador, escribid el último código para recuperar el avance.'),
+      h('div',{class:'code-in'}, inp, h('button',{class:'btn primary',onclick:()=>{
+        const r = redeemCode(inp.value);
+        if(r && r.c===c){ toast('¡Código correcto! Avance recuperado.', true); beep('ok'); showMap(c); }
+        else if(r){ toast(`Ese código es del ${CICLOS[r.c].name}. Avance guardado allí.`, true); }
+        else { beep('bad'); toast('Ese código no existe. Revísalo letra a letra.'); }
+      }},'OK')))
+  );
+  app.append(topbar(`${C.name} · Zona ${z+1}`, ZONES[c][z], showHome), h('div',{class:'map-wrap'}, map, side));
+  if(z===0){ if(!S.settings.seenTut[c]) showTutorial(c); }
+  else if(!(S.settings.seenZone||{})[c+'-'+z]) showZoneIntro(c, z);
+}
+// Presentación de cada zona nueva la primera vez que se entra.
+function showZoneIntro(c, z){
+  const zona = zonasDe(c)[z];
+  const cerrar = ()=>{ S.settings.seenZone = Object.assign({}, S.settings.seenZone, {[c+'-'+z]:true}); saveSettings(); ov.remove(); try{ speechSynthesis.cancel(); }catch(e){} };
+  const ov = h('div',{class:'overlay'},
+    h('div',{class:'card modal'},
+      h('div',{class:'floaty'}, svgEl(robotSVG(CICLOS[c].color,110))),
+      h('h2',{}, `Zona ${z+1}: ${ZONES[c][z]}`),
+      h('p',{style:'font-size:1.25em;line-height:1.35'}, zona.intro),
+      h('div',{class:'ctrl-row'},
+        h('button',{class:'btn',onclick:()=>speak(zona.intro)},'🔊 Escuchar'),
+        h('button',{class:'btn primary',onclick:cerrar},'¡Vamos! ➜'))));
+  document.body.append(ov); cleanup.push(()=>ov.remove());
+  if(c<3) speak(ZONES[c][z]+'. '+zona.intro);
+}
+
+/* ================= tutorial inicial ================= */
+const TUTS = {
+  1:[ 'Hola, soy Chispa, un robot aprendiz. ¡Necesito vuestra ayuda para recorrer la fábrica!',
+      'Yo solo hago lo que me decís con las flechas. Primero se piensa el camino, después se ponen las flechas.',
+      'Cuando el programa esté listo, pulsad el botón verde ▶ y yo lo haré paso a paso.',
+      'Si me equivoco, no pasa nada: buscamos el error y lo arreglamos. ¡Así aprenden los programadores!' ],
+  2:[ '¡Hola otra vez! Hoy bajamos a la Mina de Engranajes.',
+      'Además de flechas, tenéis el bloque REPETIR. Sirve para no escribir lo mismo muchas veces.',
+      'Algunos retos tienen un límite de bloques: ahí tendréis que usar REPETIR.',
+      'También programaréis una máquina con reglas SI… ENTONCES… SI NO…' ],
+  3:[ 'Bienvenido al Laboratorio. Aquí programas tú solo, con bloques que se arrastran y se encajan.',
+      'Ojo: ahora avanzo hacia donde miro (flecha amarilla). Para cambiar de dirección tengo que girar.',
+      'Puedes usar bucles, sensores y hasta dibujar figuras geométricas.',
+      'Cada vez que superes un reto te daré un CÓDIGO. Apúntalo en tu cuaderno: con él recuperas tu avance en cualquier ordenador.' ]
+};
+function showTutorial(c){
+  let i=0; const steps=TUTS[c];
+  const ov = h('div',{class:'overlay'});
+  const render=()=>{
+    ov.innerHTML='';
+    const last = i===steps.length-1;
+    ov.append(h('div',{class:'card modal'},
+      h('div',{class:'floaty'}, svgEl(robotSVG(CICLOS[c].color,110))),
+      h('p',{style:'font-size:1.3em;line-height:1.35'}, steps[i]),
+      h('div',{class:'tut-dots'}, steps.map((_,k)=>h('i',{class:k===i?'on':''}))),
+      h('div',{class:'ctrl-row'},
+        h('button',{class:'btn',onclick:()=>speak(steps[i])},'🔊 Escuchar'),
+        i>0?h('button',{class:'btn',onclick:()=>{i--;render();}},'Atrás'):null,
+        h('button',{class:'btn primary',onclick:()=>{ if(last){ S.settings.seenTut[c]=true; saveSettings(); ov.remove(); try{speechSynthesis.cancel();}catch(e){} } else { i++; render(); speak(steps[i]); } }}, last?'¡A jugar!':'Siguiente ➜')
+      )));
+  };
+  render(); document.body.append(ov);
+  cleanup.push(()=>ov.remove());
+  if(c<3) speak(steps[0]);
+}
+
+/* ================= pantalla de reto ================= */
+function showLevel(c, idx){
+  screen(c);
+  const C = CICLOS[c], lv = allLevels(c)[idx];
+  const ctx = { c, idx, lv, C, fails:0, usedSolution:false };
+  window.__ctx = ctx;
+  const board = h('div',{class:'card board-card'});
+  const side = h('div',{class:'card side-card'});
+  const hintBox = h('div',{class:'hint hidden'});
+  const solBtn = h('button',{class:'btn gold hidden',onclick:()=>{ ctx.usedSolution=true; ctx.showSolution && ctx.showSolution(); }},'👀 Ver solución');
+  ctx.fail = (msg)=>{
+    ctx.fails++; beep('bad'); toast(msg);
+    const hintAt = lv.boss?3:2;
+    if(ctx.fails>=hintAt){ hintBox.classList.remove('hidden'); hintBox.innerHTML=''; hintBox.append(h('b',{},'💡 Pista: '), lv.hint); if(c<3) speak('Pista. '+lv.hint); }
+    if(!lv.boss && ctx.fails>=4 && ctx.showSolution) solBtn.classList.remove('hidden');
+  };
+  ctx.win = (stars)=>{ if(ctx.usedSolution) stars=1; if(lv.boss) stars=Math.max(stars,1); finishLevel(ctx, stars); };
+  const say = ()=>speak(lv.title+'. '+lv.instr);
+  side.append(
+    lv.boss ? h('div',{class:'boss-banner'}, lv.zona<5 ? `⚔️ Prueba del Guardián — supérala para abrir la Zona ${lv.zona+2}` : '⚔️ Prueba del Gran Guardián — ¡la última de la fábrica!') : null,
+    h('div',{class:'instr'},
+      h('div',{style:'flex:none'}, svgEl(robotSVG(lv.boss?'#ff5d73':C.color,58, lv.boss?'boss':'happy'))),
+      h('div',{class:'bubble'}, h('b',{},lv.title), h('br'), lv.instr)),
+    hintBox
+  );
+  const prev = S.progress[c][lv.id];
+  app.append(
+    topbar(`${lv.boss?'⚔️ ':'Reto '+lv.nz+' · '}${lv.title}`, `${C.name} · Zona ${lv.zona+1}: ${ZONES[c][lv.zona]}`, ()=>showMap(c, lv.zona), [
+      prev ? h('span',{class:'stars-row',title:'Tu mejor resultado'}, '⭐'.repeat(prev)) : null,
+      h('button',{class:'btn icon-btn',title:'Escuchar instrucciones',onclick:say,'aria-label':'Escuchar'},'🔊'),
+      h('button',{class:'btn icon-btn',title:'Ayuda',onclick:()=>showHelp(lv, c),'aria-label':'Ayuda'},'❓')
+    ]),
+    h('div',{class:'lvl'}, board, side)
+  );
+  const init = {grid:initGrid, turtle:initTurtle, pattern:initPattern, order:initOrder, pixel:initPixel, sorter:initSorter, predict:initPredict}[lv.type];
+  init(ctx, board, side);
+  side.append(h('div',{class:'ctrl-row'}, solBtn));
+  if(c<3) setTimeout(say, 400);
+}
+function showHelp(lv, c){
+  const help = {
+    grid: c===3 ? ['Arrastra bloques desde la izquierda hasta la zona «Mi programa» (o tócalos para añadirlos al final).','Cambia los números escribiendo en la casilla blanca.','Para borrar un bloque pulsa ✕ o arrástralo de vuelta a la paleta.','Pulsa ▶ Ejecutar para probar. Si choca, ¡busca el error!']
+      : ['Piensa el camino con el dedo antes de programar.','Pulsa las flechas para añadir pasos al programa.', (CICLOS[c].loops||lv.loops)?'Para repetir: pulsa 🔁 Repetir, añade flechas, pulsa ✔ Cerrar y toca el número para cambiarlo.':'Pulsa ⌫ para borrar la última flecha.','Pulsa ▶ para que Chispa lo haga.'],
+    turtle:['Chispa dibuja una línea cuando avanza.','«girar» cambia su dirección: 90° es un giro de esquina.','Una vuelta completa son 360°.','Tu dibujo debe coincidir con el modelo punteado.'],
+    pattern:['Mira la serie y descubre qué se repite.','Toca la pieza que va en el hueco ❓.'],
+    order:['Toca las tarjetas en orden: primero, segundo, tercero…','Si te equivocas, empieza a pensar desde el principio.'],
+    pixel:['Elige un color tocando un círculo.','Toca las casillas para pintarlas.','Cada fila del código dice cuántas casillas de cada color van seguidas.','Pulsa ✔ Comprobar al terminar.'],
+    sorter:['Elige la pregunta que hará la máquina (SI la pieza es…).','Elige a qué caja va si la respuesta es SÍ y a cuál si es NO.','Pulsa ▶ para encender la cinta.'],
+    predict:['Lee el programa bloque a bloque, de arriba abajo.','Sigue el camino con el dedo en el tablero, sin pulsar nada.','Toca la casilla donde crees que se parará Chispa.','Pulsa ▶ Comprobar: Chispa hará el programa y verás si has acertado.']
+  }[lv.type];
+  const ov = h('div',{class:'overlay',onclick:e=>{ if(e.target===ov) ov.remove(); }},
+    h('div',{class:'card modal',style:'text-align:left'},
+      h('h2',{style:'text-align:center'},'❓ ¿Cómo se juega?'),
+      h('ol',{class:'steps'}, help.map(t=>h('li',{},t))),
+      h('div',{class:'ctrl-row'}, h('button',{class:'btn',onclick:()=>speak(help.join('. '))},'🔊 Escuchar'), h('button',{class:'btn primary',onclick:()=>ov.remove()},'Entendido'))));
+  document.body.append(ov); cleanup.push(()=>ov.remove());
+}
+
+function finishLevel(ctx, stars){
+  const {c, idx, lv, C} = ctx;
+  const prev = S.progress[c][lv.id]||0;
+  const first = !prev;
+  S.progress[c][lv.id] = Math.max(prev, stars); saveProgress();
+  beep(lv.boss?'boss':'ok'); confetti();
+  const all = allLevels(c);
+  const code = levelCode(c, idx);
+  const next = idx+1 < all.length ? idx+1 : null;
+  const zi = lv.zona, zonas = zonasDe(c), ultima = zi===zonas.length-1;
+  const msgs = ['¡Lo conseguiste!','¡Genial, programador/a!','¡Chispa está feliz!','¡Reto superado!'];
+  const title = lv.boss ? '¡Has vencido al Guardián!' : msgs[Math.floor(Math.random()*msgs.length)];
+  const ov = h('div',{class:'overlay'},
+    h('div',{class:'card modal'},
+      h('div',{class:'floaty'}, svgEl(robotSVG(C.color,110))),
+      h('h2',{}, title),
+      h('div',{class:'bigstars'}, [1,2,3].map(k=>h('span',{class:k<=stars?'':'off'},'⭐'))),
+      h('p',{class:'muted'}, stars===3?'¡Perfecto! Programa corto y sin errores.': stars===2?'¡Muy bien! ¿Podrías hacerlo con menos bloques o menos intentos?':'¡Superado! Inténtalo otra vez para conseguir más estrellas.'),
+      lv.boss ? h('p',{style:'font-size:1.15em'}, `🏅 Insignia «${zonas[zi].badge}». ` + (ultima ? '¡Has completado toda la fábrica! Ya piensas como un programador.' : `¡Se ha abierto la Zona ${zi+2}: «${ZONES[c][zi+1]}»!`)) : null,
+      h('div',{}, h('div',{class:'muted'}, c===3?'📓 Apunta este código en tu cuaderno:':'Código de avance:'), h('div',{class:'codebox'}, code)),
+      h('div',{class:'ctrl-row',style:'margin-top:.8em'},
+        h('button',{class:'btn',onclick:()=>{ov.remove(); showLevel(c,idx);}},'↺ Repetir'),
+        h('button',{class:'btn',onclick:()=>{ov.remove(); showMap(c, zi);}},'🗺️ Mapa'),
+        next==null ? null
+          : lv.boss ? h('button',{class:'btn primary',onclick:()=>{ov.remove(); showMap(c, zi+1);}}, `Ir a la Zona ${zi+2} ➜`)
+          : h('button',{class:'btn primary',onclick:()=>{ov.remove(); showLevel(c,next);}}, all[next].boss?'⚔️ Ir al Guardián':'Siguiente reto ➜')
+      )));
+  document.body.append(ov); cleanup.push(()=>ov.remove());
+  speak(title + (c===3?' Apunta tu código: '+code.replace('-',' '):''));
+}
+
+/* ================= intérprete ================= */
+function countBlocks(list){ let n=0; for(const b of list){ n++; if(b.body) n+=countBlocks(b.body); if(b.els) n+=countBlocks(b.els); } return n; }
+function* interp(list, env){
+  for(const b of list){
+    if(b.t==='rep'){ for(let k=0;k<b.n;k++){ yield {b, act:'loop'}; yield* interp(b.body, env); } }
+    else if(b.t==='if'){ yield {b, act:'check'}; yield* interp(env.wallAhead()?b.body:b.els, env); }
+    else yield {b, act:b.t};
+  }
+}
+function markRun(b, on){ if(b && b._el) b._el.classList.toggle('run', on); }
+
+/* ================= juego de cuadrícula ================= */
+function initGrid(ctx, board, side){
+  const {lv, c, C} = ctx;
+  const maps = (lv.maps||[lv.map]).map(parseMap);
+  const rel = !!lv.rel;
+  let cur = 0, running = false, stopFlag = false;
+  let program = lv.given ? clone(lv.given) : [];
+  const tabs = maps.length>1 ? h('div',{class:'maptabs'}, maps.map((_,i)=>h('span',{},'Mapa '+(i+1)))) : null;
+  const gridHost = h('div');
+  board.append(tabs||'', gridHost);
+  let st, cs, botEl, dirEl, cellEls;
+  function build(mi){
+    cur = mi; const m = maps[mi];
+    if(tabs) [...tabs.children].forEach((t,i)=>t.classList.toggle('on',i===mi));
+    const availW = Math.max(240, board.clientWidth-40), availH = Math.max(260, Math.min(window.innerHeight*.68, 640));
+    cs = Math.floor(Math.min(availW/m.w, availH/m.h, c===3?92:135)) - 6;
+    gridHost.innerHTML='';
+    const g = h('div',{class:'grid',style:`grid-template-columns:repeat(${m.w},${cs}px);grid-auto-rows:${cs}px;font-size:${cs*.5}px`});
+    cellEls = {};
+    for(let y=0;y<m.h;y++) for(let x=0;x<m.w;x++){
+      const k=x+','+y, cell=h('div',{class:'cell'});
+      if(m.walls.has(k)){ cell.classList.add('wall'); cell.append(h('span',{style:'font-size:.8em'}, lv.wall||(c===3?'🧱':'📦'))); }
+      if(m.goal && m.goal[0]===x && m.goal[1]===y){ cell.classList.add('goal'); cell.append(h('span',{},'⚡')); }
+      if(m.gems.some(g=>g[0]===x&&g[1]===y)) cell.append(h('span',{class:'gem'}, lv.gem||GEM[c]));
+      cellEls[k]=cell; g.append(cell);
+    }
+    botEl = h('div',{class:'bot',style:`width:${cs}px;height:${cs}px`});
+    dirEl = h('div',{class:'dir'+(rel?'':' hidden')});
+    const r = svgEl(robotSVG(C.color, cs*.78)); r.style.cssText='position:absolute;left:50%;top:50%;transform:translate(-50%,-52%)';
+    botEl.append(dirEl, r); g.append(botEl);
+    gridHost.append(g);
+    reset();
+  }
+  function reset(){
+    const m = maps[cur];
+    st = {x:m.start[0], y:m.start[1], d:m.dir||0, gems:new Set(), steps:0};
+    Object.values(cellEls).forEach(e=>{ const g=e.querySelector('.gem'); if(g) g.classList.remove('got'); });
+    place(true);
+  }
+  function place(instant){
+    const gap=6;
+    if(instant) botEl.style.transition='none';
+    botEl.style.transform = `translate(${st.x*(cs+gap)}px,${st.y*(cs+gap)}px)`;
+    dirEl.style.transform = `rotate(${st.d*90}deg)`;
+    if(instant){ botEl.offsetHeight; botEl.style.transition=''; }
+  }
+  const blocked = (x,y)=>{ const m=maps[cur]; return x<0||y<0||x>=m.w||y>=m.h||m.walls.has(x+','+y); };
+  const env = { wallAhead:()=>{ const [dx,dy]=DIRV[st.d]; return blocked(st.x+dx, st.y+dy); } };
+  const won = ()=>{ const m=maps[cur]; return st.x===m.goal[0] && st.y===m.goal[1] && st.gems.size===m.gems.length; };
+  const delay = ()=> (c===3?260:420)/S.settings.speed;
+  async function stepTo(dir){
+    const [dx,dy]=DIRV[dir], nx=st.x+dx, ny=st.y+dy;
+    if(blocked(nx,ny)){
+      botEl.classList.remove('crash'); botEl.offsetWidth; botEl.classList.add('crash');
+      throw {msg: (nx<0||ny<0||nx>=maps[cur].w||ny>=maps[cur].h) ? '¡Uy! Chispa se sale del tablero.' : '¡Pum! Chispa se ha chocado con un obstáculo.'};
+    }
+    st.x=nx; st.y=ny; place(); beep('step');
+    const m=maps[cur]; const gi = m.gems.findIndex(g=>g[0]===nx&&g[1]===ny);
+    if(gi>=0 && !st.gems.has(gi)){ st.gems.add(gi); const ge=cellEls[nx+','+ny].querySelector('.gem'); if(ge) ge.classList.add('got'); }
+    await sleep(delay());
+  }
+  async function runOn(mi){
+    build(mi); await sleep(300);
+    const it = interp(program, env);
+    let prevB = null;
+    for(const step of it){
+      if(stopFlag) throw {stop:true};
+      if(++st.steps>400) throw {msg:'Demasiados pasos. ¿Se repite algo de más?'};
+      markRun(prevB,false); markRun(step.b,true); prevB=step.b;
+      const a=step.act;
+      if(a in ABS){ st.d=ABS[a]; await stepTo(ABS[a]); }
+      else if(a==='fwd'){ for(let k=0;k<(step.b.n||1);k++){ await stepTo(st.d); if(won()) break; } }
+      else if(a==='tl'||a==='tr'){ st.d=(st.d+(a==='tr'?1:3))%4; place(); beep('tap'); await sleep(delay()); }
+      else await sleep(delay()*.35);
+      if(won()){ markRun(prevB,false); return true; }
+    }
+    markRun(prevB,false);
+    const m=maps[cur];
+    if(st.gems.size<m.gems.length) throw {msg:`Faltan ${m.gems.length-st.gems.size} ${lv.gem||GEM[c]} por recoger.`};
+    throw {msg:'Chispa no ha llegado al cargador ⚡. ¡Revisa el programa!'};
+  }
+  async function run(){
+    if(running) return;
+    if(!program.length){ toast('El programa está vacío. Añade bloques primero.'); return; }
+    if(countBlocks(program)>lv.max){ ctx.fail(`Usas ${countBlocks(program)} bloques y el máximo es ${lv.max}.`); editor.shakeCount(); return; }
+    running=true; stopFlag=false; editor.setRunning(true);
+    try{
+      for(let mi=0; mi<maps.length; mi++){
+        await runOn(mi);
+        if(tabs) tabs.children[mi].classList.add('ok');
+      }
+      const used = countBlocks(program), opt = countBlocks(lv.sol);
+      let stars = used<=opt ? 3 : used<=opt+2 ? 2 : 1;
+      if(ctx.fails>=3 && stars>2) stars=2;
+      await sleep(250);
+      ctx.win(stars);
+    }catch(e){
+      if(e && e.stop){ build(0); }
+      else { ctx.fail(e.msg||'Algo ha fallado'); await sleep(900); if(tabs)[...tabs.children].forEach(t=>t.classList.remove('ok')); build(cur); }
+    }finally{ running=false; editor.setRunning(false); }
+  }
+  const editor = (C.edit==='blocks')
+    ? blockEditor(side, lv, ()=>program, p=>{program=p;}, run, ()=>{stopFlag=true;})
+    : tapEditor(side, lv, C, ()=>program, p=>{program=p;}, run, ()=>{stopFlag=true;});
+  ctx.showSolution = ()=>{ program = clone(lv.sol); editor.refresh(); toast('Observa la solución y pulsa ▶', true); };
+  requestAnimationFrame(()=>build(0));
+  const onR = ()=>{ if(!running) build(cur); };
+  window.addEventListener('resize', onR); cleanup.push(()=>window.removeEventListener('resize', onR));
+}
+
+/* ----- editor por toques (1.º y 2.º ciclo, pizarra) ----- */
+function tapEditor(side, lv, C, get, set, run, stop){
+  let open = null; // bucle abierto
+  const loopsOn = (C.loops || lv.loops) && !lv.noLoop;
+  const progBox = h('div',{class:'prog'});
+  const counter = h('span',{class:'counter'});
+  const runBtn = h('button',{class:'btn primary',style:'font-size:1.3em',onclick:run},'▶ ¡Adelante!');
+  const stopBtn = h('button',{class:'btn danger hidden',onclick:stop},'■ Parar');
+  const add = (node)=>{
+    const p=get();
+    if(countBlocks(p)+1>lv.max){ beep('bad'); shakeCount(); toast(`Máximo ${lv.max} bloques en este reto.`); return; }
+    (open?open.body:p).push(node); beep('tap'); refresh();
+  };
+  const dirs = ['up','left','down','right'];
+  const pad = h('div',{class:'pad'}, dirs.map(d=>h('button',{class:'btn arrow-btn '+d,'aria-label':ABS_NAME[d],onclick:()=>add(mv(d))},ARW[d])));
+  const loopBtn = h('button',{class:'btn',style:'background:var(--ctl);color:#2a1a00',onclick:()=>{
+    if(open){ open=null; refresh(); return; }
+    const p=get(); if(countBlocks(p)+1>lv.max){ beep('bad'); shakeCount(); toast(`Máximo ${lv.max} bloques.`); return; }
+    open = {t:'rep',n:2,body:[]}; p.push(open); beep('tap'); refresh();
+  }});
+  const undo = ()=>{
+    const p=get();
+    if(open){ if(open.body.length) open.body.pop(); else { p.splice(p.indexOf(open),1); open=null; } }
+    else { const last=p.pop(); }
+    refresh();
+  };
+  function shakeCount(){ counter.classList.remove('shake'); counter.offsetWidth; counter.classList.add('shake'); }
+  function card(b){
+    const el = h('button',{class:'pcard'+(lv.cycle?' cyc':''),'aria-label':ABS_NAME[b.t]}, ARW[b.t]);
+    if(lv.cycle) el.onclick=()=>{ const order=['up','right','down','left']; b.t=order[(order.indexOf(b.t)+1)%4]; beep('tap'); refresh(); };
+    b._el = el; return el;
+  }
+  function refresh(){
+    const p=get();
+    if(open && !p.includes(open)) open=null;
+    progBox.innerHTML='';
+    if(!p.length) progBox.append(h('div',{class:'empty'},'Tu programa está vacío. Pulsa las flechas ⬇'));
+    for(const b of p){
+      if(b.t==='rep'){
+        const times = h('button',{class:'times',title:'Cambiar número',onclick:()=>{ b.n = b.n>=8?2:b.n+1; beep('tap'); refresh(); }}, `🔁 ×${b.n}`);
+        const lp = h('div',{class:'ploop'+(b===open?' open':''), onclick:e=>{ if(e.target===lp && !lv.cycle){ open = (open===b?null:b); refresh(); } }}, times, b.body.map(card), b===open?h('div',{class:'slot',title:'Las flechas irán aquí'}):null);
+        b._el = lp; progBox.append(lp);
+      } else progBox.append(card(b));
+    }
+    const n=countBlocks(p);
+    counter.textContent = `Bloques: ${n} / ${lv.max}`;
+    counter.classList.toggle('over', n>lv.max);
+    loopBtn.textContent = open ? '✔ Cerrar repetir' : '🔁 Repetir';
+  }
+  side.append(
+    h('div',{style:'display:flex;justify-content:space-between;align-items:center'}, h('b',{},'🧩 Tu programa'), counter),
+    progBox,
+    h('div',{class:'muted',style:'text-align:center;font-size:.9em'}, lv.cycle?'Toca una flecha del programa para cambiarla ↻':'Pulsa las flechas para añadir pasos'),
+    h('div',{class:'ctrl-zone'},
+      pad,
+      h('div',{class:'ctrl-col'},
+        loopsOn ? loopBtn : null,
+        h('div',{class:'ctrl-row'},
+          h('button',{class:'btn',onclick:undo},'⌫ Borrar'),
+          h('button',{class:'btn',onclick:()=>{ set([]); open=null; refresh(); }},'🗑️ Todo')),
+        runBtn, stopBtn))
+  );
+  refresh();
+  return { refresh:()=>{ open=null; refresh(); }, shakeCount, setRunning:r=>{ runBtn.classList.toggle('hidden',r); stopBtn.classList.toggle('hidden',!r); } };
+}
+
+/* ----- editor de bloques (3.er ciclo, ordenador) ----- */
+const BLOCK_DEF = {
+  fwd:{cls:'mv', make:tur=>({t:'fwd',n:tur?50:1})},
+  tr:{cls:'mv', make:tur=>tur?{t:'tr',n:90}:{t:'tr'}},
+  tl:{cls:'mv', make:tur=>tur?{t:'tl',n:90}:{t:'tl'}},
+  rep:{cls:'ctl', make:()=>({t:'rep',n:4,body:[]})},
+  if:{cls:'sen', make:()=>({t:'if',body:[],els:[]})}
+};
+function blockEditor(side, lv, get, set, run, stop){
+  const tur = lv.type==='turtle';
+  const ws = h('div',{class:'ws'});
+  const palette = h('div',{class:'palette'}, h('h4',{},'BLOQUES'));
+  const counter = h('span',{class:'counter'});
+  const runBtn = h('button',{class:'btn primary',style:'font-size:1.15em',onclick:run},'▶ Ejecutar');
+  const stopBtn = h('button',{class:'btn danger hidden',onclick:stop},'■ Parar');
+  let slots = [], drag = null;
+
+  function numInput(b, min, max){
+    const i = h('input',{type:'number',min,max,value:b.n});
+    i.addEventListener('pointerdown',e=>e.stopPropagation());
+    i.addEventListener('change',()=>{ let v=parseInt(i.value,10); if(isNaN(v)) v=min; v=Math.max(min,Math.min(max,v)); b.n=v; i.value=v; });
+    return i;
+  }
+  function header(b, live){
+    const parts = [];
+    if(b.t==='fwd') parts.push('avanzar', live?numInput(b,1,tur?300:9):h('span',{class:'chip',style:'color:#14204a;background:#fff'},tur?'50':'1'), 'pasos');
+    if(b.t==='tr') parts.push('girar ↻ derecha', tur?(live?numInput(b,1,360):h('span',{class:'chip',style:'color:#14204a;background:#fff'},'90')):null, tur?'°':null);
+    if(b.t==='tl') parts.push('girar ↺ izquierda', tur?(live?numInput(b,1,360):h('span',{class:'chip',style:'color:#14204a;background:#fff'},'90')):null, tur?'°':null);
+    if(b.t==='rep') parts.push('🔁 repetir', live?numInput(b,1,50):h('span',{class:'chip',style:'color:#14204a;background:#fff'},'4'), 'veces');
+    if(b.t==='if') parts.push('📡 si hay muro delante');
+    return parts.filter(Boolean);
+  }
+  // paleta
+  for(const t of lv.blocks){
+    const proto = BLOCK_DEF[t].make(tur);
+    const el = h('div',{class:'blk '+BLOCK_DEF[t].cls, title:'Arrastra o toca para añadir'}, h('div',{class:'hd'}, header(proto,false)));
+    if(t==='rep'||t==='if') el.append(h('div',{class:'body',style:'min-height:14px'}), t==='if'?h('div',{class:'mid'},'si no'):null, t==='if'?h('div',{class:'body',style:'min-height:14px'}):null, h('div',{class:'ft'}));
+    attachDrag(el, ()=>BLOCK_DEF[t].make(tur), null);
+    palette.append(el);
+  }
+  palette.append(h('div',{class:'muted',style:'font-size:.78em;margin-top:auto'},'Arrastra un bloque aquí para borrarlo 🗑️'));
+
+  function render(){
+    ws.innerHTML=''; slots=[];
+    ws.append(h('h4',{},'MI PROGRAMA ▼'));
+    const p=get();
+    const root = h('div');
+    renderList(p, root);
+    ws.append(root);
+    if(!p.length) ws.append(h('div',{class:'hint-empty'},'Arrastra aquí los bloques ⬅'));
+    const n=countBlocks(p);
+    counter.textContent=`Bloques: ${n} / ${lv.max}`;
+    counter.classList.toggle('over', n>lv.max);
+  }
+  function renderList(list, host){
+    list.forEach((b,i)=>{ host.append(slot(list,i)); host.append(blockEl(b,list)); });
+    host.append(slot(list,list.length));
+  }
+  function slot(list, i){ const s=h('div',{class:'slotz'}); slots.push({el:s,list,i}); return s; }
+  function blockEl(b, list){
+    const el = h('div',{class:'blk '+BLOCK_DEF[b.t].cls});
+    const x = h('button',{class:'x',title:'Borrar','aria-label':'Borrar bloque',onclick:()=>{ list.splice(list.indexOf(b),1); render(); }},'✕');
+    x.addEventListener('pointerdown',e=>e.stopPropagation());
+    el.append(h('div',{class:'hd'}, header(b,true), x));
+    if(b.t==='rep'||b.t==='if'){
+      const body=h('div',{class:'body'}); renderList(b.body, body); el.append(body);
+      if(b.t==='if'){ el.append(h('div',{class:'mid'},'si no')); const e2=h('div',{class:'body'}); renderList(b.els,e2); el.append(e2); }
+      el.append(h('div',{class:'ft'}));
+    }
+    b._el = el;
+    attachDrag(el, ()=>b, list);
+    return el;
+  }
+  function contains(node, list){ // ¿list está dentro de node?
+    if(!node.body) return false;
+    if(node.body===list || node.els===list) return true;
+    return [...node.body, ...(node.els||[])].some(k=>contains(k,list));
+  }
+  function attachDrag(el, getNode, fromList){
+    el.addEventListener('pointerdown', e=>{
+      if(e.button!==0 || e.target.closest('input,.x')) return;
+      e.stopPropagation();
+      const sx=e.clientX, sy=e.clientY; let started=false; let ghost=null;
+      const node0 = fromList ? getNode() : null;
+      const move = ev=>{
+        if(!started){
+          if(Math.hypot(ev.clientX-sx, ev.clientY-sy)<6) return;
+          started=true;
+          const node = fromList ? node0 : getNode();
+          drag = {node, fromList};
+          ghost = el.cloneNode(true); ghost.classList.add('ghost'); ghost.style.width=Math.min(el.offsetWidth,260)+'px';
+          document.body.append(ghost);
+          if(fromList) el.classList.add('dragging');
+        }
+        ghost.style.left=(ev.clientX-20)+'px'; ghost.style.top=(ev.clientY-14)+'px';
+        highlight(ev.clientX, ev.clientY);
+      };
+      const upH = ev=>{
+        window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',upH);
+        if(!started){ // toque: añadir al final (solo desde la paleta)
+          if(!fromList) addNode(getNode(), get(), get().length);
+          return;
+        }
+        ghost.remove(); el.classList.remove('dragging'); palette.classList.remove('trash');
+        const target = highlight(ev.clientX, ev.clientY);
+        slots.forEach(s=>s.el.classList.remove('act'));
+        const {node} = drag; drag=null;
+        if(target){
+          if(fromList){
+            if(node===target.list || contains(node, target.list)){ render(); return; }
+            const oi = fromList.indexOf(node); let ti = target.i;
+            fromList.splice(oi,1);
+            if(fromList===target.list && oi<ti) ti--;
+            target.list.splice(ti,0,node); render();
+          } else addNode(node, target.list, target.i);
+        } else if(fromList){
+          fromList.splice(fromList.indexOf(node),1); beep('tap'); render();
+        }
+      };
+      window.addEventListener('pointermove',move); window.addEventListener('pointerup',upH);
+    });
+  }
+  function addNode(node, list, i){
+    if(countBlocks(get())+countBlocks([node])>lv.max){ beep('bad'); shakeCount(); toast(`Máximo ${lv.max} bloques en este reto.`); return; }
+    list.splice(i,0,node); beep('tap'); render();
+  }
+  function highlight(x,y){
+    slots.forEach(s=>s.el.classList.remove('act'));
+    const pr = palette.getBoundingClientRect();
+    palette.classList.toggle('trash', !!(drag && drag.fromList && x>=pr.left&&x<=pr.right&&y>=pr.top&&y<=pr.bottom));
+    const r = ws.getBoundingClientRect();
+    if(x<r.left||x>r.right||y<r.top||y>r.bottom) return null;
+    let best=null, bd=1e9;
+    for(const s of slots){
+      if(drag && drag.fromList && contains(drag.node, s.list)) continue;
+      const b=s.el.getBoundingClientRect();
+      const dy = Math.abs((b.top+b.bottom)/2 - y);
+      const dx = x<b.left ? (b.left-x) : x>b.right ? (x-b.right) : 0;
+      const d = dy + dx*.6;
+      if(d<bd){ bd=d; best=s; }
+    }
+    if(best) best.el.classList.add('act');
+    return best;
+  }
+  function shakeCount(){ counter.classList.remove('shake'); counter.offsetWidth; counter.classList.add('shake'); }
+  side.append(
+    h('div',{style:'display:flex;justify-content:space-between;align-items:center'}, h('b',{},'🧩 Programa con bloques'), counter),
+    h('div',{class:'blk-area'}, palette, ws),
+    h('div',{class:'ctrl-row'}, runBtn, stopBtn, h('button',{class:'btn',onclick:()=>{ set([]); render(); }},'🗑️ Vaciar'))
+  );
+  render();
+  return { refresh:render, shakeCount, setRunning:r=>{ runBtn.classList.toggle('hidden',r); stopBtn.classList.toggle('hidden',!r); ws.style.pointerEvents=r?'none':''; } };
+}
+
+/* ================= robot dibujante (tortuga) ================= */
+function traceTurtle(prog, start){
+  const segs=[]; let x=start.x, y=start.y, a=start.a, n=0;
+  const walk = list=>{ for(const b of list){ if(++n>2000) throw {msg:'Demasiados pasos'}; if(b.t==='rep'){ for(let k=0;k<b.n;k++) walk(b.body); } else if(b.t==='fwd'){ const nx=x+Math.cos(a*Math.PI/180)*b.n, ny=y+Math.sin(a*Math.PI/180)*b.n; segs.push([x,y,nx,ny]); x=nx; y=ny; } else if(b.t==='tr') a=(a+b.n)%360; else if(b.t==='tl') a=(a-b.n+360)%360; } };
+  walk(prog); return segs;
+}
+function segDist(px,py,[x1,y1,x2,y2]){ const dx=x2-x1, dy=y2-y1, l=dx*dx+dy*dy; let t=l?((px-x1)*dx+(py-y1)*dy)/l:0; t=Math.max(0,Math.min(1,t)); return Math.hypot(px-(x1+t*dx), py-(y1+t*dy)); }
+function covers(A, B, tol=4){ // cada punto de A está cerca de algún segmento de B
+  for(const s of A){ const L=Math.hypot(s[2]-s[0],s[3]-s[1]); const k=Math.max(1,Math.ceil(L/4)); for(let i=0;i<=k;i++){ const px=s[0]+(s[2]-s[0])*i/k, py=s[1]+(s[3]-s[1])*i/k; if(!B.some(b=>segDist(px,py,b)<=tol)) return false; } }
+  return true;
+}
+function initTurtle(ctx, board, side){
+  const {lv, C, c} = ctx;
+  const target = traceTurtle(lv.sol, lv.start);
+  let program=lv.given?clone(lv.given):[], running=false, stopFlag=false;
+  const SIZE=360, cv=h('canvas',{class:'turtle'}), g=cv.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  function fit(){ const s=Math.min(board.clientWidth-40, window.innerHeight*.66, 560); cv.style.width=s+'px'; cv.style.height=s+'px'; cv.width=s*dpr; cv.height=s*dpr; }
+  const robotImg = new Image(); robotImg.src='data:image/svg+xml;utf8,'+encodeURIComponent(robotSVG(C.color,40).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" '));
+  function draw(segs, tx, ty, ta, partial){
+    const k = cv.width/SIZE; g.setTransform(k,0,0,k,0,0);
+    g.clearRect(0,0,SIZE,SIZE);
+    g.strokeStyle='rgba(130,170,255,.18)'; g.lineWidth=1;
+    for(let i=0;i<=SIZE;i+=20){ g.beginPath(); g.moveTo(i,0); g.lineTo(i,SIZE); g.stroke(); g.beginPath(); g.moveTo(0,i); g.lineTo(SIZE,i); g.stroke(); }
+    g.setLineDash([8,7]); g.strokeStyle='#ffd23f'; g.lineWidth=4; g.lineCap='round';
+    for(const s of target){ g.beginPath(); g.moveTo(s[0],s[1]); g.lineTo(s[2],s[3]); g.stroke(); }
+    g.setLineDash([]); g.strokeStyle=C.color; g.lineWidth=5;
+    for(const s of segs.concat(partial?[partial]:[])){ g.beginPath(); g.moveTo(s[0],s[1]); g.lineTo(s[2],s[3]); g.stroke(); }
+    g.save(); g.translate(tx,ty); g.rotate((ta+90)*Math.PI/180);
+    g.fillStyle='#ffd23f'; g.beginPath(); g.moveTo(0,-30); g.lineTo(-8,-18); g.lineTo(8,-18); g.fill();
+    g.restore();
+    if(robotImg.complete) g.drawImage(robotImg, tx-18, ty-20, 36, 40);
+  }
+  robotImg.onload=()=>reset();
+  function reset(){ draw([], lv.start.x, lv.start.y, lv.start.a); }
+  board.append(h('div',{class:'muted',style:'margin-bottom:.4em'},'Modelo: línea amarilla punteada'), cv);
+  async function run(){
+    if(running) return;
+    if(!program.length){ toast('El programa está vacío.'); return; }
+    if(countBlocks(program)>lv.max){ ctx.fail(`Usas ${countBlocks(program)} bloques y el máximo es ${lv.max}.`); editor.shakeCount(); return; }
+    running=true; stopFlag=false; editor.setRunning(true);
+    let x=lv.start.x, y=lv.start.y, a=lv.start.a; const segs=[]; let steps=0, prevB=null;
+    try{
+      for(const st of interp(program,{wallAhead:()=>false})){
+        if(stopFlag) throw {stop:true};
+        if(++steps>600) throw {msg:'Demasiados pasos. Revisa los números de repetir.'};
+        markRun(prevB,false); markRun(st.b,true); prevB=st.b;
+        const b=st.b, sp = 1/S.settings.speed;
+        if(st.act==='fwd'){
+          const nx=x+Math.cos(a*Math.PI/180)*b.n, ny=y+Math.sin(a*Math.PI/180)*b.n;
+          const frames=Math.max(6, Math.round(Math.abs(b.n)/6*sp));
+          for(let f=1;f<=frames;f++){ const px=x+(nx-x)*f/frames, py=y+(ny-y)*f/frames; draw(segs,px,py,a,[x,y,px,py]); await sleep(16); }
+          segs.push([x,y,nx,ny]); x=nx; y=ny; beep('step');
+        } else if(st.act==='tr'||st.act==='tl'){
+          const to = a + (st.act==='tr'?b.n:-b.n); const frames=Math.max(4,Math.round(Math.abs(b.n)/12*sp));
+          for(let f=1;f<=frames;f++){ draw(segs,x,y,a+(to-a)*f/frames); await sleep(16); }
+          a=((to%360)+360)%360;
+        } else await sleep(80*sp);
+      }
+      markRun(prevB,false);
+      draw(segs,x,y,a);
+      const ok = segs.length && covers(segs,target) && covers(target,segs);
+      if(!ok){ const e = segs.some(s=>!covers([s],target)) ? 'El dibujo se sale del modelo. Revisa los números de avanzar y los grados.' : 'Falta parte del dibujo. ¿Repites suficientes veces?'; throw {msg:e}; }
+      const used=countBlocks(program), opt=countBlocks(lv.sol);
+      let stars = used<=opt?3:used<=opt+2?2:1; if(ctx.fails>=3&&stars>2) stars=2;
+      await sleep(400); ctx.win(stars);
+    }catch(e){
+      markRun(prevB,false);
+      if(!(e&&e.stop)){ ctx.fail(e.msg||'Error'); await sleep(1200); }
+      reset();
+    }finally{ running=false; editor.setRunning(false); }
+  }
+  const editor = blockEditor(side, lv, ()=>program, p=>{program=p;}, run, ()=>{stopFlag=true;});
+  side.insertBefore(h('div',{class:'muted',style:'font-size:.9em'},'📐 Recuerda: una vuelta completa = 360°. La flecha amarilla indica hacia dónde mira Chispa.'), side.lastChild);
+  ctx.showSolution=()=>{ program=clone(lv.sol); editor.refresh(); toast('Observa la solución y pulsa ▶', true); };
+  requestAnimationFrame(()=>{ fit(); reset(); });
+  const onR=()=>{ if(!running){ fit(); reset(); } };
+  window.addEventListener('resize',onR); cleanup.push(()=>window.removeEventListener('resize',onR));
+}
+
+/* ================= series ================= */
+// Una pieza es [forma, color] o un texto (números).
+const pieceHTML = (p, size) => Array.isArray(p) ? shapeSVG(p[0],p[1],size) : `<span class="num" style="font-size:${Math.round(size*.46)}px">${p}</span>`;
+function initPattern(ctx, board, side){
+  const {lv} = ctx; let r=0, errors=0;
+  const prog = h('div',{class:'muted',style:'font-weight:700'});
+  function render(){
+    board.innerHTML='';
+    const R = lv.rounds[r];
+    prog.textContent = `Serie ${r+1} de ${lv.rounds.length}`;
+    board.append(prog,
+      h('div',{class:'series'}, R.seq.map(p=>h('div',{class:'piece',html:pieceHTML(p,56)})), h('div',{class:'piece q'},'?')),
+      h('div',{class:'muted',style:'margin:.4em 0'},'¿Cuál va en el hueco?'),
+      h('div',{class:'opts'}, R.opts.map((p,i)=>{
+        const b = h('button',{class:'piece',html:pieceHTML(p,72),'aria-label':Array.isArray(p)?p[0]+' '+p[1]:p,onclick:async()=>{
+          if(i===R.ans){ beep('ok'); b.style.outline='5px solid var(--c1)'; board.querySelector('.q').innerHTML=pieceHTML(p,56); board.querySelector('.q').classList.remove('q'); await sleep(900);
+            r++; if(r>=lv.rounds.length) ctx.win(errors===0?3:errors<=2?2:1); else render(); }
+          else { errors++; b.classList.remove('shake'); b.offsetWidth; b.classList.add('shake'); ctx.fail('Esa pieza no sigue la serie. ¡Mira otra vez!'); }
+        }});
+        return b;
+      }))
+    );
+  }
+  render();
+  side.append(h('div',{class:'muted'},'💬 Para comentar en clase: ¿cuál es el trozo que se repite? ¿Cuántas piezas tiene?'));
+}
+
+/* ================= ordenar pasos ================= */
+function initOrder(ctx, board, side){
+  const {lv} = ctx; let next=0, errors=0;
+  const order = lv.steps.map((s,i)=>({s,i}));
+  do { order.sort(()=>Math.random()-.5); } while(order.every((o,k)=>o.i===k));
+  const grid = h('div',{class:'order-grid'});
+  const line = h('div',{class:'series'});
+  order.forEach(o=>{
+    const b = h('button',{class:'ocard',onclick:async()=>{
+      if(b.classList.contains('used')) return;
+      if(o.i===next){ beep('ok'); next++; b.classList.add('used'); b.append(h('span',{class:'num'},String(next)));
+        line.append(h('div',{class:'piece',style:'font-size:2.4em',title:o.s[1]}, o.s[0]));
+        if(next===lv.steps.length){ await sleep(700); ctx.win(errors===0?3:errors<=2?2:1); } }
+      else { errors++; b.classList.remove('shake'); b.offsetWidth; b.classList.add('shake'); ctx.fail(next===0?'¿Eso es lo primero que hay que hacer?':'Todavía no toca ese paso. ¿Qué va antes?'); }
+    }}, h('span',{class:'em'},o.s[0]), o.s[1]);
+    grid.append(b);
+  });
+  board.append(h('div',{class:'muted',style:'font-weight:700'},'Toca en orden: 1.º, 2.º, 3.º, 4.º'), grid, h('div',{class:'muted',style:'margin-top:1em'},'Algoritmo de Chispa:'), line);
+  side.append(h('div',{class:'muted'},'💬 Para comentar en clase: ¿qué pasaría si cambiamos el orden? Un ALGORITMO es una lista de pasos en orden.'));
+}
+
+/* ================= pixel art por código ================= */
+function initPixel(ctx, board, side){
+  const {lv} = ctx; const H=lv.rows.length, W=lv.rows[0].length;
+  const colorOf = k => ({azul:'#4c8dff',amarillo:'#ffd23f',rojo:'#ff5d73',blanco:'#ffffff',verde:'#22d39a',negro:'#1d2340',marron:'#8b5a2b',gris:'#9aa5c4',morado:'#a67cff',naranja:'#ff9f36'})[lv.palette[k]];
+  const keys = Object.keys(lv.palette);
+  const grid = lv.rows.map(()=>Array(W).fill('.'));
+  let sel = keys[0], checks=0;
+  const size = Math.min(64, Math.floor((Math.min(board.clientWidth||500, 520)-20)/W));
+  const pix = h('div',{class:'pix',style:`grid-template-columns:repeat(${W},${size}px);grid-auto-rows:${size}px`});
+  let painting=false;
+  const paint = (x,y,btn)=>{ grid[y][x]=sel; btn.style.background=colorOf(sel); };
+  for(let y=0;y<H;y++) for(let x=0;x<W;x++){
+    const b=h('button',{'aria-label':`fila ${y+1} casilla ${x+1}`});
+    b.addEventListener('pointerdown',e=>{ painting=true; paint(x,y,b); beep('tap'); try{b.releasePointerCapture(e.pointerId);}catch(_){} });
+    b.addEventListener('pointerenter',()=>{ if(painting) paint(x,y,b); });
+    pix.append(b);
+  }
+  const stopP=()=>painting=false; window.addEventListener('pointerup',stopP); cleanup.push(()=>window.removeEventListener('pointerup',stopP));
+  const cols = h('div',{class:'colors'});
+  keys.forEach(k=>{ const b=h('button',{class:k===sel?'sel':'',style:`background:${colorOf(k)}`,title:lv.palette[k],'aria-label':lv.palette[k],onclick:()=>{ sel=k; [...cols.children].forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); beep('tap'); }}); cols.append(b); });
+  // código por filas (codificación por longitud de series)
+  const code = h('div',{class:'pixcode'});
+  lv.rows.forEach((row,y)=>{
+    const runs=[]; for(const ch of row){ if(runs.length && runs[runs.length-1][0]===ch) runs[runs.length-1][1]++; else runs.push([ch,1]); }
+    code.append(h('div',{}, h('span',{class:'rn'},`F${y+1}`), runs.map(([ch,n])=>h('span',{class:'chip'}, String(n), h('span',{class:'sw',style:`background:${colorOf(ch)}`})))));
+  });
+  board.append(h('div',{class:'muted',style:'margin-bottom:.4em;font-weight:700'},'1) Elige color  2) Toca casillas'), cols, h('div',{style:'height:.8em'}), pix);
+  side.append(h('b',{},'📜 Mensaje en código'), code,
+    h('div',{class:'ctrl-row'},
+      h('button',{class:'btn',onclick:()=>{ for(let y=0;y<H;y++) grid[y].fill('.'); [...pix.children].forEach(b=>b.style.background='#fff'); }},'🧽 Borrar'),
+      h('button',{class:'btn primary',onclick:()=>{
+        let wrong=0; const cells=[...pix.children];
+        for(let y=0;y<H;y++) for(let x=0;x<W;x++) if(grid[y][x]!==lv.rows[y][x]){ wrong++; cells[y*W+x].animate([{transform:'scale(1)'},{transform:'scale(.6)'},{transform:'scale(1)'}],{duration:500,iterations:2}); }
+        checks++;
+        if(!wrong) ctx.win(checks===1?3:checks<=3?2:1);
+        else ctx.fail(`Hay ${wrong} casilla(s) que no coinciden con el código. ¡Mira las que se mueven!`);
+      }},'✔ Comprobar')));
+}
+
+/* ================= clasificadora (condicionales) ================= */
+function initSorter(ctx, board, side){
+  const {lv} = ctx;
+  const TODAS = {
+    rojo:{txt:'es de color rojo', f:it=>it[1]==='rojo'}, azul:{txt:'es de color azul', f:it=>it[1]==='azul'},
+    amarillo:{txt:'es de color amarillo', f:it=>it[1]==='amarillo'}, verde:{txt:'es de color verde', f:it=>it[1]==='verde'},
+    morado:{txt:'es de color morado', f:it=>it[1]==='morado'},
+    tuerca:{txt:'es una tuerca', f:it=>it[0]==='tuerca'}, tornillo:{txt:'es un tornillo', f:it=>it[0]==='tornillo'},
+    circulo:{txt:'es un círculo', f:it=>it[0]==='circulo'}, cuadrado:{txt:'es un cuadrado', f:it=>it[0]==='cuadrado'},
+    triangulo:{txt:'es un triángulo', f:it=>it[0]==='triangulo'}
+  };
+  const CONDS = (lv.conds||['rojo','azul','tuerca','tornillo']).map(id=>Object.assign({id}, TODAS[id]));
+  const iconos = lv.boxIcons || [['tuerca','morado'],['tornillo','morado']];
+  const rule = {cond:null, then:null, els:null};
+  let running=false, tries=0;
+  const belt = h('div',{class:'belt'}, h('div',{class:'track'}));
+  const boxes = lv.boxes.map((name,i)=>{ const b=h('div',{class:'box',style:i===0?'left:2%':'right:2%'}, h('div',{class:'bl'}, `Caja ${i+1}: ${name}`, iconos[i] ? h('span',{html:shapeSVG(iconos[i][0],iconos[i][1],26)}) : null)); belt.append(b); return b; });
+  board.append(belt);
+  const mkSel = (key, opts)=>{
+    const row = h('div',{class:'row'});
+    opts.forEach(o=>{ const b=h('button',{class:'sel-btn',onclick:()=>{ rule[key]=o.v; [...row.children].forEach(x=>x.classList.remove('on')); b.classList.add('on'); beep('tap'); }}, o.l); row.append(b); });
+    return row;
+  };
+  side.append(h('div',{class:'rule'},
+    h('div',{class:'row'}, h('span',{class:'kw'},'SI'), 'la pieza…'),
+    mkSel('cond', CONDS.map(c=>({v:c.id,l:c.txt}))),
+    h('div',{class:'row'}, h('span',{class:'kw'},'ENTONCES'), 'va a…'),
+    mkSel('then', [{v:0,l:'Caja 1'},{v:1,l:'Caja 2'}]),
+    h('div',{class:'row'}, h('span',{class:'kw'},'SI NO'), 'va a…'),
+    mkSel('els', [{v:0,l:'Caja 1'},{v:1,l:'Caja 2'}])
+  ), h('div',{class:'ctrl-row'}, h('button',{class:'btn primary',style:'font-size:1.2em',onclick:go},'▶ Encender cinta')));
+  async function go(){
+    if(running) return;
+    if(rule.cond==null||rule.then==null||rule.els==null){ toast('Completa las tres partes de la regla.'); return; }
+    running=true; tries++;
+    boxes.forEach(b=>b.querySelectorAll('.mini').forEach(m=>m.remove()));
+    const cond = CONDS.find(c=>c.id===rule.cond);
+    let bad=0;
+    const W = belt.clientWidth;
+    for(const it of lv.items){
+      const el = h('div',{class:'item',style:`left:${W/2-31}px;top:-70px`,html:shapeSVG(it[0],it[1],62)});
+      belt.append(el); await sleep(30);
+      el.style.top='44px'; await sleep(650);
+      const dest = cond.f(it) ? rule.then : rule.els;
+      el.style.left = (dest===0 ? W*.24-31 : W*.76-31)+'px'; await sleep(650);
+      el.style.top='170px'; await sleep(500);
+      el.remove();
+      const ok = dest===lv.target(it);
+      if(!ok) bad++;
+      boxes[dest].append(h('span',{class:'mini',style:ok?'':'outline:3px solid var(--danger);border-radius:8px',html:shapeSVG(it[0],it[1],30)}));
+      beep(ok?'step':'bad');
+    }
+    running=false;
+    if(!bad) ctx.win(tries===1?3:tries<=3?2:1);
+    else ctx.fail(`${bad} pieza(s) cayeron en la caja equivocada (marcadas en rojo). Cambia la regla.`);
+  }
+  side.append(h('div',{class:'muted'},'💬 Para comentar: ¿hay más de una regla que funcione?'));
+}
+
+/* ================= predecir: ¿dónde acabará Chispa? ================= */
+// Programa de solo lectura, con el mismo aspecto que en los editores.
+function progView(list, rel){
+  const num = n => h('span',{class:'chip',style:'color:#14204a;background:#fff'}, String(n));
+  const item = b=>{
+    if(b.t in ARW) return h('span',{class:'pcard','aria-label':ABS_NAME[b.t]}, ARW[b.t]);
+    if(b.t==='rep') return rel
+      ? h('div',{class:'blk ctl'}, h('div',{class:'hd'},'🔁 repetir', num(b.n), 'veces'), h('div',{class:'body'}, b.body.map(item)), h('div',{class:'ft'}))
+      : h('div',{class:'ploop'}, h('span',{class:'times'}, `🔁 ×${b.n}`), b.body.map(item));
+    if(b.t==='if') return h('div',{class:'blk sen'}, h('div',{class:'hd'},'📡 si hay muro delante'), h('div',{class:'body'}, b.body.map(item)), h('div',{class:'mid'},'si no'), h('div',{class:'body'}, b.els.map(item)), h('div',{class:'ft'}));
+    if(b.t==='fwd') return h('div',{class:'blk mv'}, h('div',{class:'hd'},'avanzar', num(b.n||1), (b.n||1)===1?'paso':'pasos'));
+    return h('div',{class:'blk mv'}, h('div',{class:'hd'}, b.t==='tr'?'girar ↻ derecha':'girar ↺ izquierda'));
+  };
+  return h('div',{class:'pview'+(rel?' col':'')}, list.map(item));
+}
+function initPredict(ctx, board, side){
+  const {lv, c, C} = ctx;
+  const m = parseMap(lv.map), rel = !!lv.rel;
+  // Recorrido completo del programa (los programas de estos retos nunca chocan).
+  const path = [[m.start[0], m.start[1], m.dir||0]];
+  {
+    const st = {x:m.start[0], y:m.start[1], d:m.dir||0};
+    const blocked = (x,y)=>x<0||y<0||x>=m.w||y>=m.h||m.walls.has(x+','+y);
+    const env = { wallAhead:()=>{ const [dx,dy]=DIRV[st.d]; return blocked(st.x+dx, st.y+dy); } };
+    const mov = ()=>{ const [dx,dy]=DIRV[st.d]; if(blocked(st.x+dx, st.y+dy)) return; st.x+=dx; st.y+=dy; path.push([st.x,st.y,st.d]); };
+    let n = 0;
+    for(const s of interp(lv.prog, env)){
+      if(++n>400) break;
+      const a = s.act;
+      if(a in ABS){ st.d=ABS[a]; mov(); }
+      else if(a==='fwd'){ for(let k=0;k<(s.b.n||1);k++) mov(); }
+      else if(a==='tl'||a==='tr'){ st.d=(st.d+(a==='tr'?1:3))%4; path.push([st.x,st.y,st.d]); }
+    }
+  }
+  const fin = path[path.length-1];
+  let pick = null, tries = 0, running = false, cs, botEl, dirEl, cellEls = {};
+  const gridHost = h('div');
+  board.append(h('div',{class:'muted',style:'margin-bottom:.4em;font-weight:700'},'Toca la casilla donde crees que acabará Chispa'), gridHost);
+  function place(p, instant){
+    const gap = 6;
+    if(instant) botEl.style.transition='none';
+    botEl.style.transform = `translate(${p[0]*(cs+gap)}px,${p[1]*(cs+gap)}px)`;
+    dirEl.style.transform = `rotate(${p[2]*90}deg)`;
+    if(instant){ botEl.offsetHeight; botEl.style.transition=''; }
+  }
+  function mark(){
+    Object.values(cellEls).forEach(e=>e.classList.remove('pick'));
+    if(pick) cellEls[pick[0]+','+pick[1]].classList.add('pick');
+  }
+  function build(){
+    const availW = Math.max(240, board.clientWidth-40), availH = Math.max(260, Math.min(window.innerHeight*.62, 600));
+    cs = Math.floor(Math.min(availW/m.w, availH/m.h, c===3?92:120)) - 6;
+    gridHost.innerHTML=''; cellEls={};
+    const g = h('div',{class:'grid',style:`grid-template-columns:repeat(${m.w},${cs}px);grid-auto-rows:${cs}px;font-size:${cs*.5}px`});
+    for(let y=0;y<m.h;y++) for(let x=0;x<m.w;x++){
+      const k = x+','+y, cell = h('div',{class:'cell'});
+      if(m.walls.has(k)){ cell.classList.add('wall'); cell.append(h('span',{style:'font-size:.8em'}, lv.wall||(c===3?'🧱':'📦'))); }
+      else {
+        cell.classList.add('pred-cell'); cell.setAttribute('role','button'); cell.tabIndex = 0;
+        cell.setAttribute('aria-label', `Columna ${x+1}, fila ${y+1}`);
+        const elegir = ()=>{ if(running) return; pick=[x,y]; beep('tap'); mark(); };
+        cell.addEventListener('click', elegir);
+        cell.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); elegir(); } });
+      }
+      cellEls[k] = cell; g.append(cell);
+    }
+    botEl = h('div',{class:'bot',style:`width:${cs}px;height:${cs}px`});
+    dirEl = h('div',{class:'dir'+(rel?'':' hidden')});
+    const r = svgEl(robotSVG(C.color, cs*.78)); r.style.cssText='position:absolute;left:50%;top:50%;transform:translate(-50%,-52%)';
+    botEl.append(dirEl, r); g.append(botEl);
+    gridHost.append(g);
+    place(path[0], true); mark();
+  }
+  async function check(){
+    if(running) return;
+    if(!pick){ toast('Primero toca la casilla donde crees que acabará Chispa.'); return; }
+    running = true; tries++;
+    Object.values(cellEls).forEach(e=>e.classList.remove('fin'));
+    for(let i=1;i<path.length;i++){ place(path[i]); beep(path[i][0]===path[i-1][0]&&path[i][1]===path[i-1][1]?'tap':'step'); await sleep((c===3?300:450)/S.settings.speed); }
+    if(pick[0]===fin[0] && pick[1]===fin[1]){
+      cellEls[fin[0]+','+fin[1]].classList.add('fin');
+      await sleep(500); running=false; ctx.win(tries===1?3:tries===2?2:1); return;
+    }
+    ctx.fail('¡Chispa ha acabado en otra casilla! Mira bien el recorrido y vuelve a intentarlo.');
+    await sleep(1400); place(path[0], true); running=false;
+  }
+  side.append(
+    h('b',{},'🧩 Programa de Chispa'),
+    progView(lv.prog, rel),
+    h('div',{class:'ctrl-row'}, h('button',{class:'btn primary',style:'font-size:1.2em',onclick:check},'▶ Comprobar')),
+    h('div',{class:'muted'},'💬 Para comentar: ¿en qué bloque os habéis equivocado? Leer un programa con atención también es programar.')
+  );
+  ctx.showSolution = ()=>{ pick=[fin[0],fin[1]]; mark(); toast('Esta es la casilla. Pulsa ▶ Comprobar para ver el recorrido.', true); };
+  requestAnimationFrame(build);
+  const onR = ()=>{ if(!running) build(); };
+  window.addEventListener('resize', onR); cleanup.push(()=>window.removeEventListener('resize', onR));
+}
+
+/* ================= confeti ================= */
+function confetti(){
+  const cv=$('#confetti'), g=cv.getContext('2d'); cv.width=innerWidth; cv.height=innerHeight;
+  const cols=['#22d39a','#ff9f36','#a67cff','#ffd23f','#4c8dff','#ff5d73'];
+  const P=Array.from({length:140},()=>({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*16,vy:Math.random()*-14-4,s:6+Math.random()*8,c:cols[Math.random()*6|0],r:Math.random()*6}));
+  let f=0; (function tick(){ g.clearRect(0,0,cv.width,cv.height); for(const p of P){ p.x+=p.vx; p.y+=p.vy; p.vy+=.45; p.r+=.2; g.save(); g.translate(p.x,p.y); g.rotate(p.r); g.fillStyle=p.c; g.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); g.restore(); } if(++f<120) requestAnimationFrame(tick); else g.clearRect(0,0,cv.width,cv.height); })();
+}
+
+/* ================= manual del explorador ================= */
+const ZONAS_MANUAL = {
+  1:['Caminos, series y pasos en orden.','Recoger pilas y adivinar dónde acaba Chispa.','Cruzar el puente y cazar errores 🐞.','Leer programas y buscar el camino más corto.','¡Primer bloque REPETIR! Y un dibujo secreto.','Todo junto contra el Gran Guardián.'],
+  2:['Bucles, códigos de colores y la clasificadora.','Zigzags, tramos y series de números.','Máquinas con reglas SI… ENTONCES… SI NO…','Arreglar bucles y hacer programas más cortos.','Dividir el camino en partes y series que se multiplican.','Todo junto contra el Gran Guardián.'],
+  3:['Avanzar y girar, bucles, sensores y figuras.','Polígonos regulares y la estrella: 360° entre los lados.','Un programa que sirve para varios laberintos.','Bucles dentro de bucles.','Mapas grandes, series con truco y el barrido del radar.','Todo junto contra el Gran Guardián.']
+};
+function zonasManual(c){
+  return h('div',{},
+    h('h3',{},'🗺️ Las 6 zonas'),
+    h('ol',{class:'steps'}, ZONES[c].map((nombre,i)=>h('li',{}, h('span',{}, h('b',{}, nombre), ' — ', ZONAS_MANUAL[c][i])))),
+    h('p',{class:'muted'},'Cada zona tiene 5 retos y un Guardián. Al vencer al Guardián se abre la zona siguiente.'));
+}
+function showManual(tab){
+  screen(null);
+  tab = tab || 1;
+  document.documentElement.style.setProperty('--accent', CICLOS[tab].color);
+  const k = (t,c='')=>h('span',{class:'kbd '+c},t);
+  const common = h('div',{class:'card man-sec'},
+    h('h2',{},'🤖 ¿Qué es este juego?'),
+    h('p',{},'Chispa es un robot que solo hace lo que le mandas. Tú eres quien le da las órdenes: eso se llama PROGRAMAR. Una lista de órdenes en orden es un ALGORITMO.'),
+    h('h3',{},'⭐ Las estrellas'),
+    h('p',{},'3 estrellas: programa corto y sin errores. 2 estrellas: lo conseguiste con algún intento más. 1 estrella: ¡superado! Puedes repetir el reto para mejorar.'),
+    h('h3',{},'⚔️ La Prueba del Guardián'),
+    h('p',{},'Al final de cada zona te espera un robot Guardián con un reto más difícil. Si lo superas, ganas una insignia y se abre la zona siguiente.'),
+    h('h3',{},'💡 Si te atascas'),
+    h('ol',{class:'steps'}, h('li',{},'Lee o escucha otra vez la misión con el botón 🔊.'), h('li',{},'Sigue el camino con el dedo antes de programar.'), h('li',{},'Si fallas 2 veces, Chispa te da una pista.'), h('li',{},'Buscar y arreglar errores también es programar. ¡Los errores ayudan a aprender!'))
+  );
+  const secs = {
+    1: h('div',{class:'card man-sec'},
+      h('h2',{},'1.º Ciclo · El Taller de Chispa'),
+      h('p',{},'Jugamos todos juntos en la pizarra. Un compañero o compañera sale a pulsar; los demás piensan y ayudan.'),
+      h('h3',{},'Cómo mover a Chispa'),
+      h('ol',{class:'steps'},
+        h('li',{},'Mira dónde está Chispa y dónde está el cargador ⚡.'),
+        h('li',{},h('span',{},'Pulsa las flechas ',k('↑'),k('→'),k('↓'),k('←'),' para decir el camino. Aparecen en «Tu programa».')),
+        h('li',{},h('span',{},'¿Te equivocaste? Pulsa ',k('⌫ Borrar'),'.')),
+        h('li',{},h('span',{},'Pulsa ',k('▶ ¡Adelante!','g'),' y mira cómo lo hace Chispa.'))
+      ),
+      h('h3',{},'Los retos'),
+      h('div',{class:'retos'},
+        h('div',{class:'reto'},h('b',{},'🗺️ Caminos'),'Lleva a Chispa al cargador. Las cajas 📦 no se pueden atravesar.'),
+        h('div',{class:'reto'},h('b',{},'🔴🔵 Series'),'Descubre qué pieza sigue y tócala.'),
+        h('div',{class:'reto'},h('b',{},'🖼️ Ordenar pasos'),'Toca los dibujos en el orden correcto.'),
+        h('div',{class:'reto'},h('b',{},'🐞 Buscar el error'),'Toca la flecha equivocada para cambiarla ↻.'),
+        h('div',{class:'reto'},h('b',{},'⚙️ Recoger objetos'),'Pasa por las tuercas o las pilas antes de ir al cargador.'),
+        h('div',{class:'reto'},h('b',{},'🔮 ¿Dónde acabará?'),'Lee el programa y toca la casilla donde se parará Chispa.'),
+        h('div',{class:'reto'},h('b',{},'🔁 Repetir'),'En el Jardín aparece el bloque REPETIR: una flecha que se repite varias veces.')
+      ), zonasManual(1)),
+    2: h('div',{class:'card man-sec'},
+      h('h2',{},'2.º Ciclo · La Mina de Engranajes'),
+      h('p',{},'Jugamos en la pizarra. Antes de pulsar, el grupo decide el programa en voz alta.'),
+      h('h3',{},'El bloque REPETIR (bucle)'),
+      h('ol',{class:'steps'},
+        h('li',{},h('span',{},'Pulsa ',k('🔁 Repetir','o'),'. Aparece un marco naranja.')),
+        h('li',{},'Pulsa las flechas que se repiten: entran dentro del marco.'),
+        h('li',{},h('span',{},'Pulsa ',k('✔ Cerrar repetir','o'),'.')),
+        h('li',{},h('span',{},'Toca ',k('🔁 ×2','o'),' para cambiar cuántas veces se repite.'))
+      ),
+      h('p',{},'Ejemplo: 🔁×5 [→ ↑] hace una escalera de 5 escalones con solo 3 bloques.'),
+      h('h3',{},'Los retos'),
+      h('div',{class:'retos'},
+        h('div',{class:'reto'},h('b',{},'⚙️ Engranajes'),'Recoge todos antes de ir al cargador.'),
+        h('div',{class:'reto'},h('b',{},'🔁 Bucles'),'Hay un máximo de bloques: tienes que usar REPETIR.'),
+        h('div',{class:'reto'},h('b',{},'🎨 Código de colores'),'«2🟦» significa: dos casillas azules seguidas. Pinta fila a fila.'),
+        h('div',{class:'reto'},h('b',{},'🏭 Clasificadora'),'Crea la regla SI… ENTONCES… SI NO… para separar las piezas.'),
+        h('div',{class:'reto'},h('b',{},'🐞 Arreglar el bucle'),'Toca la flecha que falla o el número del repetir que está mal.'),
+        h('div',{class:'reto'},h('b',{},'🔢 Series de números'),'Descubre si se suma, se resta o se multiplica.'),
+        h('div',{class:'reto'},h('b',{},'🔮 ¿Dónde acabará?'),'Lee el programa y toca la casilla donde se parará Chispa.')
+      ), zonasManual(2)),
+    3: h('div',{class:'card man-sec'},
+      h('h2',{},'3.º Ciclo · El Laboratorio'),
+      h('p',{},'Juegas tú solo en el ordenador y avanzas a tu ritmo.'),
+      h('h3',{},'Programar con bloques'),
+      h('ol',{class:'steps'},
+        h('li',{},'Arrastra un bloque de la columna BLOQUES a MI PROGRAMA. También puedes hacer clic en él para ponerlo al final.'),
+        h('li',{},'Suéltalo donde aparezca la raya amarilla. Puedes meter bloques dentro de 🔁 repetir y de 📡 si.'),
+        h('li',{},'Escribe los números en las casillas blancas.'),
+        h('li',{},h('span',{},'Para borrar: pulsa ',k('✕'),' o arrastra el bloque a la columna BLOQUES.')),
+        h('li',{},h('span',{},'Pulsa ',k('▶ Ejecutar','g'),'. El bloque que se está ejecutando se ilumina.'))
+      ),
+      h('h3',{},'Los bloques'),
+      h('table',{class:'t'},
+        h('tr',{},h('td',{},k('avanzar N')),h('td',{},'Chispa avanza N casillas (o N pasos si dibuja) hacia donde mira.')),
+        h('tr',{},h('td',{},k('girar ↻'),k('girar ↺')),h('td',{},'Gira a la derecha o a la izquierda sin moverse. Al dibujar, eliges los grados.')),
+        h('tr',{},h('td',{},k('🔁 repetir N','o')),h('td',{},'Repite N veces los bloques que tiene dentro.')),
+        h('tr',{},h('td',{},k('📡 si hay muro','s')),h('td',{},'Pregunta al sensor. Si hay muro, hace lo de arriba; si no, lo de «si no».'))
+      ),
+      h('h3',{},'🔑 Los códigos'),
+      h('p',{},'Cada vez que superas un reto aparece un código (por ejemplo, CHIP-42). Apúntalo en tu cuaderno. Si cambias de ordenador, escríbelo en «Tengo un código» del mapa y recuperas tu avance.'),
+      h('h3',{},'📐 Robot dibujante'),
+      h('p',{},'Una vuelta completa son 360°. En un polígono regular, Chispa gira 360° dividido entre el número de lados.'),
+      h('h3',{},'🔮 ¿Dónde acabará?'),
+      h('p',{},'Algunos retos no se programan: se LEEN. Sigue el programa con la vista y toca la casilla donde se parará Chispa.'),
+      zonasManual(3)
+    )
+  };
+  const tabs = h('div',{class:'tabs noprint'}, [1,2,3].map(c=>h('button',{class:c===tab?'on':'',onclick:()=>showManual(c)}, CICLOS[c].name)));
+  app.append(
+    h('div',{class:'topbar'}, h('button',{class:'btn icon-btn',onclick:showHome},'⬅'), h('h1',{},'📖 Manual del explorador', h('small',{},'Cómo funciona la aplicación y cada reto')),
+      h('button',{class:'btn',onclick:()=>{ const parts=[secs[tab].innerText]; speak(parts.join(' ')); }},'🔊'),
+      h('button',{class:'btn',onclick:()=>printManual()},'🖨️ Imprimir')),
+    h('div',{class:'doc'}, tabs, secs[tab], common)
+  );
+  function printManual(){
+    const doc = $('.doc'); doc.innerHTML=''; doc.append(secs[tab], common);
+    setTimeout(()=>{ window.print(); showManual(tab); }, 100);
+  }
+}
+
+/* ================= panel y guía del maestro ================= */
+// La guía tiene los códigos de todos los retos y el botón de
+// desbloquearlos: solo la abre un docente con la sesión del Panel
+// docente abierta en este navegador. Además de mirar ar_docente (que
+// cualquiera podría escribir a mano) se comprueba con Firebase que la
+// sesión es de verdad la de esa cuenta de docente. Para el alumnado no
+// hay botón ni pantalla de acceso: sencillamente no se abre.
+let comprobandoDocente = false;
+const CURRICULO = {
+  1:['Secuencias con direcciones absolutas, patrones AB/AAB/ABC, ordenar una rutina, depuración de una flecha.',
+     'Recogida de objetos, secuencias largas, patrones con dos atributos, algoritmos de la vida diaria, primera lectura de programas (predecir).',
+     'Depuración de uno y dos errores, caminos en zigzag, patrones ABB y ABBC.',
+     'Lectura y predicción de programas, camino más corto (optimización con límite de flechas), algoritmo de 5 pasos.',
+     'Primeros bucles (REPETIR con una flecha y con dos), codificación de una imagen por series de colores, depuración de un bucle.',
+     'Repaso: secuencias de hasta 14 flechas, predicción con bucle, series numéricas, dos bucles seguidos, Guardián con escalera.'],
+  2:['Secuencias largas, bucles, codificación por series, condicionales SI/SI NO, depuración.',
+     'Bucles con varias instrucciones (zigzag), descomposición en tramos, series aditivas, depuración de números y flechas.',
+     'Condicionales por color y por forma, algoritmo de 6 pasos, bucles con recogida de objetos.',
+     'Depuración de bucles, optimización (encontrar el patrón que se repite), predicción de un bucle, codificación de imágenes.',
+     'Descomposición de recorridos en partes, series multiplicativas, algoritmos de seguridad vial, varias reglas válidas en la clasificadora.',
+     'Repaso: codificación, bucles con 4 instrucciones, predicción, doble depuración, condicionales, Guardián con dos bucles.'],
+  3:['Movimiento relativo, bucles, anidamiento, sensores y condicionales, generalización, ángulos.',
+     'Polígonos regulares (ángulo exterior = 360 : n), estrella de 5 puntas (720 : 5), recorridos con bucle, predicción con giros relativos.',
+     'Condicional con sensor, generalización a dos y tres mapas, depuración de un programa con sensor, predicción del sensor.',
+     'Bucles anidados (filas de cuadrados, flor, escaleras con rellano, rosetón), algoritmo de resolución de problemas, depuración de ángulos.',
+     'Recorridos en mapas grandes, series (cuadrados, Fibonacci, geométricas), sensor en varios mapas, octógono, barrido con bucle de 8 instrucciones.',
+     'Estrella de 8 puntas (1080 : 8), generalización en 3 mapas, codificación binaria de imágenes, depuración y predicción de bucles anidados.']
+};
+async function showTeacher(){
+  if(!DOCENTE || comprobandoDocente) return;
+  comprobandoDocente = true;
+  let ok = false;
+  try{
+    const f = await cargarFirebase();
+    ok = !!f && await f.esDocente(DOCENTE.uid);
+  }catch(e){}
+  finally{ comprobandoDocente = false; }
+  if(ok) mostrarGuia();
+  else toast('La guía del maestro se abre desde el Panel docente, con tu sesión iniciada.');
+}
+function mostrarGuia(){
+  screen(null);
+  const sw = (key, label, desc, after)=>{
+    const b = h('button',{class:'switch'+(S.settings[key]?' on':''),'aria-label':label,onclick:()=>{ S.settings[key]=!S.settings[key]; saveSettings(); b.classList.toggle('on'); after&&after(); }});
+    return h('div',{class:'set-row'}, h('div',{}, h('b',{},label), h('div',{class:'muted',style:'font-size:.9em'},desc)), b);
+  };
+  const seg = (key, label, opts, after)=>{
+    const row = h('div',{class:'row',style:'display:flex;gap:.4em;flex-wrap:wrap'});
+    opts.forEach(([v,l])=>{ const b=h('button',{class:'sel-btn'+(S.settings[key]===v?' on':''),onclick:()=>{ S.settings[key]=v; saveSettings(); [...row.children].forEach(x=>x.classList.remove('on')); b.classList.add('on'); after&&after(); }},l); row.append(b); });
+    return h('div',{class:'set-row'}, h('b',{},label), row);
+  };
+  const codes = h('table',{class:'t'}, h('tr',{}, h('th',{},'Reto'), [1,2,3].map(c=>h('th',{},CICLOS[c].name))),
+    [0,1,2,3,4,5].flatMap(z=>[
+      h('tr',{}, h('th',{style:'padding-top:.9em'},`Zona ${z+1}`), [1,2,3].map(c=>h('th',{style:'padding-top:.9em;font-weight:600'}, ZONES[c][z]))),
+      ...[1,2,3,4,5,6].map(n=>h('tr',{}, h('td',{}, n===6?'Guardián':'Reto '+n), [1,2,3].map(c=>h('td',{}, levelCode(c, z*6+n-1)))))
+    ]));
+  const tm = h('input',{type:'number',value:25,min:1,max:90,style:'width:4em;border-radius:10px;border:2px solid var(--line);background:var(--panel2);color:var(--text);padding:.2em;font-size:1em'});
+  app.append(
+    h('div',{class:'topbar'}, h('button',{class:'btn icon-btn',onclick:showHome},'⬅'), h('h1',{},'👩‍🏫 Panel y guía del maestro', h('small',{},'Ajustes, progreso, códigos y orientaciones didácticas'))),
+    h('div',{class:'doc'},
+      h('div',{class:'card man-sec'}, h('h2',{},'⚙️ Ajustes'),
+        sw('voice','Voz de Chispa','Lee las instrucciones en voz alta (1.º y 2.º ciclo las lee al empezar). Depende de las voces instaladas en el equipo.'),
+        sw('sound','Sonidos','Pitidos al mover, acertar y fallar.'),
+        seg('theme','Tema', [['dark','🌙 Oscuro'],['light','☀️ Claro (proyector)']], applyTheme),
+        seg('size','Tamaño de la interfaz', [['auto','Automático según ciclo'],['pdi','Grande (pizarra)'],['ind','Normal (ordenador)']]),
+        seg('speed','Velocidad del robot', [[.6,'🐢 Lenta'],[1,'Normal'],[1.8,'🐇 Rápida']]),
+        sw('unlockAll','Desbloquear todos los retos','Útil para ir directamente a un reto concreto en la pizarra.'),
+        h('div',{class:'set-row'}, h('div',{}, h('b',{},'⏱️ Temporizador de sesión'), h('div',{class:'muted',style:'font-size:.9em'},'Minutos visibles en una esquina de la pantalla.')),
+          h('div',{style:'display:flex;gap:.4em;align-items:center'}, tm, h('button',{class:'btn primary',onclick:()=>startTimer(+tm.value)},'Iniciar'), h('button',{class:'btn',onclick:()=>startTimer(0)},'Quitar'))),
+        h('div',{class:'set-row'}, h('div',{}, h('b',{},'Reiniciar progreso'), h('div',{class:'muted',style:'font-size:.9em'},'Borra las estrellas guardadas en ESTE navegador.')),
+          h('div',{style:'display:flex;gap:.4em;flex-wrap:wrap'}, [1,2,3].map(c=>h('button',{class:'btn danger',onclick:e=>{ if(e.currentTarget.dataset.ok){ S.progress[c]={}; S.settings.seenTut[c]=false; S.settings.seenZone=Object.fromEntries(Object.entries(S.settings.seenZone||{}).filter(([k])=>!k.startsWith(c+'-'))); saveProgress(); saveSettings(); toast('Progreso del '+CICLOS[c].name+' borrado', true); e.currentTarget.textContent=CICLOS[c].name+' ✓'; } else { e.currentTarget.dataset.ok=1; e.currentTarget.textContent='¿Seguro? Pulsa otra vez'; } }}, CICLOS[c].name))))
+      ),
+      h('div',{class:'card man-sec'}, h('h2',{},'🔑 Códigos de avance'),
+        h('p',{class:'muted'},'Cada código desbloquea hasta ese reto (incluido). No los proyectes: si el alumnado los ve, puede saltarse retos.'), codes),
+      h('div',{class:'card man-sec'}, h('h2',{},'📚 Encaje curricular (Andalucía)'),
+        h('p',{},h('b',{},'Área: '),'Matemáticas. Competencia específica 4: «Utilizar el pensamiento computacional, organizando datos, descomponiendo en partes, reconociendo patrones, generalizando e interpretando, modificando y creando algoritmos de forma guiada, para modelizar y automatizar situaciones de la vida cotidiana.»'),
+        h('p',{},h('b',{},'Saberes: '),'Sentido algebraico, pensamiento computacional: identificación y predicción de regularidades en series de números, figuras o imágenes; interpretación, modificación y creación de algoritmos sencillos (secuencias de pasos ordenados, patrones repetitivos, bucles, instrucciones anidadas y condicionales, programación por bloques, robótica educativa).'),
+        h('p',{},h('b',{},'Criterios (3.er ciclo, 5.º): '),'4.1 «Comenzar a modelizar situaciones de la vida cotidiana, utilizando de forma pautada, principios básicos del pensamiento computacional…» y 4.2 «Comenzar a emplear herramientas tecnológicas adecuadas en la investigación y resolución de problemas». En 1.º y 2.º ciclo la misma competencia se evalúa con criterios graduados: comprueba la redacción exacta en la Orden de 30 de mayo de 2023 antes de incluirlos en tu programación.'),
+        h('p',{},h('b',{},'Otras conexiones: '),'Competencia digital (CD) y STEM; sentido espacial (orientación, giros y ángulos en los retos del robot dibujante); Lengua (comprensión de instrucciones).'),
+        h('p',{},'Cada ciclo tiene 6 zonas de 6 retos (5 retos y un Guardián): 36 retos por ciclo. Una zona se abre al vencer al Guardián de la anterior.'),
+        h('table',{class:'t'},
+          h('tr',{},h('th',{},'Ciclo'),h('th',{},'Zona'),h('th',{},'Qué se trabaja')),
+          [1,2,3].flatMap(c=>CURRICULO[c].map((txt,z)=>h('tr',{}, h('td',{}, z===0?CICLOS[c].name:''), h('td',{}, `${z+1}. ${ZONES[c][z]}`), h('td',{}, txt))))
+        )),
+      h('div',{class:'card man-sec'}, h('h2',{},'🧭 Cómo organizar la sesión semanal'),
+        h('h3',{},'1.º y 2.º ciclo · pizarra (unos 45 min)'),
+        h('ol',{class:'steps'},
+          h('li',{},'Actividad desenchufada (10 min): el alumnado hace de robot en el suelo o en una cuadrícula de cinta adhesiva; otro alumno da las órdenes con tarjetas de flechas.'),
+          h('li',{},'Reto en la pizarra (25 min). Roles rotativos: PROGRAMADOR (pulsa), COPILOTO (comprueba con el dedo en la pantalla) y NARRADOR (lee en voz alta el programa). El resto predice en su pizarrita qué pasará antes de pulsar ▶.'),
+          h('li',{},'Reflexión (5-10 min): ¿qué error hemos tenido? ¿cómo lo hemos arreglado? ¿se podía hacer con menos bloques?')),
+        h('h3',{},'3.er ciclo · ordenador individual (unos 45 min)'),
+        h('ol',{class:'steps'},
+          h('li',{},'Arranque (5 min): cada alumno escribe su último código en «Tengo un código».'),
+          h('li',{},'Trabajo autónomo (30 min). Norma: antes de pedir ayuda, lee la pista y prueba otra idea. Quien termina, ayuda a otros explicando, sin tocar su ratón.'),
+          h('li',{},'Cierre (10 min): cada alumno apunta su código en el cuaderno y una frase: «Hoy he aprendido que un bucle…».')),
+        h('h3',{},'Atención a la diversidad'),
+        h('p',{},'Activa la voz y la velocidad lenta, desbloquea retos concretos o deja al alumnado repetir un reto ya superado. En pizarra, el alumnado con más dificultades puede ser el copiloto antes que el programador. La solución guiada aparece después de 4 intentos fallidos (nunca en el Guardián) y limita el reto a 1 estrella.')),
+      h('div',{class:'card man-sec'}, h('h2',{},'ℹ️ Datos técnicos'),
+        h('p',{},'Funciona sin conexión (con internet usa una tipografía más redondeada). Sin clave, el progreso se guarda en el navegador del equipo y los códigos permiten recuperarlo en otro ordenador. Si el alumno entra con su clave de Aprende y Repasa («🔑 Entrar con mi clave» en la portada), su progreso se guarda aparte del de sus compañeros y en la nube: lo recupera en cualquier ordenador y lo veis en el panel docente.'))
+    )
+  );
+}
+function startTimer(min){
+  if(S.timer){ clearInterval(S.timer.id); S.timer.el.remove(); S.timer=null; }
+  if(!min) return;
+  const el = h('div',{class:'card timer'}); document.body.append(el);
+  const end = Date.now()+min*60000;
+  const tick = ()=>{ const s=Math.max(0,Math.round((end-Date.now())/1000)); el.textContent=`⏱️ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; if(s===0){ el.style.borderColor='var(--danger)'; el.style.color='var(--danger)'; beep('boss'); clearInterval(S.timer.id); } };
+  S.timer = {el, id:setInterval(tick,1000)}; tick();
+  el.onclick=()=>startTimer(0); el.title='Pulsa para quitar';
+  toast(`Temporizador de ${min} min iniciado`, true);
+}
+
+if('speechSynthesis' in window){ try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{}; }catch(e){} }
+showHome();
+sincronizarDesdeNube();
+// Enlace «Guía del maestro de Chispa» del Panel docente.
+if(location.hash==='#guia'){
+  try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+  showTeacher();
+}
+</script>
+</body>
+</html>

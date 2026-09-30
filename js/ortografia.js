@@ -108,6 +108,7 @@ function initGame(diff, registerRestart) {
   const els = {
     card: document.getElementById("practica-ortografia"),
     wordDisplay: document.getElementById("word-display"),
+    wordPanel: document.getElementById("word-panel"),
     stepSyllables: document.getElementById("step-syllables"),
     stepStress: document.getElementById("step-stress"),
     stepTilde: document.getElementById("step-tilde"),
@@ -198,6 +199,46 @@ function initGame(diff, registerRestart) {
     });
   }
 
+  // La palabra se queda a la vista en los pasos 2, 3 y 4: sin ella
+  // delante cuesta mucho más decidir si lleva tilde o qué grupo de
+  // vocales tiene. Cada paso enseña solo lo que ya se ha resuelto:
+  //   "sílabas"  → la palabra y su separación (paso 2).
+  //   "tónica"   → además, la sílaba tónica resaltada (paso 3). Sin
+  //                tilde todavía: enseñarla daría la respuesta.
+  //   "tilde"    → ya con su tilde, si la lleva (paso 4 y final).
+  function renderWordPanel(fase) {
+    if (!els.wordPanel) return;
+    const conTilde = fase === "tilde";
+    const palabra = conTilde ? current.accented : current.plain;
+
+    // Las sílabas del banco vienen sin tilde; las de la palabra
+    // acentuada se sacan cortando por las mismas longitudes.
+    let pos = 0;
+    const silabas = current.syllables.map((s) => {
+      const trozo = conTilde ? current.accented.slice(pos, pos + s.length) : s;
+      pos += s.length;
+      return trozo;
+    });
+
+    els.wordPanel.innerHTML = "";
+    const palabraEl = document.createElement("span");
+    palabraEl.className = "word-panel-word";
+    palabraEl.textContent = palabra.toUpperCase();
+    els.wordPanel.appendChild(palabraEl);
+
+    const silabasEl = document.createElement("span");
+    silabasEl.className = "word-panel-syllables";
+    silabas.forEach((s, i) => {
+      if (i > 0) silabasEl.appendChild(document.createTextNode(" - "));
+      const sil = document.createElement("span");
+      sil.textContent = s.toUpperCase();
+      if (fase !== "sílabas" && i === current.stress) sil.className = "word-panel-tonica";
+      silabasEl.appendChild(sil);
+    });
+    els.wordPanel.appendChild(silabasEl);
+    els.wordPanel.style.display = "";
+  }
+
   function showTempMessage(msg) {
     els.feedback.classList.add("show");
     els.feedback.classList.remove("ok", "ko");
@@ -225,6 +266,7 @@ function initGame(diff, registerRestart) {
     els.stepTilde.style.display = "none";
     els.stepVowelgroup.style.display = "none";
     els.nextBtn.style.display = "none";
+    if (els.wordPanel) els.wordPanel.style.display = "none";
     els.checkSyllablesBtn.disabled = false;
     setProgress(0);
 
@@ -267,6 +309,7 @@ function initGame(diff, registerRestart) {
     els.stepSyllables.style.display = "none";
     els.stepStress.style.display = "";
     els.syllableRow.innerHTML = "";
+    renderWordPanel("sílabas");
 
     current.syllables.forEach((syl, i) => {
       const chip = document.createElement("button");
@@ -295,6 +338,7 @@ function initGame(diff, registerRestart) {
     setProgress(50);
     els.stepStress.style.display = "none";
     els.stepTilde.style.display = "";
+    renderWordPanel("tónica");
     els.tildeSiBtn.disabled = false;
     els.tildeNoBtn.disabled = false;
     els.tildeSiBtn.classList.remove("correct", "incorrect");
@@ -324,6 +368,7 @@ function initGame(diff, registerRestart) {
     setProgress(75);
     els.stepTilde.style.display = "none";
     els.stepVowelgroup.style.display = "";
+    renderWordPanel("tilde");
     els.vgButtons.forEach((b) => {
       b.disabled = false;
       b.classList.remove("correct", "incorrect");
@@ -348,6 +393,7 @@ function initGame(diff, registerRestart) {
     setProgress(100);
     els.stepTilde.style.display = "none";
     els.stepVowelgroup.style.display = "none";
+    renderWordPanel("tilde");
 
     const type = computeType(current.syllables.length, current.stress);
     const allCorrect = roundOk.syll && roundOk.stress && roundOk.tilde && (skippedVowelGroup || roundOk.vg);

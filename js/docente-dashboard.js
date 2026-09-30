@@ -98,6 +98,53 @@ async function estadisticasDeAlumno(code) {
   return { porTema, aciertos, fallos };
 }
 
+// Progreso en «Chispa y la Fábrica de Robots» (Pensamiento
+// computacional). La app guarda ya un resumen por ciclo en
+// students/{clave}/gamification/chispa, ver
+// pensamiento-computacional/js/nube.js.
+const CICLOS_CHISPA = { 1: "1.er ciclo", 2: "2.º ciclo", 3: "3.er ciclo" };
+
+async function progresoChispa(code) {
+  const snap = await getDoc(doc(db, "students", code, "gamification", "chispa"));
+  return snap.exists() ? snap.data().resumen || null : null;
+}
+
+// Solo los ciclos en los que ha superado algún reto.
+function ciclosChispaJugados(resumen) {
+  return Object.keys(CICLOS_CHISPA)
+    .map((c) => Object.assign({ ciclo: CICLOS_CHISPA[c] }, (resumen || {})[c] || {}))
+    .filter((r) => r.retos > 0);
+}
+
+function textoChispaCorto(resumen) {
+  const jugados = ciclosChispaJugados(resumen);
+  if (!jugados.length) return "—";
+  return jugados.map((r) => r.ciclo + ": " + r.retos + "/" + r.total + (r.zona ? " (zona " + r.zona + ")" : "")).join(" · ");
+}
+
+function pintarProgresoChispa(container, resumen) {
+  const jugados = ciclosChispaJugados(resumen);
+  container.innerHTML =
+    '<h4 class="progreso-chispa-titulo">🤖 Chispa y la Fábrica de Robots</h4>' +
+    (jugados.length
+      ? '<div class="progreso-temas">' +
+        jugados
+          .map((r) => {
+            const pct = Math.round((r.retos / r.total) * 100);
+            const nivel = pct >= 75 ? "bien" : pct >= 40 ? "regular" : "flojo";
+            return (
+              '<div class="progreso-tema ' + nivel + '">' +
+              '<span class="progreso-tema-nombre">' + r.ciclo + "</span>" +
+              '<span class="progreso-tema-datos">' + (r.zona ? "Zona " + r.zona + " · " : "") + r.retos + " de " + r.total + " retos · ⭐ " + (r.estrellas || 0) + " estrellas</span>" +
+              '<span class="progreso-tema-pct">' + pct + "%</span>" +
+              "</div>"
+            );
+          })
+          .join("") +
+        "</div>"
+      : '<p class="content-subtitle">Todavía no ha superado ningún reto con su clave.</p>');
+}
+
 // Desglose por contenido, con lo peor primero: es lo que interesa para
 // decidir qué reforzar.
 function pintarProgresoPorTema(container, stats) {
@@ -494,8 +541,12 @@ document.addEventListener("DOMContentLoaded", () => {
       for (const docSnap of alumnos) {
         const data = docSnap.data();
         let stats = { aciertos: 0, fallos: 0, porTema: {} };
+        let chispa = null;
         try {
-          stats = await estadisticasDeAlumno(docSnap.id);
+          [stats, chispa] = await Promise.all([
+            estadisticasDeAlumno(docSnap.id),
+            progresoChispa(docSnap.id).catch(() => null),
+          ]);
         } catch (e) {
           // Si un alumno falla, el resto del resumen se sigue mostrando.
         }
@@ -507,13 +558,14 @@ document.addEventListener("DOMContentLoaded", () => {
           aciertos: stats.aciertos,
           fallos: stats.fallos,
           pct: porcentaje(stats.aciertos, stats.fallos),
+          chispa: textoChispaCorto(chispa),
         });
       }
 
       const sinConectar = filas.filter((f) => !f.conectado).length;
       classSummaryEl.innerHTML =
         '<table class="class-summary-table"><thead><tr>' +
-        "<th>Alumno</th><th>Última conexión</th><th>Contenidos</th><th>Aciertos</th><th>Fallos</th><th>% acierto</th>" +
+        "<th>Alumno</th><th>Última conexión</th><th>Contenidos</th><th>Aciertos</th><th>Fallos</th><th>% acierto</th><th>Chispa 🤖 (retos)</th>" +
         "</tr></thead><tbody>" +
         filas
           .map(
@@ -525,6 +577,7 @@ document.addEventListener("DOMContentLoaded", () => {
               '<td class="ok">' + f.aciertos + "</td>" +
               '<td class="ko">' + f.fallos + "</td>" +
               "<td>" + (f.pct === null ? "—" : f.pct + "%") + "</td>" +
+              "<td>" + f.chispa + "</td>" +
               "</tr>"
           )
           .join("") +
@@ -599,8 +652,15 @@ document.addEventListener("DOMContentLoaded", () => {
           if (abierto || progPanel.dataset.cargado) return;
           progPanel.innerHTML = '<p class="content-subtitle">Cargando progreso...</p>';
           try {
-            const stats = await estadisticasDeAlumno(code);
+            const [stats, chispa] = await Promise.all([
+              estadisticasDeAlumno(code),
+              progresoChispa(code).catch(() => null),
+            ]);
             pintarProgresoPorTema(progPanel, stats);
+            const bloqueChispa = document.createElement("div");
+            bloqueChispa.className = "progreso-chispa";
+            pintarProgresoChispa(bloqueChispa, chispa);
+            progPanel.appendChild(bloqueChispa);
             progPanel.dataset.cargado = "1";
           } catch (err) {
             progPanel.innerHTML = '<p class="content-subtitle">No se ha podido cargar el progreso: ' + err.message + "</p>";

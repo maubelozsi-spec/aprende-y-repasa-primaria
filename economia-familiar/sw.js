@@ -6,7 +6,7 @@
 // código llegan en cuanto hay conexión).
 // ============================================================
 
-const CACHE = "eco-familiar-v2";
+const CACHE = "eco-familiar-v3";
 const ARCHIVOS = [
   "./",
   "./index.html",
@@ -24,6 +24,7 @@ const ARCHIVOS = [
   "./js/proyeccion.js",
   "./manifest.json",
   "../js/firebase-config.js",
+  "../js/acceso.js",
 ];
 
 self.addEventListener("install", (e) => {

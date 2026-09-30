@@ -39,6 +39,40 @@ body[data-tema="pizarra-negra"] {
   --sombra-texto: 0 0 6px rgba(255,255,255,.12);
 }
 
+/* Tema llamativo y escolar: degradado vivo violeta-azul con confeti
+   de colores y garabatos escolares (estrella, libro abierto, lápiz,
+   pelota, "abc", "2+3") dibujados en un patrón SVG incrustado. Los
+   "confetis" son capas de radial-gradient repetidas (ver la regla de
+   background-size más abajo). */
+body[data-tema="arcoiris"] {
+  /* Fondo oscurecido para máximo contraste con el texto blanco
+     (relación de contraste > 12:1); los garabatos escolares y el
+     confeti se mantienen, pero más tenues, para que nunca compitan
+     con la letra. */
+  --fondo: #2c1e5c;
+  --fondo-deco:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.09' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M40 34l6 12 13 2-9 9 2 13-12-6-12 6 2-13-9-9 13-2z'/%3E%3Cpath d='M150 40q20-12 40 0v34q-20-12-40 0z'/%3E%3Cpath d='M170 46v30'/%3E%3Cpath d='M60 150l36-36 12 12-36 36-16 4z'/%3E%3Ccircle cx='204' cy='150' r='14'/%3E%3Cpath d='M108 224q10-14 20 0t20 0'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='0.09' font-family='Segoe Print, Comic Sans MS, cursive' font-size='26'%3E%3Ctext x='188' y='230'%3E2+3%3C/text%3E%3Ctext x='22' y='232'%3Eabc%3C/text%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(circle, rgba(255,213,79,.32) 5px, transparent 6px),
+    radial-gradient(circle, rgba(110,231,255,.28) 4px, transparent 5px),
+    radial-gradient(circle, rgba(255,143,192,.28) 6px, transparent 7px),
+    radial-gradient(circle, rgba(129,255,176,.22) 4px, transparent 5px),
+    linear-gradient(135deg, #322260 0%, #4b2678 45%, #1e3376 100%);
+  --texto: #ffffff;
+  --texto-suave: #cfc7ea;
+  --tiza-azul: #7fe9ff;
+  --tiza-rosa: #ffabd6;
+  --tiza-amarilla: #ffdd66;
+  --linea: rgba(255,255,255,.6);
+  --tarjeta: rgba(0,0,0,.22);
+  --tarjeta-borde: rgba(255,255,255,.45);
+  --panel: #2b1d54;
+  --sombra-texto: 0 2px 10px rgba(0,0,0,.5);
+}
+body[data-tema="arcoiris"] {
+  background-size: 340px 340px, 190px 170px, 230px 210px, 300px 260px, 170px 230px, cover;
+  background-position: 20px 30px, 0 0, 60px 90px, 130px 40px, 30px 150px, 0 0;
+}
+
 body[data-tema="pizarra-verde"] {
   --fondo: #2c473a;
   --fondo-deco:
@@ -121,7 +155,7 @@ body {
   background-attachment: fixed;
   color: var(--texto);
   font-family: var(--fuente-texto);
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.45;
   overflow: hidden;
 }
@@ -151,7 +185,7 @@ body {
 
 .titulo-seccion {
   font-family: var(--fuente-titulos);
-  font-size: clamp(34px, 5.2vw, 56px);
+  font-size: clamp(38px, 5.6vw, 62px);
   font-weight: 700;
   margin: 6px 0 4px;
   text-align: center;
@@ -174,18 +208,28 @@ body {
   margin-top: 14px;
 }
 
+/* Reparto automático en dos columnas cuando una sección es muy larga
+   (lo activa ajustarEscala() antes de reducir la letra). */
+.cuerpo-seccion.auto-columnas {
+  width: min(1220px, 100%);
+  column-count: 2;
+  column-gap: 38px;
+}
+.cuerpo-seccion.auto-columnas .bloque { break-inside: avoid; }
+.cuerpo-seccion.auto-columnas .bloque-h { break-after: avoid-column; }
+
 /* Bloques de contenido */
 .bloque { position: relative; margin: 0 0 16px; }
 
 .bloque-h {
   font-family: var(--fuente-titulos);
-  font-size: clamp(26px, 3.4vw, 36px);
+  font-size: clamp(30px, 3.8vw, 42px);
   font-weight: 700;
   color: var(--tiza-azul);
   text-shadow: var(--sombra-texto);
 }
 
-.bloque-p { font-size: clamp(18px, 2.2vw, 23px); }
+.bloque-p { font-size: clamp(21px, 2.6vw, 28px); }
 
 .bloque-ul ul, .bloque-p ul, .cols ul { margin: 6px 0 6px 8px; padding-left: 22px; }
 .bloque-ul li, .cols li { margin: 4px 0; }
@@ -195,7 +239,7 @@ body {
   border-radius: 10px;
   background: var(--tarjeta);
   padding: 12px 18px;
-  font-size: clamp(18px, 2.2vw, 23px);
+  font-size: clamp(21px, 2.6vw, 28px);
   transform: rotate(-.3deg);
 }
 
@@ -226,7 +270,7 @@ body {
   border-collapse: collapse;
   margin: 0 auto;
   background: var(--tarjeta);
-  font-size: clamp(15px, 1.9vw, 20px);
+  font-size: clamp(17px, 2.1vw, 24px);
 }
 .bloque-tabla th, .bloque-tabla td {
   border: 1.5px solid var(--tarjeta-borde);
@@ -235,11 +279,30 @@ body {
 }
 .bloque-tabla th { color: var(--tiza-amarilla); }
 
-.bloque-tabla table.horario { font-size: clamp(12px, 1.5vw, 17px); line-height: 1.15; }
+.bloque-tabla table.horario { font-size: clamp(14px, 1.7vw, 20px); line-height: 1.15; }
 .bloque-tabla table.horario td, .bloque-tabla table.horario th { padding: 4px 8px; border-color: rgba(31, 37, 48, .22); }
 .bloque-tabla table.horario small { font-size: .78em; opacity: .85; }
 
 .por-confirmar { color: var(--tiza-amarilla); font-style: italic; }
+
+/* Enlaces dentro de las diapositivas (p. ej. a la app Aprende y Repasa) */
+.diapositiva a {
+  color: var(--tiza-amarilla);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 700;
+}
+.diapositiva a:hover { filter: brightness(1.15); }
+.diapositiva-infografia a { color: #6d28d9; }
+
+/* Dirección web escrita para poder copiarla (también sale en el PDF):
+   un clic selecciona la URL entera. */
+.url-copiable {
+  color: var(--tiza-azul);
+  font-weight: 700;
+  word-break: break-all;
+  user-select: all;
+}
 
 /* ---------- Portada ---------- */
 
@@ -280,6 +343,105 @@ body {
 .deco-3 { top: 8%;  right: 11%; font-size: clamp(46px, 8vw, 105px); color: var(--tiza-azul);   transform: rotate(12deg); }
 .deco-4 { bottom: 10%; right: 15%; font-size: clamp(40px, 7vw, 90px); color: var(--tiza-rosa); transform: rotate(-8deg); }
 
+/* ---------- Botón de PDF en la portada ---------- */
+
+.btn-pdf {
+  margin-top: 26px;
+  border: 2px solid var(--tarjeta-borde);
+  border-radius: 999px;
+  background: var(--tarjeta);
+  color: var(--texto);
+  font-family: var(--fuente-texto);
+  font-size: 18px;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease;
+}
+.btn-pdf:hover { transform: scale(1.05); background: rgba(255,255,255,.2); }
+
+/* ---------- Infografía (resumen en una página) ----------
+   Es una diapositiva especial con aspecto de póster claro,
+   independiente del tema elegido: tarjetas pastel en columnas,
+   como una infografía escolar. */
+
+.diapositiva-infografia {
+  background: #fdf6ec;
+  color: #333a4d;
+}
+.diapositiva-infografia .titulo-seccion { color: #7c3aed; text-shadow: none; }
+.diapositiva-infografia .titulo-seccion::after { background: rgba(124,58,237,.5); }
+
+.diapositiva-infografia .cuerpo-seccion {
+  width: min(1180px, 100%);
+  column-count: 3;
+  column-gap: 18px;
+}
+@media (max-width: 1000px) { .diapositiva-infografia .cuerpo-seccion { column-count: 2; } }
+@media (max-width: 640px)  { .diapositiva-infografia .cuerpo-seccion { column-count: 1; } }
+
+.diapositiva-infografia .bloque { break-inside: avoid; margin-bottom: 14px; }
+
+.tarjeta-info {
+  border-radius: 14px;
+  border: 2px solid rgba(51,58,77,.12);
+  background: #ffffff;
+  box-shadow: 2px 3px 0 rgba(51,58,77,.08);
+  padding: 12px 16px;
+}
+.diapositiva-infografia .bloque:nth-child(6n+1) .tarjeta-info { background: #fde7ef; }
+.diapositiva-infografia .bloque:nth-child(6n+2) .tarjeta-info { background: #e6f4fb; }
+.diapositiva-infografia .bloque:nth-child(6n+3) .tarjeta-info { background: #eaf6dd; }
+.diapositiva-infografia .bloque:nth-child(6n+4) .tarjeta-info { background: #fdf3d7; }
+.diapositiva-infografia .bloque:nth-child(6n+5) .tarjeta-info { background: #efe7fb; }
+
+.tarjeta-titulo {
+  font-family: var(--fuente-titulos);
+  font-size: 27px;
+  font-weight: 700;
+  color: #6d28d9;
+  margin-bottom: 4px;
+}
+.tarjeta-cuerpo { font-size: 18px; line-height: 1.4; }
+.tarjeta-cuerpo ul { margin: 4px 0 4px 4px; padding-left: 20px; }
+.tarjeta-cuerpo li { margin: 2px 0; }
+.tarjeta-cuerpo b { color: #444c63; }
+
+.avatar-foto {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #7c3aed;
+  float: left;
+  margin: 2px 12px 6px 0;
+  background: #fff;
+}
+
+/* La tinta de tiza de colores del editor puede quedar clara sobre el
+   fondo pastel: dentro de la infografía se fuerza legibilidad. */
+.diapositiva-infografia .por-confirmar { color: #b45309; }
+
+/* ---------- Visor de imágenes a pantalla completa ---------- */
+
+#visor-imagen {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 0, 0, .86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  cursor: zoom-out;
+}
+#visor-imagen img {
+  max-width: 96vw;
+  max-height: 94vh;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, .6);
+}
+
 /* ---------- Índice ---------- */
 
 .rejilla-indice {
@@ -299,7 +461,7 @@ body {
   background: var(--tarjeta);
   color: var(--texto);
   font-family: var(--fuente-texto);
-  font-size: 18px;
+  font-size: 20px;
   text-align: left;
   padding: 8px 12px;
   cursor: pointer;
@@ -666,7 +828,48 @@ body.editando .btn-anadir-bloque { display: block; }
   .deco { display: none; }
 }
 
+/* ---------- PDF (botón "Descargar en PDF" → imprimir) ----------
+   Una página apaisada por diapositiva. Cada bloque es indivisible
+   (break-inside: avoid): si una sección no cabe en una página, sigue
+   en la siguiente sin cortar ningún bloque por la mitad. */
+
+@page { size: A4 landscape; margin: 0; }
+
 @media print {
-  .flecha, #barra-inferior, #barra-formato, #panel-config { display: none !important; }
-  .diapositiva { display: flex !important; position: static; page-break-after: always; }
+  .flecha, #barra-inferior, #barra-formato, #panel-config,
+  #fondo-modal, #visor-imagen, .btn-pdf, .btn-anadir-bloque, .controles-bloque {
+    display: none !important;
+  }
+
+  html, body { height: auto; overflow: visible; background: none; }
+
+  #escenario, #diapositivas { position: static; inset: auto; }
+
+  .diapositiva {
+    display: flex !important;
+    position: static;
+    inset: auto;
+    min-height: 100vh;
+    height: auto;
+    overflow: visible;
+    page-break-after: always;
+    break-after: page;
+    padding: 34px 60px 40px;
+    /* El fondo del tema se pinta en cada página */
+    background-color: var(--fondo);
+    background-image: var(--fondo-deco);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body[data-tema="arcoiris"] .diapositiva {
+    background-size: 340px 340px, 190px 170px, 230px 210px, 300px 260px, 170px 230px, cover;
+  }
+  .diapositiva-infografia { background: #fdf6ec !important; background-image: none !important; }
+
+  .diapositiva.activa { animation: none; }
+  .bloque, .tarjeta-info, .bloque-img, .bloque-tabla table { break-inside: avoid; page-break-inside: avoid; }
+  .titulo-seccion, .bloque-h { break-after: avoid; }
+  /* El autoajuste de pantalla (zoom) no aplica al PDF: ahí el
+     contenido pagina y la letra va siempre a tamaño completo. */
+  .cuerpo-seccion, .rejilla-indice { zoom: 1 !important; }
 }

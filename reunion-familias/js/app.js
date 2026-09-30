@@ -52,6 +52,7 @@ const COL_SECRETO = "reunionFamiliasSecret";
 const COL_EDITORES = "reunionFamiliasEditores";
 
 const TEMAS = [
+  { id: "arcoiris", nombre: "Colores vivos", fondo: "linear-gradient(135deg,#322260,#4b2678,#1e3376)", tinta: "#ffffff" },
   { id: "pizarra-negra", nombre: "Pizarra negra", fondo: "#1d1e22", tinta: "#f2f0e9" },
   { id: "pizarra-verde", nombre: "Pizarra verde", fondo: "#2c473a", tinta: "#f5f2e4" },
   { id: "noche", nombre: "Cielo nocturno", fondo: "#121a33", tinta: "#eef1ff" },
@@ -76,9 +77,14 @@ const estado = {
 // editarlas; en modo normal solo se muestran las visibles.
 function listaDiapositivas() {
   const secs = estado.app.secciones.filter((s) => estado.editando || s.visible);
-  return [{ tipo: "portada" }, { tipo: "indice" }].concat(
-    secs.map((s) => ({ tipo: "seccion", id: s.id }))
-  );
+  // La infografía-resumen va justo después de la portada (página 2),
+  // antes del índice; el resto de secciones sigue el orden normal.
+  const info = secs.find((s) => s.id === "infografia");
+  const resto = secs.filter((s) => s.id !== "infografia");
+  const lista = [{ tipo: "portada" }];
+  if (info) lista.push({ tipo: "seccion", id: "infografia" });
+  lista.push({ tipo: "indice" });
+  return lista.concat(resto.map((s) => ({ tipo: "seccion", id: s.id })));
 }
 
 // ---------------- Utilidades DOM ----------------
@@ -130,7 +136,63 @@ function mostrarDiapo() {
   $("#contador").textContent = `${estado.idx + 1} / ${lista.length}`;
   $("#btn-anterior").disabled = estado.idx === 0;
   $("#btn-siguiente").disabled = estado.idx === lista.length - 1;
+  ajustarEscala();
+  // Segundo ajuste por si las imágenes terminan de cargar y cambian la altura
+  setTimeout(ajustarEscala, 250);
 }
+
+// Autoajuste "cabe en una página": la letra base es grande y, si el
+// contenido de la diapositiva activa no entra en pantalla, se reduce
+// solo lo justo (con zoom) para que se vea todo sin hacer scroll.
+// En el móvil (pantallas estrechas) y en modo edición se deja el
+// scroll natural; al imprimir, el CSS anula el zoom (el PDF pagina).
+function ajustarEscala() {
+  const activa = document.querySelector(".diapositiva.activa");
+  if (!activa) return;
+  const objetivo = activa.querySelector(".cuerpo-seccion, .rejilla-indice");
+  if (!objetivo) return;
+  objetivo.style.zoom = "";
+  objetivo.classList.remove("auto-columnas");
+  if (estado.editando || window.innerWidth < 900) return;
+
+  const encoger = () => {
+    for (let i = 0; i < 5; i++) {
+      if (activa.scrollHeight - activa.clientHeight <= 2) break;
+      const actual = Number(objetivo.style.zoom || 1);
+      // 0.98 de margen para que el redondeo del reflujo no deje restos
+      const nuevo = Math.max(0.55, actual * (activa.clientHeight / activa.scrollHeight) * 0.98);
+      if (nuevo >= actual) break;
+      objetivo.style.zoom = String(nuevo);
+    }
+    return Number(objetivo.style.zoom || 1);
+  };
+  const cabe = () => activa.scrollHeight - activa.clientHeight <= 2;
+
+  // 1º intento: una columna
+  const z1 = encoger();
+  const cabe1 = cabe();
+  const esCuerpo = objetivo.classList.contains("cuerpo-seccion");
+  const esInfografia = activa.classList.contains("diapositiva-infografia");
+  if ((cabe1 && z1 >= 0.75) || !esCuerpo || esInfografia) return;
+
+  // 2º intento: dos columnas; se conserva la disposición que permita
+  // la letra más grande (una tabla ancha, p. ej., empeora en columnas).
+  objetivo.classList.add("auto-columnas");
+  objetivo.style.zoom = "";
+  const z2 = encoger();
+  const cabe2 = cabe();
+  const mejoraConColumnas = (cabe2 && !cabe1) || (cabe2 === cabe1 && z2 > z1);
+  if (!mejoraConColumnas) {
+    objetivo.classList.remove("auto-columnas");
+    objetivo.style.zoom = z1 === 1 ? "" : String(z1);
+  }
+}
+
+let temporizadorEscala = null;
+window.addEventListener("resize", () => {
+  clearTimeout(temporizadorEscala);
+  temporizadorEscala = setTimeout(ajustarEscala, 150);
+});
 
 function ir(idx) {
   estado.idx = idx;
@@ -159,6 +221,14 @@ function renderPortada() {
   if (estado.app.fecha === undefined) estado.app.fecha = window.CONTENIDO_INICIAL.app.fecha || "";
   const fecha = el("p", "fecha-reunion", estado.app.fecha);
   d.append(bienvenida, curso, raya, tutor, grupoCentro, fecha);
+
+  // Botón para llevarse la presentación completa en PDF (apaisado).
+  // Usa la impresión del navegador: en el diálogo basta con elegir
+  // "Guardar como PDF" como destino.
+  const btnPdf = el("button", "btn-pdf", "📄 Descargar en PDF");
+  btnPdf.title = "En el diálogo que se abre, elige «Guardar como PDF»";
+  btnPdf.addEventListener("click", () => window.print());
+  d.appendChild(btnPdf);
 
   if (estado.editando) {
     vincularCampoPortada(curso, "curso", "Curso ");
@@ -216,7 +286,7 @@ function renderIndice(lista) {
 function renderSeccion(id) {
   const conf = estado.app.secciones.find((s) => s.id === id) || { titulo: id };
   const datos = estado.secciones[id] || { bloques: [] };
-  const d = el("section", "diapositiva");
+  const d = el("section", "diapositiva" + (id === "infografia" ? " diapositiva-infografia" : ""));
 
   const titulo = el("h2", "titulo-seccion", conf.titulo);
   d.appendChild(titulo);
@@ -256,6 +326,16 @@ function renderBloque(secId, b, i) {
       if (estado.editando) c.contentEditable = "true";
       contenido.appendChild(c);
     });
+  } else if (b.t === "tarjeta") {
+    // Tarjeta de infografía: título + cuerpo sobre fondo pastel.
+    contenido = el("div", "tarjeta-info");
+    const tit = el("div", "tarjeta-titulo", b.titulo || "");
+    const cuerpo = el("div", "tarjeta-cuerpo", b.html || "");
+    if (estado.editando) {
+      tit.contentEditable = "true";
+      cuerpo.contentEditable = "true";
+    }
+    contenido.append(tit, cuerpo);
   } else if (b.t === "img") {
     contenido = el("figure", "");
     contenido.style.margin = "0";
@@ -263,17 +343,15 @@ function renderBloque(secId, b, i) {
       const img = document.createElement("img");
       img.src = b.src;
       img.alt = b.cap || "";
-      if (estado.editando) {
-        contenido.appendChild(img);
-      } else {
-        const enlace = document.createElement("a");
-        enlace.href = b.src;
-        enlace.target = "_blank";
-        enlace.rel = "noopener";
-        enlace.title = "Ver a tamaño completo";
-        enlace.appendChild(img);
-        contenido.appendChild(enlace);
+      if (!estado.editando) {
+        // Las imágenes subidas se guardan como data URL y el navegador
+        // bloquea abrirlas en una pestaña nueva (se quedaba en blanco):
+        // se amplían en un visor propio dentro de la página.
+        img.style.cursor = "zoom-in";
+        img.title = "Ver a tamaño completo";
+        img.addEventListener("click", () => abrirVisorImagen(b.src, b.cap));
       }
+      contenido.appendChild(img);
     } else {
       contenido.appendChild(el("p", "por-confirmar", "[Imagen sin cargar: usa «Cambiar imagen»]"));
     }
@@ -317,6 +395,24 @@ function renderBloque(secId, b, i) {
   return w;
 }
 
+// Visor de imágenes a pantalla completa: se cierra pinchando en
+// cualquier sitio o con Escape.
+function abrirVisorImagen(src, alt) {
+  let visor = document.getElementById("visor-imagen");
+  if (!visor) {
+    visor = document.createElement("div");
+    visor.id = "visor-imagen";
+    visor.addEventListener("click", () => { visor.hidden = true; });
+    document.body.appendChild(visor);
+  }
+  visor.innerHTML = "";
+  const img = document.createElement("img");
+  img.src = src;
+  img.alt = alt || "";
+  visor.appendChild(img);
+  visor.hidden = false;
+}
+
 function moverBloque(secId, i, delta) {
   const b = estado.secciones[secId].bloques;
   const j = i + delta;
@@ -341,6 +437,9 @@ $("#diapositivas").addEventListener("input", (ev) => {
   if (b.t === "cols") {
     const cols = bloque.querySelectorAll(".col");
     b.cols = [cols[0].innerHTML, cols[1] ? cols[1].innerHTML : ""];
+  } else if (b.t === "tarjeta") {
+    b.titulo = bloque.querySelector(".tarjeta-titulo").innerHTML;
+    b.html = bloque.querySelector(".tarjeta-cuerpo").innerHTML;
   } else if (b.t === "img") {
     const cap = bloque.querySelector("figcaption");
     b.cap = cap ? cap.textContent : "";
@@ -556,6 +655,7 @@ const PLANTILLAS_BLOQUE = {
   cols: { t: "cols", cols: ["Columna izquierda.", "Columna derecha."] },
   tabla: { t: "tabla", html: "<table><thead><tr><th>Columna 1</th><th>Columna 2</th></tr></thead><tbody><tr><td>—</td><td>—</td></tr><tr><td>—</td><td>—</td></tr></tbody></table>" },
   img: { t: "img", src: "", cap: "Pie de foto" },
+  tarjeta: { t: "tarjeta", titulo: "Título de la tarjeta", html: "Contenido de la tarjeta. Haz clic para editarlo." },
 };
 
 async function menuAnadirBloque(secId) {
@@ -721,7 +821,11 @@ function renderConfig() {
   inpColor.type = "color";
   inpColor.id = "inp-color-fondo";
   const temaActual = TEMAS.find((t) => t.id === estado.app.tema) || TEMAS[0];
-  inpColor.value = estado.app.fondoColor || temaActual.fondo;
+  // input type=color solo admite "#rrggbb"; para temas con degradado
+  // (fondo no hexadecimal) se ofrece un morado acorde como punto de partida.
+  inpColor.value =
+    estado.app.fondoColor ||
+    (temaActual.fondo.startsWith("#") ? temaActual.fondo : "#2c1e5c");
   inpColor.addEventListener("input", () => {
     estado.app.fondoColor = inpColor.value;
     aplicarTema();
@@ -1035,6 +1139,7 @@ function elegirTipoBloque() {
         <button data-tipo="cols">◫ Dos columnas</button>
         <button data-tipo="tabla">⊞ Tabla</button>
         <button data-tipo="img">🖼 Imagen</button>
+        <button data-tipo="tarjeta">🗂 Tarjeta de infografía</button>
       </div>
       <div class="acciones">
         <button class="secundario" id="m-cancelar">Cancelar</button>
@@ -1068,6 +1173,11 @@ $("#btn-cerrar-config").addEventListener("click", () => { $("#panel-config").hid
 document.addEventListener("keydown", (ev) => {
   const enEditable = ev.target.isContentEditable ||
     ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA";
+  const visor = document.getElementById("visor-imagen");
+  if (visor && !visor.hidden) {
+    if (ev.key === "Escape") visor.hidden = true;
+    return;
+  }
   if (!$("#fondo-modal").hidden) {
     if (ev.key === "Escape") cerrarModal();
     return;
