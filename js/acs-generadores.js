@@ -747,6 +747,23 @@ const ACS_DIBUJOS_PUNTOS = [
   },
 ];
 
+// Pictograma (palabra clave de ARASAAC) y sílabas de cada dibujo, para
+// que al terminar se lea su nombre ("CO-HE-TE") y para el "¿Qué has
+// dibujado?" de la hoja impresa.
+const ACS_DIBUJOS_PUNTOS_PALABRA = {
+  "una estrella": { clave: "estrella", silabas: ["es", "tre", "lla"] },
+  "una casa": { clave: "casa", silabas: ["ca", "sa"] },
+  "un pez": { clave: "pez", silabas: ["pez"] },
+  "un barco": { clave: "barco", silabas: ["bar", "co"] },
+  "una cometa": { clave: "cometa", silabas: ["co", "me", "ta"] },
+  "un gato": { clave: "gato", silabas: ["ga", "to"] },
+  "una corona": { clave: "corona", silabas: ["co", "ro", "na"] },
+  "un cohete": { clave: "cohete", silabas: ["co", "he", "te"] },
+  "un corazón": { clave: "corazón", silabas: ["co", "ra", "zón"] },
+  "un árbol": { clave: "árbol", silabas: ["ár", "bol"] },
+  "una seta": { clave: "seta", silabas: ["se", "ta"] },
+};
+
 // Convierte las esquinas de un dibujo en exactamente "total" puntos
 // sobre su contorno: se conservan todas las esquinas (para que la
 // forma no se deforme) y los puntos que faltan se reparten por los
@@ -822,7 +839,15 @@ function generarUnirPuntos(opciones) {
     paso,
     numeros,
     puntos,
-    dibujo: { nombre: dibujo.nombre, color: dibujo.color, detalles: dibujo.detalles },
+    dibujo: Object.assign({ nombre: dibujo.nombre, color: dibujo.color, detalles: dibujo.detalles }, ACS_DIBUJOS_PUNTOS_PALABRA[dibujo.nombre]),
+    // "¿Qué has dibujado?": el dibujo que sale y otros dos, barajados.
+    opcionesQueEs: acsBarajar([
+      dibujo.nombre,
+      ...acsElegirAlAzar(
+        ACS_DIBUJOS_PUNTOS.map((d) => d.nombre).filter((n) => n !== dibujo.nombre),
+        2
+      ),
+    ]).map((nombre) => Object.assign({ nombre, correcta: nombre === dibujo.nombre }, ACS_DIBUJOS_PUNTOS_PALABRA[nombre])),
     ayuda: curso !== "2",
     guia,
     titulo: guia
@@ -965,5 +990,115 @@ function generarTrazoNumeros(opciones) {
     instruccion: "Repasa cada número con el dedo.",
     instruccionImpresion: curso === "2" ? "Repasa cada número con el lápiz." : "Repasa cada número con el lápiz y cuenta sus puntos.",
     items: numeros.map((n) => ({ forma: "texto", texto: String(n), puntos: curso === "2" ? null : n })),
+  };
+}
+
+// ---------- completa la palabra ----------
+// Pictograma + la palabra en sílabas con una que falta ("ca __"): se
+// elige la sílaba entre tres. Reutiliza "elegir-opcion" (item.imagen y
+// item.silabasHueco se dibujan en grande encima de las opciones).
+// 1º: palabras de 2 sílabas; 2º: de 3.
+function generarCompletaPalabra(opciones) {
+  const { cantidad = 4, curso = "1" } = opciones || {};
+  const banco = curso === "2" ? ACS_PALABRAS_SILABAS_3 : ACS_PALABRAS_SILABAS;
+  const todasLasSilabas = Array.from(new Set(banco.flatMap((p) => p.silabas)));
+
+  return {
+    tipo: "elegir-opcion",
+    titulo: "Completa la palabra",
+    instruccion: "Mira el dibujo y lee la palabra. ¿Qué sílaba falta?",
+    instruccionImpresion: "Mira el dibujo y lee la palabra. Rodea la sílaba que falta.",
+    items: acsElegirAlAzar(banco, cantidad).map((p) => {
+      const hueco = Math.floor(Math.random() * p.silabas.length);
+      const correcta = p.silabas[hueco];
+      const distractores = acsElegirAlAzar(
+        todasLasSilabas.filter((s) => s !== correcta && p.silabas.indexOf(s) === -1),
+        2
+      );
+      return {
+        prompt: "",
+        imagen: p.palabra,
+        silabasHueco: p.silabas.map((s, i) => (i === hueco ? null : s)),
+        opciones: acsBarajar([
+          { texto: correcta, correcta: true },
+          ...distractores.map((s) => ({ texto: s, correcta: false })),
+        ]),
+      };
+    }),
+  };
+}
+
+// ---------- ¿sí o no? ----------
+// Frases cortas con un pictograma encima de cada palabra con contenido:
+// hay que leerlas y decir si son verdad o mentira. Siempre mitad y
+// mitad (o casi), para que no baste con contestar siempre lo mismo.
+function generarSiNo(opciones) {
+  const { cantidad = 4 } = opciones || {};
+  const verdaderas = acsElegirAlAzar(ACS_FRASES_SI_NO.filter((f) => f.verdad), Math.ceil(cantidad / 2));
+  const falsas = acsElegirAlAzar(ACS_FRASES_SI_NO.filter((f) => !f.verdad), Math.floor(cantidad / 2));
+  return {
+    tipo: "si-no",
+    titulo: "¿Sí o no?",
+    instruccion: "Lee cada frase. ¿Es verdad? Toca SÍ o NO.",
+    instruccionImpresion: "Lee cada frase. Si es verdad, rodea SÍ. Si no es verdad, rodea NO.",
+    items: acsBarajar(verdaderas.concat(falsas)),
+  };
+}
+
+// ---------- problemas con dibujos ----------
+// Un problema de un solo paso contado con dibujos y con el enunciado
+// apoyado en pictogramas: "Tengo 5 manzanas. Regalo 2. ¿Cuántas me
+// quedan?". En las restas, los dibujos que se van salen tachados, así
+// que basta con contar los que quedan. El resultado se elige entre
+// tres números (en papel, se rodea): nada de escribir.
+function acsTokensCantidad(n, objeto) {
+  return [{ t: String(n), numero: true }, { t: n === 1 ? objeto.clave : objeto.plural, p: objeto.clave }];
+}
+
+function generarProblemasDibujos(opciones) {
+  const { cantidad = 3, curso = "1" } = opciones || {};
+  const maximo = acsPorCurso(curso, 10, 15);
+  const objetos = acsElegirAlAzar(ACS_OBJETOS_PROBLEMA, cantidad);
+
+  return {
+    tipo: "problema",
+    titulo: "Problemas con dibujos",
+    instruccion: "Lee el problema, cuenta los dibujos y toca el resultado.",
+    instruccionImpresion: "Lee el problema, cuenta los dibujos y rodea el resultado.",
+    items: objetos.map((objeto, i) => {
+      // Alternar sumas y restas, empezando al azar.
+      const suma = (i + (Math.random() < 0.5 ? 0 : 1)) % 2 === 0;
+      const cuantos = objeto.femenino ? "Cuántas" : "Cuántos";
+      if (suma) {
+        const a = 1 + Math.floor(Math.random() * (maximo - 2));
+        const b = 1 + Math.floor(Math.random() * Math.min(5, maximo - a));
+        return {
+          clave: objeto.clave,
+          a,
+          b,
+          operador: "+",
+          frases: [
+            [{ t: "Tengo", p: "tener" }, ...acsTokensCantidad(a, objeto)],
+            [{ t: "Me" }, { t: "dan", p: "dar" }, ...acsTokensCantidad(b, objeto)],
+            [{ t: `¿${cuantos}` }, { t: "tengo", p: "tener" }, { t: "ahora?" }],
+          ],
+        };
+      }
+      const a = 3 + Math.floor(Math.random() * (maximo - 2));
+      const b = 1 + Math.floor(Math.random() * Math.min(5, a - 1));
+      return {
+        clave: objeto.clave,
+        a,
+        b,
+        operador: "−",
+        frases: [
+          [{ t: "Tengo", p: "tener" }, ...acsTokensCantidad(a, objeto)],
+          [{ t: "Regalo", p: "regalar" }, { t: String(b), numero: true }],
+          // Sin pictograma en "quedan": el de ARASAAC es "quedar con
+          // alguien" (dos personas que se citan) y confundiría.
+          [{ t: `¿${cuantos}` }, { t: "me" }, { t: "quedan?" }],
+        ],
+      };
+    }),
   };
 }

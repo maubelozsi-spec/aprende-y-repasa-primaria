@@ -583,6 +583,35 @@ function acsCrearOpcionContenido(op) {
   return acsCrearImagenOSvg(op.clave, { color: true });
 }
 
+// "Completa la palabra": pictograma grande y la palabra en sílabas, con
+// una casilla vacía en la que falta ("ca" + [  ]). Devuelve también la
+// casilla, para rellenarla en pantalla cuando se acierta.
+function acsCrearPalabraHueco(item, digital) {
+  const wrap = document.createElement("div");
+  wrap.className = "acs-palabra-hueco";
+  if (item.imagen) {
+    const img = acsCrearImagenOSvg(item.imagen, { color: digital });
+    img.classList.add("acs-palabra-hueco-imagen");
+    wrap.appendChild(img);
+  }
+  const silabas = document.createElement("div");
+  silabas.className = "acs-palabra-hueco-silabas";
+  let hueco = null;
+  item.silabasHueco.forEach((s) => {
+    const caja = document.createElement("span");
+    caja.className = "acs-palabra-hueco-silaba";
+    if (s === null) {
+      caja.classList.add("vacia");
+      hueco = caja;
+    } else {
+      caja.textContent = s;
+    }
+    silabas.appendChild(caja);
+  });
+  wrap.appendChild(silabas);
+  return { el: wrap, hueco };
+}
+
 function renderElegirOpcionDigital(ficha, container) {
   container.innerHTML = "";
   const wrap = document.createElement("div");
@@ -606,6 +635,9 @@ function renderElegirOpcionDigital(ficha, container) {
       bloque.appendChild(acsCrearConteo(item.conteo, { color: true }));
     }
 
+    const palabraHueco = item.silabasHueco ? acsCrearPalabraHueco(item, true) : null;
+    if (palabraHueco) bloque.appendChild(palabraHueco.el);
+
     const opciones = document.createElement("div");
     opciones.className = "acs-opciones";
 
@@ -618,6 +650,11 @@ function renderElegirOpcionDigital(ficha, container) {
       btn.addEventListener("click", () => {
         if (opciones.querySelector(".correcta")) return;
         if (op.correcta) {
+          if (palabraHueco && palabraHueco.hueco) {
+            palabraHueco.hueco.textContent = op.texto;
+            palabraHueco.hueco.classList.remove("vacia");
+            palabraHueco.hueco.classList.add("correcta");
+          }
           btn.classList.add("correcta");
           opciones.querySelectorAll("button").forEach((b) => {
             b.disabled = true;
@@ -658,6 +695,11 @@ function renderElegirOpcionSheet(ficha, container) {
       // dibujos no lo llevan: ahí no hay nada que poner al lado.
       bloque.classList.add("acs-opcion-bloque-conteo");
       bloque.appendChild(acsCrearConteo(item.conteo, { color: false, alinearIzquierda: true }));
+    }
+
+    if (item.silabasHueco) {
+      bloque.classList.add("acs-opcion-bloque-palabra");
+      bloque.appendChild(acsCrearPalabraHueco(item, false).el);
     }
 
     const opciones = document.createElement("div");
@@ -2061,6 +2103,18 @@ function renderUnirPuntosDigital(ficha, container) {
   const feedback = document.createElement("p");
   feedback.className = "acs-feedback";
   wrap.appendChild(feedback);
+
+  // Premio al terminar: el pictograma del dibujo y su nombre en sílabas
+  // grandes, para leerlo ("CO-HE-TE"). Se crea ya (así el pictograma se
+  // va cargando) pero no se ve hasta el final.
+  const premio = document.createElement("div");
+  premio.className = "acs-puntos-premio";
+  premio.hidden = true;
+  if (ficha.dibujo.clave) {
+    premio.appendChild(arasaacCrearImagen(ficha.dibujo.clave, { color: true }));
+    premio.appendChild(acsCrearPalabraSilabas(ficha.dibujo.silabas));
+  }
+  wrap.appendChild(premio);
   container.appendChild(wrap);
 
   const puntos = ficha.puntos;
@@ -2087,6 +2141,7 @@ function renderUnirPuntosDigital(ficha, container) {
       svg.classList.add("completo");
       feedback.textContent = `¡Muy bien! Has dibujado ${ficha.dibujo.nombre}.`;
       feedback.className = "acs-feedback ok";
+      if (ficha.dibujo.clave) premio.hidden = false;
     }
   }
 
@@ -2134,7 +2189,51 @@ function renderUnirPuntosSheet(ficha, container) {
   lienzo.className = "acs-puntos-lienzo";
   lienzo.appendChild(acsCrearSvgPuntos(ficha, { digital: false }).svg);
   sheet.appendChild(lienzo);
+
+  // "¿Qué has dibujado?": tres pictogramas con su nombre para rodear
+  // el bueno. Lectura de palabras a su nivel, sin escribir nada.
+  if (ficha.opcionesQueEs && ficha.opcionesQueEs.length) {
+    const queEs = document.createElement("div");
+    queEs.className = "acs-puntos-que-es";
+    const pregunta = document.createElement("p");
+    pregunta.className = "acs-puntos-que-es-pregunta";
+    pregunta.textContent = "¿Qué has dibujado? Rodéalo.";
+    queEs.appendChild(pregunta);
+    const opciones = document.createElement("div");
+    opciones.className = "acs-puntos-que-es-opciones";
+    ficha.opcionesQueEs.forEach((op) => {
+      const caja = document.createElement("div");
+      caja.className = "acs-puntos-que-es-opcion";
+      caja.appendChild(arasaacCrearImagen(op.clave, { color: false }));
+      const palabra = document.createElement("span");
+      palabra.textContent = op.clave;
+      caja.appendChild(palabra);
+      opciones.appendChild(caja);
+    });
+    queEs.appendChild(opciones);
+    sheet.appendChild(queEs);
+  }
+
   container.appendChild(sheet);
+}
+
+// Palabra escrita en sílabas separadas por guiones, en cajas grandes.
+function acsCrearPalabraSilabas(silabas) {
+  const fila = document.createElement("div");
+  fila.className = "acs-palabra-silabas";
+  silabas.forEach((s, i) => {
+    if (i > 0) {
+      const guion = document.createElement("span");
+      guion.className = "acs-palabra-silabas-guion";
+      guion.textContent = "-";
+      fila.appendChild(guion);
+    }
+    const caja = document.createElement("span");
+    caja.className = "acs-palabra-silabas-silaba";
+    caja.textContent = s.toUpperCase();
+    fila.appendChild(caja);
+  });
+  return fila;
 }
 
 // ---------- trazo (repasar y seguir el trazo) ----------
@@ -2480,6 +2579,170 @@ function renderTrazoDigital(ficha, container) {
   container.appendChild(wrap);
 }
 
+// ---------- frases con pictogramas ----------
+// tokens = [{ t: "El" }, { t: "gato", p: "gato" }, { t: "5", numero: true }]
+// Cada palabra va en su columna: el pictograma encima (si lo tiene) y
+// la palabra debajo, como en los textos adaptados con pictogramas. Las
+// que no tienen pictograma (artículos...) llevan un hueco del mismo
+// alto para que todas las palabras queden en la misma línea.
+function acsCrearFrasePictos(tokens, { color }) {
+  const frase = document.createElement("div");
+  frase.className = "acs-frase";
+  tokens.forEach((tok) => {
+    const col = document.createElement("span");
+    col.className = "acs-frase-palabra";
+    if (tok.numero) col.classList.add("acs-frase-numero");
+    if (tok.p) {
+      col.appendChild(arasaacCrearImagen(tok.p, { color, alt: tok.t }));
+    } else {
+      const vacio = document.createElement("span");
+      vacio.className = "acs-pic acs-frase-sin-pic";
+      col.appendChild(vacio);
+    }
+    const texto = document.createElement("span");
+    texto.className = "acs-frase-texto";
+    texto.textContent = tok.t;
+    col.appendChild(texto);
+    frase.appendChild(col);
+  });
+  return frase;
+}
+
+function acsTextoFrase(tokens) {
+  return tokens.map((tok) => tok.t).join(" ");
+}
+
+// Botones (o cajas, en papel) de respuesta grandes. "valores" es una
+// lista de { etiqueta, valor, clase }; al acertar se desactivan todos.
+function acsCrearBotonesRespuesta(valores, correcto, { digital, alAcertar }) {
+  const opciones = document.createElement("div");
+  opciones.className = "acs-opciones";
+  valores.forEach((v) => {
+    const el = document.createElement(digital ? "button" : "div");
+    if (digital) el.type = "button";
+    el.className = "acs-opcion-item acs-opcion-grande" + (v.clase ? " " + v.clase : "");
+    const span = document.createElement("span");
+    span.className = "acs-opcion-texto";
+    span.textContent = v.etiqueta;
+    el.appendChild(span);
+    if (digital) {
+      el.addEventListener("click", () => {
+        if (opciones.querySelector(".correcta")) return;
+        if (v.valor === correcto) {
+          el.classList.add("correcta");
+          opciones.querySelectorAll("button").forEach((b) => {
+            b.disabled = true;
+          });
+          if (alAcertar) alAcertar();
+        } else {
+          el.classList.add("incorrecta");
+          setTimeout(() => el.classList.remove("incorrecta"), 500);
+        }
+      });
+    }
+    opciones.appendChild(el);
+  });
+  return opciones;
+}
+
+// ---------- si-no (¿es verdad lo que dice la frase?) ----------
+// ficha.items = [{ verdad: true, tokens: [...] }]
+
+const ACS_BOTONES_SI_NO = [
+  { etiqueta: "SÍ", valor: true, clase: "acs-opcion-si" },
+  { etiqueta: "NO", valor: false, clase: "acs-opcion-no" },
+];
+
+function acsRenderSiNo(ficha, container, digital) {
+  container.innerHTML = "";
+  const raiz = digital ? document.createElement("div") : acsCrearSheetBase(ficha);
+  if (digital) {
+    raiz.className = "acs-digital";
+    const instr = document.createElement("p");
+    instr.className = "acs-digital-instruccion";
+    instr.textContent = ficha.instruccion;
+    raiz.appendChild(instr);
+  }
+
+  ficha.items.forEach((item, idx) => {
+    const bloque = document.createElement("div");
+    bloque.className = "acs-opcion-bloque acs-frase-bloque";
+    const num = document.createElement("span");
+    num.className = "acs-frase-num";
+    num.textContent = idx + 1 + ".";
+    bloque.appendChild(num);
+    bloque.appendChild(acsCrearFrasePictos(item.tokens, { color: digital }));
+    bloque.appendChild(acsCrearBotonesRespuesta(ACS_BOTONES_SI_NO, item.verdad, { digital }));
+    raiz.appendChild(bloque);
+  });
+
+  container.appendChild(raiz);
+}
+
+// ---------- problema (problemas de un paso con dibujos) ----------
+// ficha.items = [{ clave: "manzana", a: 5, b: 2, operador: "+" | "−",
+//                  frases: [[tokens], [tokens], [tokens]] }]
+
+function acsResultadoProblema(item) {
+  return item.operador === "+" ? item.a + item.b : item.a - item.b;
+}
+
+// Los dibujos del problema: en una suma, los dos grupos; en una resta,
+// todos los que había, con los que se van tachados (se cuentan los que
+// quedan sin tachar).
+function acsCrearDibujosProblema(item, digital) {
+  const fila = document.createElement("div");
+  fila.className = "acs-resta-fila acs-problema-dibujos";
+  if (item.operador === "+") {
+    fila.appendChild(acsCrearCajaConteo(item.clave, item.a, digital));
+    const mas = document.createElement("span");
+    mas.className = "acs-resta-signo";
+    mas.textContent = "+";
+    fila.appendChild(mas);
+    fila.appendChild(acsCrearCajaConteo(item.clave, item.b, digital));
+  } else {
+    const caja = acsCrearCajaConteo(item.clave, item.a, digital);
+    Array.from(caja.children)
+      .slice(item.a - item.b)
+      .forEach((pic) => pic.classList.add("acs-pic-tachado"));
+    fila.appendChild(caja);
+  }
+  return fila;
+}
+
+function acsRenderProblema(ficha, container, digital) {
+  container.innerHTML = "";
+  const raiz = digital ? document.createElement("div") : acsCrearSheetBase(ficha);
+  if (digital) {
+    raiz.className = "acs-digital";
+    const instr = document.createElement("p");
+    instr.className = "acs-digital-instruccion";
+    instr.textContent = ficha.instruccion;
+    raiz.appendChild(instr);
+  }
+
+  ficha.items.forEach((item, idx) => {
+    const bloque = document.createElement("div");
+    bloque.className = "acs-opcion-bloque acs-problema-bloque";
+    const num = document.createElement("span");
+    num.className = "acs-frase-num";
+    num.textContent = idx + 1 + ".";
+    bloque.appendChild(num);
+    const enunciado = document.createElement("div");
+    enunciado.className = "acs-problema-enunciado";
+    item.frases.forEach((tokens) => enunciado.appendChild(acsCrearFrasePictos(tokens, { color: digital })));
+    bloque.appendChild(enunciado);
+    bloque.appendChild(acsCrearDibujosProblema(item, digital));
+
+    const resultado = acsResultadoProblema(item);
+    const valores = acsOpcionesNumericasCercanas(resultado).map((n) => ({ etiqueta: String(n), valor: n }));
+    bloque.appendChild(acsCrearBotonesRespuesta(valores, resultado, { digital }));
+    raiz.appendChild(bloque);
+  });
+
+  container.appendChild(raiz);
+}
+
 // ---------- registro de tipos y arranque ----------
 
 const ACS_RENDERERS = {
@@ -2498,6 +2761,8 @@ const ACS_RENDERERS = {
   "serie-numerica": { digital: renderSerieNumericaDigital, sheet: renderSerieNumericaSheet },
   "unir-puntos": { digital: renderUnirPuntosDigital, sheet: renderUnirPuntosSheet },
   "trazo": { digital: renderTrazoDigital, sheet: renderTrazoSheet },
+  "si-no": { digital: (f, c) => acsRenderSiNo(f, c, true), sheet: (f, c) => acsRenderSiNo(f, c, false) },
+  "problema": { digital: (f, c) => acsRenderProblema(f, c, true), sheet: (f, c) => acsRenderProblema(f, c, false) },
 };
 
 function initAcsFicha(ficha, digitalEl, sheetEl) {
@@ -2522,6 +2787,9 @@ function acsClaveRespuestas(ficha) {
     case "elegir-opcion":
       return ficha.items.map((item, i) => {
         const correcta = item.opciones.find((op) => op.correcta);
+        if (item.silabasHueco) {
+          return `${i + 1}. ${item.imagen}: falta «${correcta.texto}»`;
+        }
         return `${i + 1}. ${item.prompt || "¿Cuántos hay?"} → ${correcta.texto || acsEtiquetaClave(correcta.clave)}`;
       });
     case "mayor-menor-igual":
@@ -2551,6 +2819,10 @@ function acsClaveRespuestas(ficha) {
       return ["Faltan: " + acsFaltantesDeLaSerie(ficha).join(", ")];
     case "unir-puntos":
       return ["Dibujo: " + ficha.dibujo.nombre, "Orden: " + ficha.numeros.join(", ")];
+    case "si-no":
+      return ficha.items.map((item, i) => `${i + 1}. ${acsTextoFrase(item.tokens)} → ${item.verdad ? "SÍ" : "NO"}`);
+    case "problema":
+      return ficha.items.map((item, i) => `${i + 1}. ${item.a} ${item.operador} ${item.b} = ${acsResultadoProblema(item)}`);
     case "trazo":
       // No hay una respuesta que comprobar: se valora el trazo.
       return ficha.items.map((item, i) => `${i + 1}. ${item.forma === "camino" ? item.nombre : item.texto} (valorar el trazo)`);
