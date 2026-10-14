@@ -672,4 +672,23 @@
   ponerEstado("apagado");
   pintarMinuto();
   pintarPuntos();
+
+  // Si en este navegador ya se dio permiso al micrófono, el medidor
+  // arranca solo al abrir la página: así está listo en la pizarra sin
+  // tocar nada. Si el navegador no deja arrancar el audio sin un toque
+  // en pantalla, se queda como estaba, con el botón «Activar micrófono».
+  (async function arrancarSolo() {
+    try {
+      if (!navigator.permissions || !navigator.permissions.query) return;
+      const estado = await navigator.permissions.query({ name: "microphone" });
+      if (estado.state !== "granted") return;
+      await activar(cfg.microfono);
+      if (ctx && ctx.state !== "running") {
+        apagar();
+        el.estadoTexto.textContent = "Toca «Activar micrófono» para empezar";
+      }
+    } catch (e) {
+      // Navegador sin consulta de permisos: se usa el botón.
+    }
+  })();
 })();
