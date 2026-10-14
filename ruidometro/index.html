@@ -11,6 +11,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/ruidometro.css">
+<script>
+  // Dentro del tablero de Herramientas (?embed=1) se usa un diseño
+  // compacto: sin barra de título ni pantalla completa propias.
+  if (/[?&]embed=1\b/.test(location.search)) document.documentElement.classList.add("embebido");
+</script>
 </head>
 <body>
 

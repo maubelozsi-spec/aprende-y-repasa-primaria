@@ -188,6 +188,8 @@ button, input, select { font: inherit; }
 .panel-ajustes h2 { margin: 0 0 16px; font-size: 1.3rem; }
 .panel-ajustes { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px 28px; }
 .panel-ajustes h2, .panel-ajustes > .ayuda { grid-column: 1 / -1; }
+/* display:grid anularía el atributo hidden: se oculta a mano. */
+.panel-ajustes[hidden] { display: none; }
 .ajuste label { display: block; font-weight: 600; margin-bottom: 8px; }
 .ajuste p { margin: 0 0 10px; line-height: 1.45; color: var(--texto-suave); }
 .ajuste p strong { color: var(--texto); }
@@ -254,4 +256,26 @@ button, input, select { font: inherit; }
   .panel { padding: 18px 16px; }
   .barra { padding: 10px 16px; }
   .barra-titulo { font-size: 1.2rem; }
+}
+
+/* ---------- Dentro del tablero de Herramientas ----------
+   La página va en una ventana (iframe) del tablero, así que vw y vh
+   se refieren al tamaño de esa ventana y no al de la pizarra. */
+.embebido body { min-height: 0; }
+.embebido .barra { padding: 6px 10px; border: 0; justify-content: flex-end; }
+.embebido .barra-volver, .embebido .barra-titulo, .embebido #btn-pantalla { display: none; }
+.embebido .barra .btn { min-height: 36px; padding: 6px 12px; font-size: 0.9rem; }
+.embebido .tablero { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 10px; padding: 0 10px 10px; }
+.embebido .panel { padding: 14px; }
+.embebido .dial { max-height: 46vh; }
+.embebido .estado-cara { font-size: clamp(2rem, 9vh, 4.5rem); }
+.embebido .estado-texto { font-size: clamp(1.1rem, 4.2vw, 2.2rem); margin: 6px 0 4px; }
+.embebido .controles { margin-top: 10px; }
+.embebido .btn-grande { font-size: 1.05rem; padding: 10px 18px; min-height: 48px; }
+.embebido .minuto { width: min(190px, 30vh, 34vw); }
+.embebido .puntos-num { font-size: clamp(3rem, 12vh, 6rem); }
+.embebido .panel-puntos { gap: 8px; }
+.embebido .celebracion { font-size: clamp(3rem, 18vw, 8rem); }
+@media (max-width: 560px) {
+  .embebido .tablero { grid-template-columns: 1fr; }
 }
