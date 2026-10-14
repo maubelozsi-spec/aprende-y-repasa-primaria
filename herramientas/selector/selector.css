@@ -1,0 +1,61 @@
+.oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.lista-elegir { margin-right: auto; }
+.lista-elegir select, .cuantos select {
+  background: var(--panel-2);
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 6px 10px;
+  min-height: 40px;
+  font-weight: 700;
+  max-width: 220px;
+}
+
+.escenario {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 14px 14px;
+  min-height: calc(100vh - 60px);
+  justify-content: center;
+}
+
+.nombre {
+  margin: 0;
+  font-size: clamp(2.2rem, 13vmin, 8rem);
+  font-weight: 800;
+  line-height: 1.05;
+  word-break: break-word;
+  min-height: 1.1em;
+  color: var(--texto-suave);
+}
+.nombre.elegido { color: var(--oro); animation: aparecer 0.5s ease-out; }
+.nombre.barajando { color: var(--texto); opacity: 0.85; }
+.nombre.varios { font-size: clamp(1.6rem, 8vmin, 5rem); }
+@keyframes aparecer { 0% { transform: scale(0.7); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+
+.quedan { color: var(--texto-suave); margin: 10px 0 0; font-weight: 600; font-size: clamp(0.95rem, 3vmin, 1.2rem); }
+
+.mandos { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-top: 18px; }
+.cuantos { display: inline-flex; align-items: center; gap: 6px; color: var(--texto-suave); font-weight: 600; }
+
+.historial { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 18px; max-width: 900px; }
+.historial span {
+  background: var(--panel-2);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-weight: 600;
+  color: var(--texto-suave);
+  font-size: 0.95rem;
+}
+
+.ajustes textarea { width: 100%; resize: vertical; line-height: 1.5; }
+
+.asistencia-lista { display: flex; flex-wrap: wrap; gap: 8px; }
+.asistencia-lista .chip[aria-pressed="true"] {
+  background: #3b1a1f;
+  border-color: #7f1d1d;
+  color: #fca5a5;
+  text-decoration: line-through;
+}

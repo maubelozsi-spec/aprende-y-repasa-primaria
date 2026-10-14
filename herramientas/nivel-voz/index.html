@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script src="../../js/acceso.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Nivel de voz · Aprende y Repasa</title>
+<meta name="description" content="Nivel de voz para la pizarra digital: indica a la clase qué volumen toca en cada actividad, de silencio a voz de patio.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/herramienta.css">
+<link rel="stylesheet" href="nivel-voz.css">
+<script src="../js/comun.js"></script>
+</head>
+<body>
+
+<header class="cabecera">
+  <a href="../index.html">← Herramientas</a>
+  <h1>Nivel de voz 🗣️</h1>
+</header>
+
+<div class="herramienta-barra">
+  <p class="enlace-ruido" id="enlace-ruido"></p>
+  <button type="button" class="btn btn-fantasma" id="btn-ajustes" aria-expanded="false" aria-controls="ajustes">⚙️ Ajustes</button>
+</div>
+
+<main class="niveles" id="niveles" role="radiogroup" aria-label="Nivel de voz permitido"></main>
+
+<section class="ajustes" id="ajustes" hidden aria-label="Ajustes del nivel de voz">
+  <h2>Ajustes</h2>
+  <div class="fila">
+    <label for="cuantos">Número de niveles</label>
+    <select id="cuantos">
+      <option value="2">2</option><option value="3">3</option><option value="4">4</option>
+      <option value="5">5</option><option value="6">6</option>
+    </select>
+    <label for="mostrar">Nombres</label>
+    <select id="mostrar">
+      <option value="todos">Mostrar todos</option>
+      <option value="elegido">Solo el elegido</option>
+      <option value="ninguno">Ninguno (solo colores y números)</option>
+    </select>
+  </div>
+  <div class="fila">
+    <label class="interruptor"><input type="checkbox" id="enlazar"> Al elegir un nivel, cambiar también el límite del Ruidómetro</label>
+  </div>
+  <div class="editar" id="editar"></div>
+  <div class="fila">
+    <button type="button" class="btn" id="btn-restaurar">Restaurar los niveles de serie</button>
+  </div>
+  <p class="ayuda">Los límites del Ruidómetro (0-100) dependen del micrófono de cada aula: ajústalos después de medir el ruido con la clase. Consejo: practica cada nivel con el alumnado antes de usarlo («susurro es como contar un secreto»).</p>
+</section>
+
+<script src="nivel-voz.js"></script>
+</body>
+</html>
