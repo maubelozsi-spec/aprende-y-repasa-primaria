@@ -1,53 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script src="../js/acceso.js"></script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Herramientas · Aprende y Repasa</title>
-<meta name="description" content="Herramientas para el aula y la pizarra digital: Ruidómetro para controlar el ruido de la clase y sumar puntos por minutos de silencio.">
+<meta name="description" content="Tablero de herramientas para la pizarra digital: abre varias a la vez en la misma pantalla, muévelas y cambia su tamaño. Incluye el Ruidómetro.">
+<meta name="theme-color" content="#0b1222">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css">
-<script>
-  window.BASE_PATH = "../";
-  window.CURRENT_PAGE = "herramientas";
-</script>
+<link rel="stylesheet" href="css/tablero.css">
 </head>
 <body>
 
-<div class="app-shell">
-  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
-  <aside class="sidebar" id="sidebar"></aside>
-
-  <div class="content-wrap">
-    <div class="topbar">
-      <button class="topbar-menu-btn" id="menu-toggle">Menú</button>
-      <span class="topbar-title">Aprende y Repasa</span>
-    </div>
-
-    <main class="content">
-      <header class="content-header">
-        <p class="eyebrow">Herramientas</p>
-        <h1>Herramientas para el aula</h1>
-        <p class="content-subtitle">Utilidades para proyectar en la pizarra digital y organizar la clase.</p>
-      </header>
-
-      <div class="subject-grid">
-        <a href="../ruidometro/index.html" class="subject-card" style="--card-color:var(--color-teal); --card-tint:var(--color-teal-tint);">
-          <h2>Ruidómetro 🔊</h2>
-          <p>Mide el ruido de la clase con el micrófono, marca el máximo permitido (o mídelo con la propia clase) y suma un punto por cada minuto de silencio sin pasar del límite. Con meta y premio para toda la clase.</p>
-          <span class="subject-meta">Para la pizarra digital · pantalla completa</span>
-        </a>
-      </div>
-    </main>
-
-    <footer class="site-footer">
-      Hecho para el aula y para repasar en casa · 5º y 6º de Primaria
-    </footer>
+<header class="barra">
+  <a class="barra-volver" href="../index.html">← Inicio</a>
+  <h1 class="barra-titulo">Herramientas <span aria-hidden="true">🧰</span></h1>
+  <div class="barra-herramientas" id="catalogo" role="group" aria-label="Abrir una herramienta"></div>
+  <div class="barra-acciones">
+    <button type="button" class="btn btn-fantasma" id="btn-ordenar">▦ Ordenar</button>
+    <button type="button" class="btn btn-fantasma" id="btn-pantalla">⛶ Pantalla completa</button>
   </div>
-</div>
+</header>
 
-<script src="../js/layout.js"></script>
+<main class="tablero" id="tablero" aria-label="Tablero de herramientas">
+  <div class="tablero-vacio" id="tablero-vacio" hidden>
+    <p class="tablero-vacio-icono" aria-hidden="true">🧰</p>
+    <p>Abre una herramienta con los botones de arriba.</p>
+    <p class="tablero-vacio-pie">Puedes tener varias abiertas a la vez: arrástralas por su barra de título y cambia su tamaño desde la esquina inferior derecha.</p>
+  </div>
+</main>
+
+<script src="js/tablero.js"></script>
 </body>
 </html>
