@@ -41,6 +41,7 @@
     tolerancia: 1.5,
     sensibilidad: 0,
     sonido: false,
+    seguirVoz: true,
     meta: 10,
     premio: "",
     puntos: 0,
@@ -129,6 +130,7 @@
     sensibilidadEtiqueta: $("sensibilidad-etiqueta"),
     microfono: $("microfono"),
     sonido: $("sonido"),
+    seguirVoz: $("seguir-voz"),
     metaPuntos: $("meta-puntos"),
     premio: $("premio"),
     btnSumar: $("btn-sumar"),
@@ -658,6 +660,27 @@
     if (e.animationName === "destello") el.tablero.classList.remove("destello");
   });
 
+  el.seguirVoz.addEventListener("change", () => {
+    cfg.seguirVoz = el.seguirVoz.checked;
+    guardar();
+  });
+
+  // Enlace con «Nivel de voz»: esa herramienta, abierta en otra
+  // ventana del tablero, publica el nivel elegido en localStorage. El
+  // evento «storage» solo llega a los OTROS documentos, que es justo
+  // lo que se quiere.
+  window.addEventListener("storage", (e) => {
+    if (e.key !== "ar_nivel_voz_activo" || !e.newValue || !cfg.seguirVoz) return;
+    try {
+      const nivel = JSON.parse(e.newValue);
+      if (!nivel || typeof nivel.limite !== "number") return;
+      cambiarLimite(nivel.limite);
+      el.medirResultado.textContent = "Límite " + cfg.limite + " por el nivel de voz «" + String(nivel.nombre || "").slice(0, 30) + "».";
+    } catch (err) {
+      // Dato ilegible: se ignora.
+    }
+  });
+
   // ---------------- Arranque ----------------
   el.limite.value = cfg.limite;
   el.tolerancia.value = cfg.tolerancia;
@@ -665,6 +688,7 @@
   el.sensibilidad.value = cfg.sensibilidad;
   el.sensibilidadEtiqueta.textContent = (cfg.sensibilidad > 0 ? "+" : "") + cfg.sensibilidad;
   el.sonido.checked = !!cfg.sonido;
+  el.seguirVoz.checked = cfg.seguirVoz !== false;
   el.metaPuntos.value = cfg.meta;
   el.premio.value = cfg.premio || "";
   pintarZonas();

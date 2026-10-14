@@ -1,0 +1,115 @@
+/* =========================================================
+   Base común de las herramientas del tablero (temporizador,
+   selector de alumnos, nivel de voz…). Cada herramienta añade
+   su propia hoja. Dentro del tablero la página va en un iframe:
+   vw, vh y vmin se refieren al tamaño de su ventana.
+   ========================================================= */
+
+:root {
+  --fondo: #0f172a;
+  --panel: #1e293b;
+  --panel-2: #273449;
+  --borde: #334155;
+  --texto: #f1f5f9;
+  --texto-suave: #a5b4c8;
+  --verde: #22c55e;
+  --ambar: #f59e0b;
+  --rojo: #ef4444;
+  --azul: #6366f1;
+  --oro: #facc15;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+
+body {
+  min-height: 100vh;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, input, select, textarea { font: inherit; }
+
+/* Cabecera solo cuando la herramienta se abre suelta, fuera del tablero. */
+.cabecera {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--borde);
+}
+.cabecera a { color: var(--texto-suave); text-decoration: none; font-weight: 700; padding: 6px 2px; }
+.cabecera a:hover { color: var(--texto); }
+.cabecera h1 { margin: 0; font-size: 1.25rem; }
+.embebido .cabecera { display: none; }
+
+.btn {
+  border: 1px solid var(--borde);
+  background: var(--panel-2);
+  color: var(--texto);
+  border-radius: 12px;
+  padding: 8px 14px;
+  min-height: 44px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) { border-color: var(--texto-suave); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primario { background: var(--azul); border-color: var(--azul); }
+.btn-peligro { color: #fecaca; border-color: #7f1d1d; background: #3b1a1f; }
+.btn-fantasma { background: transparent; }
+.btn-grande { font-size: clamp(1rem, 3.2vmin, 1.4rem); padding: 10px 22px; min-height: 52px; }
+
+.chip {
+  border: 1px solid var(--borde);
+  background: var(--panel-2);
+  color: var(--texto);
+  border-radius: 999px;
+  padding: 6px 14px;
+  min-height: 40px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chip:hover { border-color: var(--texto-suave); }
+.chip[aria-pressed="true"] { background: var(--azul); border-color: var(--azul); }
+
+.btn:focus-visible, .chip:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible, button:focus-visible {
+  outline: 3px solid var(--oro);
+  outline-offset: 2px;
+}
+
+/* Barra pequeña de arriba con el botón de ajustes. */
+.herramienta-barra { display: flex; justify-content: flex-end; gap: 8px; padding: 8px 10px 0; flex-wrap: wrap; }
+.herramienta-barra .btn { min-height: 36px; padding: 6px 12px; font-size: 0.9rem; }
+
+/* Panel de ajustes del docente. */
+.ajustes {
+  margin: 10px;
+  padding: 16px;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  display: grid;
+  gap: 14px;
+}
+.ajustes h2 { margin: 0; font-size: 1.1rem; }
+.ajustes label { font-weight: 600; }
+.ajustes .fila { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.ajustes .ayuda { color: var(--texto-suave); font-size: 0.92rem; line-height: 1.45; margin: 0; }
+.ajustes input[type="text"], .ajustes input[type="number"], .ajustes select, .ajustes textarea {
+  background: var(--panel-2);
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-height: 42px;
+}
+.ajustes input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--azul); }
+.interruptor { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01s !important; transition-duration: 0.01s !important; }
+}

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script src="../../js/acceso.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Temporizador · Aprende y Repasa</title>
+<meta name="description" content="Temporizador de trabajo para la pizarra digital: reloj digital, analógico o de arena, con sonido al acabar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/herramienta.css">
+<link rel="stylesheet" href="temporizador.css">
+<script src="../js/comun.js"></script>
+</head>
+<body>
+
+<header class="cabecera">
+  <a href="../index.html">← Herramientas</a>
+  <h1>Temporizador ⏱️</h1>
+</header>
+
+<div class="herramienta-barra">
+  <div class="vistas" role="group" aria-label="Tipo de reloj">
+    <button type="button" class="chip" data-vista="digital">🔢 Digital</button>
+    <button type="button" class="chip" data-vista="analogico">🕒 Analógico</button>
+    <button type="button" class="chip" data-vista="arena">⏳ Arena</button>
+  </div>
+  <button type="button" class="btn btn-fantasma" id="btn-ajustes" aria-expanded="false" aria-controls="ajustes">⚙️ Ajustes</button>
+</div>
+
+<main class="reloj" id="reloj" data-fase="parado">
+  <!-- Digital -->
+  <div class="vista vista-digital" data-vista="digital">
+    <div class="digitos" id="digitos" aria-live="off">05:00</div>
+  </div>
+
+  <!-- Analógico: la zona coloreada es el tiempo que queda -->
+  <div class="vista vista-analogico" data-vista="analogico">
+    <svg class="esfera" viewBox="0 0 220 220" role="img" aria-label="Reloj analógico con el tiempo que queda">
+      <circle class="esfera-fondo" cx="110" cy="110" r="100" />
+      <path class="esfera-sector" id="sector" />
+      <circle class="esfera-sector" id="sector-lleno" cx="110" cy="110" r="84" hidden />
+      <g id="marcas"></g>
+      <g id="numeros"></g>
+      <line class="esfera-aguja" id="aguja" x1="110" y1="110" x2="110" y2="28" />
+      <circle class="esfera-centro" cx="110" cy="110" r="7" />
+    </svg>
+  </div>
+
+  <!-- Reloj de arena -->
+  <div class="vista vista-arena" data-vista="arena">
+    <svg class="arena" viewBox="0 0 200 300" role="img" aria-label="Reloj de arena con el tiempo que queda">
+      <defs>
+        <clipPath id="bulbo-arriba"><path d="M42 32 H158 C158 92 110 122 104 150 H96 C90 122 42 92 42 32 Z" /></clipPath>
+        <clipPath id="bulbo-abajo"><path d="M96 150 H104 C110 178 158 208 158 268 H42 C42 208 90 178 96 150 Z" /></clipPath>
+      </defs>
+      <path class="arena-cristal" d="M42 32 H158 C158 92 110 122 104 150 C110 178 158 208 158 268 H42 C42 208 90 178 96 150 C90 122 42 92 42 32 Z" />
+      <rect class="arena-grano" id="arena-arriba" x="30" y="150" width="140" height="0" clip-path="url(#bulbo-arriba)" />
+      <rect class="arena-grano" id="arena-abajo" x="30" y="268" width="140" height="0" clip-path="url(#bulbo-abajo)" />
+      <line class="arena-chorro" id="arena-chorro" x1="100" y1="148" x2="100" y2="268" />
+      <rect class="arena-tapa" x="28" y="18" width="144" height="14" rx="5" />
+      <rect class="arena-tapa" x="28" y="268" width="144" height="14" rx="5" />
+    </svg>
+  </div>
+
+  <p class="restante" id="restante" aria-live="polite"></p>
+</main>
+
+<div class="ajustar" role="group" aria-label="Elegir el tiempo">
+  <div class="presets" id="presets"></div>
+  <div class="mas-menos">
+    <button type="button" class="btn" data-sumar="-60">−1 min</button>
+    <button type="button" class="btn" data-sumar="-10">−10 s</button>
+    <button type="button" class="btn" data-sumar="10">+10 s</button>
+    <button type="button" class="btn" data-sumar="60">+1 min</button>
+  </div>
+</div>
+
+<div class="mandos">
+  <button type="button" class="btn btn-grande btn-primario" id="btn-empezar">▶ Empezar</button>
+  <button type="button" class="btn btn-grande" id="btn-reiniciar">↺ Reiniciar</button>
+</div>
+
+<section class="ajustes" id="ajustes" hidden aria-label="Ajustes del temporizador">
+  <h2>Ajustes</h2>
+  <div class="fila">
+    <label for="sonido">Sonido al acabar</label>
+    <select id="sonido">
+      <option value="campana">Campana</option>
+      <option value="gong">Gong</option>
+      <option value="exito">Melodía corta</option>
+      <option value="">Sin sonido</option>
+    </select>
+    <button type="button" class="btn" id="btn-probar">🔈 Probar</button>
+  </div>
+  <div class="fila">
+    <label class="interruptor"><input type="checkbox" id="mostrar-numeros"> Mostrar los minutos que quedan bajo el reloj analógico y el de arena</label>
+  </div>
+  <p class="ayuda">El tiempo máximo es de 60 minutos. Se puede añadir o quitar tiempo con el reloj en marcha («os doy un minuto más»). Barra espaciadora: empezar o pausar.</p>
+</section>
+
+<script src="temporizador.js"></script>
+</body>
+</html>

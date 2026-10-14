@@ -32,6 +32,33 @@
       h: 0.8,
       unica: true,
     },
+    {
+      id: "temporizador",
+      nombre: "Temporizador",
+      icono: "⏱️",
+      url: "temporizador/index.html?embed=1",
+      w: 0.34,
+      h: 0.62,
+    },
+    {
+      id: "selector",
+      nombre: "Alumno al azar",
+      icono: "🎯",
+      url: "selector/index.html?embed=1",
+      w: 0.4,
+      h: 0.55,
+      // Una sola: dos selectores con la misma lista se pisarían la ronda.
+      unica: true,
+    },
+    {
+      id: "nivel-voz",
+      nombre: "Nivel de voz",
+      icono: "🗣️",
+      url: "nivel-voz/index.html?embed=1",
+      w: 0.3,
+      h: 0.75,
+      unica: true,
+    },
   ];
 
   const CLAVE = "ar_herramientas_tablero";
