@@ -1,0 +1,257 @@
+/* =========================================================
+   Ruidómetro — pensado para verse desde el fondo del aula en
+   la pizarra digital: fondo oscuro (menos reflejos), letras y
+   colores grandes, y botones del tamaño de un dedo.
+   ========================================================= */
+
+:root {
+  --fondo: #0f172a;
+  --panel: #1e293b;
+  --panel-2: #273449;
+  --borde: #334155;
+  --texto: #f1f5f9;
+  --texto-suave: #a5b4c8;
+  --verde: #22c55e;
+  --ambar: #f59e0b;
+  --rojo: #ef4444;
+  --azul: #6366f1;
+  --oro: #facc15;
+  --radio: 18px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  min-height: 100vh;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, input, select { font: inherit; }
+
+/* ---------- Barra superior ---------- */
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--borde);
+}
+.barra-volver { color: var(--texto-suave); text-decoration: none; font-weight: 700; padding: 8px 4px; }
+.barra-volver:hover { color: var(--texto); }
+.barra-titulo { margin: 0; font-size: 1.4rem; font-weight: 800; flex: 1; }
+.barra-acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- Botones ---------- */
+.btn {
+  border: 1px solid var(--borde);
+  background: var(--panel-2);
+  color: var(--texto);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 44px;
+}
+.btn:hover:not(:disabled) { border-color: var(--texto-suave); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn:focus-visible, .chip:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+  outline: 3px solid var(--oro);
+  outline-offset: 2px;
+}
+.btn-fantasma { background: transparent; }
+.btn-primario { background: var(--azul); border-color: var(--azul); }
+.btn-peligro { color: #fecaca; border-color: #7f1d1d; background: #3b1a1f; }
+.btn-grande { font-size: 1.25rem; padding: 14px 26px; min-height: 60px; }
+.btn.activo { background: var(--ambar); border-color: var(--ambar); color: #1f1300; }
+
+/* ---------- Tablero ---------- */
+.tablero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 20px;
+  padding: 20px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 24px;
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+.panel-ajustes { grid-column: 1 / -1; }
+
+/* Al pasar del límite todo el medidor se enciende en rojo. */
+.tablero[data-estado="alto"] .panel-medidor {
+  border-color: var(--rojo);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35), 0 0 60px rgba(239, 68, 68, 0.35);
+}
+.tablero.destello .panel-medidor { animation: destello 0.9s ease-out 2; }
+@keyframes destello {
+  0% { background: #7f1d1d; }
+  100% { background: var(--panel); }
+}
+
+/* ---------- Dial ---------- */
+.panel-medidor { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.dial { width: 100%; max-width: 760px; height: auto; display: block; }
+.dial-pista { fill: none; stroke: var(--panel-2); stroke-width: 34; }
+.dial-zona { fill: none; stroke-width: 34; }
+.zona-verde { stroke: var(--verde); }
+.zona-ambar { stroke: var(--ambar); }
+.zona-roja { stroke: var(--rojo); }
+.dial-limite { stroke: var(--texto); stroke-width: 5; stroke-linecap: round; }
+.dial-limite-texto { fill: var(--texto); font-size: 15px; font-weight: 800; text-anchor: middle; }
+.dial-pico { stroke: var(--oro); stroke-width: 4; stroke-linecap: round; opacity: 0.9; }
+.dial-aguja line { stroke: var(--texto); stroke-width: 8; stroke-linecap: round; }
+.dial-aguja circle { fill: var(--texto); }
+.dial-aguja { transition: transform 0.12s linear; transform-origin: 200px 200px; }
+
+.estado { margin-top: 4px; }
+.estado-cara { font-size: clamp(3rem, 7vw, 5.5rem); line-height: 1; display: block; }
+.estado-texto { font-size: clamp(1.4rem, 3.2vw, 2.6rem); font-weight: 800; margin: 10px 0 6px; }
+.estado-nivel { color: var(--texto-suave); margin: 0; font-size: 1.05rem; }
+.tablero[data-estado="bajo"] .estado-texto { color: var(--verde); }
+.tablero[data-estado="medio"] .estado-texto { color: var(--ambar); }
+.tablero[data-estado="alto"] .estado-texto { color: var(--rojo); }
+.tablero[data-estado="pausa"] .estado-texto { color: var(--texto-suave); }
+
+.controles { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+.aviso-error {
+  margin: 16px 0 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #3b1a1f;
+  color: #fecaca;
+  max-width: 640px;
+  line-height: 1.45;
+}
+
+/* ---------- Puntos ---------- */
+.panel-puntos { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+.minuto { position: relative; width: min(240px, 60vw); aspect-ratio: 1; }
+.minuto-anillo { width: 100%; height: 100%; transform: rotate(-90deg); }
+.minuto-fondo { fill: none; stroke: var(--panel-2); stroke-width: 12; }
+.minuto-progreso {
+  fill: none;
+  stroke: var(--verde);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 326.73;
+  stroke-dashoffset: 326.73;
+  transition: stroke-dashoffset 0.25s linear;
+}
+.tablero[data-estado="pausa"] .minuto-progreso,
+.tablero[data-estado="apagado"] .minuto-progreso { stroke: var(--texto-suave); }
+.minuto-centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.minuto-tiempo { font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 800; font-variant-numeric: tabular-nums; }
+.minuto-pie { color: var(--texto-suave); font-weight: 600; }
+.minuto-explica { color: var(--texto-suave); margin: 0; }
+
+.puntos { display: flex; align-items: baseline; gap: 10px; }
+.puntos-estrella { font-size: clamp(2.4rem, 5vw, 3.6rem); }
+.puntos-num { font-size: clamp(4rem, 10vw, 7rem); font-weight: 800; color: var(--oro); line-height: 1; font-variant-numeric: tabular-nums; }
+.puntos-etiqueta { font-size: 1.4rem; font-weight: 700; color: var(--texto-suave); }
+.puntos.salto .puntos-num { animation: salto 0.7s ease-out; }
+@keyframes salto {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+.meta { width: 100%; }
+.meta-barra { height: 18px; background: var(--panel-2); border-radius: 999px; overflow: hidden; }
+.meta-relleno { height: 100%; width: 0; background: linear-gradient(90deg, var(--azul), var(--oro)); transition: width 0.5s; }
+.meta-texto { margin: 8px 0 0; font-weight: 700; font-size: 1.1rem; }
+.meta.cumplida .meta-texto { color: var(--oro); }
+
+.resumen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; margin: 6px 0 0; }
+.resumen div { background: var(--panel-2); border-radius: 12px; padding: 10px 6px; }
+.resumen dt { color: var(--texto-suave); font-size: 0.85rem; font-weight: 600; }
+.resumen dd { margin: 4px 0 0; font-weight: 800; font-size: 1.1rem; }
+
+/* ---------- Ajustes ---------- */
+.panel-ajustes h2 { margin: 0 0 16px; font-size: 1.3rem; }
+.panel-ajustes { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px 28px; }
+.panel-ajustes h2, .panel-ajustes > .ayuda { grid-column: 1 / -1; }
+.ajuste label { display: block; font-weight: 600; margin-bottom: 8px; }
+.ajuste p { margin: 0 0 10px; line-height: 1.45; color: var(--texto-suave); }
+.ajuste p strong { color: var(--texto); }
+.ajuste input[type="range"] { width: 100%; height: 36px; accent-color: var(--azul); }
+.ajuste select, .ajuste input[type="number"], .ajuste input[type="text"] {
+  background: var(--panel-2);
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 10px 12px;
+  min-height: 44px;
+  width: 100%;
+}
+.ajuste-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.ajuste-fila label { margin: 0; }
+.ajuste-fila input[type="number"] { width: 90px; }
+.ajuste-fila input[type="text"] { flex: 1; min-width: 180px; width: auto; }
+.interruptor { display: flex !important; align-items: center; gap: 10px; cursor: pointer; }
+.interruptor input { width: 24px; height: 24px; accent-color: var(--azul); }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.chip {
+  border: 1px solid var(--borde);
+  background: var(--panel-2);
+  color: var(--texto);
+  border-radius: 999px;
+  padding: 8px 14px;
+  min-height: 40px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chip:hover { border-color: var(--texto-suave); }
+.medir-resultado { color: var(--oro) !important; font-weight: 700; min-height: 1.4em; margin-top: 10px !important; }
+.ayuda { color: var(--texto-suave); font-size: 0.95rem; line-height: 1.45; margin: 6px 0 0; }
+
+/* ---------- Celebración al ganar un punto ---------- */
+.celebracion {
+  position: fixed;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%) scale(0.4);
+  font-size: clamp(4rem, 14vw, 10rem);
+  font-weight: 800;
+  color: var(--oro);
+  text-shadow: 0 6px 30px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  opacity: 0;
+}
+.celebracion.ver { animation: celebrar 1.6s ease-out; }
+@keyframes celebrar {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  25% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  70% { opacity: 1; transform: translate(-50%, -60%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -80%) scale(0.9); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dial-aguja, .minuto-progreso, .meta-relleno { transition: none; }
+  .celebracion.ver, .puntos.salto .puntos-num, .tablero.destello .panel-medidor { animation-duration: 0.01s; }
+}
+
+/* ---------- Pantallas estrechas ---------- */
+@media (max-width: 900px) {
+  .tablero { grid-template-columns: 1fr; padding: 16px; gap: 16px; }
+  .panel { padding: 18px 16px; }
+  .barra { padding: 10px 16px; }
+  .barra-titulo { font-size: 1.2rem; }
+}
