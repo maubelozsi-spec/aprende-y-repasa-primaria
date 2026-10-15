@@ -16,9 +16,11 @@
 //    aguja no tiemble, y los picos cortos —una tos, una silla— se
 //    perdonan durante unos segundos que elige el docente.
 //
-// Puntos: el minuto en curso solo cuenta mientras el nivel está por
-// debajo del límite. Si se pasa del límite más tiempo del perdonado,
-// el minuto vuelve a empezar desde cero y se anota un aviso.
+// Puntos: cada minuto entero de cuenta es un punto. Si el nivel se
+// queda en la zona roja más del tiempo permitido (3 s como máximo),
+// se anota un aviso y la cuenta vuelve a cero y empieza de nuevo en
+// el acto; si sigue el ruido, cada nuevo tramo en rojo es otro aviso.
+// Cada 5 avisos la clase pierde un punto.
 //
 // No se graba ni se envía nada: el audio solo se analiza en memoria.
 // ============================================================
@@ -34,11 +36,15 @@
   const DB_MIN = -70;
   const DB_MAX = -10;
   const MEDIR_MS = 10000;
+  const TOLERANCIA_MAX = 3;
+  const AVISOS_POR_PUNTO = 5;
 
   // ---------------- Ajustes guardados ----------------
   const porDefecto = {
     limite: 50,
-    tolerancia: 1.5,
+    tolerancia: TOLERANCIA_MAX,
+    // Avisos acumulados hacia la pérdida del siguiente punto (0 a 4).
+    avisosCiclo: 0,
     sensibilidad: 0,
     sonido: false,
     seguirVoz: true,
@@ -61,6 +67,14 @@
 
   const cfg = cargar();
   if (!cfg.dias || typeof cfg.dias !== "object") cfg.dias = {};
+  // Antes el tiempo perdonado era de 1,5 s por defecto y llegaba a 5 s.
+  // Ahora el máximo es 3 s, y es lo que se usa salvo que se baje a mano.
+  if (cfg.versionAvisos !== 1) {
+    cfg.tolerancia = TOLERANCIA_MAX;
+    cfg.versionAvisos = 1;
+  }
+  cfg.tolerancia = Math.max(0, Math.min(TOLERANCIA_MAX, Number(cfg.tolerancia) || 0));
+  cfg.avisosCiclo = Math.max(0, Math.min(AVISOS_POR_PUNTO - 1, parseInt(cfg.avisosCiclo, 10) || 0));
 
   function guardar() {
     // Solo se conservan los últimos 60 días de resumen.
@@ -108,6 +122,9 @@
     minutoProgreso: $("minuto-progreso"),
     minutoTiempo: $("minuto-tiempo"),
     minutoExplica: $("minuto-explica"),
+    avisos: $("avisos"),
+    avisosMarcas: $("avisos-marcas"),
+    avisosTexto: $("avisos-texto"),
     puntos: document.querySelector(".puntos"),
     puntosNum: $("puntos-num"),
     puntosEtiqueta: $("puntos-etiqueta"),
@@ -232,7 +249,11 @@
     let explica = "Cada minuto sin pasar del límite = 1 punto";
     if (stream && medicion) explica = "Mientras se mide no se cuentan puntos";
     else if (stream && pausado) explica = "Puntos en pausa: el minuto no avanza";
-    else if (stream && enAviso) explica = "Demasiado ruido: el minuto vuelve a empezar";
+    else if (stream && enAviso) explica = "¡Aviso! Más de " + formatoSegundos(cfg.tolerancia) + " en rojo: el minuto vuelve a empezar";
+    else if (stream && sobreDesde !== null) {
+      const queda = Math.max(0, Math.ceil(cfg.tolerancia - (performance.now() - sobreDesde) / 1000));
+      explica = "¡En la zona roja! Aviso en " + queda + " s";
+    }
     if (el.minutoExplica.textContent !== explica) el.minutoExplica.textContent = explica;
   }
 
@@ -242,6 +263,22 @@
     const d = diaDeHoy();
     el.hoyPuntos.textContent = d.puntos + (d.puntos === 1 ? " punto" : " puntos");
     el.hoyAvisos.textContent = d.avisos;
+
+    // Marcas de los avisos que llevan hacia el siguiente punto perdido.
+    if (el.avisosMarcas.children.length !== AVISOS_POR_PUNTO) {
+      el.avisosMarcas.innerHTML = "";
+      for (let i = 0; i < AVISOS_POR_PUNTO; i++) el.avisosMarcas.appendChild(document.createElement("span"));
+    }
+    Array.prototype.forEach.call(el.avisosMarcas.children, (m, i) => m.classList.toggle("puesta", i < cfg.avisosCiclo));
+    const faltan = AVISOS_POR_PUNTO - cfg.avisosCiclo;
+    el.avisosTexto.textContent =
+      "Avisos: " + cfg.avisosCiclo + " de " + AVISOS_POR_PUNTO +
+      (cfg.avisosCiclo
+        ? faltan === 1
+          ? " · ¡al próximo se pierde un punto!"
+          : " · con " + faltan + " más se pierde un punto"
+        : " · a los " + AVISOS_POR_PUNTO + " se pierde un punto");
+    el.avisos.classList.toggle("peligro", faltan === 1);
 
     const meta = Number(cfg.meta) || 0;
     el.meta.hidden = meta <= 0;
@@ -284,30 +321,53 @@
   }
 
   // ---------------- Lógica de puntos ----------------
+  function animarPuntos(texto, perdida) {
+    el.celebracion.textContent = texto;
+    el.celebracion.classList.toggle("perdida", perdida);
+    el.puntos.classList.remove("salto", "baja");
+    el.celebracion.classList.remove("ver");
+    void el.celebracion.offsetWidth;
+    el.puntos.classList.add(perdida ? "baja" : "salto");
+    el.celebracion.classList.add("ver");
+  }
+
   function ganarPunto() {
     cfg.puntos += 1;
     diaDeHoy().puntos += 1;
     guardar();
     pintarPuntos();
-    el.puntos.classList.remove("salto");
-    el.celebracion.classList.remove("ver");
-    void el.celebracion.offsetWidth;
-    el.puntos.classList.add("salto");
-    el.celebracion.classList.add("ver");
+    animarPuntos("+1 ⭐", false);
     if (cfg.sonido) tono([660, 880], 0.5);
   }
 
+  // Más tiempo del permitido en la zona roja: el minuto vuelve a cero
+  // y sigue contando desde ahí. Al quinto aviso se pierde un punto (si
+  // la clase tiene alguno) y la cuenta de avisos empieza de nuevo.
   function aviso() {
     enAviso = true;
     silencioMs = 0;
     rachaMs = 0;
-    diaDeHoy().avisos += 1;
+    const dia = diaDeHoy();
+    dia.avisos += 1;
+    cfg.avisosCiclo += 1;
+    let pierde = false;
+    if (cfg.avisosCiclo >= AVISOS_POR_PUNTO) {
+      cfg.avisosCiclo = 0;
+      pierde = cfg.puntos > 0;
+      cfg.puntos = Math.max(0, cfg.puntos - 1);
+      dia.perdidos = (dia.perdidos || 0) + 1;
+    }
     guardar();
     pintarPuntos();
     el.tablero.classList.remove("destello");
     void el.tablero.offsetWidth;
     el.tablero.classList.add("destello");
-    if (cfg.sonido) tono([440, 330], 0.7);
+    if (pierde) {
+      animarPuntos("−1 ⭐", true);
+      if (cfg.sonido) tono([392, 330, 262], 1);
+    } else if (cfg.sonido) {
+      tono([440, 330], 0.7);
+    }
   }
 
   function leerNivel() {
@@ -351,20 +411,25 @@
     } else if (!pausado) {
       if (alto && escuchando) {
         if (sobreDesde === null) sobreDesde = ahora;
-        if (!enAviso && ahora - sobreDesde >= cfg.tolerancia * 1000) aviso();
+        if (ahora - sobreDesde >= cfg.tolerancia * 1000) {
+          aviso();
+          // Si el ruido sigue, empieza otro tramo: otros 3 s en rojo
+          // serán otro aviso.
+          sobreDesde = ahora;
+        }
       } else if (!alto) {
         sobreDesde = null;
         enAviso = false;
       }
-      if (!enAviso) {
-        silencioMs += dt;
-        rachaMs += dt;
-        // No se da el punto en mitad de un pico que aún podría
-        // acabar en aviso.
-        if (silencioMs >= MINUTO && sobreDesde === null) {
-          silencioMs -= MINUTO;
-          ganarPunto();
-        }
+      // El minuto avanza siempre: tras un aviso se pone a cero y
+      // vuelve a contar desde ahí.
+      silencioMs += dt;
+      rachaMs += dt;
+      // No se da el punto en mitad de un pico que aún podría acabar
+      // en aviso.
+      if (silencioMs >= MINUTO && sobreDesde === null) {
+        silencioMs -= MINUTO;
+        ganarPunto();
       }
     }
 
@@ -616,6 +681,7 @@
   el.btnReiniciar.addEventListener("click", () => {
     if (!window.confirm("¿Poner los puntos de la clase a 0? No se puede deshacer.")) return;
     cfg.puntos = 0;
+    cfg.avisosCiclo = 0;
     silencioMs = 0;
     rachaMs = 0;
     guardar();

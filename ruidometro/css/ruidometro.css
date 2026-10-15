@@ -162,6 +162,28 @@ button, input, select { font: inherit; }
 .minuto-pie { color: var(--texto-suave); font-weight: 600; }
 .minuto-explica { color: var(--texto-suave); margin: 0; }
 
+.avisos { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; }
+.avisos-marcas { display: inline-flex; gap: 6px; }
+.avisos-marcas span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #ef4444;
+  background: transparent;
+  transition: background 0.3s;
+}
+.avisos-marcas span.puesta { background: #ef4444; }
+.avisos-texto { color: var(--texto-suave); font-weight: 700; font-size: 0.92rem; }
+.avisos.peligro .avisos-texto { color: #fca5a5; }
+
+.puntos.baja .puntos-num { animation: baja 0.8s ease-out; color: #f87171; }
+@keyframes baja {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(10px) scale(0.85); }
+  100% { transform: translateY(0) scale(1); }
+}
+.celebracion.perdida { color: #f87171; }
+
 .puntos { display: flex; align-items: baseline; gap: 10px; }
 .puntos-estrella { font-size: clamp(2.4rem, 5vw, 3.6rem); }
 .puntos-num { font-size: clamp(4rem, 10vw, 7rem); font-weight: 800; color: var(--oro); line-height: 1; font-variant-numeric: tabular-nums; }
@@ -247,7 +269,7 @@ button, input, select { font: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   .dial-aguja, .minuto-progreso, .meta-relleno { transition: none; }
-  .celebracion.ver, .puntos.salto .puntos-num, .tablero.destello .panel-medidor { animation-duration: 0.01s; }
+  .celebracion.ver, .puntos.salto .puntos-num, .puntos.baja .puntos-num, .tablero.destello .panel-medidor { animation-duration: 0.01s; }
 }
 
 /* ---------- Pantallas estrechas ---------- */
