@@ -74,6 +74,11 @@
     </div>
     <p class="minuto-explica" id="minuto-explica">Cada minuto sin pasar del límite = 1 punto</p>
 
+    <div class="avisos" id="avisos">
+      <span class="avisos-marcas" id="avisos-marcas" aria-hidden="true"></span>
+      <span class="avisos-texto" id="avisos-texto" aria-live="polite">Avisos: 0 de 5</span>
+    </div>
+
     <div class="puntos">
       <span class="puntos-estrella" aria-hidden="true">⭐</span>
       <span class="puntos-num" id="puntos-num">0</span>
@@ -114,8 +119,9 @@
     </div>
 
     <div class="ajuste">
-      <label for="tolerancia">Picos que se perdonan (una tos, una silla): <strong id="tolerancia-etiqueta">1,5 s</strong></label>
-      <input type="range" id="tolerancia" min="0" max="5" step="0.5" value="1.5">
+      <label for="tolerancia">Tiempo máximo en la zona roja antes del aviso: <strong id="tolerancia-etiqueta">3 s</strong></label>
+      <input type="range" id="tolerancia" min="0" max="3" step="0.5" value="3">
+      <p class="ayuda">Si se pasa este tiempo en rojo, el minuto vuelve a cero y empieza a contar de nuevo. Cada 5 avisos se pierde un punto. Al poner los puntos a 0 también se borran los avisos acumulados.</p>
     </div>
 
     <div class="ajuste">
