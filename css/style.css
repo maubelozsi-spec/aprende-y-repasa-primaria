@@ -487,6 +487,28 @@ main.content {
   color: var(--text-faint);
 }
 
+.status-personalizado {
+  background: var(--color-amber-tint);
+  color: var(--color-amber);
+}
+
+.status-pill[hidden] {
+  display: none;
+}
+
+.personalizado-aviso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 12px;
+}
+
+.personalizado-aviso .content-subtitle {
+  flex: 1 1 320px;
+  margin: 0;
+}
+
 /* ---------- Empty state ("próximamente") ---------- */
 
 .empty-state {
