@@ -1,0 +1,304 @@
+.oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.grupo-elegir { margin-right: auto; }
+.grupo-elegir select, .ajustes select {
+  background: var(--panel-2);
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 6px 10px;
+  min-height: 40px;
+  font-weight: 700;
+  max-width: 240px;
+}
+
+/* ---------------- Semana ---------------- */
+.semana { padding: 10px 14px 18px; }
+
+.semana-cabecera { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.semana-titulo { text-align: center; min-width: 0; }
+.semana-titulo h2 { margin: 0; font-size: clamp(1.15rem, 3.6vmin, 1.7rem); }
+.semana-estado { margin: 2px 0 0; font-weight: 700; font-size: 0.92rem; color: var(--texto-suave); }
+.semana-estado.guardada { color: var(--verde); }
+.semana-estado.borrador { color: var(--ambar); }
+.btn-flecha { font-size: 1.5rem; line-height: 1; padding: 4px 14px; }
+
+.mandos { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 14px 0 6px; }
+.btn-guardar { background: #14532d; border-color: var(--verde); }
+
+.aviso {
+  max-width: 760px;
+  margin: 10px auto 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #3a2a0c;
+  border: 1px solid #a16207;
+  color: #fde68a;
+  font-weight: 600;
+  text-align: center;
+}
+
+.tablero-roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.tablero-vacio { grid-column: 1 / -1; text-align: center; color: var(--texto-suave); padding: 30px 10px; }
+
+/* ---------------- Tarjeta de rol (sello) ---------------- */
+.rol {
+  --papel: #ffffff;
+  --crema: #f8f3e7;
+  --tinta: #26252a;
+  --circulo: #29282d;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+}
+
+/* Borde dentado de sello: círculos transparentes repetidos alrededor
+   de un rectángulo de papel (técnica de radial-gradient con "round"). */
+.rol-sello {
+  --r: 6px;
+  padding: calc(2 * var(--r));
+  background:
+    radial-gradient(var(--r), #0000 98%, var(--papel)) round calc(-1.5 * var(--r)) calc(-1.5 * var(--r)) / calc(3 * var(--r)) calc(3 * var(--r)),
+    linear-gradient(var(--papel) 0 0) no-repeat 50% / calc(100% - 3 * var(--r)) calc(100% - 3 * var(--r));
+  height: 100%;
+}
+
+.rol-interior {
+  background: var(--crema);
+  border: 2px solid var(--banda);
+  border-radius: 3px;
+  padding: 10px 12px 12px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rol-cuerpo { display: flex; align-items: center; gap: 12px; }
+
+.rol-icono {
+  flex: none;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: var(--circulo);
+  box-shadow: 0 0 0 3px var(--crema), 0 0 0 5px var(--banda);
+  color: var(--claro);
+  display: grid;
+  place-items: center;
+  margin: 4px;
+}
+.rol-icono svg { width: 60%; height: 60%; }
+.icono svg .h { fill: var(--circulo, #29282d); }
+.icono svg .hl { fill: none; stroke: var(--circulo, #29282d); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.icono svg .ln { fill: none; stroke: currentColor; stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; }
+
+.rol-texto { min-width: 0; flex: 1; }
+.rol-latin {
+  margin: 0 0 3px;
+  font-family: Cinzel, Georgia, serif;
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tinta);
+  opacity: 0.8;
+}
+.rol-nombre {
+  margin: 0;
+  background: var(--banda);
+  color: #fff;
+  font-family: Cinzel, Georgia, serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  border-radius: 4px;
+  padding: 3px 8px;
+  line-height: 1.2;
+}
+.rol-desc {
+  margin: 6px 0 0;
+  font-family: Oswald, "Arial Narrow", sans-serif;
+  font-weight: 500;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--tinta);
+}
+
+.rol-alumnos { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: auto; }
+.alumno-chip {
+  border: 2px solid var(--banda);
+  background: #fff;
+  color: var(--banda);
+  border-radius: 999px;
+  padding: 4px 14px;
+  min-height: 40px;
+  font-weight: 800;
+  font-size: clamp(1rem, 2.6vmin, 1.3rem);
+  cursor: pointer;
+}
+.alumno-chip:hover { background: var(--banda); color: #fff; }
+.alumno-chip.vacio { border-style: dashed; color: #8a8580; font-weight: 700; font-size: 0.95rem; }
+.alumno-chip.repite { box-shadow: 0 0 0 3px #f59e0b; }
+
+/* ---------------- Resumen del reparto ---------------- */
+.resumen {
+  margin: 18px auto 0;
+  max-width: 980px;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+.resumen h3 { margin: 0 0 8px; font-size: 1rem; }
+.resumen ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--texto-suave); }
+.resumen strong { color: var(--texto); }
+
+/* ---------------- Paneles ---------------- */
+.ajustes h3 { margin: 6px 0 0; font-size: 1rem; }
+.ajustes textarea { width: 100%; resize: vertical; line-height: 1.5; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips .chip[aria-pressed="true"] { background: #3b1a1f; border-color: #7f1d1d; color: #fca5a5; text-decoration: line-through; }
+
+.editor-roles { display: grid; gap: 10px; }
+.editor-rol {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px 12px;
+  align-items: start;
+  background: var(--panel-2);
+  border: 1px solid var(--borde);
+  border-left: 6px solid var(--banda);
+  border-radius: 12px;
+  padding: 10px;
+}
+.editor-rol .boton-icono {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid var(--banda);
+  background: #29282d;
+  color: var(--claro);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+.editor-rol .boton-icono svg { width: 60%; height: 60%; }
+.editor-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.editor-campos label { display: grid; gap: 3px; font-size: 0.82rem; color: var(--texto-suave); font-weight: 600; }
+.editor-campos .ancho { grid-column: 1 / -1; }
+.editor-campos input { width: 100%; }
+.editor-acciones { display: grid; gap: 6px; }
+.editor-acciones .btn { min-height: 36px; padding: 4px 10px; }
+.colores { display: flex; flex-wrap: wrap; gap: 6px; }
+.color-muestra {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.color-muestra[aria-pressed="true"] { border-color: #fff; box-shadow: 0 0 0 2px var(--oro); }
+.plazas { display: inline-flex; align-items: center; gap: 6px; }
+.plazas .btn { min-height: 36px; min-width: 40px; padding: 2px 8px; }
+.plazas output { min-width: 2ch; text-align: center; font-weight: 800; font-size: 1.1rem; color: var(--texto); }
+
+.tabla-envoltura { overflow-x: auto; }
+.tabla-equilibrio { border-collapse: collapse; font-size: 0.9rem; min-width: 100%; }
+.tabla-equilibrio th, .tabla-equilibrio td { border-bottom: 1px solid var(--borde); padding: 6px 8px; text-align: center; white-space: nowrap; }
+.tabla-equilibrio th:first-child, .tabla-equilibrio td:first-child { text-align: left; position: sticky; left: 0; background: var(--panel); }
+.tabla-equilibrio thead th { color: var(--texto-suave); font-weight: 700; vertical-align: bottom; }
+.tabla-equilibrio .th-rol { display: grid; justify-items: center; gap: 2px; font-size: 0.75rem; }
+.tabla-equilibrio .th-rol .icono { width: 28px; height: 28px; border-radius: 50%; background: #29282d; color: var(--claro); display: grid; place-items: center; }
+.tabla-equilibrio .th-rol svg { width: 64%; height: 64%; }
+.tabla-equilibrio td.cero { color: #5b6b82; }
+.tabla-equilibrio td.total { font-weight: 800; }
+.tabla-equilibrio td.total.bajo { color: var(--ambar); }
+.tabla-equilibrio tr.fuera td { opacity: 0.5; }
+
+.historial-semanas { display: grid; gap: 8px; }
+.semana-guardada {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel-2);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+.semana-guardada strong { margin-right: auto; }
+.semana-guardada .btn { min-height: 34px; padding: 4px 10px; font-size: 0.88rem; }
+
+/* ---------------- Diálogos ---------------- */
+.dialogo {
+  background: var(--panel);
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  padding: 16px;
+  width: min(560px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+}
+.dialogo::backdrop { background: rgba(2, 6, 23, 0.7); }
+.dialogo form { display: grid; gap: 12px; }
+.dialogo h2 { margin: 0; font-size: 1.15rem; }
+.dialogo .ayuda { color: var(--texto-suave); margin: 0; font-size: 0.92rem; }
+.dialogo .fila { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.opciones-alumno { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; max-height: 55vh; overflow-y: auto; }
+.opcion-alumno {
+  text-align: left;
+  border: 1px solid var(--borde);
+  background: var(--panel-2);
+  color: var(--texto);
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+  display: grid;
+}
+.opcion-alumno:hover { border-color: var(--texto-suave); }
+.opcion-alumno small { color: var(--texto-suave); font-size: 0.75rem; }
+.opcion-alumno.desaconsejado small { color: var(--ambar); }
+.opcion-alumno.actual { border-color: var(--azul); }
+.galeria-iconos { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; max-height: 60vh; overflow-y: auto; }
+.galeria-iconos button {
+  border: 1px solid var(--borde);
+  background: var(--panel-2);
+  color: var(--texto);
+  border-radius: 12px;
+  padding: 8px 4px;
+  cursor: pointer;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+}
+.galeria-iconos .icono { width: 48px; height: 48px; border-radius: 50%; background: #29282d; color: var(--claro); display: grid; place-items: center; }
+.galeria-iconos svg { width: 62%; height: 62%; }
+.galeria-iconos button[aria-pressed="true"] { border-color: var(--oro); }
+
+@media (max-width: 520px) {
+  .editor-rol { grid-template-columns: auto 1fr; }
+  .editor-acciones { grid-column: 1 / -1; grid-auto-flow: column; justify-content: start; }
+  .rol-icono { width: 64px; height: 64px; }
+}
+
+/* ---------------- Imprimir: solo las tarjetas de la semana ---------------- */
+@media print {
+  @page { size: A4; margin: 10mm; }
+  body { background: #fff; color: #000; min-height: 0; }
+  .cabecera, .herramienta-barra, .mandos, .aviso, .resumen, .ajustes, .btn-flecha, .semana-estado { display: none !important; }
+  .semana { padding: 0; }
+  .semana-titulo h2 { color: #000; }
+  .tablero-roles { grid-template-columns: repeat(2, 1fr); gap: 6mm; }
+  .rol { filter: none; break-inside: avoid; }
+  .rol-sello { --papel: #fff; outline: 0.2mm dashed #bbb; }
+  .alumno-chip.vacio { visibility: hidden; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
