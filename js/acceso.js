@@ -9,6 +9,11 @@
 // la aplicación y en su lugar enseña cómo entrar. Las páginas con
 // layout.js hacen lo mismo desde ese archivo (ver paginaBloqueada).
 //
+// Con el atributo data-solo-docente en la etiqueta del script, la
+// página es solo del profesorado (Herramientas de aula): hace falta la
+// sesión de docente, y no vale la clave de alumno ni la vista del
+// alumnado del panel.
+//
 // Nivel de seguridad "de aula": se mira la sesión guardada en el
 // navegador, igual que el resto de la app para decidir qué se ve.
 // ============================================================
@@ -21,10 +26,16 @@
     }
   }
   var alumno = leer("ar_estudiante"), docente = leer("ar_docente"), vista = leer("ar_vista_alumno");
-  if ((alumno && alumno.code) || (docente && docente.uid) || vista) return;
+  var script = document.currentScript;
+  var soloDocente = !!(script && script.hasAttribute("data-solo-docente"));
+  if (soloDocente) {
+    if (docente && docente.uid && !vista) return;
+  } else if ((alumno && alumno.code) || (docente && docente.uid) || vista) {
+    return;
+  }
 
   // Raíz del sitio a partir de la dirección de este mismo script.
-  var src = (document.currentScript && document.currentScript.src) || "";
+  var src = (script && script.src) || "";
   var raiz = src.replace(/js\/acceso\.js(\?.*)?$/, "");
   // Página a la que volver tras entrar con la clave (carpeta/archivo.html,
   // que es lo único que acepta alumno-login.html).
@@ -37,9 +48,22 @@
   } catch (e) {
     // Navegador antiguo: se sustituye igualmente el contenido.
   }
+  var titulo = "Entra para continuar";
+  var texto = "Esta aplicación de Aprende y Repasa solo se abre con tu clave de alumno o alumna, o con la cuenta de docente.";
+  var botones =
+    '<a class="uno" href="' + raiz + "alumno-login.html" + tras + '">Entrar con mi clave</a>' +
+    '<a class="dos" href="' + raiz + 'docente/login.html">Soy docente</a>';
+  if (soloDocente) {
+    titulo = "Solo para el profesorado";
+    texto = vista
+      ? "Estás mirando la app como el alumnado, y las Herramientas de aula no forman parte de lo que ve. Vuelve al panel docente para usarlas."
+      : "Las Herramientas de aula solo se abren con la cuenta de docente.";
+    botones = '<a class="uno" href="' + raiz + 'docente/login.html">' + (vista ? "Volver al panel docente" : "Entrar como docente") + "</a>";
+  }
+
   document.documentElement.innerHTML =
     '<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">' +
-    "<title>Entra para continuar · Aprende y Repasa</title>" +
+    "<title>" + titulo + " · Aprende y Repasa</title>" +
     "<style>" +
     "body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f4f5fb;color:#1f2433;" +
     "font-family:Inter,system-ui,-apple-system,'Segoe UI',sans-serif;padding:16px;box-sizing:border-box}" +
@@ -52,11 +76,10 @@
     "</style></head>" +
     '<body><main class="caja">' +
     '<div style="font-size:3rem" aria-hidden="true">🔒</div>' +
-    "<h1>Entra para continuar</h1>" +
-    "<p>Esta aplicación de Aprende y Repasa solo se abre con tu clave de alumno o alumna, o con la cuenta de docente.</p>" +
+    "<h1>" + titulo + "</h1>" +
+    "<p>" + texto + "</p>" +
     '<div class="botones">' +
-    '<a class="uno" href="' + raiz + "alumno-login.html" + tras + '">Entrar con mi clave</a>' +
-    '<a class="dos" href="' + raiz + 'docente/login.html">Soy docente</a>' +
+    botones +
     '<a class="tres" href="' + raiz + 'index.html">← Volver al inicio</a>' +
     "</div></main></body>";
 })();

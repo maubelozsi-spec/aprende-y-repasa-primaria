@@ -271,6 +271,15 @@ function esDocenteSinSerAlumno() {
   return !!getTeacherSessionCache() && !getStudentSessionCache();
 }
 
+// Hay sesión de docente y no se está mirando la app como el alumnado.
+// Es la condición de lo que solo es del profesorado y que, a diferencia
+// de las listas de contenidos, tampoco se enseña sin haber entrado
+// (por ejemplo, la tarjeta de Herramientas; ver js/acceso.js).
+function esDocente() {
+  const docente = getTeacherSessionCache();
+  return !getPreviewSessionCache() && !!(docente && docente.uid);
+}
+
 // Sincronización en la nube del progreso del alumnado.
 //
 // js/cloud-sync.js es quien envía a Firestore los aciertos y fallos de
@@ -504,6 +513,9 @@ function initLayout() {
   if (sidebarEl) sidebarEl.innerHTML = buildSidebar(base, current);
 
   pintarBarraDeVistaPrevia(base, current);
+
+  // Tarjetas del panel principal que solo son del profesorado.
+  if (!esDocente()) document.querySelectorAll("[data-solo-docente]").forEach((el) => el.remove());
 
   loadScriptOnce(base + "js/gamification.js");
   registerServiceWorker(base);
