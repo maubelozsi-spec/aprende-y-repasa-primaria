@@ -283,10 +283,14 @@ async function entrarEnVistaPrevia(preview) {
   }
 }
 
+// Lo que no ve un alumno: lo oculto en su clase más lo oculto a él,
+// menos lo que se le ha dejado visible a propósito (shownTopics). Misma
+// regla que js/cloud-sync.js, que es quien la aplica en su dispositivo.
 function temasOcultosFusionados(claseData, alumnoData) {
+  const visibles = new Set((alumnoData && alumnoData.shownTopics) || []);
   return Array.from(
     new Set([...(claseData.hiddenTopics || []), ...((alumnoData && alumnoData.hiddenTopics) || [])])
-  );
+  ).filter((id) => !visibles.has(id));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -708,13 +712,37 @@ document.addEventListener("DOMContentLoaded", () => {
           visPanel.style.display = showing ? "none" : "";
           if (!showing && !visPanel.dataset.built) {
             visPanel.dataset.built = "1";
-            buildTopicChecklist(visPanel, new Set(data.hiddenTopics || []), async (topicId, visible) => {
-              const hidden = new Set(data.hiddenTopics || []);
-              if (visible) hidden.delete(topicId);
-              else hidden.add(topicId);
-              data.hiddenTopics = Array.from(hidden);
-              await updateDoc(doc(db, "students", code), { hiddenTopics: data.hiddenTopics });
-            });
+            // Las casillas enseñan lo que el alumno ve DE VERDAD (clase +
+            // individual). Antes solo reflejaban lo individual: lo oculto
+            // en la clase salía marcado como visible aunque no lo fuera,
+            // y desmarcarlo/marcarlo aquí no lo destapaba.
+            buildTopicChecklist(
+              visPanel,
+              new Set(temasOcultosFusionados(currentClass.data, data)),
+              async (topicId, visible) => {
+                const hidden = new Set(data.hiddenTopics || []);
+                const shown = new Set(data.shownTopics || []);
+                if (visible) {
+                  hidden.delete(topicId);
+                  // Solo hace falta la excepción si la clase lo oculta.
+                  if ((currentClass.data.hiddenTopics || []).indexOf(topicId) !== -1) shown.add(topicId);
+                  else shown.delete(topicId);
+                } else {
+                  hidden.add(topicId);
+                  shown.delete(topicId);
+                }
+                data.hiddenTopics = Array.from(hidden);
+                data.shownTopics = Array.from(shown);
+                try {
+                  await updateDoc(doc(db, "students", code), {
+                    hiddenTopics: data.hiddenTopics,
+                    shownTopics: data.shownTopics,
+                  });
+                } catch (err) {
+                  window.alert("No se ha podido guardar el cambio: " + err.message);
+                }
+              }
+            );
           }
         });
 

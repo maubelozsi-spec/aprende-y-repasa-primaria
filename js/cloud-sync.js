@@ -36,8 +36,17 @@ function todayKey() {
   return d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0");
 }
 
-function updateVisibilityCache(studentHidden) {
-  const merged = Array.from(new Set([...(classHiddenCache || []), ...(studentHidden || [])]));
+// Lo que no ve el alumno: lo oculto en su clase MÁS lo que se le haya
+// ocultado a él, MENOS lo que la maestra le haya dejado visible a
+// propósito en sus "Contenidos individuales" (shownTopics). Sin esa
+// resta, marcar algo como visible para un alumno no servía de nada si
+// estaba oculto en la clase: la página se abría un instante y
+// layout.js lo mandaba al inicio.
+function updateVisibilityCache(studentHidden, studentShown) {
+  const shown = new Set(studentShown || []);
+  const merged = Array.from(new Set([...(classHiddenCache || []), ...(studentHidden || [])])).filter(
+    (id) => !shown.has(id)
+  );
   try {
     localStorage.setItem(VISIBILITY_STORAGE_KEY, JSON.stringify(merged));
   } catch (e) {
@@ -89,7 +98,7 @@ function initCloudSync() {
     onSnapshot(doc(db, "classes", session.classId), (snap) => {
       const data = snap.data() || {};
       classHiddenCache = Array.isArray(data.hiddenTopics) ? data.hiddenTopics : [];
-      updateVisibilityCache(window.__studentHiddenCache || []);
+      updateVisibilityCache(window.__studentHiddenCache || [], window.__studentShownCache || []);
       // Si su clase le deja ver las hojas de soluciones. Va en vivo,
       // igual que los contenidos: la maestra lo marca en el panel y
       // en la pantalla del alumno cambia sin recargar nada.
@@ -104,7 +113,8 @@ function initCloudSync() {
   onSnapshot(doc(db, "students", session.code), (snap) => {
     const data = snap.data() || {};
     window.__studentHiddenCache = Array.isArray(data.hiddenTopics) ? data.hiddenTopics : [];
-    updateVisibilityCache(window.__studentHiddenCache);
+    window.__studentShownCache = Array.isArray(data.shownTopics) ? data.shownTopics : [];
+    updateVisibilityCache(window.__studentHiddenCache, window.__studentShownCache);
   });
 
   document.addEventListener("ar:answer", (e) => {

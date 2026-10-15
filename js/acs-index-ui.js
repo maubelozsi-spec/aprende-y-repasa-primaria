@@ -24,7 +24,14 @@ document.addEventListener("DOMContentLoaded", () => {
   function pintarArea(area) {
     const grid = grids[area];
     grid.innerHTML = "";
-    const visibles = ACS_FICHAS.filter((f) => f.area === area && (tipoActivo === "todas" || f.tipo === tipoActivo));
+    // Las fichas que la maestra ha ocultado no se ofrecen: al abrirlas,
+    // js/layout.js mandaría al inicio y parecería que la app falla.
+    const visibles = ACS_FICHAS.filter(
+      (f) =>
+        f.area === area &&
+        (tipoActivo === "todas" || f.tipo === tipoActivo) &&
+        (!window.__navFilter || window.__navFilter("acs-ficha-" + f.id))
+    );
 
     if (!visibles.length) {
       const vacio = document.createElement("p");
