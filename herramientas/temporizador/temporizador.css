@@ -1,0 +1,80 @@
+body { display: flex; flex-direction: column; height: 100vh; }
+
+.vistas { display: flex; gap: 6px; flex-wrap: wrap; margin-right: auto; }
+.vistas .chip { min-height: 36px; padding: 4px 12px; font-size: 0.9rem; }
+
+.reloj {
+  flex: 1;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 16px;
+  margin: 6px 10px 0;
+  transition: background 0.3s;
+}
+.vista { display: none; width: 100%; flex: 1; min-height: 0; align-items: center; justify-content: center; }
+.reloj[data-vista="digital"] .vista-digital,
+.reloj[data-vista="analogico"] .vista-analogico,
+.reloj[data-vista="arena"] .vista-arena { display: flex; }
+
+/* ---------- Digital ---------- */
+.digitos {
+  font-size: min(30vmin, 24vw);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--texto);
+}
+
+/* ---------- Analógico ---------- */
+.esfera, .arena { height: 100%; max-height: 62vh; width: auto; max-width: 100%; }
+.esfera-fondo { fill: #f8fafc; }
+.esfera-sector { fill: var(--rojo); opacity: 0.88; }
+.esfera-marca { stroke: #334155; stroke-width: 1.2; }
+.esfera-marca.grande { stroke-width: 3; }
+.esfera-numero { fill: #0f172a; font-size: 15px; font-weight: 800; text-anchor: middle; dominant-baseline: central; }
+.esfera-aguja { stroke: #0f172a; stroke-width: 4; stroke-linecap: round; }
+.esfera-centro { fill: #0f172a; }
+
+/* ---------- Arena ---------- */
+.arena-cristal { fill: rgba(148, 163, 184, 0.15); stroke: #cbd5e1; stroke-width: 3; }
+.arena-grano { fill: #f4c46b; }
+.arena-chorro { stroke: #f4c46b; stroke-width: 3; stroke-dasharray: 4 3; opacity: 0; }
+.reloj[data-fase="corriendo"] .arena-chorro { opacity: 1; animation: caer 0.4s linear infinite; }
+@keyframes caer { to { stroke-dashoffset: -7; } }
+.arena-tapa { fill: #8b5e34; }
+
+.restante {
+  margin: 4px 0 0;
+  font-size: clamp(1.2rem, 6vmin, 2.6rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  min-height: 1.2em;
+}
+
+/* ---------- Fases ---------- */
+.reloj[data-fase="pocoTiempo"] .digitos,
+.reloj[data-fase="pocoTiempo"] .restante { color: var(--ambar); }
+.reloj[data-fase="final"] .digitos,
+.reloj[data-fase="final"] .restante { color: var(--rojo); animation: latir 1s ease-in-out infinite; }
+.reloj[data-fase="pausa"] .digitos, .reloj[data-fase="pausa"] .restante { opacity: 0.55; }
+.reloj[data-fase="terminado"] { background: rgba(239, 68, 68, 0.18); animation: destello 1s ease-out 3; }
+.reloj[data-fase="terminado"] .digitos { color: var(--rojo); }
+@keyframes latir { 50% { transform: scale(1.04); } }
+@keyframes destello { 0% { background: rgba(239, 68, 68, 0.6); } 100% { background: rgba(239, 68, 68, 0.18); } }
+
+/* ---------- Mandos ---------- */
+.ajustar { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px 10px 0; }
+.presets, .mas-menos { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.presets .chip { min-width: 54px; }
+.mas-menos .btn { min-height: 40px; padding: 4px 12px; }
+.mandos { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 10px; }
+
+/* Ventana baja: se esconden los preajustes para dejar sitio al reloj. */
+@media (max-height: 430px) {
+  .presets { display: none; }
+}

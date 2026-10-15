@@ -1,0 +1,179 @@
+/* =========================================================
+   Tablero de Herramientas: ventanas que se mueven y cambian
+   de tamaño sobre la pizarra digital, todas a la vez.
+   ========================================================= */
+
+:root {
+  --fondo: #0b1222;
+  --panel: #1e293b;
+  --panel-2: #273449;
+  --borde: #334155;
+  --texto: #f1f5f9;
+  --texto-suave: #a5b4c8;
+  --azul: #6366f1;
+  --oro: #facc15;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button { font: inherit; }
+
+/* ---------- Barra ---------- */
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--borde);
+  flex: none;
+}
+.barra-volver { color: var(--texto-suave); text-decoration: none; font-weight: 700; padding: 8px 4px; }
+.barra-volver:hover { color: var(--texto); }
+.barra-titulo { margin: 0; font-size: 1.3rem; font-weight: 800; }
+.barra-herramientas { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+.barra-acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn {
+  border: 1px solid var(--borde);
+  background: var(--panel-2);
+  color: var(--texto);
+  border-radius: 12px;
+  padding: 8px 14px;
+  min-height: 44px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn:hover { border-color: var(--texto-suave); }
+.btn-fantasma { background: transparent; }
+.btn-herramienta[aria-pressed="true"] { background: var(--azul); border-color: var(--azul); }
+.btn:focus-visible, a:focus-visible, .ventana-boton:focus-visible {
+  outline: 3px solid var(--oro);
+  outline-offset: 2px;
+}
+
+/* ---------- Tablero ---------- */
+.tablero {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.tablero-vacio {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  color: var(--texto-suave);
+  font-size: 1.2rem;
+}
+.tablero-vacio[hidden] { display: none; }
+.tablero-vacio p { margin: 0 0 8px; max-width: 560px; line-height: 1.45; }
+.tablero-vacio-icono { font-size: 4rem; }
+.tablero-vacio-pie { font-size: 1rem; }
+
+/* ---------- Ventanas ---------- */
+.ventana {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 300px;
+  min-height: 220px;
+  background: #0f172a;
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+.ventana.activa { border-color: #64748b; }
+.ventana.maximizada {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0;
+}
+
+.ventana-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px 4px 14px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--borde);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  flex: none;
+}
+.ventana.maximizada .ventana-cabecera { cursor: default; }
+.ventana-titulo { flex: 1; font-weight: 800; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ventana-boton {
+  border: 0;
+  background: transparent;
+  color: var(--texto-suave);
+  width: 44px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+.ventana-boton:hover { background: var(--panel-2); color: var(--texto); }
+
+.ventana-cuerpo { position: relative; flex: 1; min-height: 0; }
+.ventana-cuerpo iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #0f172a; }
+
+/* Mientras se arrastra, los iframes no deben "tragarse" el puntero. */
+.tablero.moviendo iframe { pointer-events: none; }
+.tablero.moviendo .ventana-cabecera { cursor: grabbing; }
+
+.ventana-redimensionar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 34px;
+  height: 34px;
+  cursor: nwse-resize;
+  touch-action: none;
+  background:
+    linear-gradient(135deg, transparent 0 55%, var(--texto-suave) 55% 60%, transparent 60% 70%, var(--texto-suave) 70% 75%, transparent 75%);
+  opacity: 0.8;
+}
+.ventana.maximizada .ventana-redimensionar { display: none; }
+
+/* ---------- Pantallas estrechas ----------
+   En un móvil no caben ventanas sueltas: se apilan a lo ancho. */
+@media (max-width: 700px) {
+  body { overflow: auto; }
+  .barra-titulo { font-size: 1.15rem; }
+  .tablero { overflow: visible; display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+  .ventana, .ventana.maximizada {
+    position: relative;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    height: 75vh !important;
+    min-width: 0;
+    border-radius: 16px;
+  }
+  .ventana-cabecera { cursor: default; }
+  .ventana-redimensionar, .ventana-boton-max { display: none; }
+}

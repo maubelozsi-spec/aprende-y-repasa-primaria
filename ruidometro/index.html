@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script src="../js/acceso.js" data-solo-docente></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ruidómetro · Aprende y Repasa</title>
+<meta name="description" content="Medidor del ruido de clase para la pizarra digital: usa el micrófono, marca el límite permitido y suma un punto por cada minuto de silencio controlado.">
+<meta name="theme-color" content="#0f172a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/ruidometro.css">
+<script>
+  // Dentro del tablero de Herramientas (?embed=1) se usa un diseño
+  // compacto: sin barra de título ni pantalla completa propias.
+  if (/[?&]embed=1\b/.test(location.search)) document.documentElement.classList.add("embebido");
+</script>
+</head>
+<body>
+
+<header class="barra">
+  <a class="barra-volver" href="../herramientas/index.html">← Herramientas</a>
+  <h1 class="barra-titulo">Ruidómetro <span aria-hidden="true">🔊</span></h1>
+  <div class="barra-acciones">
+    <button type="button" class="btn btn-fantasma" id="btn-ajustes" aria-expanded="false" aria-controls="ajustes">⚙️ Ajustes</button>
+    <button type="button" class="btn btn-fantasma" id="btn-pantalla">⛶ Pantalla completa</button>
+  </div>
+</header>
+
+<main class="tablero" id="tablero" data-estado="apagado">
+
+  <!-- Medidor -->
+  <section class="panel panel-medidor" aria-label="Nivel de ruido">
+    <svg class="dial" viewBox="0 0 400 230" role="img" aria-labelledby="dial-titulo">
+      <title id="dial-titulo">Nivel de ruido de la clase</title>
+      <path class="dial-pista" id="arco-pista" />
+      <path class="dial-zona zona-verde" id="arco-verde" />
+      <path class="dial-zona zona-ambar" id="arco-ambar" />
+      <path class="dial-zona zona-roja" id="arco-roja" />
+      <line class="dial-limite" id="marca-limite" />
+      <text class="dial-limite-texto" id="texto-limite">Límite</text>
+      <line class="dial-pico" id="marca-pico" />
+      <g id="aguja" class="dial-aguja">
+        <line x1="200" y1="200" x2="58" y2="200" />
+        <circle cx="200" cy="200" r="13" />
+      </g>
+    </svg>
+
+    <div class="estado">
+      <span class="estado-cara" id="estado-cara" aria-hidden="true">🎤</span>
+      <p class="estado-texto" id="estado-texto" aria-live="polite">Pulsa «Activar micrófono» para empezar</p>
+      <p class="estado-nivel">Nivel <strong id="nivel-num">–</strong> · Límite <strong id="limite-num">–</strong></p>
+    </div>
+
+    <div class="controles">
+      <button type="button" class="btn btn-grande btn-primario" id="btn-activar">🎤 Activar micrófono</button>
+      <button type="button" class="btn btn-grande" id="btn-pausa" hidden>⏸ Pausar puntos</button>
+    </div>
+    <p class="aviso-error" id="aviso-error" role="alert" hidden></p>
+  </section>
+
+  <!-- Puntos -->
+  <section class="panel panel-puntos" aria-label="Puntos de silencio">
+    <div class="minuto">
+      <svg class="minuto-anillo" viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="minuto-fondo" cx="60" cy="60" r="52" />
+        <circle class="minuto-progreso" id="minuto-progreso" cx="60" cy="60" r="52" />
+      </svg>
+      <div class="minuto-centro">
+        <span class="minuto-tiempo" id="minuto-tiempo">0:00</span>
+        <span class="minuto-pie">de 1:00</span>
+      </div>
+    </div>
+    <p class="minuto-explica" id="minuto-explica">Cada minuto sin pasar del límite = 1 punto</p>
+
+    <div class="avisos" id="avisos">
+      <span class="avisos-marcas" id="avisos-marcas" aria-hidden="true"></span>
+      <span class="avisos-texto" id="avisos-texto" aria-live="polite">Avisos: 0 de 5</span>
+    </div>
+
+    <div class="puntos">
+      <span class="puntos-estrella" aria-hidden="true">⭐</span>
+      <span class="puntos-num" id="puntos-num">0</span>
+      <span class="puntos-etiqueta" id="puntos-etiqueta">puntos</span>
+    </div>
+
+    <div class="meta" id="meta">
+      <div class="meta-barra"><div class="meta-relleno" id="meta-relleno"></div></div>
+      <p class="meta-texto" id="meta-texto"></p>
+    </div>
+
+    <dl class="resumen">
+      <div><dt>Hoy</dt><dd id="hoy-puntos">0 puntos</dd></div>
+      <div><dt>Avisos hoy</dt><dd id="hoy-avisos">0</dd></div>
+      <div><dt>Racha</dt><dd id="racha">0 min</dd></div>
+    </dl>
+  </section>
+
+  <!-- Ajustes del docente -->
+  <section class="panel panel-ajustes" id="ajustes" hidden aria-label="Ajustes del docente">
+    <h2>Ajustes del docente</h2>
+
+    <div class="ajuste">
+      <label for="limite">Ruido máximo permitido: <strong id="limite-etiqueta">50</strong></label>
+      <input type="range" id="limite" min="5" max="95" step="1" value="50">
+      <div class="presets" role="group" aria-label="Límites rápidos">
+        <button type="button" class="chip" data-limite="25">🤫 Silencio</button>
+        <button type="button" class="chip" data-limite="40">🙊 Susurro</button>
+        <button type="button" class="chip" data-limite="55">🗣️ Parejas</button>
+        <button type="button" class="chip" data-limite="70">🧩 Grupos</button>
+      </div>
+    </div>
+
+    <div class="ajuste ajuste-medir">
+      <p><strong>Medir el límite con la clase.</strong> Pide al alumnado que trabaje con el volumen que vas a permitir y pulsa el botón: se escuchan 10 segundos y el límite se fija un poco por encima de lo medido.</p>
+      <button type="button" class="btn" id="btn-medir" disabled>📏 Medir el ruido permitido (10 s)</button>
+      <p class="medir-resultado" id="medir-resultado" aria-live="polite"></p>
+    </div>
+
+    <div class="ajuste">
+      <label for="tolerancia">Tiempo máximo en la zona roja antes del aviso: <strong id="tolerancia-etiqueta">3 s</strong></label>
+      <input type="range" id="tolerancia" min="0" max="3" step="0.5" value="3">
+      <p class="ayuda">Si se pasa este tiempo en rojo, el minuto vuelve a cero y empieza a contar de nuevo. Cada 5 avisos se pierde un punto. Al poner los puntos a 0 también se borran los avisos acumulados.</p>
+    </div>
+
+    <div class="ajuste">
+      <label for="sensibilidad">Sensibilidad del micrófono: <strong id="sensibilidad-etiqueta">0</strong></label>
+      <input type="range" id="sensibilidad" min="-20" max="20" step="1" value="0">
+      <p class="ayuda">Si la aguja apenas se mueve aunque se hable, sube la sensibilidad. Si con la clase callada ya está muy alta, bájala.</p>
+    </div>
+
+    <div class="ajuste">
+      <label for="microfono">Micrófono</label>
+      <select id="microfono" disabled><option>Activa el micrófono primero</option></select>
+    </div>
+
+    <div class="ajuste ajuste-fila">
+      <label class="interruptor"><input type="checkbox" id="sonido"> Sonar un aviso al pasar del límite</label>
+      <label class="interruptor"><input type="checkbox" id="seguir-voz"> Cambiar el límite cuando se elige un nivel en «Nivel de voz»</label>
+    </div>
+
+    <div class="ajuste ajuste-fila">
+      <label for="meta-puntos">Meta de puntos</label>
+      <input type="number" id="meta-puntos" min="0" max="999" step="1" value="10">
+      <label for="premio">Premio</label>
+      <input type="text" id="premio" maxlength="60" placeholder="Ej.: 10 minutos de juego libre">
+    </div>
+
+    <div class="ajuste ajuste-fila">
+      <button type="button" class="btn" id="btn-sumar">+1 punto</button>
+      <button type="button" class="btn" id="btn-restar">−1 punto</button>
+      <button type="button" class="btn btn-peligro" id="btn-reiniciar">Poner los puntos a 0</button>
+    </div>
+
+    <p class="ayuda">El nivel va de 0 a 100 y es relativo a este micrófono, no son decibelios: cambia de una pizarra a otra. Por eso conviene medir el límite en cada aula. No se graba ni se envía ningún sonido: todo se calcula en este equipo.</p>
+  </section>
+</main>
+
+<div class="celebracion" id="celebracion" aria-hidden="true">+1 ⭐</div>
+
+<script src="js/ruidometro.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script src="../../js/acceso.js" data-solo-docente></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Selector de alumnos · Aprende y Repasa</title>
+<meta name="description" content="Selector de alumnos al azar para la pizarra digital: cada alumno sale una vez hasta que han salido todos, con lista de ausentes del día.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/herramienta.css">
+<link rel="stylesheet" href="selector.css">
+<script src="../js/comun.js"></script>
+</head>
+<body>
+
+<header class="cabecera">
+  <a href="../index.html">← Herramientas</a>
+  <h1>Selector de alumnos 🎯</h1>
+</header>
+
+<div class="herramienta-barra">
+  <label class="lista-elegir">
+    <span class="oculto">Clase</span>
+    <select id="lista"></select>
+  </label>
+  <button type="button" class="btn btn-fantasma" id="btn-asistencia" aria-expanded="false" aria-controls="asistencia">👥 Quién falta</button>
+  <button type="button" class="btn btn-fantasma" id="btn-ajustes" aria-expanded="false" aria-controls="ajustes">⚙️ Listas y ajustes</button>
+</div>
+
+<main class="escenario" id="escenario">
+  <p class="nombre" id="nombre" aria-live="polite">¿Quién será?</p>
+  <p class="quedan" id="quedan"></p>
+  <div class="mandos">
+    <button type="button" class="btn btn-grande btn-primario" id="btn-elegir">🎲 Elegir</button>
+    <label class="cuantos">
+      <span>De</span>
+      <select id="cuantos" aria-label="Cuántos alumnos elegir a la vez">
+        <option value="1">1 en 1</option>
+        <option value="2">2 en 2</option>
+        <option value="3">3 en 3</option>
+        <option value="4">4 en 4</option>
+      </select>
+    </label>
+    <button type="button" class="btn" id="btn-empezar-ronda">↺ Empezar la ronda</button>
+  </div>
+  <div class="historial" id="historial" aria-label="Ya han salido"></div>
+</main>
+
+<section class="ajustes" id="asistencia" hidden aria-label="Quién falta hoy">
+  <h2>¿Quién falta hoy?</h2>
+  <p class="ayuda">Toca un nombre para marcarlo como ausente: no saldrá hoy. Mañana vuelve a estar todo el mundo.</p>
+  <div class="asistencia-lista" id="asistencia-lista"></div>
+</section>
+
+<section class="ajustes" id="ajustes" hidden aria-label="Listas y ajustes">
+  <h2>Listas de clase</h2>
+  <div class="fila">
+    <label for="lista-nombre">Nombre de la lista</label>
+    <input type="text" id="lista-nombre" maxlength="40">
+    <button type="button" class="btn" id="btn-nueva">+ Nueva lista</button>
+    <button type="button" class="btn btn-peligro" id="btn-borrar-lista">Borrar esta lista</button>
+  </div>
+  <label for="nombres">Alumnos (uno por línea)</label>
+  <textarea id="nombres" rows="8" spellcheck="false" placeholder="Ana&#10;Bruno&#10;Carmen&#10;…"></textarea>
+  <div class="fila">
+    <label class="interruptor"><input type="checkbox" id="una-vez"> Cada alumno sale una vez hasta que han salido todos</label>
+  </div>
+  <div class="fila">
+    <label class="interruptor"><input type="checkbox" id="animacion"> Animación al elegir</label>
+    <label class="interruptor"><input type="checkbox" id="sonido"> Sonido</label>
+  </div>
+  <p class="ayuda">Las listas se guardan solo en este equipo. Para no exponer datos del alumnado en la pizarra, basta con el nombre o un apodo.</p>
+</section>
+
+<script src="selector.js"></script>
+</body>
+</html>

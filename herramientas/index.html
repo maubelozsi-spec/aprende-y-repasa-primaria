@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script src="../js/acceso.js" data-solo-docente></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Herramientas · Aprende y Repasa</title>
+<meta name="description" content="Tablero de herramientas para la pizarra digital: abre varias a la vez en la misma pantalla, muévelas y cambia su tamaño. Incluye Ruidómetro, Temporizador, Alumno al azar, Nivel de voz y Roles de clase.">
+<meta name="theme-color" content="#0b1222">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tablero.css">
+</head>
+<body>
+
+<header class="barra">
+  <a class="barra-volver" href="../index.html">← Inicio</a>
+  <h1 class="barra-titulo">Herramientas <span aria-hidden="true">🧰</span></h1>
+  <div class="barra-herramientas" id="catalogo" role="group" aria-label="Abrir una herramienta"></div>
+  <div class="barra-acciones">
+    <button type="button" class="btn btn-fantasma" id="btn-ordenar">▦ Ordenar</button>
+    <button type="button" class="btn btn-fantasma" id="btn-pantalla">⛶ Pantalla completa</button>
+  </div>
+</header>
+
+<main class="tablero" id="tablero" aria-label="Tablero de herramientas">
+  <div class="tablero-vacio" id="tablero-vacio" hidden>
+    <p class="tablero-vacio-icono" aria-hidden="true">🧰</p>
+    <p>Abre una herramienta con los botones de arriba.</p>
+    <p class="tablero-vacio-pie">Puedes tener varias abiertas a la vez: arrástralas por su barra de título y cambia su tamaño desde la esquina inferior derecha.</p>
+  </div>
+</main>
+
+<script src="js/tablero.js"></script>
+</body>
+</html>
