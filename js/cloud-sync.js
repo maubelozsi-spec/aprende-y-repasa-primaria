@@ -4,7 +4,8 @@
 //   respuestas o 15s (nunca una escritura por respuesta), para no
 //   agotar la cuota gratuita de Firestore en uso real de aula.
 // - Mantiene localStorage["ar_visibilidad"] sincronizado en vivo
-//   con los temas que el docente ha ocultado (clase ∪ individual),
+//   con los temas que el docente ha ocultado (clase ∪ individual, o
+//   solo lo individual si el alumno tiene contenidos personalizados),
 //   para que js/layout.js pueda seguir leyéndolo de forma síncrona
 //   sin depender de la red en cada carga de página.
 //
@@ -36,13 +37,22 @@ function todayKey() {
   return d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0");
 }
 
-// Lo que no ve el alumno: lo oculto en su clase MÁS lo que se le haya
-// ocultado a él, MENOS lo que la maestra le haya dejado visible a
-// propósito en sus "Contenidos individuales" (shownTopics). Sin esa
-// resta, marcar algo como visible para un alumno no servía de nada si
-// estaba oculto en la clase: la página se abría un instante y
-// layout.js lo mandaba al inicio.
-function updateVisibilityCache(studentHidden, studentShown) {
+// Lo que no ve el alumno (misma regla que temasOcultosFusionados en
+// js/docente-dashboard.js):
+//  - Con contenidos personalizados, SOLO su selección individual: lo
+//    que la maestra haya marcado para él manda, y lo de la clase no se
+//    tiene en cuenta.
+//  - Si no, lo oculto en su clase MÁS lo que se le haya ocultado a él,
+//    MENOS lo que se le dejó visible a propósito (shownTopics).
+function updateVisibilityCache(studentHidden, studentShown, personalizado) {
+  if (personalizado === true) {
+    try {
+      localStorage.setItem(VISIBILITY_STORAGE_KEY, JSON.stringify(studentHidden || []));
+    } catch (e) {
+      // localStorage no disponible.
+    }
+    return;
+  }
   const shown = new Set(studentShown || []);
   const merged = Array.from(new Set([...(classHiddenCache || []), ...(studentHidden || [])])).filter(
     (id) => !shown.has(id)
@@ -98,7 +108,11 @@ function initCloudSync() {
     onSnapshot(doc(db, "classes", session.classId), (snap) => {
       const data = snap.data() || {};
       classHiddenCache = Array.isArray(data.hiddenTopics) ? data.hiddenTopics : [];
-      updateVisibilityCache(window.__studentHiddenCache || [], window.__studentShownCache || []);
+      // Hasta que llega la ficha del alumno no se sabe si tiene
+      // contenidos personalizados: no se escribe nada a medias.
+      if (window.__studentPersonalizado !== undefined) {
+        updateVisibilityCache(window.__studentHiddenCache || [], window.__studentShownCache || [], window.__studentPersonalizado);
+      }
       // Si su clase le deja ver las hojas de soluciones. Va en vivo,
       // igual que los contenidos: la maestra lo marca en el panel y
       // en la pantalla del alumno cambia sin recargar nada.
@@ -114,7 +128,8 @@ function initCloudSync() {
     const data = snap.data() || {};
     window.__studentHiddenCache = Array.isArray(data.hiddenTopics) ? data.hiddenTopics : [];
     window.__studentShownCache = Array.isArray(data.shownTopics) ? data.shownTopics : [];
-    updateVisibilityCache(window.__studentHiddenCache, window.__studentShownCache);
+    window.__studentPersonalizado = data.personalizado === true;
+    updateVisibilityCache(window.__studentHiddenCache, window.__studentShownCache, window.__studentPersonalizado);
   });
 
   document.addEventListener("ar:answer", (e) => {

@@ -213,7 +213,9 @@ function buildTopicChecklist(container, hiddenSet, onToggle) {
         row.appendChild(checkbox);
         row.appendChild(label);
         groupEl.appendChild(row);
-        filas.push({ row: row, groupEl: groupEl, checkbox: checkbox, id: item.id, texto: item.label.toLowerCase() });
+        // Se busca también por el nombre del grupo: escribir «ACS» deja
+        // a la vista todas las fichas de Apoyo ACS.
+        filas.push({ row: row, groupEl: groupEl, checkbox: checkbox, id: item.id, texto: (title.textContent + " " + item.label).toLowerCase() });
       });
 
       if (visiblesEnGrupo) container.appendChild(groupEl);
@@ -283,10 +285,15 @@ async function entrarEnVistaPrevia(preview) {
   }
 }
 
-// Lo que no ve un alumno: lo oculto en su clase más lo oculto a él,
-// menos lo que se le ha dejado visible a propósito (shownTopics). Misma
-// regla que js/cloud-sync.js, que es quien la aplica en su dispositivo.
+// Lo que no ve un alumno. Misma regla que js/cloud-sync.js, que es
+// quien la aplica en su dispositivo:
+//  - Con contenidos personalizados (personalizado: true), manda SOLO su
+//    selección individual y lo de la clase no se tiene en cuenta.
+//  - Si no, lo oculto en su clase más lo oculto a él, menos lo que se
+//    le dejó visible a propósito (shownTopics, de antes de existir el
+//    modo personalizado).
 function temasOcultosFusionados(claseData, alumnoData) {
+  if (alumnoData && alumnoData.personalizado === true) return (alumnoData.hiddenTopics || []).slice();
   const visibles = new Set((alumnoData && alumnoData.shownTopics) || []);
   return Array.from(
     new Set([...(claseData.hiddenTopics || []), ...((alumnoData && alumnoData.hiddenTopics) || [])])
@@ -624,6 +631,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <span class="student-key">Clave: <span class="student-code">${code}</span></span>
             <button type="button" class="btn-copiar" data-action="copiar" title="Copiar la clave">Copiar</button>
             ${data.active === false ? '<span class="status-pill status-soon">Desactivado</span>' : ""}
+            <span class="status-pill status-personalizado"${data.personalizado === true ? "" : " hidden"} title="Sus contenidos individuales mandan sobre los de la clase">Contenidos personalizados</span>
           </div>
           <div class="student-row-actions">
             <button type="button" class="btn btn-secondary" data-action="progreso">Ver progreso</button>
@@ -707,42 +715,102 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const visPanel = row.querySelector(".student-visibility-panel");
+        const pastillaPersonalizado = row.querySelector(".status-personalizado");
+
+        // Contenidos individuales. Las casillas enseñan lo que el alumno
+        // ve DE VERDAD. En cuanto se cambia una, el alumno pasa a tener
+        // contenidos personalizados: se copia lo que veía en ese momento
+        // (para que no cambie nada más que esa casilla) y, desde ahí,
+        // manda su selección y lo de la clase deja de tenerse en cuenta.
+        function pintarContenidosIndividuales() {
+          visPanel.innerHTML = "";
+          const aviso = document.createElement("div");
+          aviso.className = "personalizado-aviso";
+          const texto = document.createElement("p");
+          texto.className = "content-subtitle";
+          aviso.appendChild(texto);
+          if (data.personalizado === true) {
+            texto.innerHTML =
+              "<strong>Contenidos personalizados:</strong> lo que marques aquí es lo que ve " +
+              "este alumno/a. Los cambios en los contenidos de la clase no le afectan.";
+            const volver = document.createElement("button");
+            volver.type = "button";
+            volver.className = "btn btn-secondary";
+            volver.textContent = "Volver a seguir los contenidos de la clase";
+            volver.addEventListener("click", async () => {
+              if (!window.confirm("¿Quitar la selección individual de " + data.nickname + "? Verá lo mismo que el resto de la clase.")) return;
+              try {
+                await updateDoc(doc(db, "students", code), { personalizado: false, hiddenTopics: [], shownTopics: [] });
+                data.personalizado = false;
+                data.hiddenTopics = [];
+                data.shownTopics = [];
+                pastillaPersonalizado.hidden = true;
+                pintarContenidosIndividuales();
+              } catch (err) {
+                window.alert("No se ha podido guardar el cambio: " + err.message);
+              }
+            });
+            aviso.appendChild(volver);
+          } else {
+            texto.innerHTML =
+              "Ahora ve lo mismo que su clase. Si cambias cualquier casilla, este alumno/a pasará a tener " +
+              "<strong>contenidos personalizados</strong>: mandará lo que marques aquí, por encima de lo de la clase.";
+          }
+          const herramientas = document.createElement("div");
+          herramientas.className = "topic-tools";
+          const buscar = document.createElement("input");
+          buscar.type = "search";
+          buscar.className = "generator-select";
+          buscar.placeholder = "Buscar un contenido (p. ej. ACS)...";
+          const todo = document.createElement("button");
+          todo.type = "button";
+          todo.className = "btn btn-secondary";
+          todo.textContent = "Mostrar todo";
+          const nada = document.createElement("button");
+          nada.type = "button";
+          nada.className = "btn btn-secondary";
+          nada.textContent = "Ocultar todo";
+          herramientas.append(buscar, todo, nada);
+          const lista = document.createElement("div");
+          lista.className = "exm-topic-list";
+          visPanel.append(aviso, herramientas, lista);
+
+          const control = buildTopicChecklist(lista, new Set(temasOcultosFusionados(currentClass.data, data)), async (topicId, visible) => {
+            if (data.personalizado !== true) {
+              data.hiddenTopics = temasOcultosFusionados(currentClass.data, data);
+              data.shownTopics = [];
+              data.personalizado = true;
+              pastillaPersonalizado.hidden = false;
+              texto.innerHTML =
+                "<strong>Contenidos personalizados:</strong> lo que marques aquí es lo que ve " +
+                "este alumno/a. Los cambios en los contenidos de la clase no le afectan.";
+            }
+            const hidden = new Set(data.hiddenTopics || []);
+            if (visible) hidden.delete(topicId);
+            else hidden.add(topicId);
+            data.hiddenTopics = Array.from(hidden);
+            try {
+              await updateDoc(doc(db, "students", code), {
+                personalizado: true,
+                hiddenTopics: data.hiddenTopics,
+                shownTopics: [],
+              });
+            } catch (err) {
+              window.alert("No se ha podido guardar el cambio: " + err.message);
+            }
+          });
+          // Igual que en la clase: solo afectan a lo que deja ver el buscador.
+          buscar.addEventListener("input", () => control.filtrar(buscar.value));
+          todo.addEventListener("click", () => control.marcarTodo(true));
+          nada.addEventListener("click", () => control.marcarTodo(false));
+        }
+
         row.querySelector('[data-action="visibility"]').addEventListener("click", () => {
           const showing = visPanel.style.display !== "none";
           visPanel.style.display = showing ? "none" : "";
           if (!showing && !visPanel.dataset.built) {
             visPanel.dataset.built = "1";
-            // Las casillas enseñan lo que el alumno ve DE VERDAD (clase +
-            // individual). Antes solo reflejaban lo individual: lo oculto
-            // en la clase salía marcado como visible aunque no lo fuera,
-            // y desmarcarlo/marcarlo aquí no lo destapaba.
-            buildTopicChecklist(
-              visPanel,
-              new Set(temasOcultosFusionados(currentClass.data, data)),
-              async (topicId, visible) => {
-                const hidden = new Set(data.hiddenTopics || []);
-                const shown = new Set(data.shownTopics || []);
-                if (visible) {
-                  hidden.delete(topicId);
-                  // Solo hace falta la excepción si la clase lo oculta.
-                  if ((currentClass.data.hiddenTopics || []).indexOf(topicId) !== -1) shown.add(topicId);
-                  else shown.delete(topicId);
-                } else {
-                  hidden.add(topicId);
-                  shown.delete(topicId);
-                }
-                data.hiddenTopics = Array.from(hidden);
-                data.shownTopics = Array.from(shown);
-                try {
-                  await updateDoc(doc(db, "students", code), {
-                    hiddenTopics: data.hiddenTopics,
-                    shownTopics: data.shownTopics,
-                  });
-                } catch (err) {
-                  window.alert("No se ha podido guardar el cambio: " + err.message);
-                }
-              }
-            );
+            pintarContenidosIndividuales();
           }
         });
 
