@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script src="../../js/acceso.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Roles de clase · Aprende y Repasa</title>
+<meta name="description" content="Reparto semanal de los roles de clase para la pizarra digital: al azar pero equilibrado, sin repetir rol seguido y con historial de quién ha hecho cada encargo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Cinzel:wght@600;700&family=Oswald:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/herramienta.css">
+<link rel="stylesheet" href="roles.css">
+<script src="../js/comun.js"></script>
+<script src="catalogo.js"></script>
+</head>
+<body>
+
+<header class="cabecera">
+  <a href="../index.html">← Herramientas</a>
+  <h1>Roles de clase 🏛️</h1>
+</header>
+
+<div class="herramienta-barra">
+  <label class="grupo-elegir">
+    <span class="oculto">Clase</span>
+    <select id="grupo"></select>
+  </label>
+  <button type="button" class="btn btn-fantasma" id="btn-alumnado" aria-expanded="false" aria-controls="panel-alumnado">👥 Alumnado</button>
+  <button type="button" class="btn btn-fantasma" id="btn-roles" aria-expanded="false" aria-controls="panel-roles">🏷️ Roles</button>
+  <button type="button" class="btn btn-fantasma" id="btn-equilibrio" aria-expanded="false" aria-controls="panel-equilibrio">📊 Equilibrio</button>
+  <button type="button" class="btn btn-fantasma" id="btn-imprimir">🖨️ Imprimir</button>
+</div>
+
+<main class="semana" id="semana">
+  <div class="semana-cabecera">
+    <button type="button" class="btn btn-flecha" id="btn-anterior" aria-label="Semana anterior">‹</button>
+    <div class="semana-titulo">
+      <h2 id="semana-texto">Semana</h2>
+      <p class="semana-estado" id="semana-estado"></p>
+    </div>
+    <button type="button" class="btn btn-flecha" id="btn-siguiente" aria-label="Semana siguiente">›</button>
+  </div>
+
+  <div class="mandos">
+    <button type="button" class="btn btn-grande btn-primario" id="btn-sortear">🎲 Repartir los roles</button>
+    <button type="button" class="btn btn-grande btn-guardar" id="btn-guardar">💾 Guardar esta semana</button>
+    <button type="button" class="btn" id="btn-descartar">Descartar cambios</button>
+  </div>
+
+  <p class="aviso" id="aviso" hidden></p>
+
+  <div class="tablero-roles" id="tablero-roles" aria-live="polite"></div>
+
+  <section class="resumen" id="resumen" hidden aria-label="Cómo se ha repartido"></section>
+</main>
+
+<section class="ajustes" id="panel-alumnado" hidden aria-label="Alumnado">
+  <h2>Alumnado de la clase</h2>
+  <div class="fila">
+    <label for="grupo-nombre">Nombre de la clase</label>
+    <input type="text" id="grupo-nombre" maxlength="40">
+    <button type="button" class="btn" id="btn-nuevo-grupo">+ Nueva clase</button>
+    <button type="button" class="btn btn-peligro" id="btn-borrar-grupo">Borrar esta clase</button>
+  </div>
+  <div class="fila" id="fila-importar">
+    <label for="lista-selector">Copiar de «Alumno al azar»</label>
+    <select id="lista-selector"></select>
+    <button type="button" class="btn" id="btn-importar">Añadir estos nombres</button>
+  </div>
+  <label for="alumnos">Alumnos (uno por línea)</label>
+  <textarea id="alumnos" rows="9" spellcheck="false" placeholder="Ana&#10;Bruno&#10;Carmen&#10;…"></textarea>
+  <p class="ayuda">El historial se guarda por nombre: si cambias cómo está escrito un nombre, para la app será otro alumno y empezará de cero.</p>
+  <h3>Quién no entra en el reparto</h3>
+  <p class="ayuda">Toca un nombre para dejarlo fuera de los roles (por ejemplo, si va a estar de viaje varias semanas). Su historial se conserva.</p>
+  <div class="chips" id="exentos"></div>
+  <p class="ayuda">Todo se guarda solo en este equipo. Para llevarlo a otro, usa «Descargar copia» en Equilibrio.</p>
+</section>
+
+<section class="ajustes" id="panel-roles" hidden aria-label="Roles">
+  <h2>Roles de la clase</h2>
+  <p class="ayuda">Cambia el nombre, el texto, el icono, el color o cuántos alumnos hacen cada rol. Los cambios se ven en las tarjetas al momento.</p>
+  <div class="editor-roles" id="editor-roles"></div>
+  <div class="fila">
+    <button type="button" class="btn" id="btn-nuevo-rol">+ Añadir un rol</button>
+    <button type="button" class="btn btn-peligro" id="btn-restaurar-roles">Volver a los roles de clase</button>
+  </div>
+  <p class="ayuda" id="plazas-resumen"></p>
+</section>
+
+<section class="ajustes" id="panel-equilibrio" hidden aria-label="Equilibrio">
+  <h2>¿Está equilibrado el reparto?</h2>
+  <p class="ayuda" id="equilibrio-resumen"></p>
+  <div class="tabla-envoltura">
+    <table class="tabla-equilibrio" id="tabla-equilibrio"></table>
+  </div>
+  <h3>Semanas guardadas</h3>
+  <div class="historial-semanas" id="historial-semanas"></div>
+  <div class="fila">
+    <button type="button" class="btn" id="btn-exportar">⬇️ Descargar copia</button>
+    <label class="btn" for="importar-archivo">⬆️ Cargar copia</label>
+    <input type="file" id="importar-archivo" accept="application/json,.json" hidden>
+  </div>
+</section>
+
+<dialog class="dialogo" id="dialogo-alumno">
+  <form method="dialog">
+    <h2 id="dialogo-alumno-titulo">Cambiar</h2>
+    <p class="ayuda" id="dialogo-alumno-ayuda"></p>
+    <div class="opciones-alumno" id="opciones-alumno"></div>
+    <div class="fila">
+      <button type="button" class="btn btn-peligro" id="btn-vaciar-plaza">Dejar la plaza vacía</button>
+      <button class="btn" value="cancelar">Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dialogo" id="dialogo-icono">
+  <form method="dialog">
+    <h2>Elige un icono</h2>
+    <div class="galeria-iconos" id="galeria-iconos"></div>
+    <div class="fila"><button class="btn" value="cancelar">Cancelar</button></div>
+  </form>
+</dialog>
+
+<script src="roles.js"></script>
+</body>
+</html>
