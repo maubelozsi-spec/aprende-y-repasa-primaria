@@ -136,6 +136,8 @@ function lenguaFilledBox(text, bold, spacingAfter) {
   return { runs: [{ text, bold: !!bold, italic: !bold, color: bold ? undefined : "595959" }], border: true, shading: "D9D9D9", spacingAfter };
 }
 
+// Notas de cada adaptación para los exámenes (js/lengua-examen-generator.js);
+// las fichas de cada contenido no las imprimen.
 const LENGUA_DIFFICULTY_NOTES = {
   acs: "Adaptación curricular significativa: mismo contenido con un nivel de dificultad equivalente a dos cursos por debajo.",
   discalculia: "Discalculia: mismo nivel que la ACS, dando más tiempo para pensar cada respuesta.",
@@ -182,26 +184,49 @@ function applyDislexiaStylingLengua(paragraphs) {
   });
 }
 
+// Ficha de cada contenido, con la plantilla común de js/docx-writer.js
+// (las piezas de arriba siguen sirviendo a js/lengua-examen-generator.js
+// y js/udi-doc-builder.js). Cada pregunta va en su recuadro con dos
+// líneas punteadas para contestar; en disgrafía, con las opciones
+// para rodear la correcta.
+function buildLenguaPreguntaContenido(problem, dificultad) {
+  const contenido = [{ runs: [{ text: problem.enunciado, bold: true, size: 22 }], spacingAfter: 20 }];
+  if (dificultad === "disgrafia" && problem.opciones) {
+    contenido.push({ runs: [{ text: "Rodea la respuesta correcta.", size: 20, color: FICHA_GRIS }], spacingBefore: 80, spacingAfter: 0 });
+    contenido.push(fichaOpciones(problem.opciones));
+  } else {
+    contenido.push(fichaLinea());
+    contenido.push(fichaLinea());
+  }
+  return contenido;
+}
+
 function buildLenguaFichaDocument({ topic, curso, fecha, problems, dificultad, showSolutions }) {
-  const paragraphs = [];
-  paragraphs.push(...buildLenguaHeaderBlocks(topic, curso, fecha));
+  const blocks = fichaInicio({ area: "Lengua", curso, contenido: topic.label, fecha, soluciones: showSolutions });
+
+  if (!showSolutions) {
+    blocks.push(fichaApartado("Recuerda"));
+    blocks.push({ runs: [{ text: topic.resumen }], spacingAfter: 60 });
+    blocks.push({
+      runs: [{ text: "Lee con atención cada pregunta y contesta con buena letra, cuidando las tildes.", italic: true, size: 18, color: FICHA_GRIS }],
+      spacingAfter: 60,
+    });
+  }
 
   if (showSolutions) {
-    paragraphs.push({ runs: [{ text: "Hoja de soluciones", bold: true, size: 24 }], spacingAfter: 140 });
+    blocks.push(fichaApartado("Respuestas"));
+    problems.forEach((p, i) => {
+      blocks.push({ runs: [{ text: `${i + 1}. `, bold: true }, { text: p.respuesta }], spacingAfter: 120 });
+    });
   } else {
-    paragraphs.push({ runs: [{ text: topic.resumen }], border: true, shading: "D9D9D9", spacingAfter: 100 });
+    blocks.push(fichaApartado("Actividades"));
+    blocks.push(fichaSeparador(60));
+    problems.forEach((p, i) => {
+      blocks.push(...fichaEjercicio(i + 1, buildLenguaPreguntaContenido(p, dificultad), { saltoPagina: dificultad === "tdah" && i > 0 }));
+    });
   }
 
-  const note = LENGUA_DIFFICULTY_NOTES[dificultad];
-  if (note) {
-    paragraphs.push({ runs: [{ text: note, italic: true, color: "0369A1" }], spacingAfter: 140 });
-  }
-
-  problems.forEach((p, i) => {
-    paragraphs.push(...buildLenguaProblemParagraphs(p, i, showSolutions, dificultad));
-  });
-
-  return dificultad === "dislexia" ? applyDislexiaStylingLengua(paragraphs) : paragraphs;
+  return fichaAplicarEstilo(blocks, { agrandar: dificultad === "dislexia" });
 }
 
 // ---------------- API pública ----------------

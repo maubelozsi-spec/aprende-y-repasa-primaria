@@ -780,27 +780,43 @@ function multiplosDivisoresLista(curso) {
   };
 }
 
+// Dos números distintos al azar del rango [min, max].
+function randomDistintos(min, max) {
+  const a = randomInt(min, max);
+  let b = randomInt(min, max - 1);
+  if (b >= a) b++;
+  return [a, b];
+}
+
 function multiplosDivisoresMCM(curso) {
-  const a = curso === "6" ? randomInt(6, 15) : randomInt(3, 10);
-  const b = curso === "6" ? randomInt(6, 15) : randomInt(3, 10);
+  const [a, b] = curso === "6" ? randomDistintos(6, 15) : randomDistintos(3, 10);
   const resultado = lcm(a, b);
   return {
-    enunciado: `Dos autobuses salen juntos de la estación a las 8:00h. El primero repite su recorrido cada ${a} minutos y el segundo cada ${b} minutos. ¿Dentro de cuántos minutos volverán a coincidir en la estación?`,
+    enunciado: `Dos autobuses salen juntos de la estación a las 8:00 h. El primero repite su recorrido cada ${a} minutos y el segundo cada ${b} minutos. ¿Dentro de cuántos minutos volverán a coincidir en la estación?`,
     datos: [`Primer autobús: cada ${a} min`, `Segundo autobús: cada ${b} min`],
     operacion: `m.c.m.(${a}, ${b}) = ${resultado}`,
     solucion: `${resultado} minutos. Volverán a coincidir dentro de ${resultado} minutos.`,
   };
 }
 
+// Reparto en bolsas iguales: el mayor número de bolsas es el M.C.D. y
+// cada bolsa lleva a ÷ M.C.D. caramelos y b ÷ M.C.D. chuches. Los datos
+// se construyen a partir del M.C.D. para que nunca salga 1 (una sola
+// bolsa) ni dos cantidades iguales.
 function multiplosDivisoresMCD(curso) {
-  const a = curso === "6" ? randomInt(12, 60) : randomInt(6, 24);
-  const b = curso === "6" ? randomInt(12, 60) : randomInt(6, 24);
-  const resultado = gcd(a, b);
+  const mcd = curso === "6" ? randomInt(3, 12) : randomInt(2, 6);
+  const maxFactor = curso === "6" ? 7 : 5;
+  let p, q;
+  do {
+    [p, q] = randomDistintos(2, maxFactor);
+  } while (gcd(p, q) !== 1);
+  const a = mcd * p;
+  const b = mcd * q;
   return {
-    enunciado: `Se quieren repartir ${a} caramelos y ${b} chuches en bolsas iguales, con el mayor número de bolsas posible y sin mezclar caramelos con chuches. ¿Cuántas unidades debe llevar cada bolsa?`,
+    enunciado: `Se quieren preparar bolsas iguales con ${a} caramelos y ${b} chuches, de forma que todas las bolsas tengan lo mismo y no sobre nada. ¿Cuál es el mayor número de bolsas que se pueden preparar? ¿Cuántos caramelos y cuántas chuches llevará cada bolsa?`,
     datos: [`Caramelos: ${a}`, `Chuches: ${b}`],
-    operacion: `M.C.D.(${a}, ${b}) = ${resultado}`,
-    solucion: `${resultado}. Cada bolsa debe llevar ${resultado} unidades.`,
+    operacion: `M.C.D.(${a}, ${b}) = ${mcd}; ${a} : ${mcd} = ${p}; ${b} : ${mcd} = ${q}`,
+    solucion: `${mcd} bolsas. Cada bolsa llevará ${p} caramelos y ${q} chuches.`,
   };
 }
 
@@ -820,12 +836,14 @@ function genMultiplosDivisoresACS() {
 }
 
 function genMultiplosDivisoresAltas() {
-  const a = randomInt(6, 15);
-  const b = randomInt(6, 15);
-  const c = randomInt(6, 15);
+  const [a, b] = randomDistintos(6, 15);
+  let c;
+  do {
+    c = randomInt(6, 15);
+  } while (c === a || c === b);
   const resultado = lcm(lcm(a, b), c);
   return {
-    enunciado: `Tres autobuses salen juntos de la estación a las 8:00h. El primero repite su recorrido cada ${a} minutos, el segundo cada ${b} minutos y el tercero cada ${c} minutos. ¿Dentro de cuántos minutos volverán a coincidir los tres a la vez?`,
+    enunciado: `Tres autobuses salen juntos de la estación a las 8:00 h. El primero repite su recorrido cada ${a} minutos, el segundo cada ${b} minutos y el tercero cada ${c} minutos. ¿Dentro de cuántos minutos volverán a coincidir los tres a la vez?`,
     datos: [`Autobús 1: cada ${a} min`, `Autobús 2: cada ${b} min`, `Autobús 3: cada ${c} min`],
     operacion: `m.c.m.(${a}, ${b}, ${c}) = ${resultado}`,
     solucion: `${resultado} minutos. Volverán a coincidir los tres dentro de ${resultado} minutos.`,
@@ -2282,6 +2300,81 @@ const TOPICS = [
 ];
 
 // ---------------- Construcción del documento ----------------
+// Maqueta común con Lengua: ver «Plantilla de las fichas» en
+// js/docx-writer.js.
+
+// Contenido del recuadro de un problema: enunciado en negrita y
+// debajo Datos (línea), Operaciones (hueco para hacer las cuentas en
+// columna) y Solución (línea). En disgrafía, Datos y Operación ya
+// vienen escritos y solo se completa la Solución.
+function buildProblemaContenido(problem, dificultad) {
+  const prefill = dificultad === "disgrafia";
+  const contenido = [{ runs: [{ text: problem.enunciado, bold: true, size: 22 }], spacingAfter: 20 }];
+  contenido.push(fichaLinea({ etiqueta: "Datos:", valor: prefill ? problem.datos.join("   ·   ") : "" }));
+  if (prefill) {
+    contenido.push(fichaLinea({ etiqueta: "Operación:", valor: problem.operacion }));
+  } else {
+    contenido.push(fichaHueco(4, "Operaciones:"));
+  }
+  contenido.push(fichaLinea({ etiqueta: "Solución:" }));
+  return contenido;
+}
+
+// Solucionario compacto, como el «Para el maestro» de las fichas del
+// aula: una línea por problema con datos, operación y solución.
+function buildSolucionParrafo(problem, index) {
+  return {
+    runs: [
+      { text: `${index + 1}. `, bold: true },
+      { text: `Datos: ${problem.datos.join(" · ")}. ` },
+      { text: `Operación: ${problem.operacion}. ` },
+      { text: `Solución: ${problem.solucion}`, bold: true },
+    ],
+    spacingAfter: 120,
+  };
+}
+
+// Notas de cada adaptación para los exámenes (js/mate-examen-generator.js);
+// las fichas de cada contenido no las imprimen.
+const DIFFICULTY_FICHA_NOTES = {
+  acs: "Adaptación curricular significativa: mismo contenido con un nivel de dificultad equivalente a dos cursos por debajo.",
+  discalculia: "Discalculia: mismo nivel de dificultad que la ACS, pensado para dar más tiempo y reducir la carga numérica.",
+  altas: "Altas capacidades: problemas con números más grandes o con un paso adicional para un reto mayor.",
+  dislexia: "Dislexia: mismo contenido, con letra más grande y más espacio entre líneas para facilitar la lectura.",
+  tdah: "TDAH: cada problema se presenta en su propia página, para trabajar de uno en uno sin saturar la vista.",
+  disgrafia: "Disgrafía: los apartados de Datos y Operación ya vienen resueltos; solo hay que completar la Solución.",
+};
+
+function buildFichaDocument({ topic, curso, fecha, problems, dificultad, showSolutions }) {
+  const blocks = fichaInicio({ area: "Matemáticas", curso, contenido: topic.label, fecha, soluciones: showSolutions });
+
+  if (!showSolutions) {
+    blocks.push(fichaApartado("Recuerda"));
+    blocks.push({ runs: [{ text: topic.resumen }], spacingAfter: 60 });
+    blocks.push({
+      runs: [{ text: "Lee bien cada problema. Escribe los datos, haz las operaciones y escribe la solución con su palabra.", italic: true, size: 18, color: FICHA_GRIS }],
+      spacingAfter: 60,
+    });
+  }
+
+  if (showSolutions) {
+    blocks.push(fichaApartado("Problemas resueltos"));
+    problems.forEach((p, i) => blocks.push(buildSolucionParrafo(p, i)));
+  } else {
+    blocks.push(fichaApartado("Problemas"));
+    blocks.push(fichaSeparador(60));
+    problems.forEach((p, i) => {
+      blocks.push(...fichaEjercicio(i + 1, buildProblemaContenido(p, dificultad), { saltoPagina: dificultad === "tdah" && i > 0 }));
+    });
+  }
+
+  return fichaAplicarEstilo(blocks, { agrandar: dificultad === "dislexia" });
+}
+
+// ---------------- Maqueta de los exámenes ----------------
+// Las fichas de cada contenido usan la plantilla de docx-writer.js,
+// pero los exámenes (js/examen-generator.js y js/mate-examen-generator.js)
+// siguen montando sus documentos con estas piezas.
 
 function sectionBar(label) {
   return {
@@ -2301,27 +2394,6 @@ function blankBox(extraLines, spacingAfter) {
 
 function filledBox(runs, spacingAfter) {
   return { runs, border: true, shading: "D9D9D9", spacingAfter };
-}
-
-function buildHeaderParagraphs(topic, curso, fecha) {
-  return [
-    { runs: [{ text: "Aprende y Repasa", bold: true, size: 18, color: "595959" }], spacingAfter: 30 },
-    { runs: [{ text: "Ficha de matemáticas", bold: true, size: 32 }], spacingAfter: 100 },
-    {
-      runs: [
-        { text: "Área: ", bold: true }, { text: "Matemáticas      " },
-        { text: "Curso: ", bold: true }, { text: `${curso}º de Primaria` },
-      ],
-      spacingAfter: 40,
-    },
-    {
-      runs: [
-        { text: "Contenido: ", bold: true }, { text: `${topic.label}      ` },
-        { text: "Fecha: ", bold: true }, { text: fecha },
-      ],
-      spacingAfter: 120,
-    },
-  ];
 }
 
 function buildProblemParagraphs(problem, index, showSolutions, dificultad) {
@@ -2356,15 +2428,6 @@ function buildProblemParagraphs(problem, index, showSolutions, dificultad) {
   return paragraphs;
 }
 
-const DIFFICULTY_FICHA_NOTES = {
-  acs: "Adaptación curricular significativa: mismo contenido con un nivel de dificultad equivalente a dos cursos por debajo.",
-  discalculia: "Discalculia: mismo nivel de dificultad que la ACS, pensado para dar más tiempo y reducir la carga numérica.",
-  altas: "Altas capacidades: problemas con números más grandes o con un paso adicional para un reto mayor.",
-  dislexia: "Dislexia: mismo contenido, con letra más grande y más espacio entre líneas para facilitar la lectura.",
-  tdah: "TDAH: cada problema se presenta en su propia página, para trabajar de uno en uno sin saturar la vista.",
-  disgrafia: "Disgrafía: los apartados de Datos y Operación ya vienen resueltos; solo hay que completar la Solución.",
-};
-
 function applyDislexiaStyling(paragraphs) {
   return paragraphs.map((p) => ({
     ...p,
@@ -2372,36 +2435,6 @@ function applyDislexiaStyling(paragraphs) {
     spacingAfter: p.spacingAfter !== undefined ? Math.round(p.spacingAfter * 1.3) : p.spacingAfter,
     runs: p.runs.map((r) => (r.break ? r : { ...r, size: (r.size || 22) + 6 })),
   }));
-}
-
-function buildFichaDocument({ topic, curso, fecha, problems, dificultad, showSolutions }) {
-  const paragraphs = [];
-  paragraphs.push(...buildHeaderParagraphs(topic, curso, fecha));
-
-  if (showSolutions) {
-    paragraphs.push({ runs: [{ text: "Hoja de soluciones", bold: true, size: 24 }], spacingAfter: 140 });
-  } else {
-    paragraphs.push({
-      runs: [{ text: topic.resumen }],
-      border: true,
-      shading: "D9D9D9",
-      spacingAfter: 100,
-    });
-  }
-
-  const note = DIFFICULTY_FICHA_NOTES[dificultad];
-  if (note) {
-    paragraphs.push({
-      runs: [{ text: note, italic: true, color: "0369A1" }],
-      spacingAfter: 140,
-    });
-  }
-
-  problems.forEach((p, i) => {
-    paragraphs.push(...buildProblemParagraphs(p, i, showSolutions, dificultad));
-  });
-
-  return dificultad === "dislexia" ? applyDislexiaStyling(paragraphs) : paragraphs;
 }
 
 // ---------------- API pública ----------------
