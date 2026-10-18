@@ -263,6 +263,7 @@ registerLenguaFicha("signos-puntuacion", {
   label: "Los signos de puntuación",
   resumen: "El punto y coma une oraciones relacionadas; los puntos suspensivos dejan la frase en suspense o sin terminar; los paréntesis y la raya encierran aclaraciones; las comillas citan palabras exactas o títulos de textos cortos.",
   easyMode: "identificar",
+  defaultMode: ["identificar", "completar"],
   altasMode: "completar",
   pools: {
     identificar: { pool: signosParaFicha(IDENTIFICAR_ENTRIES), field: "correct", question: (e) => e.pregunta, displayField: "displayFicha", perEntryOptions: true, explainField: "explica" },

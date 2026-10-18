@@ -36,42 +36,50 @@ function lenguaResolveOptions(mode, entry, correct) {
 
 // ---------------- Selección de preguntas ----------------
 
-function lenguaModeKeyFor(config, dificultad) {
+// defaultMode puede ser una lista de modos (p. ej. ["identificar",
+// "completar"]): la ficha los mezcla, repartiendo las preguntas a partes
+// iguales y en ese orden, de más fácil a más difícil.
+function lenguaModeKeysFor(config, dificultad) {
   const easyOnly = dificultad === "acs" || dificultad === "discalculia";
-  if (easyOnly) return config.easyMode;
-  if (dificultad === "altas") return config.altasMode;
-  return config.defaultMode || config.easyMode;
+  if (easyOnly) return [config.easyMode];
+  if (dificultad === "altas") return [config.altasMode];
+  const def = config.defaultMode || config.easyMode;
+  return Array.isArray(def) ? def : [def];
+}
+
+function lenguaBuildProblem(mode, entry, dificultad) {
+  const correct = mode.answerFn ? mode.answerFn(entry) : entry[mode.field];
+
+  let enunciado = mode.question(entry);
+  if (!mode.selfContained && mode.displayField) {
+    const displayText = String(entry[mode.displayField]);
+    const alreadyQuoted = /^["«]/.test(displayText.trim());
+    enunciado += alreadyQuoted ? ` ${displayText}` : ` «${displayText}»`;
+  }
+  if (dificultad === "discalculia") enunciado += " Tómate tu tiempo.";
+
+  let respuesta = String(correct);
+  if (!mode.answerFn && mode.explainField && entry[mode.explainField]) {
+    respuesta += ` (${entry[mode.explainField]})`;
+  }
+
+  const problem = { enunciado, respuesta };
+  if (dificultad === "disgrafia") {
+    problem.opciones = mode.optionsFn ? mode.optionsFn(entry) : lenguaResolveOptions(mode, entry, correct);
+  }
+  return problem;
 }
 
 function lenguaPickProblems(config, dificultad, count) {
-  const modeKey = lenguaModeKeyFor(config, dificultad);
-  const mode = config.pools[modeKey];
-  const shuffledPool = lenguaShuffle(mode.pool);
-
+  const modeKeys = lenguaModeKeysFor(config, dificultad);
   const problems = [];
-  for (let i = 0; i < count; i++) {
-    const entry = shuffledPool[i % shuffledPool.length];
-    const correct = mode.answerFn ? mode.answerFn(entry) : entry[mode.field];
-
-    let enunciado = mode.question(entry);
-    if (!mode.selfContained && mode.displayField) {
-      const displayText = String(entry[mode.displayField]);
-      const alreadyQuoted = /^["«]/.test(displayText.trim());
-      enunciado += alreadyQuoted ? ` ${displayText}` : ` «${displayText}»`;
-    }
-    if (dificultad === "discalculia") enunciado += " Tómate tu tiempo.";
-
-    let respuesta = String(correct);
-    if (!mode.answerFn && mode.explainField && entry[mode.explainField]) {
-      respuesta += ` (${entry[mode.explainField]})`;
-    }
-
-    const problem = { enunciado, respuesta };
-    if (dificultad === "disgrafia") {
-      problem.opciones = mode.optionsFn ? mode.optionsFn(entry) : lenguaResolveOptions(mode, entry, correct);
-    }
-    problems.push(problem);
-  }
+  modeKeys.forEach((key, k) => {
+    // Con 5 preguntas y dos modos: 3 del primero y 2 del segundo.
+    const n = Math.floor(count / modeKeys.length) + (k < count % modeKeys.length ? 1 : 0);
+    const mode = config.pools[key];
+    const shuffledPool = lenguaShuffle(mode.pool);
+    for (let i = 0; i < n; i++) problems.push(lenguaBuildProblem(mode, shuffledPool[i % shuffledPool.length], dificultad));
+  });
   return problems;
 }
 
