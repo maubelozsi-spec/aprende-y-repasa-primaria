@@ -136,6 +136,8 @@ function lenguaFilledBox(text, bold, spacingAfter) {
   return { runs: [{ text, bold: !!bold, italic: !bold, color: bold ? undefined : "595959" }], border: true, shading: "D9D9D9", spacingAfter };
 }
 
+// Notas de cada adaptación para los exámenes (js/lengua-examen-generator.js);
+// las fichas de cada contenido no las imprimen.
 const LENGUA_DIFFICULTY_NOTES = {
   acs: "Adaptación curricular significativa: mismo contenido con un nivel de dificultad equivalente a dos cursos por debajo.",
   discalculia: "Discalculia: mismo nivel que la ACS, dando más tiempo para pensar cada respuesta.",
@@ -209,13 +211,6 @@ function buildLenguaFichaDocument({ topic, curso, fecha, problems, dificultad, s
       runs: [{ text: "Lee con atención cada pregunta y contesta con buena letra, cuidando las tildes.", italic: true, size: 18, color: FICHA_GRIS }],
       spacingAfter: 60,
     });
-  }
-
-  // La nota de la adaptación es para el docente: va en el
-  // solucionario y no en la hoja que recibe el alumno.
-  const note = LENGUA_DIFFICULTY_NOTES[dificultad];
-  if (note && showSolutions) {
-    blocks.push({ runs: [{ text: `Adaptación · ${note}`, italic: true, size: 18, color: FICHA_GRIS }], spacingAfter: 100 });
   }
 
   if (showSolutions) {

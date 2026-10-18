@@ -780,27 +780,43 @@ function multiplosDivisoresLista(curso) {
   };
 }
 
+// Dos números distintos al azar del rango [min, max].
+function randomDistintos(min, max) {
+  const a = randomInt(min, max);
+  let b = randomInt(min, max - 1);
+  if (b >= a) b++;
+  return [a, b];
+}
+
 function multiplosDivisoresMCM(curso) {
-  const a = curso === "6" ? randomInt(6, 15) : randomInt(3, 10);
-  const b = curso === "6" ? randomInt(6, 15) : randomInt(3, 10);
+  const [a, b] = curso === "6" ? randomDistintos(6, 15) : randomDistintos(3, 10);
   const resultado = lcm(a, b);
   return {
-    enunciado: `Dos autobuses salen juntos de la estación a las 8:00h. El primero repite su recorrido cada ${a} minutos y el segundo cada ${b} minutos. ¿Dentro de cuántos minutos volverán a coincidir en la estación?`,
+    enunciado: `Dos autobuses salen juntos de la estación a las 8:00 h. El primero repite su recorrido cada ${a} minutos y el segundo cada ${b} minutos. ¿Dentro de cuántos minutos volverán a coincidir en la estación?`,
     datos: [`Primer autobús: cada ${a} min`, `Segundo autobús: cada ${b} min`],
     operacion: `m.c.m.(${a}, ${b}) = ${resultado}`,
     solucion: `${resultado} minutos. Volverán a coincidir dentro de ${resultado} minutos.`,
   };
 }
 
+// Reparto en bolsas iguales: el mayor número de bolsas es el M.C.D. y
+// cada bolsa lleva a ÷ M.C.D. caramelos y b ÷ M.C.D. chuches. Los datos
+// se construyen a partir del M.C.D. para que nunca salga 1 (una sola
+// bolsa) ni dos cantidades iguales.
 function multiplosDivisoresMCD(curso) {
-  const a = curso === "6" ? randomInt(12, 60) : randomInt(6, 24);
-  const b = curso === "6" ? randomInt(12, 60) : randomInt(6, 24);
-  const resultado = gcd(a, b);
+  const mcd = curso === "6" ? randomInt(3, 12) : randomInt(2, 6);
+  const maxFactor = curso === "6" ? 7 : 5;
+  let p, q;
+  do {
+    [p, q] = randomDistintos(2, maxFactor);
+  } while (gcd(p, q) !== 1);
+  const a = mcd * p;
+  const b = mcd * q;
   return {
-    enunciado: `Se quieren repartir ${a} caramelos y ${b} chuches en bolsas iguales, con el mayor número de bolsas posible y sin mezclar caramelos con chuches. ¿Cuántas unidades debe llevar cada bolsa?`,
+    enunciado: `Se quieren preparar bolsas iguales con ${a} caramelos y ${b} chuches, de forma que todas las bolsas tengan lo mismo y no sobre nada. ¿Cuál es el mayor número de bolsas que se pueden preparar? ¿Cuántos caramelos y cuántas chuches llevará cada bolsa?`,
     datos: [`Caramelos: ${a}`, `Chuches: ${b}`],
-    operacion: `M.C.D.(${a}, ${b}) = ${resultado}`,
-    solucion: `${resultado}. Cada bolsa debe llevar ${resultado} unidades.`,
+    operacion: `M.C.D.(${a}, ${b}) = ${mcd}; ${a} : ${mcd} = ${p}; ${b} : ${mcd} = ${q}`,
+    solucion: `${mcd} bolsas. Cada bolsa llevará ${p} caramelos y ${q} chuches.`,
   };
 }
 
@@ -820,12 +836,14 @@ function genMultiplosDivisoresACS() {
 }
 
 function genMultiplosDivisoresAltas() {
-  const a = randomInt(6, 15);
-  const b = randomInt(6, 15);
-  const c = randomInt(6, 15);
+  const [a, b] = randomDistintos(6, 15);
+  let c;
+  do {
+    c = randomInt(6, 15);
+  } while (c === a || c === b);
   const resultado = lcm(lcm(a, b), c);
   return {
-    enunciado: `Tres autobuses salen juntos de la estación a las 8:00h. El primero repite su recorrido cada ${a} minutos, el segundo cada ${b} minutos y el tercero cada ${c} minutos. ¿Dentro de cuántos minutos volverán a coincidir los tres a la vez?`,
+    enunciado: `Tres autobuses salen juntos de la estación a las 8:00 h. El primero repite su recorrido cada ${a} minutos, el segundo cada ${b} minutos y el tercero cada ${c} minutos. ¿Dentro de cuántos minutos volverán a coincidir los tres a la vez?`,
     datos: [`Autobús 1: cada ${a} min`, `Autobús 2: cada ${b} min`, `Autobús 3: cada ${c} min`],
     operacion: `m.c.m.(${a}, ${b}, ${c}) = ${resultado}`,
     solucion: `${resultado} minutos. Volverán a coincidir los tres dentro de ${resultado} minutos.`,
@@ -2316,6 +2334,8 @@ function buildSolucionParrafo(problem, index) {
   };
 }
 
+// Notas de cada adaptación para los exámenes (js/mate-examen-generator.js);
+// las fichas de cada contenido no las imprimen.
 const DIFFICULTY_FICHA_NOTES = {
   acs: "Adaptación curricular significativa: mismo contenido con un nivel de dificultad equivalente a dos cursos por debajo.",
   discalculia: "Discalculia: mismo nivel de dificultad que la ACS, pensado para dar más tiempo y reducir la carga numérica.",
@@ -2335,13 +2355,6 @@ function buildFichaDocument({ topic, curso, fecha, problems, dificultad, showSol
       runs: [{ text: "Lee bien cada problema. Escribe los datos, haz las operaciones y escribe la solución con su palabra.", italic: true, size: 18, color: FICHA_GRIS }],
       spacingAfter: 60,
     });
-  }
-
-  // La nota de la adaptación es para el docente: va en el
-  // solucionario y no en la hoja que recibe el alumno.
-  const note = DIFFICULTY_FICHA_NOTES[dificultad];
-  if (note && showSolutions) {
-    blocks.push({ runs: [{ text: `Adaptación · ${note}`, italic: true, size: 18, color: FICHA_GRIS }], spacingAfter: 100 });
   }
 
   if (showSolutions) {
