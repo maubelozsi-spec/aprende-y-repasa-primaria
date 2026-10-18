@@ -2282,6 +2282,86 @@ const TOPICS = [
 ];
 
 // ---------------- Construcción del documento ----------------
+// Maqueta común con Lengua: ver «Plantilla de las fichas» en
+// js/docx-writer.js.
+
+// Contenido del recuadro de un problema: enunciado en negrita y
+// debajo Datos (línea), Operaciones (hueco para hacer las cuentas en
+// columna) y Solución (línea). En disgrafía, Datos y Operación ya
+// vienen escritos y solo se completa la Solución.
+function buildProblemaContenido(problem, dificultad) {
+  const prefill = dificultad === "disgrafia";
+  const contenido = [{ runs: [{ text: problem.enunciado, bold: true, size: 22 }], spacingAfter: 20 }];
+  contenido.push(fichaLinea({ etiqueta: "Datos:", valor: prefill ? problem.datos.join("   ·   ") : "" }));
+  if (prefill) {
+    contenido.push(fichaLinea({ etiqueta: "Operación:", valor: problem.operacion }));
+  } else {
+    contenido.push(fichaHueco(4, "Operaciones:"));
+  }
+  contenido.push(fichaLinea({ etiqueta: "Solución:" }));
+  return contenido;
+}
+
+// Solucionario compacto, como el «Para el maestro» de las fichas del
+// aula: una línea por problema con datos, operación y solución.
+function buildSolucionParrafo(problem, index) {
+  return {
+    runs: [
+      { text: `${index + 1}. `, bold: true },
+      { text: `Datos: ${problem.datos.join(" · ")}. ` },
+      { text: `Operación: ${problem.operacion}. ` },
+      { text: `Solución: ${problem.solucion}`, bold: true },
+    ],
+    spacingAfter: 120,
+  };
+}
+
+const DIFFICULTY_FICHA_NOTES = {
+  acs: "Adaptación curricular significativa: mismo contenido con un nivel de dificultad equivalente a dos cursos por debajo.",
+  discalculia: "Discalculia: mismo nivel de dificultad que la ACS, pensado para dar más tiempo y reducir la carga numérica.",
+  altas: "Altas capacidades: problemas con números más grandes o con un paso adicional para un reto mayor.",
+  dislexia: "Dislexia: mismo contenido, con letra más grande y más espacio entre líneas para facilitar la lectura.",
+  tdah: "TDAH: cada problema se presenta en su propia página, para trabajar de uno en uno sin saturar la vista.",
+  disgrafia: "Disgrafía: los apartados de Datos y Operación ya vienen resueltos; solo hay que completar la Solución.",
+};
+
+function buildFichaDocument({ topic, curso, fecha, problems, dificultad, showSolutions }) {
+  const blocks = fichaInicio({ area: "Matemáticas", curso, contenido: topic.label, fecha, soluciones: showSolutions });
+
+  if (!showSolutions) {
+    blocks.push(fichaApartado("Recuerda"));
+    blocks.push({ runs: [{ text: topic.resumen }], spacingAfter: 60 });
+    blocks.push({
+      runs: [{ text: "Lee bien cada problema. Escribe los datos, haz las operaciones y escribe la solución con su palabra.", italic: true, size: 18, color: FICHA_GRIS }],
+      spacingAfter: 60,
+    });
+  }
+
+  // La nota de la adaptación es para el docente: va en el
+  // solucionario y no en la hoja que recibe el alumno.
+  const note = DIFFICULTY_FICHA_NOTES[dificultad];
+  if (note && showSolutions) {
+    blocks.push({ runs: [{ text: `Adaptación · ${note}`, italic: true, size: 18, color: FICHA_GRIS }], spacingAfter: 100 });
+  }
+
+  if (showSolutions) {
+    blocks.push(fichaApartado("Problemas resueltos"));
+    problems.forEach((p, i) => blocks.push(buildSolucionParrafo(p, i)));
+  } else {
+    blocks.push(fichaApartado("Problemas"));
+    blocks.push(fichaSeparador(60));
+    problems.forEach((p, i) => {
+      blocks.push(...fichaEjercicio(i + 1, buildProblemaContenido(p, dificultad), { saltoPagina: dificultad === "tdah" && i > 0 }));
+    });
+  }
+
+  return fichaAplicarEstilo(blocks, { agrandar: dificultad === "dislexia" });
+}
+
+// ---------------- Maqueta de los exámenes ----------------
+// Las fichas de cada contenido usan la plantilla de docx-writer.js,
+// pero los exámenes (js/examen-generator.js y js/mate-examen-generator.js)
+// siguen montando sus documentos con estas piezas.
 
 function sectionBar(label) {
   return {
@@ -2301,27 +2381,6 @@ function blankBox(extraLines, spacingAfter) {
 
 function filledBox(runs, spacingAfter) {
   return { runs, border: true, shading: "D9D9D9", spacingAfter };
-}
-
-function buildHeaderParagraphs(topic, curso, fecha) {
-  return [
-    { runs: [{ text: "Aprende y Repasa", bold: true, size: 18, color: "595959" }], spacingAfter: 30 },
-    { runs: [{ text: "Ficha de matemáticas", bold: true, size: 32 }], spacingAfter: 100 },
-    {
-      runs: [
-        { text: "Área: ", bold: true }, { text: "Matemáticas      " },
-        { text: "Curso: ", bold: true }, { text: `${curso}º de Primaria` },
-      ],
-      spacingAfter: 40,
-    },
-    {
-      runs: [
-        { text: "Contenido: ", bold: true }, { text: `${topic.label}      ` },
-        { text: "Fecha: ", bold: true }, { text: fecha },
-      ],
-      spacingAfter: 120,
-    },
-  ];
 }
 
 function buildProblemParagraphs(problem, index, showSolutions, dificultad) {
@@ -2356,15 +2415,6 @@ function buildProblemParagraphs(problem, index, showSolutions, dificultad) {
   return paragraphs;
 }
 
-const DIFFICULTY_FICHA_NOTES = {
-  acs: "Adaptación curricular significativa: mismo contenido con un nivel de dificultad equivalente a dos cursos por debajo.",
-  discalculia: "Discalculia: mismo nivel de dificultad que la ACS, pensado para dar más tiempo y reducir la carga numérica.",
-  altas: "Altas capacidades: problemas con números más grandes o con un paso adicional para un reto mayor.",
-  dislexia: "Dislexia: mismo contenido, con letra más grande y más espacio entre líneas para facilitar la lectura.",
-  tdah: "TDAH: cada problema se presenta en su propia página, para trabajar de uno en uno sin saturar la vista.",
-  disgrafia: "Disgrafía: los apartados de Datos y Operación ya vienen resueltos; solo hay que completar la Solución.",
-};
-
 function applyDislexiaStyling(paragraphs) {
   return paragraphs.map((p) => ({
     ...p,
@@ -2372,36 +2422,6 @@ function applyDislexiaStyling(paragraphs) {
     spacingAfter: p.spacingAfter !== undefined ? Math.round(p.spacingAfter * 1.3) : p.spacingAfter,
     runs: p.runs.map((r) => (r.break ? r : { ...r, size: (r.size || 22) + 6 })),
   }));
-}
-
-function buildFichaDocument({ topic, curso, fecha, problems, dificultad, showSolutions }) {
-  const paragraphs = [];
-  paragraphs.push(...buildHeaderParagraphs(topic, curso, fecha));
-
-  if (showSolutions) {
-    paragraphs.push({ runs: [{ text: "Hoja de soluciones", bold: true, size: 24 }], spacingAfter: 140 });
-  } else {
-    paragraphs.push({
-      runs: [{ text: topic.resumen }],
-      border: true,
-      shading: "D9D9D9",
-      spacingAfter: 100,
-    });
-  }
-
-  const note = DIFFICULTY_FICHA_NOTES[dificultad];
-  if (note) {
-    paragraphs.push({
-      runs: [{ text: note, italic: true, color: "0369A1" }],
-      spacingAfter: 140,
-    });
-  }
-
-  problems.forEach((p, i) => {
-    paragraphs.push(...buildProblemParagraphs(p, i, showSolutions, dificultad));
-  });
-
-  return dificultad === "dislexia" ? applyDislexiaStyling(paragraphs) : paragraphs;
 }
 
 // ---------------- API pública ----------------
