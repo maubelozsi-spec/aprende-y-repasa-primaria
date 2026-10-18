@@ -781,8 +781,10 @@ function multiplosDivisoresLista(curso) {
 }
 
 function multiplosDivisoresMCM(curso) {
-  const a = curso === "6" ? randomInt(6, 15) : randomInt(3, 10);
-  const b = curso === "6" ? randomInt(6, 15) : randomInt(3, 10);
+  const [min, max] = curso === "6" ? [6, 15] : [3, 10];
+  const a = randomInt(min, max);
+  let b = randomInt(min, max);
+  while (b === a) b = randomInt(min, max);
   const resultado = lcm(a, b);
   return {
     enunciado: `Dos autobuses salen juntos de la estación a las 8:00h. El primero repite su recorrido cada ${a} minutos y el segundo cada ${b} minutos. ¿Dentro de cuántos minutos volverán a coincidir en la estación?`,
@@ -792,15 +794,21 @@ function multiplosDivisoresMCM(curso) {
   };
 }
 
+// X e Y se construyen como M.C.D. × p y M.C.D. × q, con p ≠ q primos entre
+// sí y mayores que 1: así el M.C.D. nunca es 1, X ≠ Y y ninguno divide al otro.
 function multiplosDivisoresMCD(curso) {
-  const a = curso === "6" ? randomInt(12, 60) : randomInt(6, 24);
-  const b = curso === "6" ? randomInt(12, 60) : randomInt(6, 24);
-  const resultado = gcd(a, b);
+  const d = curso === "6" ? randomInt(2, 9) : randomInt(2, 6);
+  const maxFactor = curso === "6" ? 7 : 5;
+  const p = randomInt(2, maxFactor);
+  let q = randomInt(2, maxFactor);
+  while (q === p || gcd(p, q) !== 1) q = randomInt(2, maxFactor);
+  const a = d * p;
+  const b = d * q;
   return {
-    enunciado: `Se quieren repartir ${a} caramelos y ${b} chuches en bolsas iguales, con el mayor número de bolsas posible y sin mezclar caramelos con chuches. ¿Cuántas unidades debe llevar cada bolsa?`,
+    enunciado: `Se quieren repartir ${a} caramelos y ${b} chuches en bolsas iguales, de modo que todas lleven la misma cantidad de caramelos y la misma cantidad de chuches, sin que sobre ninguno. ¿Cuál es el mayor número de bolsas que se pueden hacer? ¿Cuántos caramelos y cuántas chuches llevará cada bolsa?`,
     datos: [`Caramelos: ${a}`, `Chuches: ${b}`],
-    operacion: `M.C.D.(${a}, ${b}) = ${resultado}`,
-    solucion: `${resultado}. Cada bolsa debe llevar ${resultado} unidades.`,
+    operacion: `M.C.D.(${a}, ${b}) = ${d}; ${a} : ${d} = ${p}; ${b} : ${d} = ${q}`,
+    solucion: `${d} bolsas. Se pueden hacer ${d} bolsas y cada una llevará ${p} caramelos y ${q} chuches.`,
   };
 }
 
@@ -820,10 +828,15 @@ function genMultiplosDivisoresACS() {
 }
 
 function genMultiplosDivisoresAltas() {
-  const a = randomInt(6, 15);
-  const b = randomInt(6, 15);
-  const c = randomInt(6, 15);
-  const resultado = lcm(lcm(a, b), c);
+  // Tres frecuencias distintas, con un m.c.m. que no sea la mayor de ellas
+  // (si no, el problema se resuelve sin calcular) y que no pase de 4 horas.
+  let a, b, c, resultado;
+  do {
+    a = randomInt(4, 15);
+    b = randomInt(4, 15);
+    c = randomInt(4, 15);
+    resultado = lcm(lcm(a, b), c);
+  } while (a === b || a === c || b === c || resultado === Math.max(a, b, c) || resultado > 240);
   return {
     enunciado: `Tres autobuses salen juntos de la estación a las 8:00h. El primero repite su recorrido cada ${a} minutos, el segundo cada ${b} minutos y el tercero cada ${c} minutos. ¿Dentro de cuántos minutos volverán a coincidir los tres a la vez?`,
     datos: [`Autobús 1: cada ${a} min`, `Autobús 2: cada ${b} min`, `Autobús 3: cada ${c} min`],
