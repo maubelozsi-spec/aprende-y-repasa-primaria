@@ -22,12 +22,17 @@
 //    que bajan el coste, y al principio también algunos que lo suben
 //    para no quedarse atascado). Varias rondas desde colocaciones al
 //    azar distintas; se queda la mejor. Coste:
-//      · 1000 por condición incumplida (separar, juntar, delante).
+//      · 1000 por condición «siempre» incumplida (separar, juntar) y
+//        por ubicación (delante, cerca del docente); 40 por «mejor».
 //      · Compañeros de distribuciones guardadas: 30 × peso de vecino ×
 //        (0,6 ^ antigüedad), sumado en las últimas «memoria».
-//      · Nivel y chico/chica: desviación al cuadrado de cada mesa
-//        respecto a la proporción de la clase (grupos heterogéneos).
-//      · Repetir zona extrema (fondo o primera fila) o el mismo sitio.
+//      · Tutorización (niveles 1-4): 80 por alumno de nivel 3-4 sin
+//        nadie de nivel 1-2 al lado; dos de nivel 4 o dos de nivel 1 en
+//        la misma mesa; en mesas de dos, 1-3 y 2-4 mejor que 2-3 o 1-4;
+//        y la desviación de cada mesa respecto a la proporción de la
+//        clase. Chico/chica igual, para grupos mixtos.
+//      · Repetir zona extrema (fondo o primera fila) o el mismo sitio,
+//        y dejar varios sitios libres en la misma mesa.
 //    Los sitios fijos (📌) no se tocan.
 //
 //  - Una distribución nueva es un borrador: se retoca tocando dos
@@ -118,7 +123,7 @@
 
   function disposicionNueva(g, tipo) {
     const p = plantilla(tipo, g.alumnos.length);
-    const d = { id: "d" + g.sig++, nombre: nombrePlantilla(tipo), cols: p.cols, rows: p.rows, bloques: [], fijos: {}, sig: 1 };
+    const d = { id: "d" + g.sig++, nombre: nombrePlantilla(tipo), cols: p.cols, rows: p.rows, bloques: [], fijos: {}, sig: 1, docente: "derecha" };
     p.bloques.forEach((b) => d.bloques.push(Object.assign({ id: "b" + d.sig++ }, b)));
     return d;
   }
@@ -166,6 +171,24 @@
     if (!Array.isArray(g.alumnos)) g.alumnos = [];
     if (!g.datos || typeof g.datos !== "object") g.datos = {};
     if (!Array.isArray(g.reglas)) g.reglas = [];
+    // Versión anterior: niveles alto/medio/bajo, casilla «delante» y
+    // reglas de dos alumnos {tipo, a, b}.
+    const antiguos = { alto: "1", medio: "2", bajo: "4" };
+    Object.keys(g.datos).forEach((a) => {
+      const x = g.datos[a];
+      if (antiguos[x.nivel]) x.nivel = antiguos[x.nivel];
+      if (x.delante) {
+        x.ubicacion = "delante";
+        delete x.delante;
+      }
+    });
+    g.reglas = g.reglas
+      .map((r) => (Array.isArray(r.alumnos) ? r : { tipo: r.tipo, fuerza: "siempre", alumnos: [r.a, r.b], motivo: "" }))
+      .filter((r) => r.alumnos.length > 1);
+    g.reglas.forEach((r) => {
+      if (!r.id) r.id = "r" + g.sig++;
+      if (r.fuerza !== "mejor") r.fuerza = "siempre";
+    });
     g.opciones = Object.assign(opcionesPorDefecto(), g.opciones || {});
     if (!Array.isArray(g.historial)) g.historial = [];
     if (!g.sig) g.sig = 1;
@@ -174,6 +197,7 @@
       if (!Array.isArray(d.bloques)) d.bloques = [];
       if (!d.fijos || typeof d.fijos !== "object") d.fijos = {};
       if (!d.sig) d.sig = d.bloques.length + 1;
+      if (!d.docente) d.docente = "derecha";
     });
     if (!g.disposiciones.some((d) => d.id === g.dispActual)) g.dispActual = g.disposiciones[0].id;
     if (g.borrador === undefined) g.borrador = null;
@@ -202,8 +226,10 @@
   }
 
   // Lista de sitios con su posición absoluta, zona (0 delante, 1 en
-  // medio, 2 al fondo) y si cuenta como «delante» (el primer tercio de
-  // filas ocupadas, como mínimo una).
+  // medio, 2 al fondo), si cuenta como «delante» (el primer tercio de
+  // filas ocupadas, como mínimo una) y si está «cerca del docente» (el
+  // tercio de sitios más cercano a su mesa, delante a un lado o en el
+  // centro, junto a la pizarra).
   function asientos(d) {
     const lista = [];
     d.bloques.forEach((b, bi) => {
@@ -224,6 +250,11 @@
         s.delante = s.ay - min < filasDelante;
         s.zona = f < 1 / 3 ? 0 : f > 2 / 3 ? 2 : 1;
       });
+      const mx = { izquierda: 0.5, centro: d.cols / 2, derecha: d.cols - 0.5 }[d.docente] || d.cols - 0.5;
+      const dist = (s) => Math.hypot(s.ax + 0.5 - mx, s.ay + 0.5);
+      const orden = lista.slice().sort((a, b) => dist(a) - dist(b));
+      const limite = dist(orden[Math.max(0, Math.ceil(lista.length / 3) - 1)]);
+      lista.forEach((s) => (s.cercaDocente = dist(s) <= limite + 1e-9));
     }
     return lista;
   }
@@ -275,7 +306,7 @@
   }
 
   function copiaPlano(d) {
-    return { nombre: d.nombre, cols: d.cols, rows: d.rows, bloques: d.bloques.map((b) => Object.assign({}, b)) };
+    return { nombre: d.nombre, cols: d.cols, rows: d.rows, docente: d.docente, bloques: d.bloques.map((b) => Object.assign({}, b)) };
   }
 
   function ultimaDe(g, dispId) {
@@ -286,11 +317,36 @@
   // ---------------- Generar ----------------
   const PESO_DURO = 1000;
   const PESO_HISTORIAL = 30;
-  const PESO_NIVEL = 15;
+  const PESO_PREFERENCIA = 40;
+  const PESO_TUTOR = 80;
+  const PESO_NIVEL = 8;
   const PESO_GENERO = 10;
   const PESO_ZONA = 10;
   const PESO_SITIO = 15;
-  const NIVELES = ["alto", "medio", "bajo"];
+  const PESO_HUECOS = 20;
+  // Niveles: 1 sobresaliente-notable, 2 bien, 3 suficiente, 4 con
+  // dificultades. Los de 1-2 pueden tutorizar a los de 3-4.
+  const NIVELES = ["1", "2", "3", "4"];
+  const NOMBRE_NIVEL = { 1: "Sobresaliente-notable", 2: "Bien", 3: "Suficiente", 4: "Con dificultades" };
+  // Mesa de dos: lo ideal es 1 con 3 y 2 con 4 (distancia moderada, en
+  // la que el tutor explica y el otro sigue la explicación); 2 con 3 y
+  // 1 con 4 valen; dos del mismo lado desaprovechan la tutoría (los de
+  // 3-4 juntos ya cuentan como «sin tutor»). Índice: nivel menor * 4 +
+  // nivel mayor, con niveles de 0 a 3.
+  const CASTIGO_PAREJA = new Float64Array(16);
+  [[0, 0, 40], [0, 1, 30], [1, 1, 30], [1, 2, 10], [0, 3, 20]].forEach(([a, b, c]) => (CASTIGO_PAREJA[a * 4 + b] = c));
+
+  // Cada pareja de alumnos de una condición (con tres o más, todas).
+  function paresDeRegla(r) {
+    const out = [];
+    for (let i = 0; i < r.alumnos.length; i++) for (let j = i + 1; j < r.alumnos.length; j++) out.push([r.alumnos[i], r.alumnos[j]]);
+    return out;
+  }
+
+  function ubicacionDe(g, a) {
+    const u = datoDe(g, a).ubicacion;
+    return { delante: u === "delante" || u === "ambos", docente: u === "docente" || u === "ambos" };
+  }
   const GENEROS = ["chico", "chica"];
 
   function generar(g, d) {
@@ -329,23 +385,30 @@
       esVecino[j * nS + i] = 1;
     });
 
-    // Condiciones de parejas.
-    const separar = new Uint8Array(N * N);
+    // Condiciones: castigo si quedan juntos (separar) o separados
+    // (juntar). Las parejas que se juntan a propósito no cuentan como
+    // «compañeros repetidos».
+    const castigoJuntos = new Float64Array(N * N);
     const juntar = [];
+    const aPropósito = new Uint8Array(N * N);
     g.reglas.forEach((r) => {
-      const a = indice.get(r.a);
-      const b = indice.get(r.b);
-      if (a === undefined || b === undefined) return;
-      if (r.tipo === "separar") {
-        separar[a * N + b] = 1;
-        separar[b * N + a] = 1;
-      } else {
-        juntar.push([a, b]);
-      }
+      const peso = r.fuerza === "mejor" ? PESO_PREFERENCIA : PESO_DURO;
+      paresDeRegla(r).forEach(([x, y]) => {
+        const a = indice.get(x);
+        const b = indice.get(y);
+        if (a === undefined || b === undefined) return;
+        if (r.tipo === "separar") {
+          castigoJuntos[a * N + b] += peso;
+          castigoJuntos[b * N + a] += peso;
+        } else {
+          juntar.push([a, b, peso]);
+          aPropósito[a * N + b] = aPropósito[b * N + a] = 1;
+        }
+      });
     });
 
-    const delante = alumnos.map((a) => !!datoDe(g, a).delante);
-    const nivel = alumnos.map((a) => NIVELES.indexOf(datoDe(g, a).nivel));
+    const ubic = alumnos.map((a) => ubicacionDe(g, a));
+    const nivel = alumnos.map((a) => NIVELES.indexOf(String(datoDe(g, a).nivel || "")));
     const genero = alumnos.map((a) => GENEROS.indexOf(datoDe(g, a).genero));
     const proporcion = (valores, k) => {
       const con = valores.filter((v) => v >= 0);
@@ -374,7 +437,7 @@
           historia[ib * N + ia] += f * w;
         });
       });
-    for (let k = 0; k < N * N; k++) if (historia[k]) historia[k] *= PESO_HISTORIAL * (0.85 + Math.random() * 0.3);
+    for (let k = 0; k < N * N; k++) if (historia[k]) historia[k] *= aPropósito[k] ? 0 : PESO_HISTORIAL * (0.85 + Math.random() * 0.3);
 
     const ultima = g.historial[g.historial.length - 1] || null;
     const zonaPrevia = alumnos.map((a) => (g.opciones.zona && ultima && ultima.zonas && ultima.zonas[a] !== undefined ? ultima.zonas[a] : -1));
@@ -395,6 +458,10 @@
     const cuentaG = new Float64Array(nB * GENEROS.length);
     const ocupN = new Float64Array(nB);
     const ocupG = new Float64Array(nB);
+    const conTutor = new Uint8Array(N);
+    const ocupados = new Float64Array(nB);
+    const tamano = d.bloques.map(plazasDe);
+    const huecosLibres = nS > N;
 
     function desviacion(cuenta, ocup, prop, k) {
       let c = 0;
@@ -417,20 +484,44 @@
         const a = arr[pares[p][0]];
         const b = arr[pares[p][1]];
         if (a < 0 || b < 0) continue;
-        if (separar[a * N + b]) c += PESO_DURO;
-        c += historia[a * N + b] * pares[p][2];
+        c += castigoJuntos[a * N + b] + historia[a * N + b] * pares[p][2];
       }
       for (let k = 0; k < juntar.length; k++) {
         const pa = pos[juntar[k][0]];
         const pb = pos[juntar[k][1]];
-        if (pa >= 0 && pb >= 0 && !esVecino[pa * nS + pb]) c += PESO_DURO;
+        if (pa >= 0 && pb >= 0 && !esVecino[pa * nS + pb]) c += juntar[k][2];
       }
       for (let a = 0; a < N; a++) {
         const s = pos[a];
         if (s < 0) continue;
-        if (delante[a] && !sitios[s].delante) c += PESO_DURO;
-        else if (!delante[a] && zonaPrevia[a] !== 1 && zonaPrevia[a] === sitios[s].zona) c += PESO_ZONA;
+        const u = ubic[a];
+        if (u.delante && !sitios[s].delante) c += PESO_DURO;
+        if (u.docente && !sitios[s].cercaDocente) c += PESO_DURO;
+        if (!u.delante && !u.docente && zonaPrevia[a] !== 1 && zonaPrevia[a] === sitios[s].zona) c += PESO_ZONA;
         if (sitioPrevio[a] === s) c += PESO_SITIO;
+      }
+      // Sitios libres repartidos: mejor una mesa de 4 con 3 que una con
+      // 2 y otra llena (el castigo crece con el cuadrado de los huecos).
+      if (huecosLibres) {
+        ocupados.fill(0);
+        for (let i = 0; i < nS; i++) if (arr[i] >= 0) ocupados[bloqueDe[i]]++;
+        for (let b = 0; b < nB; b++) {
+          const vacios = tamano[b] - ocupados[b];
+          if (vacios > 0 && ocupados[b] > 0) c += PESO_HUECOS * vacios * vacios;
+        }
+      }
+      if (usarNivel) {
+        // Tutorización: cada alumno de nivel 3-4 con alguien de 1-2 en
+        // su mesa o al lado.
+        conTutor.fill(0);
+        for (let p = 0; p < pares.length; p++) {
+          const a = arr[pares[p][0]];
+          const b = arr[pares[p][1]];
+          if (a < 0 || b < 0 || nivel[a] < 0 || nivel[b] < 0) continue;
+          if (nivel[a] >= 2 && nivel[b] <= 1) conTutor[a] = 1;
+          if (nivel[b] >= 2 && nivel[a] <= 1) conTutor[b] = 1;
+        }
+        for (let a = 0; a < N; a++) if (pos[a] >= 0 && nivel[a] >= 2 && !conTutor[a]) c += PESO_TUTOR;
       }
       if (usarNivel || usarGenero) {
         cuentaN.fill(0);
@@ -450,7 +541,21 @@
             ocupG[b]++;
           }
         }
-        if (usarNivel) c += PESO_NIVEL * desviacion(cuentaN, ocupN, propNivel, NIVELES.length);
+        if (usarNivel) {
+          c += PESO_NIVEL * desviacion(cuentaN, ocupN, propNivel, NIVELES.length);
+          for (let b = 0; b < nB; b++) {
+            const k = b * 4;
+            // Dos de nivel 4 en la misma mesa se reparten la ayuda; dos
+            // de nivel 1 desaprovechan a quien puede tutorizar.
+            if (cuentaN[k + 3] > 1) c += 50 * (cuentaN[k + 3] - 1);
+            if (cuentaN[k] > 1) c += 25 * (cuentaN[k] - 1);
+            if (ocupN[b] === 2 && tamano[b] <= 3) {
+              const ls = [];
+              for (let l = 0; l < 4; l++) for (let r = 0; r < cuentaN[k + l]; r++) ls.push(l);
+              c += CASTIGO_PAREJA[ls[0] * 4 + ls[1]];
+            }
+          }
+        }
         if (usarGenero) c += PESO_GENERO * desviacion(cuentaG, ocupG, propGenero, GENEROS.length);
       }
       return c;
@@ -519,21 +624,43 @@
       if (i === undefined || j === undefined) return null;
       return vec.has(Math.min(i, j) + "|" + Math.max(i, j));
     };
+    // «Siempre» incumplidas (fallos) y «mejor» incumplidas (avisos).
     const fallos = [];
+    const avisos = [];
     g.reglas.forEach((r) => {
-      const v = sonVecinos(r.a, r.b);
-      if (v === null) return;
-      if (r.tipo === "separar" && v) fallos.push(r.a + " y " + r.b + " están juntos");
-      if (r.tipo === "juntar" && !v) fallos.push(r.a + " y " + r.b + " no están juntos");
+      paresDeRegla(r).forEach(([a, b]) => {
+        const v = sonVecinos(a, b);
+        if (v === null) return;
+        const lista = r.fuerza === "mejor" ? avisos : fallos;
+        if (r.tipo === "separar" && v) lista.push(a + " y " + b + " están juntos");
+        if (r.tipo === "juntar" && !v) lista.push(a + " y " + b + " no están juntos");
+      });
     });
     g.alumnos.forEach((a) => {
-      if (datoDe(g, a).delante && posDe[a] !== undefined && !sitios[posDe[a]].delante) fallos.push(a + " no está delante");
+      const u = ubicacionDe(g, a);
+      if (posDe[a] === undefined) return;
+      if (u.delante && !sitios[posDe[a]].delante) fallos.push(a + " no está delante");
+      if (u.docente && !sitios[posDe[a]].cercaDocente) fallos.push(a + " no está cerca del docente");
+    });
+
+    // Tutorización: alumnado de nivel 3-4 con alguien de nivel 1-2 en
+    // su mesa o al lado.
+    const nivelDe = (a) => Number(datoDe(g, a).nivel) || 0;
+    const necesitan = g.alumnos.filter((a) => nivelDe(a) >= 3 && posDe[a] !== undefined);
+    const sinTutor = necesitan.filter(
+      (a) => !g.alumnos.some((b) => nivelDe(b) >= 1 && nivelDe(b) <= 2 && sonVecinos(a, b))
+    );
+    let mesasDosCuatro = 0;
+    d.bloques.forEach((b, bi) => {
+      const cuatros = sitios.filter((x) => x.bloque === bi && asig[x.id] && nivelDe(asig[x.id]) === 4).length;
+      if (cuatros > 1) mesasDosCuatro++;
     });
 
     // Compañeros de mesa que ya lo fueron en la distribución de referencia.
     // Las parejas con condición «juntar» repiten a propósito: no cuentan.
     const repetidos = [];
-    const juntos = new Set(g.reglas.filter((r) => r.tipo === "juntar").map((r) => [r.a, r.b].sort().join("|")));
+    const juntos = new Set();
+    g.reglas.forEach((r) => r.tipo === "juntar" && paresDeRegla(r).forEach((p) => juntos.add(p.slice().sort().join("|"))));
     if (referencia) {
       const antes = new Set((referencia.pares || []).filter((p) => p[2] >= 1).map((p) => [p[0], p[1]].sort().join("|")));
       pares.forEach(([i, j, w]) => {
@@ -563,6 +690,10 @@
     const sentados = new Set(Object.values(asig));
     return {
       fallos: fallos,
+      avisos: avisos,
+      necesitan: necesitan.length,
+      sinTutor: sinTutor,
+      mesasDosCuatro: mesasDosCuatro,
       repetidos: repetidos,
       sinSitio: g.alumnos.filter((a) => !sentados.has(a)),
       libres: sitios.length - sentados.size,
@@ -612,6 +743,15 @@
     e.style.gridTemplateRows = "repeat(" + b.h + ", 1fr)";
   }
 
+  // Mesa del docente: una marca en el borde de la pizarra.
+  function marcaDocente(plano, d, girado) {
+    let lado = d.docente || "derecha";
+    if (girado && lado !== "centro") lado = lado === "izquierda" ? "derecha" : "izquierda";
+    const m = crear("div", "marca-docente " + lado + (girado ? " abajo" : ""), "Mesa del docente");
+    m.setAttribute("aria-hidden", "true");
+    plano.appendChild(m);
+  }
+
   // Celdas de una mesa, en su sitio de la rejilla (al revés si se mira
   // desde la mesa del docente).
   function celdas(b, girado, hacer) {
@@ -647,8 +787,6 @@
     listaImportar: $("lista-importar"),
     filaImportar: $("fila-importar"),
     reglaTipo: $("regla-tipo"),
-    reglaA: $("regla-a"),
-    reglaB: $("regla-b"),
     reglas: $("reglas"),
     mesasDisp: $("mesas-disp"),
     mesasNombre: $("mesas-nombre"),
@@ -719,6 +857,7 @@
       });
       el.plano.appendChild(mesa);
     });
+    marcaDocente(el.plano, d, cfg.girado);
 
     // Quien no tiene sitio (alumnado nuevo, mesas quitadas o aún sin
     // generar): se toca su nombre y luego un sitio.
@@ -755,7 +894,16 @@
     const referencia = pos > 0 ? g.historial[pos - 1] : null;
     const rep = informe(g, d, v.asig, referencia);
     const puntos = [];
-    puntos.push(rep.fallos.length ? ["⚠️ No se cumple: ", rep.fallos.join("; ") + "."] : ["✓ ", "Se cumplen las condiciones de separar, juntar y delante."]);
+    puntos.push(rep.fallos.length ? ["⚠️ No se cumple: ", rep.fallos.join("; ") + "."] : ["✓ ", "Se cumplen las condiciones «siempre» y las de ubicación."]);
+    if (rep.avisos.length) puntos.push(["Preferencias que no se han podido cumplir: ", rep.avisos.join("; ") + "."]);
+    if (g.opciones.niveles && rep.necesitan) {
+      puntos.push(
+        rep.sinTutor.length
+          ? ["Tutorización: ", rep.necesitan - rep.sinTutor.length + " de " + rep.necesitan + " alumnos de nivel 3-4 tienen al lado a alguien de nivel 1-2. Sin tutor: " + rep.sinTutor.join(", ") + "."]
+          : ["✓ Tutorización: ", "todo el alumnado de nivel 3-4 tiene al lado a alguien de nivel 1-2."]
+      );
+      if (rep.mesasDosCuatro) puntos.push(["Mesas con dos o más alumnos de nivel 4: ", String(rep.mesasDosCuatro)]);
+    }
     if (referencia) {
       puntos.push(
         rep.repetidos.length
@@ -765,7 +913,6 @@
     } else {
       puntos.push(["Primera distribución: ", "a partir de que la guardes, las siguientes evitarán repetir compañeros."]);
     }
-    if (g.opciones.niveles && rep.niveles.mesas) puntos.push(["Mesas con niveles mezclados: ", rep.niveles.mezcladas + " de " + rep.niveles.mesas + "."]);
     if (g.opciones.generos && rep.generos.mesas) puntos.push(["Mesas mixtas: ", rep.generos.mezcladas + " de " + rep.generos.mesas + "."]);
     if (rep.libres > 0) puntos.push(["Sitios libres: ", String(rep.libres)]);
 
@@ -895,6 +1042,223 @@
 
   $("btn-imprimir").addEventListener("click", () => window.print());
 
+  // ---------------- Imagen y PDF ----------------
+  // El plano se dibuja en un canvas (sin librerías ni servicios
+  // externos). De ahí sale el PNG y, metido como JPEG en una página A4
+  // apaisada, el PDF, que se escribe a mano: cinco objetos y su tabla.
+  function redondo(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // Nombre en una o dos líneas, con la letra más grande que quepa.
+  function nombreEnCaja(ctx, texto, cx, cy, ancho, alto, maximo) {
+    const palabras = texto.split(/\s+/);
+    for (let t = maximo; t >= 9; t--) {
+      ctx.font = "800 " + t + "px Inter, system-ui, sans-serif";
+      let lineas = [texto];
+      if (ctx.measureText(texto).width > ancho && palabras.length > 1) {
+        // Mejor corte en dos líneas: el que deja la más larga más corta.
+        let mejor = null;
+        for (let k = 1; k < palabras.length; k++) {
+          const l = [palabras.slice(0, k).join(" "), palabras.slice(k).join(" ")];
+          const m = Math.max(ctx.measureText(l[0]).width, ctx.measureText(l[1]).width);
+          if (!mejor || m < mejor.m) mejor = { l: l, m: m };
+        }
+        lineas = mejor.l;
+      }
+      const cabe = lineas.every((l) => ctx.measureText(l).width <= ancho) && lineas.length * t * 1.15 <= alto;
+      if (cabe || t === 9) {
+        lineas.forEach((l, i) => ctx.fillText(l, cx, cy + (i - (lineas.length - 1) / 2) * t * 1.15, ancho));
+        return;
+      }
+    }
+  }
+
+  function dibujarPlano() {
+    const g = grupo();
+    const d = disp(g);
+    const v = vista(g);
+    const girado = !!cfg.girado;
+    const W = 2000;
+    const margen = 60;
+    const cabecera = 150;
+    const alturaPizarra = 56;
+    let anchoPlano = W - 2 * margen;
+    let celda = anchoPlano / d.cols;
+    if (celda * d.rows > 1200) celda = 1200 / d.rows;
+    anchoPlano = celda * d.cols;
+    const altoPlano = celda * d.rows;
+    const H = cabecera + alturaPizarra + 20 + altoPlano + margen;
+    const lienzo = document.createElement("canvas");
+    lienzo.width = W;
+    lienzo.height = H;
+    const ctx = lienzo.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, H);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "800 52px Inter, system-ui, sans-serif";
+    ctx.fillText(g.nombre + (v.entrada ? " · " + v.entrada.nombre : ""), W / 2, 60, W - 2 * margen);
+    ctx.fillStyle = "#475569";
+    ctx.font = "600 28px Inter, system-ui, sans-serif";
+    const fecha = v.entrada ? textoFecha(v.entrada.fecha) : textoFecha(hoy());
+    ctx.fillText(d.nombre + " · " + fecha + (girado ? " · vista desde la mesa del docente" : ""), W / 2, 112, W - 2 * margen);
+
+    const x0 = (W - anchoPlano) / 2;
+    const yPlano = girado ? cabecera : cabecera + alturaPizarra + 20;
+    const yPizarra = girado ? cabecera + altoPlano + 20 : cabecera;
+    redondo(ctx, W / 2 - 360, yPizarra, 720, alturaPizarra, 8);
+    ctx.fillStyle = "#14532d";
+    ctx.fill();
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "#a16207";
+    ctx.stroke();
+    ctx.fillStyle = "#dcfce7";
+    ctx.font = "800 28px Inter, system-ui, sans-serif";
+    ctx.fillText("PIZARRA", W / 2, yPizarra + alturaPizarra / 2);
+
+    redondo(ctx, x0, yPlano, anchoPlano, altoPlano, 16);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#94a3b8";
+    ctx.stroke();
+
+    // Mesa del docente, en el borde de la pizarra.
+    let lado = d.docente || "derecha";
+    if (girado && lado !== "centro") lado = lado === "izquierda" ? "derecha" : "izquierda";
+    const anchoMarca = 260;
+    const xm = lado === "izquierda" ? x0 + 10 : lado === "centro" ? W / 2 - anchoMarca / 2 : x0 + anchoPlano - anchoMarca - 10;
+    const ym = girado ? yPlano + altoPlano - 44 : yPlano;
+    ctx.fillStyle = "#cbd5e1";
+    ctx.fillRect(xm, ym, anchoMarca, 44);
+    ctx.fillStyle = "#1e293b";
+    ctx.font = "700 24px Inter, system-ui, sans-serif";
+    ctx.fillText("Mesa del docente", xm + anchoMarca / 2, ym + 22);
+
+    const hueco = Math.max(3, celda * 0.05);
+    d.bloques.forEach((b) => {
+      const bx = girado ? d.cols - b.x - b.w : b.x;
+      const by = girado ? d.rows - b.y - b.h : b.y;
+      redondo(ctx, x0 + bx * celda, yPlano + by * celda, b.w * celda, b.h * celda, 10);
+      ctx.fillStyle = "#c9ab82";
+      ctx.fill();
+      const n = plazasDe(b);
+      for (let i = 0; i < n; i++) {
+        let c = i % b.w;
+        let r = Math.floor(i / b.w);
+        if (girado) {
+          c = b.w - 1 - c;
+          r = b.h - 1 - r;
+        }
+        const sx = x0 + (bx + c) * celda + hueco;
+        const sy = yPlano + (by + r) * celda + hueco;
+        const lado2 = celda - 2 * hueco;
+        const nombre = v.asig[b.id + "." + i];
+        redondo(ctx, sx, sy, lado2, lado2, 8);
+        ctx.fillStyle = nombre ? "#ffffff" : "#efe6d8";
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#475569";
+        ctx.setLineDash(nombre ? [] : [8, 6]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        if (nombre) {
+          ctx.fillStyle = "#0f172a";
+          nombreEnCaja(ctx, nombre, sx + lado2 / 2, sy + lado2 / 2, lado2 - 12, lado2 - 10, Math.min(44, Math.floor(lado2 / 3.2)));
+        }
+      }
+    });
+    return lienzo;
+  }
+
+  function nombreArchivo(ext) {
+    const g = grupo();
+    const v = vista(g);
+    const partes = ["sitios", g.nombre, v.entrada ? v.entrada.nombre : hoy()];
+    return (
+      partes
+        .join("-")
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[^A-Za-z0-9-]+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "") +
+      "." +
+      ext
+    );
+  }
+
+  function descargar(blob, nombre) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  function pdfConImagen(jpeg, ancho, alto) {
+    // A4 apaisado (842 × 595 puntos) con 24 puntos de margen.
+    const PW = 842;
+    const PH = 595;
+    const m = 24;
+    const k = Math.min((PW - 2 * m) / ancho, (PH - 2 * m) / alto);
+    const w = (ancho * k).toFixed(2);
+    const h = (alto * k).toFixed(2);
+    const x = ((PW - ancho * k) / 2).toFixed(2);
+    const y = ((PH - alto * k) / 2).toFixed(2);
+    const contenido = "q " + w + " 0 0 " + h + " " + x + " " + y + " cm /Im0 Do Q";
+    const trozos = [];
+    const offsets = [];
+    let largo = 0;
+    const poner = (parte) => {
+      const bytes = typeof parte === "string" ? Uint8Array.from(parte, (ch) => ch.charCodeAt(0) & 255) : parte;
+      trozos.push(bytes);
+      largo += bytes.length;
+    };
+    const objeto = (n, texto) => {
+      offsets[n] = largo;
+      poner(n + " 0 obj\n" + texto + "\nendobj\n");
+    };
+    poner("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+    objeto(1, "<< /Type /Catalog /Pages 2 0 R >>");
+    objeto(2, "<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+    objeto(3, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + PW + " " + PH + "] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>");
+    offsets[4] = largo;
+    poner("4 0 obj\n<< /Type /XObject /Subtype /Image /Width " + ancho + " /Height " + alto + " /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + jpeg.length + " >>\nstream\n");
+    poner(jpeg);
+    poner("\nendstream\nendobj\n");
+    objeto(5, "<< /Length " + contenido.length + " >>\nstream\n" + contenido + "\nendstream");
+    const inicioXref = largo;
+    let xref = "xref\n0 6\n0000000000 65535 f \n";
+    for (let n = 1; n <= 5; n++) xref += String(offsets[n]).padStart(10, "0") + " 00000 n \n";
+    poner(xref + "trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n" + inicioXref + "\n%%EOF\n");
+    return new Blob(trozos, { type: "application/pdf" });
+  }
+
+  async function exportar(tipo) {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    const lienzo = dibujarPlano();
+    if (tipo === "png") {
+      lienzo.toBlob((blob) => blob && descargar(blob, nombreArchivo("png")), "image/png");
+      return;
+    }
+    const datos = atob(lienzo.toDataURL("image/jpeg", 0.92).split(",")[1]);
+    const jpeg = Uint8Array.from(datos, (ch) => ch.charCodeAt(0));
+    descargar(pdfConImagen(jpeg, lienzo.width, lienzo.height), nombreArchivo("pdf"));
+  }
+
+  $("btn-imagen").addEventListener("click", () => exportar("png"));
+  $("btn-pdf").addEventListener("click", () => exportar("pdf"));
+
   // ---------------- Elegir agrupación ----------------
   function pintarDisposiciones() {
     const g = grupo();
@@ -908,6 +1272,7 @@
       });
     });
     el.mesasNombre.value = disp(g).nombre;
+    $("mesa-docente").value = disp(g).docente || "derecha";
     $("btn-borrar-disp").disabled = g.disposiciones.length < 2;
   }
 
@@ -962,6 +1327,7 @@
       mesa.addEventListener("pointerdown", (e) => arrastrar(e, mesa, b, d));
       el.editor.appendChild(mesa);
     });
+    marcaDocente(el.editor, d, false);
     const n = asientos(d).length;
     el.mesasResumen.textContent = d.bloques.length + " mesas, " + n + " sitios para " + g.alumnos.length + " alumnos." + (n < g.alumnos.length ? " Faltan " + (g.alumnos.length - n) + " sitios." : "");
     ["btn-girar-mesa", "btn-quitar-mesa", "btn-sitio-menos", "btn-sitio-mas"].forEach((id) => ($(id).disabled = !mesaElegida));
@@ -1083,6 +1449,13 @@
     pintarDisposiciones();
   });
 
+  $("mesa-docente").addEventListener("change", () => {
+    disp(grupo()).docente = $("mesa-docente").value;
+    guardar();
+    pintarEditor();
+    pintarAula();
+  });
+
   function anadirDisposicion(d) {
     const g = grupo();
     g.disposiciones.push(d);
@@ -1165,7 +1538,7 @@
     t.innerHTML = "";
     if (!g.alumnos.length) return;
     const cab = crear("tr");
-    ["Alumno", "Nivel", "Chico / chica", "Delante"].forEach((x) => cab.appendChild(crear("th", "", x)));
+    ["Alumno", "Nivel", "Ubicación", "Chico / chica"].forEach((x) => cab.appendChild(crear("th", "", x)));
     const thead = crear("thead");
     thead.appendChild(cab);
     t.appendChild(thead);
@@ -1183,27 +1556,54 @@
       const tr = crear("tr");
       tr.appendChild(crear("td", "", a));
       const td1 = crear("td");
-      td1.appendChild(selector([["", "—"], ["alto", "Alto"], ["medio", "Medio"], ["bajo", "Bajo"]], dato.nivel, (v) => fijarDato("nivel", v), "Nivel de " + a));
+      const niveles = [["", "—"]].concat(NIVELES.map((n) => [n, n + " · " + NOMBRE_NIVEL[n]]));
+      td1.appendChild(selector(niveles, String(dato.nivel || ""), (v) => {
+        fijarDato("nivel", v);
+        pintarResumenNiveles();
+      }, "Nivel de " + a));
       const td2 = crear("td");
-      td2.appendChild(selector([["", "—"], ["chico", "Chico"], ["chica", "Chica"]], dato.genero, (v) => fijarDato("genero", v), "Chico o chica: " + a));
+      const ubicaciones = [["", "—"], ["delante", "Delante"], ["docente", "Cerca del docente"], ["ambos", "Delante y cerca del docente"]];
+      td2.appendChild(selector(ubicaciones, dato.ubicacion, (v) => fijarDato("ubicacion", v), "Ubicación de " + a));
       const td3 = crear("td");
-      const cb = crear("input");
-      cb.type = "checkbox";
-      cb.checked = !!dato.delante;
-      cb.setAttribute("aria-label", a + " delante");
-      cb.addEventListener("change", () => fijarDato("delante", cb.checked));
-      td3.appendChild(cb);
+      td3.appendChild(selector([["", "—"], ["chico", "Chico"], ["chica", "Chica"]], dato.genero, (v) => fijarDato("genero", v), "Chico o chica: " + a));
       tr.append(td1, td2, td3);
       tbody.appendChild(tr);
     });
     t.appendChild(tbody);
+    pintarResumenNiveles();
+  }
+
+  // Cuántos hay de cada nivel: si hay menos alumnos de 1-2 que mesas,
+  // o muchos más de 3-4 que de 1-2, la tutorización no llega a todos.
+  function pintarResumenNiveles() {
+    const g = grupo();
+    const p = $("niveles-resumen");
+    const cuenta = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    g.alumnos.forEach((a) => {
+      const n = datoDe(g, a).nivel;
+      if (cuenta[n] !== undefined) cuenta[n]++;
+    });
+    const con = cuenta[1] + cuenta[2] + cuenta[3] + cuenta[4];
+    if (!con) {
+      p.textContent = "";
+      return;
+    }
+    let texto = NIVELES.map((n) => "Nivel " + n + ": " + cuenta[n]).join(" · ") + ". ";
+    const tutores = cuenta[1] + cuenta[2];
+    const tutorizados = cuenta[3] + cuenta[4];
+    const mesas = disp(g).bloques.filter((b) => plazasDe(b) > 1).length;
+    if (tutorizados > 2 * tutores) texto += "Hay más del doble de alumnado de nivel 3-4 que de 1-2: no todos podrán tener un tutor al lado.";
+    else if (mesas && tutores < mesas) texto += "Con " + mesas + " mesas y " + tutores + (tutores === 1 ? " alumno" : " alumnos") + " de nivel 1-2, alguna mesa quedará sin tutor.";
+    else texto += "Hay alumnado de nivel 1-2 suficiente para tutorizar en cada mesa.";
+    p.textContent = texto;
   }
 
   function fijarAlumnos(g, nombres) {
     const vistos = new Set();
     g.alumnos = nombres.map((s) => s.trim().slice(0, 40)).filter((s) => s && !vistos.has(s) && vistos.add(s));
     Object.keys(g.datos).forEach((a) => !vistos.has(a) && delete g.datos[a]);
-    g.reglas = g.reglas.filter((r) => vistos.has(r.a) && vistos.has(r.b));
+    g.reglas.forEach((r) => (r.alumnos = r.alumnos.filter((a) => vistos.has(a))));
+    g.reglas = g.reglas.filter((r) => r.alumnos.length > 1);
     g.disposiciones.forEach((d) => Object.keys(d.fijos).forEach((k) => !vistos.has(d.fijos[k]) && delete d.fijos[k]));
     guardar();
     pintarGrupos();
@@ -1267,37 +1667,99 @@
   });
 
   // ---------------- Condiciones ----------------
+  // Formulario: alumnos elegidos y, si se está editando, qué condición.
+  let reglaElegidos = [];
+  let reglaEditando = null;
+
+  const TEXTO_REGLA = {
+    "separar|siempre": "⛔ Separar siempre",
+    "separar|mejor": "↔️ Mejor separados",
+    "juntar|siempre": "🔗 Juntar siempre",
+    "juntar|mejor": "🤝 Mejor juntos",
+  };
+
+  function pintarFormularioRegla() {
+    const g = grupo();
+    reglaElegidos = reglaElegidos.filter((a) => g.alumnos.indexOf(a) !== -1);
+    const cont = $("regla-alumnos");
+    cont.innerHTML = "";
+    g.alumnos.forEach((a) => {
+      const b = crear("button", "chip", a);
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(reglaElegidos.indexOf(a) !== -1));
+      b.addEventListener("click", () => {
+        const i = reglaElegidos.indexOf(a);
+        if (i === -1) reglaElegidos.push(a);
+        else reglaElegidos.splice(i, 1);
+        pintarFormularioRegla();
+      });
+      cont.appendChild(b);
+    });
+    if (!g.alumnos.length) cont.textContent = "Añade antes el alumnado en «👥 Alumnado».";
+    const boton = $("btn-regla");
+    boton.disabled = reglaElegidos.length < 2;
+    boton.textContent = reglaEditando ? "💾 Guardar cambios" : "+ Añadir condición" + (reglaElegidos.length > 1 ? " (" + reglaElegidos.length + " alumnos)" : "");
+    $("btn-regla-cancelar").hidden = !reglaEditando;
+  }
+
+  function limpiarFormularioRegla() {
+    reglaElegidos = [];
+    reglaEditando = null;
+    $("regla-motivo").value = "";
+    pintarFormularioRegla();
+  }
+
   function pintarCondiciones() {
     const g = grupo();
-    [el.reglaA, el.reglaB].forEach((s) => {
-      const antes = s.value;
-      s.innerHTML = "";
-      g.alumnos.forEach((a) => {
-        const op = crear("option", "", a);
-        op.value = a;
-        s.appendChild(op);
-      });
-      if (g.alumnos.indexOf(antes) !== -1) s.value = antes;
-    });
-    if (el.reglaA.value === el.reglaB.value && g.alumnos.length > 1) el.reglaB.selectedIndex = (el.reglaA.selectedIndex + 1) % g.alumnos.length;
+    pintarFormularioRegla();
 
     el.reglas.innerHTML = "";
-    g.reglas.forEach((r, i) => {
-      const li = crear("li", "regla " + r.tipo);
-      li.appendChild(crear("span", "", (r.tipo === "separar" ? "↔️ Separar a " : "🤝 Juntar a ") + r.a + " y " + r.b));
+    g.reglas.forEach((r) => {
+      const li = crear("li", "regla " + r.tipo + " " + r.fuerza + (r === reglaEditando ? " editando" : ""));
+      const texto = crear("div", "regla-texto");
+      texto.appendChild(crear("strong", "", TEXTO_REGLA[r.tipo + "|" + r.fuerza] + ": "));
+      texto.appendChild(document.createTextNode(r.alumnos.join(", ")));
+      if (r.motivo) texto.appendChild(crear("small", "", r.motivo));
+      li.appendChild(texto);
+      const editar = crear("button", "btn btn-fantasma", "✏️");
+      editar.type = "button";
+      editar.setAttribute("aria-label", "Editar esta condición");
+      editar.addEventListener("click", () => {
+        reglaEditando = r;
+        reglaElegidos = r.alumnos.slice();
+        el.reglaTipo.value = r.tipo + "|" + r.fuerza;
+        $("regla-motivo").value = r.motivo || "";
+        pintarCondiciones();
+        el.reglaTipo.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
       const x = crear("button", "btn btn-fantasma", "✕");
       x.type = "button";
       x.setAttribute("aria-label", "Quitar esta condición");
       x.addEventListener("click", () => {
-        g.reglas.splice(i, 1);
+        g.reglas = g.reglas.filter((o) => o !== r);
+        if (reglaEditando === r) limpiarFormularioRegla();
         guardar();
         pintarCondiciones();
         pintarAula();
       });
-      li.appendChild(x);
+      li.append(editar, x);
       el.reglas.appendChild(li);
     });
-    if (!g.reglas.length) el.reglas.appendChild(crear("li", "ayuda", "Sin condiciones de parejas."));
+    if (!g.reglas.length) el.reglas.appendChild(crear("li", "ayuda", "Todavía no hay condiciones."));
+
+    // Una misma pareja en «separar» y en «juntar» no se puede cumplir.
+    const tipos = new Map();
+    const choques = [];
+    g.reglas.forEach((r) =>
+      paresDeRegla(r).forEach((p) => {
+        const k = p.slice().sort().join(" y ");
+        if (tipos.has(k) && tipos.get(k) !== r.tipo && choques.indexOf(k) === -1) choques.push(k);
+        tipos.set(k, r.tipo);
+      })
+    );
+    const aviso = $("reglas-aviso");
+    aviso.textContent = choques.length ? "⚠️ Condiciones contradictorias (separar y juntar a la vez): " + choques.join(", ") + "." : "";
+    aviso.hidden = !choques.length;
 
     $("op-niveles").checked = !!g.opciones.niveles;
     $("op-generos").checked = !!g.opciones.generos;
@@ -1308,15 +1770,20 @@
 
   $("btn-regla").addEventListener("click", () => {
     const g = grupo();
-    const a = el.reglaA.value;
-    const b = el.reglaB.value;
-    if (!a || !b || a === b) return;
-    // Una pareja solo puede tener una condición: la nueva sustituye.
-    g.reglas = g.reglas.filter((r) => !((r.a === a && r.b === b) || (r.a === b && r.b === a)));
-    g.reglas.push({ tipo: el.reglaTipo.value, a: a, b: b });
+    if (reglaElegidos.length < 2) return;
+    const [tipo, fuerza] = el.reglaTipo.value.split("|");
+    const datos = { tipo: tipo, fuerza: fuerza, alumnos: reglaElegidos.slice(), motivo: $("regla-motivo").value.trim().slice(0, 40) };
+    if (reglaEditando && g.reglas.indexOf(reglaEditando) !== -1) Object.assign(reglaEditando, datos);
+    else g.reglas.push(Object.assign({ id: "r" + g.sig++ }, datos));
     guardar();
+    limpiarFormularioRegla();
     pintarCondiciones();
     pintarAula();
+  });
+
+  $("btn-regla-cancelar").addEventListener("click", () => {
+    limpiarFormularioRegla();
+    pintarCondiciones();
   });
 
   [["op-niveles", "niveles"], ["op-generos", "generos"], ["op-zona", "zona"], ["op-sitio", "sitio"]].forEach(([id, clave]) => {
@@ -1391,7 +1858,7 @@
         window.alert("La agrupación de mesas de esa distribución ya no existe.");
         return;
       }
-      d = { id: "d" + g.sig++, nombre: (e.plano.nombre + " (recuperada)").slice(0, 40), cols: e.plano.cols, rows: e.plano.rows, bloques: e.plano.bloques.map((b) => Object.assign({}, b)), fijos: {}, sig: 1 };
+      d = { id: "d" + g.sig++, nombre: (e.plano.nombre + " (recuperada)").slice(0, 40), cols: e.plano.cols, rows: e.plano.rows, bloques: e.plano.bloques.map((b) => Object.assign({}, b)), fijos: {}, sig: 1, docente: e.plano.docente || "derecha" };
       d.sig = d.bloques.reduce((m, b) => Math.max(m, Number(String(b.id).slice(1)) || 0), 0) + 1;
       g.disposiciones.push(d);
       e.dispId = d.id;

@@ -121,6 +121,23 @@
 .editando .mesa.choca { outline: 3px solid var(--rojo); }
 .sitio-molde { border-radius: 5px; background: rgba(248, 250, 252, 0.7); }
 
+.marca-docente {
+  position: absolute;
+  top: 0;
+  padding: 2px 8px;
+  border-radius: 0 0 8px 8px;
+  background: #334155;
+  color: var(--texto-suave);
+  font-size: clamp(9px, 1.6cqw, 13px);
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.marca-docente.izquierda { left: 6px; }
+.marca-docente.derecha { right: 6px; }
+.marca-docente.centro { left: 50%; transform: translateX(-50%); }
+.marca-docente.abajo { top: auto; bottom: 0; border-radius: 8px 8px 0 0; }
+
 .sin-sitio {
   display: flex;
   flex-wrap: wrap;
@@ -156,10 +173,17 @@
 .tabla-alumnos thead th { color: var(--texto-suave); }
 .tabla-alumnos select { min-height: 36px; padding: 4px 8px; }
 
+.aviso-panel { margin: 0; padding: 8px 12px; border-radius: 10px; background: #3a2a0c; border: 1px solid #a16207; color: #fde68a; font-weight: 600; }
+.ajustes input[list] { background: var(--panel-2); color: var(--texto); border: 1px solid var(--borde); border-radius: 10px; padding: 8px 10px; min-height: 42px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .reglas { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .regla { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 4px 4px 12px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--borde); }
 .regla.separar { border-left: 4px solid var(--rojo); }
 .regla.juntar { border-left: 4px solid var(--verde); }
+.regla.mejor { border-left-style: dashed; }
+.regla.editando { outline: 2px solid var(--oro); }
+.regla-texto { display: grid; min-width: 0; margin-right: auto; }
+.regla-texto small { color: var(--texto-suave); }
 .regla .btn { min-height: 36px; padding: 4px 10px; }
 
 .historial { display: grid; gap: 8px; }

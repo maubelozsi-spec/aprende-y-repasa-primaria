@@ -29,6 +29,8 @@
   <button type="button" class="btn btn-fantasma" id="btn-condiciones" aria-expanded="false" aria-controls="panel-condiciones">⚖️ Condiciones</button>
   <button type="button" class="btn btn-fantasma" id="btn-mesas" aria-expanded="false" aria-controls="panel-mesas">🪑 Mesas</button>
   <button type="button" class="btn btn-fantasma" id="btn-historial" aria-expanded="false" aria-controls="panel-historial">🗂️ Historial</button>
+  <button type="button" class="btn btn-fantasma" id="btn-imagen" title="Descargar el plano como imagen PNG">🖼️ Imagen</button>
+  <button type="button" class="btn btn-fantasma" id="btn-pdf" title="Descargar el plano en PDF (A4 apaisado)">📄 PDF</button>
   <button type="button" class="btn btn-fantasma" id="btn-imprimir">🖨️ Imprimir</button>
 </div>
 
@@ -81,30 +83,43 @@
   <label for="alumnos">Alumnos (uno por línea)</label>
   <textarea id="alumnos" rows="8" spellcheck="false" placeholder="Ana&#10;Bruno&#10;Carmen&#10;…"></textarea>
   <h3>Datos para repartir</h3>
-  <p class="ayuda">Todo es opcional. El nivel sirve para formar grupos heterogéneos (cada grupo con alumnado de distintos niveles) y chico/chica para que los grupos sean mixtos. «Delante» lo deja siempre en la zona más cercana a la pizarra (visión, audición, atención…). Estos datos no aparecen en el plano, así que se puede proyectar sin problema.</p>
+  <p class="ayuda"><strong>Nivel</strong>: 1 sobresaliente-notable · 2 bien · 3 suficiente · 4 con dificultades. Sirve para que el alumnado de nivel 3-4 tenga en su mesa un compañero de nivel 1-2 que lo tutorice. <strong>Ubicación</strong>: «Delante» lo sienta en la zona más cercana a la pizarra (vista, audición); «Cerca del docente», junto a tu mesa para atenderlo mejor. Chico/chica sirve para formar grupos mixtos. Todo es opcional y nada de esto aparece en el plano, así que se puede proyectar.</p>
   <div class="tabla-envoltura">
     <table class="tabla-alumnos" id="tabla-alumnos"></table>
   </div>
+  <p class="ayuda" id="niveles-resumen"></p>
   <p class="ayuda">Todo se guarda solo en este equipo y no se envía a ningún servidor. Para llevarlo a otro, usa «Descargar copia» en Historial.</p>
 </section>
 
 <section class="ajustes" id="panel-condiciones" hidden aria-label="Condiciones">
   <h2>Condiciones del reparto</h2>
-  <h3>Parejas de alumnos</h3>
-  <p class="ayuda">«Separar»: no pueden quedar en la misma mesa ni sentados al lado. «Juntar»: tienen que quedar en la misma mesa o al lado (por ejemplo, un compañero tutor).</p>
+  <p class="ayuda">Elige el tipo, toca dos o más alumnos y añade la condición. Con más de dos se aplica a cada pareja: «Separar» a Ana, Bruno y Carmen hace que ninguno de los tres quede en la misma mesa ni al lado de otro. «Siempre» se cumple por encima de todo lo demás; «Mejor» se cumple si se puede. Se pueden editar o quitar en cualquier momento del curso.</p>
   <div class="fila">
     <select id="regla-tipo" aria-label="Tipo de condición">
-      <option value="separar">Separar</option>
-      <option value="juntar">Juntar</option>
+      <option value="separar|siempre">⛔ Separar siempre</option>
+      <option value="separar|mejor">↔️ Mejor separados</option>
+      <option value="juntar|siempre">🔗 Juntar siempre</option>
+      <option value="juntar|mejor">🤝 Mejor juntos</option>
     </select>
-    <select id="regla-a" aria-label="Primer alumno"></select>
-    <span>y</span>
-    <select id="regla-b" aria-label="Segundo alumno"></select>
-    <button type="button" class="btn" id="btn-regla">+ Añadir</button>
+    <input type="text" id="regla-motivo" list="motivos" maxlength="40" placeholder="Motivo (opcional)" aria-label="Motivo">
+    <datalist id="motivos">
+      <option value="Hablan mucho"></option>
+      <option value="Discuten"></option>
+      <option value="Se distraen juntos"></option>
+      <option value="Trabajan bien juntos"></option>
+      <option value="Tutorización"></option>
+      <option value="Apoyo con el idioma"></option>
+    </datalist>
   </div>
+  <div class="chips" id="regla-alumnos" role="group" aria-label="Alumnos de la condición"></div>
+  <div class="fila">
+    <button type="button" class="btn btn-primario" id="btn-regla" disabled>+ Añadir condición</button>
+    <button type="button" class="btn" id="btn-regla-cancelar" hidden>Cancelar</button>
+  </div>
+  <p class="aviso-panel" id="reglas-aviso" hidden></p>
   <ul class="reglas" id="reglas"></ul>
   <h3>Al repartir</h3>
-  <label class="interruptor"><input type="checkbox" id="op-niveles"> Grupos heterogéneos por nivel</label>
+  <label class="interruptor"><input type="checkbox" id="op-niveles"> Tutorización entre iguales por niveles (cada alumno de nivel 3-4 con uno de nivel 1-2 en su mesa)</label>
   <label class="interruptor"><input type="checkbox" id="op-generos"> Grupos mixtos (chicos y chicas)</label>
   <label class="interruptor"><input type="checkbox" id="op-zona"> Rotar zonas: quien estuvo al fondo pasa más adelante, y al revés</label>
   <label class="interruptor"><input type="checkbox" id="op-sitio"> Que nadie repita el mismo sitio</label>
@@ -120,7 +135,7 @@
       <option value="99">todas las del curso</option>
     </select>
   </div>
-  <p class="ayuda">Las condiciones de separar, juntar, «delante» y los sitios fijos van primero; si alguna es imposible con estas mesas, el resumen lo dice. Lo demás se cumple todo lo que se puede, y las distribuciones más recientes pesan más. Solo cuentan las distribuciones guardadas.</p>
+  <p class="ayuda">En parejas se busca 1 con 3 y 2 con 4; en grupos, que se mezclen los cuatro niveles y no coincidan dos de nivel 4 (ni dos de nivel 1, para repartir a quien tutoriza). Las condiciones «siempre», la ubicación y los sitios fijos van primero; si alguna es imposible con estas mesas, el resumen lo dice. Lo demás se cumple todo lo que se puede, y las distribuciones más recientes pesan más. Solo cuentan las distribuciones guardadas.</p>
 </section>
 
 <section class="ajustes" id="panel-mesas" hidden aria-label="Mesas">
@@ -130,6 +145,12 @@
     <label for="mesas-disp">Agrupación</label>
     <select id="mesas-disp"></select>
     <input type="text" id="mesas-nombre" maxlength="40" aria-label="Nombre de la agrupación">
+    <label for="mesa-docente">Mesa del docente</label>
+    <select id="mesa-docente">
+      <option value="izquierda">Delante a la izquierda</option>
+      <option value="centro">Delante en el centro</option>
+      <option value="derecha">Delante a la derecha</option>
+    </select>
   </div>
   <div class="fila">
     <label for="plantilla">Nueva a partir de</label>
