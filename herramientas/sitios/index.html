@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script src="../../js/acceso.js" data-solo-docente></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sitios de clase · Aprende y Repasa</title>
+<meta name="description" content="Generador de sitios de clase: distribuye al alumnado en filas, parejas o grupos según tus condiciones, evita repetir compañeros entre situaciones de aprendizaje y guarda disposiciones y distribuciones para reutilizarlas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/herramienta.css">
+<link rel="stylesheet" href="sitios.css">
+<script src="../js/comun.js"></script>
+</head>
+<body>
+
+<header class="cabecera">
+  <a href="../index.html">← Herramientas</a>
+  <h1>Sitios de clase 🪑</h1>
+</header>
+
+<div class="herramienta-barra">
+  <label class="grupo-elegir">
+    <span class="oculto">Clase</span>
+    <select id="grupo"></select>
+  </label>
+  <button type="button" class="btn btn-fantasma" id="btn-alumnado" aria-expanded="false" aria-controls="panel-alumnado">👥 Alumnado</button>
+  <button type="button" class="btn btn-fantasma" id="btn-condiciones" aria-expanded="false" aria-controls="panel-condiciones">⚖️ Condiciones</button>
+  <button type="button" class="btn btn-fantasma" id="btn-mesas" aria-expanded="false" aria-controls="panel-mesas">🪑 Mesas</button>
+  <button type="button" class="btn btn-fantasma" id="btn-historial" aria-expanded="false" aria-controls="panel-historial">🗂️ Historial</button>
+  <button type="button" class="btn btn-fantasma" id="btn-imagen" title="Descargar el plano como imagen PNG">🖼️ Imagen</button>
+  <button type="button" class="btn btn-fantasma" id="btn-pdf" title="Descargar el plano en PDF (A4 apaisado)">📄 PDF</button>
+  <button type="button" class="btn btn-fantasma" id="btn-imprimir">🖨️ Imprimir</button>
+</div>
+
+<main class="aula" id="aula">
+  <div class="aula-cabecera">
+    <label class="disp-elegir">
+      <span>Agrupación</span>
+      <select id="disposicion"></select>
+    </label>
+    <div class="aula-titulo">
+      <h2 id="titulo">Sitios</h2>
+      <p class="estado" id="estado"></p>
+    </div>
+  </div>
+
+  <div class="mandos">
+    <button type="button" class="btn btn-grande btn-primario" id="btn-generar">🎲 Generar sitios</button>
+    <button type="button" class="btn btn-grande btn-guardar" id="btn-guardar">💾 Guardar distribución</button>
+    <button type="button" class="btn" id="btn-descartar">Descartar cambios</button>
+    <button type="button" class="btn" id="btn-fijar" aria-pressed="false" title="Toca un sitio para que ese alumno se quede siempre en él">📌 Fijar sitios</button>
+    <button type="button" class="btn" id="btn-girar" aria-pressed="false">🔄 Vista del docente</button>
+  </div>
+
+  <p class="aviso" id="aviso" hidden></p>
+  <p class="ayuda-plano" id="ayuda-plano"></p>
+
+  <div class="plano-marco" id="plano-marco">
+    <div class="pizarra" id="pizarra">Pizarra</div>
+    <div class="plano" id="plano"></div>
+  </div>
+
+  <div class="sin-sitio" id="sin-sitio" hidden></div>
+
+  <section class="resumen" id="resumen" hidden aria-label="Cómo ha quedado"></section>
+</main>
+
+<section class="ajustes" id="panel-alumnado" hidden aria-label="Alumnado">
+  <h2>Alumnado de la clase</h2>
+  <div class="fila">
+    <label for="grupo-nombre">Nombre de la clase</label>
+    <input type="text" id="grupo-nombre" maxlength="40">
+    <button type="button" class="btn" id="btn-nuevo-grupo">+ Nueva clase</button>
+    <button type="button" class="btn btn-peligro" id="btn-borrar-grupo">Borrar esta clase</button>
+  </div>
+  <div class="fila" id="fila-importar">
+    <label for="lista-importar">Copiar de otra herramienta</label>
+    <select id="lista-importar"></select>
+    <button type="button" class="btn" id="btn-importar">Añadir estos nombres</button>
+  </div>
+  <label for="alumnos">Alumnos (uno por línea)</label>
+  <textarea id="alumnos" rows="8" spellcheck="false" placeholder="Ana&#10;Bruno&#10;Carmen&#10;…"></textarea>
+  <h3>Datos para repartir</h3>
+  <p class="ayuda"><strong>Nivel</strong>: 1 sobresaliente-notable · 2 bien · 3 suficiente · 4 con dificultades. Sirve para que el alumnado de nivel 3-4 tenga en su mesa un compañero de nivel 1-2 que lo tutorice. <strong>Ubicación</strong>: «Delante» lo sienta en la zona más cercana a la pizarra (vista, audición); «Cerca del docente», junto a tu mesa para atenderlo mejor. Chico/chica sirve para formar grupos mixtos. Todo es opcional y nada de esto aparece en el plano, así que se puede proyectar.</p>
+  <div class="tabla-envoltura">
+    <table class="tabla-alumnos" id="tabla-alumnos"></table>
+  </div>
+  <p class="ayuda" id="niveles-resumen"></p>
+  <p class="ayuda">Todo se guarda solo en este equipo y no se envía a ningún servidor. Para llevarlo a otro, usa «Descargar copia» en Historial.</p>
+</section>
+
+<section class="ajustes" id="panel-condiciones" hidden aria-label="Condiciones">
+  <h2>Condiciones del reparto</h2>
+  <p class="ayuda">Elige el tipo, toca dos o más alumnos y añade la condición. Con más de dos se aplica a cada pareja: «Separar» a Ana, Bruno y Carmen hace que ninguno de los tres quede en la misma mesa ni al lado de otro. «Siempre» se cumple por encima de todo lo demás; «Mejor» se cumple si se puede. Se pueden editar o quitar en cualquier momento del curso.</p>
+  <div class="fila">
+    <select id="regla-tipo" aria-label="Tipo de condición">
+      <option value="separar|siempre">⛔ Separar siempre</option>
+      <option value="separar|mejor">↔️ Mejor separados</option>
+      <option value="juntar|siempre">🔗 Juntar siempre</option>
+      <option value="juntar|mejor">🤝 Mejor juntos</option>
+    </select>
+    <input type="text" id="regla-motivo" list="motivos" maxlength="40" placeholder="Motivo (opcional)" aria-label="Motivo">
+    <datalist id="motivos">
+      <option value="Hablan mucho"></option>
+      <option value="Discuten"></option>
+      <option value="Se distraen juntos"></option>
+      <option value="Trabajan bien juntos"></option>
+      <option value="Tutorización"></option>
+      <option value="Apoyo con el idioma"></option>
+    </datalist>
+  </div>
+  <div class="chips" id="regla-alumnos" role="group" aria-label="Alumnos de la condición"></div>
+  <div class="fila">
+    <button type="button" class="btn btn-primario" id="btn-regla" disabled>+ Añadir condición</button>
+    <button type="button" class="btn" id="btn-regla-cancelar" hidden>Cancelar</button>
+  </div>
+  <p class="aviso-panel" id="reglas-aviso" hidden></p>
+  <ul class="reglas" id="reglas"></ul>
+  <h3>Al repartir</h3>
+  <label class="interruptor"><input type="checkbox" id="op-niveles"> Tutorización entre iguales por niveles (cada alumno de nivel 3-4 con uno de nivel 1-2 en su mesa)</label>
+  <label class="interruptor"><input type="checkbox" id="op-cuatro"> Alumnado de nivel 4 siempre en las primeras filas, cerca de la pizarra</label>
+  <label class="interruptor sub"><input type="checkbox" id="op-rescate"> Si faltan tutores: compañero de nivel superior (3 con 4) y, si tampoco lo hay, mismo nivel pero siempre en las primeras filas</label>
+  <label class="interruptor"><input type="checkbox" id="op-generos"> Grupos mixtos (chicos y chicas)</label>
+  <label class="interruptor"><input type="checkbox" id="op-zona"> Rotar zonas: quien estuvo al fondo pasa más adelante, y al revés</label>
+  <label class="interruptor"><input type="checkbox" id="op-sitio"> Que nadie repita el mismo sitio</label>
+  <div class="fila">
+    <label for="op-memoria">Evitar repetir compañeros de las últimas</label>
+    <select id="op-memoria">
+      <option value="0">0 (no tener en cuenta)</option>
+      <option value="1">1 distribución</option>
+      <option value="2">2 distribuciones</option>
+      <option value="3">3 distribuciones</option>
+      <option value="4">4 distribuciones</option>
+      <option value="6">6 distribuciones</option>
+      <option value="99">todas las del curso</option>
+    </select>
+  </div>
+  <p class="ayuda">En parejas se busca 1 con 3 y 2 con 4; en grupos, que se mezclen los cuatro niveles y no coincidan dos de nivel 4 (ni dos de nivel 1, para repartir a quien tutoriza). Las condiciones «siempre», la ubicación y los sitios fijos van primero; si alguna es imposible con estas mesas, el resumen lo dice. Lo demás se cumple todo lo que se puede, y las distribuciones más recientes pesan más. Solo cuentan las distribuciones guardadas.</p>
+</section>
+
+<section class="ajustes" id="panel-mesas" hidden aria-label="Mesas">
+  <h2>Agrupaciones de mesas</h2>
+  <p class="ayuda">Guarda tantas como quieras (filas, parejas, grupos de 4…) y elige cuál usar en «Agrupación». Arrastra las mesas para colocarlas como estén en tu aula; toca una para girarla o quitarla.</p>
+  <div class="fila">
+    <label for="mesas-disp">Agrupación</label>
+    <select id="mesas-disp"></select>
+    <input type="text" id="mesas-nombre" maxlength="40" aria-label="Nombre de la agrupación">
+    <label for="mesa-docente">Mesa del docente</label>
+    <select id="mesa-docente">
+      <option value="izquierda">Delante a la izquierda</option>
+      <option value="centro">Delante en el centro</option>
+      <option value="derecha">Delante a la derecha</option>
+    </select>
+  </div>
+  <div class="fila">
+    <label for="plantilla">Nueva a partir de</label>
+    <select id="plantilla">
+      <option value="individual">Filas individuales</option>
+      <option value="parejas">Parejas</option>
+      <option value="trios">Tríos</option>
+      <option value="grupos4">Grupos de 4</option>
+      <option value="grupos5">Grupos de 5</option>
+      <option value="grupos6">Grupos de 6</option>
+      <option value="u">En U</option>
+      <option value="vacia">Aula vacía</option>
+    </select>
+    <button type="button" class="btn" id="btn-nueva-disp">+ Crear</button>
+    <button type="button" class="btn" id="btn-duplicar-disp">Duplicar</button>
+    <button type="button" class="btn btn-peligro" id="btn-borrar-disp">Borrar</button>
+  </div>
+  <div class="fila editor-mandos">
+    <span>Añadir mesa:</span>
+    <button type="button" class="btn" data-mesa="1x1">1</button>
+    <button type="button" class="btn" data-mesa="2x1">2</button>
+    <button type="button" class="btn" data-mesa="3x1">3</button>
+    <button type="button" class="btn" data-mesa="2x2">4</button>
+    <button type="button" class="btn" data-mesa="3x2">6</button>
+    <button type="button" class="btn" data-mesa="4x2">8</button>
+    <span class="separador"></span>
+    <button type="button" class="btn" id="btn-sitio-menos" disabled>− sitio</button>
+    <button type="button" class="btn" id="btn-sitio-mas" disabled>+ sitio</button>
+    <button type="button" class="btn" id="btn-girar-mesa" disabled>⤾ Girar</button>
+    <button type="button" class="btn btn-peligro" id="btn-quitar-mesa" disabled>Quitar</button>
+  </div>
+  <div class="fila editor-mandos">
+    <span>Tamaño del aula:</span>
+    <button type="button" class="btn" id="btn-cols-menos" aria-label="Menos columnas">− ancho</button>
+    <button type="button" class="btn" id="btn-cols-mas" aria-label="Más columnas">+ ancho</button>
+    <button type="button" class="btn" id="btn-filas-menos" aria-label="Menos filas">− fondo</button>
+    <button type="button" class="btn" id="btn-filas-mas" aria-label="Más filas">+ fondo</button>
+  </div>
+  <div class="plano-marco editor">
+    <div class="pizarra">Pizarra</div>
+    <div class="plano editando" id="plano-editor"></div>
+  </div>
+  <p class="ayuda" id="mesas-resumen"></p>
+</section>
+
+<section class="ajustes" id="panel-historial" hidden aria-label="Historial">
+  <h2>Distribuciones guardadas</h2>
+  <p class="ayuda">Cada vez que guardas, la distribución queda aquí (por ejemplo, una por situación de aprendizaje). «Volver a usar» la carga tal cual para repetirla o retocarla.</p>
+  <div class="historial" id="historial"></div>
+  <h3>Compañeros que más han coincidido</h3>
+  <p class="ayuda" id="repetidos"></p>
+  <div class="fila">
+    <button type="button" class="btn" id="btn-exportar">⬇️ Descargar copia</button>
+    <label class="btn" for="importar-archivo">⬆️ Cargar copia</label>
+    <input type="file" id="importar-archivo" accept="application/json,.json" hidden>
+  </div>
+</section>
+
+<script src="sitios.js"></script>
+</body>
+</html>
