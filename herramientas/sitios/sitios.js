@@ -81,6 +81,56 @@
 
   const limitar = (v, a, b) => Math.max(a, Math.min(b, v));
 
+  // Formas de mesa: w × h sitios, n utilizables. (Claves con letra para
+  // que se recorran en este orden: las numéricas irían siempre antes.)
+  const FORMAS = {
+    f1: { w: 1, h: 1, n: 1, nombre: "sueltas (1)" },
+    f2: { w: 2, h: 1, n: 2, nombre: "2 juntas" },
+    f3: { w: 3, h: 1, n: 3, nombre: "3 juntas en fila" },
+    f4l: { w: 4, h: 1, n: 4, nombre: "4 juntas en fila" },
+    f4: { w: 2, h: 2, n: 4, nombre: "4 juntas (2 × 2)" },
+    f5: { w: 3, h: 2, n: 5, nombre: "5 juntas" },
+    f6: { w: 3, h: 2, n: 6, nombre: "6 juntas (3 × 2)" },
+    f8: { w: 4, h: 2, n: 8, nombre: "8 juntas (4 × 2)" },
+  };
+
+  // Agrupación mixta: mesas de distintos tamaños colocadas por filas
+  // (las más grandes primero), con pasillos de 2 celdas entre mesas y
+  // de 1 entre filas, y cada fila centrada.
+  function plantillaMixta(cuantas) {
+    const lista = [];
+    Object.keys(FORMAS).forEach((k) => {
+      for (let i = 0; i < (cuantas[k] || 0); i++) lista.push(FORMAS[k]);
+    });
+    lista.sort((a, b) => b.n - a.n || b.h - a.h);
+    const ancho = Math.max(16, ...lista.map((f) => f.w));
+    const filas = [];
+    let fila = null;
+    lista.forEach((f) => {
+      if (!fila || fila.ancho + 2 + f.w > ancho) {
+        fila = { mesas: [], ancho: -2, alto: 0 };
+        filas.push(fila);
+      }
+      fila.mesas.push(f);
+      fila.ancho += 2 + f.w;
+      fila.alto = Math.max(fila.alto, f.h);
+    });
+    const cols = Math.max(8, ...filas.map((f) => f.ancho + 2));
+    const bloques = [];
+    let y = 2;
+    filas.forEach((f) => {
+      let x = Math.floor((cols - f.ancho) / 2);
+      f.mesas.forEach((m) => {
+        bloques.push({ x: x, y: y, w: m.w, h: m.h, n: m.n });
+        x += m.w + 2;
+      });
+      y += f.alto + 1;
+    });
+    return { cols: limitar(cols, MIN_LADO, MAX_LADO), rows: limitar(Math.max(y, 6), MIN_LADO, MAX_LADO), bloques: bloques };
+  }
+
+  // Las plantillas dejan la fila 0 para la mesa del docente y la 1 de
+  // pasillo; el alumnado empieza en la fila 2.
   function plantilla(tipo, cuantos) {
     const n = cuantos > 0 ? cuantos : 24;
     const bloques = [];
@@ -91,26 +141,26 @@
       const lado = Math.max(1, Math.floor(n / 4));
       const fondo = Math.max(1, n - 2 * lado);
       cols = fondo + 4;
-      rows = lado + 3;
+      rows = lado + 4;
       for (let i = 0; i < lado; i++) {
-        bloques.push({ x: 1, y: 1 + i, w: 1, h: 1, n: 1 });
-        bloques.push({ x: fondo + 2, y: 1 + i, w: 1, h: 1, n: 1 });
+        bloques.push({ x: 1, y: 2 + i, w: 1, h: 1, n: 1 });
+        bloques.push({ x: fondo + 2, y: 2 + i, w: 1, h: 1, n: 1 });
       }
-      for (let i = 0; i < fondo; i++) bloques.push({ x: 2 + i, y: lado + 1, w: 1, h: 1, n: 1 });
+      for (let i = 0; i < fondo; i++) bloques.push({ x: 2 + i, y: lado + 2, w: 1, h: 1, n: 1 });
     } else if (PLANTILLAS[tipo]) {
       const p = PLANTILLAS[tipo];
       const total = Math.ceil(n / p.n);
       const porFila = Math.min(total, p.porFila);
       const filas = Math.ceil(total / porFila);
       cols = 2 + porFila * p.w + (porFila - 1) * p.hueco;
-      rows = 2 + filas * p.h + (filas - 1);
+      rows = 3 + filas * p.h + (filas - 1);
       for (let k = 0; k < total; k++) {
         const f = Math.floor(k / porFila);
         const c = k % porFila;
         // La última fila, si no está completa, va centrada.
         const enFila = Math.min(porFila, total - f * porFila);
         const centrar = Math.floor(((porFila - enFila) * (p.w + p.hueco)) / 2);
-        bloques.push({ x: 1 + centrar + c * (p.w + p.hueco), y: 1 + f * (p.h + 1), w: p.w, h: p.h, n: p.n });
+        bloques.push({ x: 1 + centrar + c * (p.w + p.hueco), y: 2 + f * (p.h + 1), w: p.w, h: p.h, n: p.n });
       }
     }
     return { cols: limitar(cols, MIN_LADO, MAX_LADO), rows: limitar(rows, MIN_LADO, MAX_LADO), bloques: bloques };
@@ -118,13 +168,23 @@
 
   function nombrePlantilla(tipo) {
     if (PLANTILLAS[tipo]) return PLANTILLAS[tipo].nombre;
-    return tipo === "u" ? "En U" : "Aula vacía";
+    return { u: "En U", mixta: "Agrupación mixta" }[tipo] || "Aula vacía";
   }
 
-  function disposicionNueva(g, tipo) {
-    const p = plantilla(tipo, g.alumnos.length);
-    const d = { id: "d" + g.sig++, nombre: nombrePlantilla(tipo), cols: p.cols, rows: p.rows, bloques: [], fijos: {}, sig: 1, docente: "derecha" };
+  // Mesa del docente: más grande que la del alumnado (3 × 1 celdas al
+  // empezar), delante a la derecha; se arrastra, se gira y se cambia de
+  // tamaño en el editor como las demás, pero no tiene sitios.
+  function maestroPorDefecto(d, lado) {
+    const w = Math.min(3, d.cols);
+    const x = lado === "izquierda" ? 0 : lado === "centro" ? Math.floor((d.cols - w) / 2) : d.cols - w;
+    return { x: x, y: 0, w: w, h: 1 };
+  }
+
+  function disposicionNueva(g, tipo, cuantas) {
+    const p = tipo === "mixta" ? plantillaMixta(cuantas || {}) : plantilla(tipo, g.alumnos.length);
+    const d = { id: "d" + g.sig++, nombre: nombrePlantilla(tipo), cols: p.cols, rows: p.rows, bloques: [], fijos: {}, sig: 1 };
     p.bloques.forEach((b) => d.bloques.push(Object.assign({ id: "b" + d.sig++ }, b)));
+    d.maestro = maestroPorDefecto(d, "derecha");
     return d;
   }
 
@@ -197,7 +257,9 @@
       if (!Array.isArray(d.bloques)) d.bloques = [];
       if (!d.fijos || typeof d.fijos !== "object") d.fijos = {};
       if (!d.sig) d.sig = d.bloques.length + 1;
-      if (!d.docente) d.docente = "derecha";
+      // Versión anterior: solo el lado (izquierda, centro o derecha).
+      if (!d.maestro || typeof d.maestro !== "object") d.maestro = maestroPorDefecto(d, d.docente);
+      delete d.docente;
     });
     if (!g.disposiciones.some((d) => d.id === g.dispActual)) g.dispActual = g.disposiciones[0].id;
     if (g.borrador === undefined) g.borrador = null;
@@ -228,8 +290,7 @@
   // Lista de sitios con su posición absoluta, zona (0 delante, 1 en
   // medio, 2 al fondo), si cuenta como «delante» (el primer tercio de
   // filas ocupadas, como mínimo una) y si está «cerca del docente» (el
-  // tercio de sitios más cercano a su mesa, delante a un lado o en el
-  // centro, junto a la pizarra).
+  // cuarto de sitios más cercano a su mesa, como mínimo 4).
   function asientos(d) {
     const lista = [];
     d.bloques.forEach((b, bi) => {
@@ -250,10 +311,12 @@
         s.delante = s.ay - min < filasDelante;
         s.zona = f < 1 / 3 ? 0 : f > 2 / 3 ? 2 : 1;
       });
-      const mx = { izquierda: 0.5, centro: d.cols / 2, derecha: d.cols - 0.5 }[d.docente] || d.cols - 0.5;
-      const dist = (s) => Math.hypot(s.ax + 0.5 - mx, s.ay + 0.5);
+      const m = d.maestro || maestroPorDefecto(d, "derecha");
+      const mx = m.x + m.w / 2;
+      const my = m.y + m.h / 2;
+      const dist = (s) => Math.hypot(s.ax + 0.5 - mx, s.ay + 0.5 - my);
       const orden = lista.slice().sort((a, b) => dist(a) - dist(b));
-      const limite = dist(orden[Math.max(0, Math.ceil(lista.length / 3) - 1)]);
+      const limite = dist(orden[Math.max(0, Math.min(lista.length, Math.max(4, Math.ceil(lista.length / 4))) - 1)]);
       lista.forEach((s) => (s.cercaDocente = dist(s) <= limite + 1e-9));
     }
     return lista;
@@ -306,7 +369,7 @@
   }
 
   function copiaPlano(d) {
-    return { nombre: d.nombre, cols: d.cols, rows: d.rows, docente: d.docente, bloques: d.bloques.map((b) => Object.assign({}, b)) };
+    return { nombre: d.nombre, cols: d.cols, rows: d.rows, maestro: Object.assign({}, d.maestro), bloques: d.bloques.map((b) => Object.assign({}, b)) };
   }
 
   function ultimaDe(g, dispId) {
@@ -781,13 +844,17 @@
     e.style.gridTemplateRows = "repeat(" + b.h + ", 1fr)";
   }
 
-  // Mesa del docente: una marca en el borde de la pizarra.
-  function marcaDocente(plano, d, girado) {
-    let lado = d.docente || "derecha";
-    if (girado && lado !== "centro") lado = lado === "izquierda" ? "derecha" : "izquierda";
-    const m = crear("div", "marca-docente " + lado + (girado ? " abajo" : ""), "Mesa del docente");
-    m.setAttribute("aria-hidden", "true");
-    plano.appendChild(m);
+  // Mesa del docente en el plano (en el editor, además, se arrastra).
+  function dibujarMaestro(plano, d, girado, editar) {
+    const m = d.maestro;
+    if (!m) return null;
+    const e = crear("div", "mesa maestro" + (editar && mesaElegida === m ? " elegida" : ""));
+    colocarBloque(e, m, d, girado);
+    e.appendChild(crear("span", "maestro-texto", "Mesa del docente"));
+    if (!editar) e.setAttribute("aria-hidden", "true");
+    else e.addEventListener("pointerdown", (ev) => arrastrar(ev, e, m, d));
+    plano.appendChild(e);
+    return e;
   }
 
   // Celdas de una mesa, en su sitio de la rejilla (al revés si se mira
@@ -896,7 +963,7 @@
       });
       el.plano.appendChild(mesa);
     });
-    marcaDocente(el.plano, d, cfg.girado);
+    dibujarMaestro(el.plano, d, cfg.girado, false);
 
     // Quien no tiene sitio (alumnado nuevo, mesas quitadas o aún sin
     // generar): se toca su nombre y luego un sitio.
@@ -1205,17 +1272,19 @@
     ctx.strokeStyle = "#94a3b8";
     ctx.stroke();
 
-    // Mesa del docente, en el borde de la pizarra.
-    let lado = d.docente || "derecha";
-    if (girado && lado !== "centro") lado = lado === "izquierda" ? "derecha" : "izquierda";
-    const anchoMarca = 260;
-    const xm = lado === "izquierda" ? x0 + 10 : lado === "centro" ? W / 2 - anchoMarca / 2 : x0 + anchoPlano - anchoMarca - 10;
-    const ym = girado ? yPlano + altoPlano - 44 : yPlano;
-    ctx.fillStyle = "#cbd5e1";
-    ctx.fillRect(xm, ym, anchoMarca, 44);
-    ctx.fillStyle = "#1e293b";
-    ctx.font = "700 24px Inter, system-ui, sans-serif";
-    ctx.fillText("Mesa del docente", xm + anchoMarca / 2, ym + 22);
+    // Mesa del docente, donde se haya colocado.
+    const m = d.maestro;
+    if (m) {
+      const mx = x0 + (girado ? d.cols - m.x - m.w : m.x) * celda + 4;
+      const my = yPlano + (girado ? d.rows - m.y - m.h : m.y) * celda + 4;
+      const mw = m.w * celda - 8;
+      const mh = m.h * celda - 8;
+      redondo(ctx, mx, my, mw, mh, 10);
+      ctx.fillStyle = "#94a3b8";
+      ctx.fill();
+      ctx.fillStyle = "#0f172a";
+      nombreEnCaja(ctx, "Mesa del docente", mx + mw / 2, my + mh / 2, mw - 12, mh - 8, Math.min(30, Math.floor(mh / 2.6)));
+    }
 
     const hueco = Math.max(3, celda * 0.05);
     d.bloques.forEach((b) => {
@@ -1347,7 +1416,6 @@
       });
     });
     el.mesasNombre.value = disp(g).nombre;
-    $("mesa-docente").value = disp(g).docente || "derecha";
     $("btn-borrar-disp").disabled = g.disposiciones.length < 2;
   }
 
@@ -1374,8 +1442,10 @@
   // ---------------- Editor de mesas ----------------
   let mesaElegida = null;
 
+  // ¿Pisa otra mesa (o la del docente)?
   function solapa(d, b, x, y, w, h) {
-    return d.bloques.some((o) => o !== b && x < o.x + o.w && o.x < x + w && y < o.y + o.h && o.y < y + h);
+    const todas = d.maestro ? d.bloques.concat([d.maestro]) : d.bloques;
+    return todas.some((o) => o !== b && x < o.x + o.w && o.x < x + w && y < o.y + o.h && o.y < y + h);
   }
 
   function cambioDeMesas() {
@@ -1393,7 +1463,8 @@
   function pintarEditor() {
     const g = grupo();
     const d = disp(g);
-    if (mesaElegida && d.bloques.indexOf(mesaElegida) === -1) mesaElegida = null;
+    if (mesaElegida && d.bloques.indexOf(mesaElegida) === -1 && mesaElegida !== d.maestro) mesaElegida = null;
+    const esMaestro = !!mesaElegida && mesaElegida === d.maestro;
     prepararPlano(el.editor, d);
     d.bloques.forEach((b) => {
       const mesa = crear("div", "mesa" + (b === mesaElegida ? " elegida" : ""));
@@ -1402,11 +1473,20 @@
       mesa.addEventListener("pointerdown", (e) => arrastrar(e, mesa, b, d));
       el.editor.appendChild(mesa);
     });
-    marcaDocente(el.editor, d, false);
+    dibujarMaestro(el.editor, d, false, true);
     const n = asientos(d).length;
     el.mesasResumen.textContent = d.bloques.length + " mesas, " + n + " sitios para " + g.alumnos.length + " alumnos." + (n < g.alumnos.length ? " Faltan " + (g.alumnos.length - n) + " sitios." : "");
     ["btn-girar-mesa", "btn-quitar-mesa", "btn-sitio-menos", "btn-sitio-mas"].forEach((id) => ($(id).disabled = !mesaElegida));
-    if (mesaElegida) {
+    // Con la mesa del docente elegida, «− / +» cambian su largo.
+    $("btn-sitio-menos").textContent = esMaestro ? "− largo" : "− sitio";
+    $("btn-sitio-mas").textContent = esMaestro ? "+ largo" : "+ sitio";
+    if (esMaestro) {
+      const largo = Math.max(mesaElegida.w, mesaElegida.h);
+      $("btn-sitio-menos").disabled = largo <= 2;
+      $("btn-sitio-mas").disabled = largo >= 5;
+      $("btn-quitar-mesa").disabled = true;
+      $("btn-girar-mesa").disabled = mesaElegida.w === mesaElegida.h;
+    } else if (mesaElegida) {
       $("btn-sitio-menos").disabled = plazasDe(mesaElegida) <= 1;
       $("btn-sitio-mas").disabled = plazasDe(mesaElegida) >= mesaElegida.w * mesaElegida.h;
       $("btn-girar-mesa").disabled = mesaElegida.w === mesaElegida.h;
@@ -1458,13 +1538,15 @@
   document.querySelectorAll("[data-mesa]").forEach((boton) => {
     boton.addEventListener("click", () => {
       const d = disp(grupo());
-      const [w, h] = boton.dataset.mesa.split("x").map(Number);
+      const f = FORMAS[boton.dataset.mesa];
+      const w = f.w;
+      const h = f.h;
       const sitio = hueco(d, w, h);
       if (!sitio) {
         window.alert("No cabe otra mesa así. Amplía el aula con «+ ancho» o «+ fondo».");
         return;
       }
-      mesaElegida = { id: "b" + d.sig++, x: sitio.x, y: sitio.y, w: w, h: h, n: w * h };
+      mesaElegida = { id: "b" + d.sig++, x: sitio.x, y: sitio.y, w: w, h: h, n: f.n };
       d.bloques.push(mesaElegida);
       cambioDeMesas();
     });
@@ -1486,18 +1568,38 @@
 
   $("btn-quitar-mesa").addEventListener("click", () => {
     const d = disp(grupo());
+    if (mesaElegida === d.maestro) return;
     d.bloques = d.bloques.filter((b) => b !== mesaElegida);
     mesaElegida = null;
     cambioDeMesas();
   });
 
+  // Largo de la mesa del docente (de 2 a 5 celdas), si cabe.
+  function largoMaestro(d, m, delta) {
+    const largo = Math.max(m.w, m.h) + delta;
+    const nuevo = m.w >= m.h ? { w: largo, h: m.h } : { w: m.w, h: largo };
+    // Pegada al borde, crece hacia dentro.
+    nuevo.x = Math.max(0, Math.min(m.x, d.cols - nuevo.w));
+    nuevo.y = Math.max(0, Math.min(m.y, d.rows - nuevo.h));
+    if (largo < 2 || largo > 5 || nuevo.w > d.cols || nuevo.h > d.rows || solapa(d, m, nuevo.x, nuevo.y, nuevo.w, nuevo.h)) {
+      window.alert("Así no cabe: muévela antes a un hueco más amplio.");
+      return;
+    }
+    Object.assign(m, nuevo);
+    cambioDeMesas();
+  }
+
   $("btn-sitio-menos").addEventListener("click", () => {
     if (!mesaElegida) return;
+    const d = disp(grupo());
+    if (mesaElegida === d.maestro) return largoMaestro(d, mesaElegida, -1);
     mesaElegida.n = plazasDe(mesaElegida) - 1;
     cambioDeMesas();
   });
   $("btn-sitio-mas").addEventListener("click", () => {
     if (!mesaElegida) return;
+    const d = disp(grupo());
+    if (mesaElegida === d.maestro) return largoMaestro(d, mesaElegida, 1);
     mesaElegida.n = plazasDe(mesaElegida) + 1;
     cambioDeMesas();
   });
@@ -1526,12 +1628,40 @@
     pintarDisposiciones();
   });
 
-  $("mesa-docente").addEventListener("change", () => {
-    disp(grupo()).docente = $("mesa-docente").value;
-    guardar();
-    pintarEditor();
-    pintarAula();
-  });
+  // ---------------- Agrupación mixta ----------------
+  function leerComposicion() {
+    const cuantas = {};
+    document.querySelectorAll("#composicion [data-forma]").forEach((i) => (cuantas[i.dataset.forma] = limitar(Math.floor(Number(i.value) || 0), 0, 20)));
+    return cuantas;
+  }
+
+  function pintarComposicion() {
+    const caja = $("composicion");
+    caja.hidden = el.plantilla.value !== "mixta";
+    if (caja.hidden) return;
+    const cuantas = leerComposicion();
+    const sitios = Object.keys(cuantas).reduce((t, k) => t + cuantas[k] * FORMAS[k].n, 0);
+    const alumnos = grupo().alumnos.length;
+    $("composicion-total").textContent =
+      sitios + " sitios para " + alumnos + " alumnos" + (sitios < alumnos ? ": faltan " + (alumnos - sitios) + "." : sitios > alumnos ? ": sobran " + (sitios - alumnos) + "." : ". ✓");
+  }
+
+  (function crearComposicion() {
+    const cont = $("composicion-campos");
+    Object.keys(FORMAS).forEach((k) => {
+      const l = crear("label", "forma");
+      const i = crear("input");
+      i.type = "number";
+      i.min = "0";
+      i.max = "20";
+      i.value = "0";
+      i.dataset.forma = k;
+      i.addEventListener("input", pintarComposicion);
+      l.append(i, document.createTextNode(" " + FORMAS[k].nombre));
+      cont.appendChild(l);
+    });
+    el.plantilla.addEventListener("change", pintarComposicion);
+  })();
 
   function anadirDisposicion(d) {
     const g = grupo();
@@ -1540,7 +1670,13 @@
   }
 
   $("btn-nueva-disp").addEventListener("click", () => {
-    anadirDisposicion(disposicionNueva(grupo(), el.plantilla.value));
+    const tipo = el.plantilla.value;
+    const cuantas = leerComposicion();
+    if (tipo === "mixta" && !Object.keys(cuantas).some((k) => cuantas[k] > 0)) {
+      window.alert("Indica cuántas mesas quieres de cada tipo.");
+      return;
+    }
+    anadirDisposicion(disposicionNueva(grupo(), tipo, cuantas));
     el.mesasNombre.focus();
     el.mesasNombre.select();
   });
@@ -1947,7 +2083,8 @@
         window.alert("La agrupación de mesas de esa distribución ya no existe.");
         return;
       }
-      d = { id: "d" + g.sig++, nombre: (e.plano.nombre + " (recuperada)").slice(0, 40), cols: e.plano.cols, rows: e.plano.rows, bloques: e.plano.bloques.map((b) => Object.assign({}, b)), fijos: {}, sig: 1, docente: e.plano.docente || "derecha" };
+      d = { id: "d" + g.sig++, nombre: (e.plano.nombre + " (recuperada)").slice(0, 40), cols: e.plano.cols, rows: e.plano.rows, bloques: e.plano.bloques.map((b) => Object.assign({}, b)), fijos: {}, sig: 1 };
+      d.maestro = e.plano.maestro ? Object.assign({}, e.plano.maestro) : maestroPorDefecto(d, e.plano.docente);
       d.sig = d.bloques.reduce((m, b) => Math.max(m, Number(String(b.id).slice(1)) || 0), 0) + 1;
       g.disposiciones.push(d);
       e.dispId = d.id;
