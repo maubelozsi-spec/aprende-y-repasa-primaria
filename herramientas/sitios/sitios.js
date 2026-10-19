@@ -130,7 +130,7 @@
 
   // ---------------- Datos ----------------
   function opcionesPorDefecto() {
-    return { niveles: true, generos: false, zona: true, sitio: true, memoria: 4 };
+    return { niveles: true, rescate: true, cuatroDelante: true, generos: false, zona: true, sitio: true, memoria: 4 };
   }
 
   function grupoNuevo(id, nombre, alumnos) {
@@ -319,6 +319,8 @@
   const PESO_HISTORIAL = 30;
   const PESO_PREFERENCIA = 40;
   const PESO_TUTOR = 80;
+  const PESO_APOYO = 35;
+  const PESO_OCIOSO = 40;
   const PESO_NIVEL = 8;
   const PESO_GENERO = 10;
   const PESO_ZONA = 10;
@@ -415,6 +417,10 @@
       return Array.from({ length: k }, (_, l) => (con.length ? con.filter((v) => v === l).length / con.length : 0));
     };
     const usarNivel = g.opciones.niveles && nivel.some((v) => v >= 0);
+    const rescate = !!g.opciones.rescate;
+    // Alumnado de nivel 4 siempre junto a la pizarra (aunque no se use
+    // la tutorización por niveles).
+    const cuatroDelante = !!g.opciones.cuatroDelante;
     const usarGenero = g.opciones.generos && genero.some((v) => v >= 0);
     const propNivel = proporcion(nivel, NIVELES.length);
     const propGenero = proporcion(genero, GENEROS.length);
@@ -459,6 +465,7 @@
     const ocupN = new Float64Array(nB);
     const ocupG = new Float64Array(nB);
     const conTutor = new Uint8Array(N);
+    const ayudaA = new Uint8Array(N);
     const ocupados = new Float64Array(nB);
     const tamano = d.bloques.map(plazasDe);
     const huecosLibres = nS > N;
@@ -495,9 +502,10 @@
         const s = pos[a];
         if (s < 0) continue;
         const u = ubic[a];
-        if (u.delante && !sitios[s].delante) c += PESO_DURO;
+        const vaDelante = u.delante || (cuatroDelante && nivel[a] === 3);
+        if (vaDelante && !sitios[s].delante) c += PESO_DURO;
         if (u.docente && !sitios[s].cercaDocente) c += PESO_DURO;
-        if (!u.delante && !u.docente && zonaPrevia[a] !== 1 && zonaPrevia[a] === sitios[s].zona) c += PESO_ZONA;
+        if (!vaDelante && !u.docente && zonaPrevia[a] !== 1 && zonaPrevia[a] === sitios[s].zona) c += PESO_ZONA;
         if (sitioPrevio[a] === s) c += PESO_SITIO;
       }
       // Sitios libres repartidos: mejor una mesa de 4 con 3 que una con
@@ -514,14 +522,33 @@
         // Tutorización: cada alumno de nivel 3-4 con alguien de 1-2 en
         // su mesa o al lado.
         conTutor.fill(0);
+        ayudaA.fill(0);
         for (let p = 0; p < pares.length; p++) {
           const a = arr[pares[p][0]];
           const b = arr[pares[p][1]];
           if (a < 0 || b < 0 || nivel[a] < 0 || nivel[b] < 0) continue;
-          if (nivel[a] >= 2 && nivel[b] <= 1) conTutor[a] = 1;
-          if (nivel[b] >= 2 && nivel[a] <= 1) conTutor[b] = 1;
+          // 2: tutor de nivel 1-2; 1: al menos alguien de nivel superior
+          // (un 3 con un 4), para cuando no hay tutores para todos.
+          if (nivel[a] >= 2) conTutor[a] = Math.max(conTutor[a], nivel[b] <= 1 ? 2 : nivel[b] < nivel[a] ? 1 : 0);
+          if (nivel[b] >= 2) conTutor[b] = Math.max(conTutor[b], nivel[a] <= 1 ? 2 : nivel[a] < nivel[b] ? 1 : 0);
+          if (nivel[a] < nivel[b] && nivel[b] >= 2) ayudaA[a] = 1;
+          if (nivel[b] < nivel[a] && nivel[a] >= 2) ayudaA[b] = 1;
         }
-        for (let a = 0; a < N; a++) if (pos[a] >= 0 && nivel[a] >= 2 && !conTutor[a]) c += PESO_TUTOR;
+        for (let a = 0; a < N; a++) {
+          // Un alumno de nivel 1-2 sin nadie de 3-4 al lado es un tutor
+          // desaprovechado.
+          if (pos[a] >= 0 && nivel[a] >= 0 && nivel[a] <= 1 && !ayudaA[a]) c += PESO_OCIOSO;
+          if (pos[a] < 0 || nivel[a] < 2 || conTutor[a] === 2) continue;
+          // Con apoyo de un nivel superior (un 4 junto a un 3), o haciendo
+          // él de apoyo (ese 3): vale si no hay tutores para todos.
+          if (conTutor[a] === 1 || ayudaA[a]) c += PESO_APOYO;
+          else {
+            // Solo con alumnos de su mismo nivel (o sin nadie con nivel
+            // al lado): siempre en las primeras filas.
+            c += PESO_TUTOR;
+            if (rescate && !sitios[pos[a]].delante) c += PESO_DURO;
+          }
+        }
       }
       if (usarNivel || usarGenero) {
         cuentaN.fill(0);
@@ -640,6 +667,7 @@
       const u = ubicacionDe(g, a);
       if (posDe[a] === undefined) return;
       if (u.delante && !sitios[posDe[a]].delante) fallos.push(a + " no está delante");
+      else if (g.opciones.cuatroDelante && String(datoDe(g, a).nivel) === "4" && !sitios[posDe[a]].delante) fallos.push(a + " (nivel 4) no está en las primeras filas");
       if (u.docente && !sitios[posDe[a]].cercaDocente) fallos.push(a + " no está cerca del docente");
     });
 
@@ -650,6 +678,12 @@
     const sinTutor = necesitan.filter(
       (a) => !g.alumnos.some((b) => nivelDe(b) >= 1 && nivelDe(b) <= 2 && sonVecinos(a, b))
     );
+    // De los que no tienen tutor de 1-2: con apoyo de un nivel superior
+    // (3 con 4) o sin nadie por encima (y si están o no delante).
+    const conApoyo = sinTutor.filter((a) => g.alumnos.some((b) => nivelDe(b) >= 1 && nivelDe(b) < nivelDe(a) && sonVecinos(a, b)));
+    const apoyan = sinTutor.filter((a) => conApoyo.indexOf(a) === -1 && g.alumnos.some((b) => nivelDe(b) > nivelDe(a) && sonVecinos(a, b)));
+    const sinSuperior = sinTutor.filter((a) => conApoyo.indexOf(a) === -1 && apoyan.indexOf(a) === -1);
+    const sinSuperiorDetras = sinSuperior.filter((a) => !sitios[posDe[a]].delante);
     let mesasDosCuatro = 0;
     d.bloques.forEach((b, bi) => {
       const cuatros = sitios.filter((x) => x.bloque === bi && asig[x.id] && nivelDe(asig[x.id]) === 4).length;
@@ -693,6 +727,10 @@
       avisos: avisos,
       necesitan: necesitan.length,
       sinTutor: sinTutor,
+      conApoyo: conApoyo,
+      apoyan: apoyan,
+      sinSuperior: sinSuperior,
+      sinSuperiorDetras: sinSuperiorDetras,
       mesasDosCuatro: mesasDosCuatro,
       repetidos: repetidos,
       sinSitio: g.alumnos.filter((a) => !sentados.has(a)),
@@ -899,9 +937,16 @@
     if (g.opciones.niveles && rep.necesitan) {
       puntos.push(
         rep.sinTutor.length
-          ? ["Tutorización: ", rep.necesitan - rep.sinTutor.length + " de " + rep.necesitan + " alumnos de nivel 3-4 tienen al lado a alguien de nivel 1-2. Sin tutor: " + rep.sinTutor.join(", ") + "."]
+          ? ["Tutorización: ", rep.necesitan - rep.sinTutor.length + " de " + rep.necesitan + " alumnos de nivel 3-4 tienen al lado a alguien de nivel 1-2."]
           : ["✓ Tutorización: ", "todo el alumnado de nivel 3-4 tiene al lado a alguien de nivel 1-2."]
       );
+      if (rep.conApoyo.length) puntos.push(["Nivel 4 con apoyo de un nivel 3 (sin tutor de 1-2): ", rep.conApoyo.join(", ") + "."]);
+      if (rep.apoyan.length) puntos.push(["Nivel 3 que apoyan a un nivel 4 sin tener tutor: ", rep.apoyan.join(", ") + "."]);
+      if (rep.sinSuperior.length) {
+        const delante = rep.sinSuperior.filter((a) => rep.sinSuperiorDetras.indexOf(a) === -1);
+        if (delante.length) puntos.push(["Solo con compañeros de su mismo nivel, en las primeras filas: ", delante.join(", ") + "."]);
+        if (rep.sinSuperiorDetras.length) puntos.push(["⚠️ Solo con compañeros de su mismo nivel y fuera de las primeras filas: ", rep.sinSuperiorDetras.join(", ") + (g.opciones.rescate ? " (no caben delante: añade sitios en las primeras filas o cambia la agrupación)." : ".")]);
+      }
       if (rep.mesasDosCuatro) puntos.push(["Mesas con dos o más alumnos de nivel 4: ", String(rep.mesasDosCuatro)]);
     }
     if (referencia) {
@@ -1290,7 +1335,7 @@
     guardar();
     pintarDisposiciones();
     pintarAula();
-    pintarEditor();
+    pintarEditor();  pintarResumenNiveles();
   }
 
   el.disposicion.addEventListener("change", () => cambiarDisposicion(el.disposicion.value));
@@ -1312,7 +1357,7 @@
     guardar();
     pintarDisposiciones();
     pintarEditor();
-    pintarAula();
+    pintarAula();  pintarResumenNiveles();
   }
 
   function pintarEditor() {
@@ -1592,9 +1637,16 @@
     const tutores = cuenta[1] + cuenta[2];
     const tutorizados = cuenta[3] + cuenta[4];
     const mesas = disp(g).bloques.filter((b) => plazasDe(b) > 1).length;
-    if (tutorizados > 2 * tutores) texto += "Hay más del doble de alumnado de nivel 3-4 que de 1-2: no todos podrán tener un tutor al lado.";
+    if (tutorizados > 2 * tutores) texto += "Hay más del doble de alumnado de nivel 3-4 que de 1-2: no todos tendrán un tutor de 1-2. Se buscará un compañero de nivel superior (un 3 para un 4) y, si no lo hay, se sentarán en las primeras filas.";
     else if (mesas && tutores < mesas) texto += "Con " + mesas + " mesas y " + tutores + (tutores === 1 ? " alumno" : " alumnos") + " de nivel 1-2, alguna mesa quedará sin tutor.";
     else texto += "Hay alumnado de nivel 1-2 suficiente para tutorizar en cada mesa.";
+    // ¿Caben delante todos los que tienen que ir delante?
+    const sitiosDelante = asientos(disp(g)).filter((x) => x.delante).length;
+    const deben = g.alumnos.filter((a) => {
+      const u = ubicacionDe(g, a);
+      return u.delante || (g.opciones.cuatroDelante && String(datoDe(g, a).nivel) === "4");
+    }).length;
+    if (deben > sitiosDelante) texto += " ⚠️ Deben ir en las primeras filas " + deben + " alumnos y esta agrupación solo tiene " + sitiosDelante + " sitios ahí.";
     p.textContent = texto;
   }
 
@@ -1762,6 +1814,9 @@
     aviso.hidden = !choques.length;
 
     $("op-niveles").checked = !!g.opciones.niveles;
+    $("op-rescate").checked = !!g.opciones.rescate;
+    $("op-cuatro").checked = !!g.opciones.cuatroDelante;
+    $("op-rescate").disabled = !g.opciones.niveles;
     $("op-generos").checked = !!g.opciones.generos;
     $("op-zona").checked = !!g.opciones.zona;
     $("op-sitio").checked = !!g.opciones.sitio;
@@ -1786,11 +1841,13 @@
     pintarCondiciones();
   });
 
-  [["op-niveles", "niveles"], ["op-generos", "generos"], ["op-zona", "zona"], ["op-sitio", "sitio"]].forEach(([id, clave]) => {
+  [["op-niveles", "niveles"], ["op-rescate", "rescate"], ["op-cuatro", "cuatroDelante"], ["op-generos", "generos"], ["op-zona", "zona"], ["op-sitio", "sitio"]].forEach(([id, clave]) => {
     $(id).addEventListener("change", () => {
       grupo().opciones[clave] = $(id).checked;
       guardar();
+      pintarCondiciones();
       pintarAula();
+      pintarResumenNiveles();
     });
   });
   $("op-memoria").addEventListener("change", () => {
