@@ -122,6 +122,12 @@
 .editando .mesa.choca { outline: 3px solid var(--rojo); }
 .sitio-molde { border-radius: 5px; background: rgba(248, 250, 252, 0.7); }
 
+.mesa.maestro { background: #64748b; display: grid; place-items: center; padding: 2px; }
+.maestro-texto { color: #f8fafc; font-weight: 800; text-align: center; line-height: 1.1; font-size: clamp(8px, calc(100cqw / var(--cols, 12) * 0.16), 18px); overflow-wrap: anywhere; }
+.composicion { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--borde); }
+.composicion-campos { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.composicion .forma { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.composicion input[type="number"] { width: 64px; min-height: 40px; background: var(--panel); color: var(--texto); border: 1px solid var(--borde); border-radius: 10px; padding: 6px 8px; }
 .marca-docente {
   position: absolute;
   top: 0;
@@ -206,5 +212,6 @@
   .sitio { border: 0.3mm solid #555; background: #fff; }
   .sitio.libre { background: #fff; border-style: dashed; }
   .sitio.fijo::after { content: none; }
+  .mesa.maestro { background: #94a3b8; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }

@@ -143,17 +143,11 @@
 
 <section class="ajustes" id="panel-mesas" hidden aria-label="Mesas">
   <h2>Agrupaciones de mesas</h2>
-  <p class="ayuda">Guarda tantas como quieras (filas, parejas, grupos de 4…) y elige cuál usar en «Agrupación». Arrastra las mesas para colocarlas como estén en tu aula; toca una para girarla o quitarla.</p>
+  <p class="ayuda">Guarda tantas como quieras (filas, parejas, grupos de 4…) y elige cuál usar en «Agrupación». Arrastra las mesas (también la gris del docente) para colocarlas como estén en tu aula; toca una para girarla, cambiarla de tamaño o quitarla. En una misma agrupación puedes combinar mesas sueltas, de 2, de 3, de 4…</p>
   <div class="fila">
     <label for="mesas-disp">Agrupación</label>
     <select id="mesas-disp"></select>
     <input type="text" id="mesas-nombre" maxlength="40" aria-label="Nombre de la agrupación">
-    <label for="mesa-docente">Mesa del docente</label>
-    <select id="mesa-docente">
-      <option value="izquierda">Delante a la izquierda</option>
-      <option value="centro">Delante en el centro</option>
-      <option value="derecha">Delante a la derecha</option>
-    </select>
   </div>
   <div class="fila">
     <label for="plantilla">Nueva a partir de</label>
@@ -165,20 +159,28 @@
       <option value="grupos5">Grupos de 5</option>
       <option value="grupos6">Grupos de 6</option>
       <option value="u">En U</option>
+      <option value="mixta">Mixta (mesas de distintos tamaños)</option>
       <option value="vacia">Aula vacía</option>
     </select>
     <button type="button" class="btn" id="btn-nueva-disp">+ Crear</button>
     <button type="button" class="btn" id="btn-duplicar-disp">Duplicar</button>
     <button type="button" class="btn btn-peligro" id="btn-borrar-disp">Borrar</button>
   </div>
+  <div class="composicion" id="composicion" hidden>
+    <p class="ayuda">¿Cuántas mesas de cada tipo? Por ejemplo, 4 de «4 juntas», 3 de «2 juntas» y 1 de «3 juntas en fila». Después se pueden mover una a una.</p>
+    <div class="composicion-campos" id="composicion-campos"></div>
+    <p class="ayuda" id="composicion-total"></p>
+  </div>
   <div class="fila editor-mandos">
     <span>Añadir mesa:</span>
-    <button type="button" class="btn" data-mesa="1x1">1</button>
-    <button type="button" class="btn" data-mesa="2x1">2</button>
-    <button type="button" class="btn" data-mesa="3x1">3</button>
-    <button type="button" class="btn" data-mesa="2x2">4</button>
-    <button type="button" class="btn" data-mesa="3x2">6</button>
-    <button type="button" class="btn" data-mesa="4x2">8</button>
+    <button type="button" class="btn" data-mesa="f1" title="Mesa suelta">1</button>
+    <button type="button" class="btn" data-mesa="f2" title="2 mesas juntas">2</button>
+    <button type="button" class="btn" data-mesa="f3" title="3 mesas juntas en fila">3</button>
+    <button type="button" class="btn" data-mesa="f4l" title="4 mesas juntas en fila">4 ▬</button>
+    <button type="button" class="btn" data-mesa="f4" title="4 mesas juntas (2 × 2)">4 ▦</button>
+    <button type="button" class="btn" data-mesa="f5" title="5 mesas juntas">5</button>
+    <button type="button" class="btn" data-mesa="f6" title="6 mesas juntas (3 × 2)">6</button>
+    <button type="button" class="btn" data-mesa="f8" title="8 mesas juntas (4 × 2)">8</button>
     <span class="separador"></span>
     <button type="button" class="btn" id="btn-sitio-menos" disabled>− sitio</button>
     <button type="button" class="btn" id="btn-sitio-mas" disabled>+ sitio</button>
