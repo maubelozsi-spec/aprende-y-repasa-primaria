@@ -862,6 +862,7 @@
     else if (sitios.length < g.alumnos.length) aviso = "Hay " + sitios.length + " sitios para " + g.alumnos.length + " alumnos: añade mesas en «🪑 Mesas».";
     el.aviso.textContent = aviso;
     el.aviso.hidden = !aviso;
+    $("btn-completar").hidden = !(sitios.length && sitios.length < g.alumnos.length);
     el.generar.disabled = !g.alumnos.length || !sitios.length;
 
     el.ayudaPlano.textContent = modoFijar
@@ -1086,6 +1087,35 @@
   });
 
   $("btn-imprimir").addEventListener("click", () => window.print());
+
+  // Si la clase crece: añade mesas iguales a la más repetida de la
+  // agrupación hasta que haya sitio para todos, ampliando el fondo del
+  // aula si no caben.
+  $("btn-completar").addEventListener("click", () => {
+    const g = grupo();
+    const d = disp(g);
+    const tipos = new Map();
+    d.bloques.forEach((b) => {
+      const k = b.w + "x" + b.h + "x" + plazasDe(b);
+      tipos.set(k, (tipos.get(k) || 0) + 1);
+    });
+    const [w, h, n] = Array.from(tipos.entries()).sort((a, b) => b[1] - a[1])[0][0].split("x").map(Number);
+    let faltan = g.alumnos.length - asientos(d).length;
+    while (faltan > 0) {
+      const sitio = hueco(d, w, h);
+      if (!sitio) {
+        if (d.rows + h + 1 > MAX_LADO) {
+          window.alert("No caben más mesas en el aula. Quita alguna o usa mesas más grandes en «🪑 Mesas».");
+          break;
+        }
+        d.rows += h + 1;
+        continue;
+      }
+      d.bloques.push({ id: "b" + d.sig++, x: sitio.x, y: sitio.y, w: w, h: h, n: n });
+      faltan -= n;
+    }
+    cambioDeMesas();
+  });
 
   // ---------------- Imagen y PDF ----------------
   // El plano se dibuja en un canvas (sin librerías ni servicios
@@ -1418,6 +1448,8 @@
   }
 
   function hueco(d, w, h) {
+    // Primero un sitio con pasillo alrededor; si no hay, el primero libre.
+    for (let y = 1; y <= d.rows - h - 1; y++) for (let x = 1; x <= d.cols - w - 1; x++) if (!solapa(d, null, x - 1, y - 1, w + 2, h + 2)) return { x, y };
     for (let y = 1; y <= d.rows - h; y++) for (let x = 1; x <= d.cols - w; x++) if (!solapa(d, null, x, y, w, h)) return { x, y };
     for (let y = 0; y <= d.rows - h; y++) for (let x = 0; x <= d.cols - w; x++) if (!solapa(d, null, x, y, w, h)) return { x, y };
     return null;
