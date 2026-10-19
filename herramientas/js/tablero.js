@@ -69,6 +69,15 @@
       // Una sola: dos ventanas guardarían el mismo historial a la vez.
       unica: true,
     },
+    {
+      id: "sitios",
+      nombre: "Sitios de clase",
+      icono: "🪑",
+      url: "sitios/index.html?embed=1",
+      w: 0.75,
+      h: 0.92,
+      unica: true,
+    },
   ];
 
   const CLAVE = "ar_herramientas_tablero";
