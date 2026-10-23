@@ -769,14 +769,178 @@ function genNumerosEnterosAltas() {
   };
 }
 
-function multiplosDivisoresLista(curso) {
-  const n = curso === "6" ? randomInt(6, 15) : randomInt(3, 12);
+// ---- Múltiplos, divisores y números primos ----
+// Los problemas reciben un nivel (MD_NIVELES) en vez del curso: así la
+// misma situación sirve para 5º, 6º, ACS, discalculia y altas
+// capacidades cambiando solo el tamaño de los números. En 5º no salen
+// el m.c.m. ni el M.C.D. (son de 6º, como en la página del tema).
+const MD_NIVELES = {
+  "5": { bases: [3, 4, 5, 6, 7, 8, 9], ninos: [18, 36], sillas: [12, 16, 18, 20, 24, 30, 36], cajas: [4, 6, 8, 10, 12], primos: [11, 50], crit: [2, 3, 5, 10], cifras: 3 },
+  "6": { bases: [6, 7, 8, 9, 11, 12, 15], ninos: [40, 90], sillas: [36, 40, 48, 60, 72], cajas: [6, 8, 12, 15, 24], primos: [31, 99], crit: [2, 3, 5, 9, 10], cifras: 4 },
+  acs: { bases: [2, 5, 10], ninos: [10, 30], sillas: [], cajas: [2, 5, 10], primos: [], crit: [], cifras: 2 },
+  disc: { bases: [2, 3, 4, 5, 10], ninos: [12, 30], sillas: [12, 16, 18, 20], cajas: [2, 4, 5, 10], primos: [7, 30], crit: [2, 5, 10], cifras: 2 },
+};
+
+// Baraja por nivel: una ficha no repite situación hasta haberlas usado
+// todas. Como cada ficha se genera de golpe, si ha pasado más de un
+// segundo desde el último problema se empieza baraja nueva, para que
+// una ficha no herede lo que sobró de la anterior.
+const MD_BARAJAS = {};
+let mdUltimoUso = 0;
+function mdSiguiente(clave, generadores) {
+  const ahora = Date.now();
+  if (ahora - mdUltimoUso > 1000) Object.keys(MD_BARAJAS).forEach((k) => delete MD_BARAJAS[k]);
+  mdUltimoUso = ahora;
+  if (!MD_BARAJAS[clave] || !MD_BARAJAS[clave].length) {
+    const copia = generadores.slice();
+    for (let i = copia.length - 1; i > 0; i--) {
+      const j = randomInt(0, i);
+      [copia[i], copia[j]] = [copia[j], copia[i]];
+    }
+    MD_BARAJAS[clave] = copia;
+  }
+  return MD_BARAJAS[clave].pop();
+}
+
+function mdDivisores(n) {
+  const out = [];
+  for (let d = 1; d <= n; d++) if (n % d === 0) out.push(d);
+  return out;
+}
+
+function mdParejas(n) {
+  const out = [];
+  for (let d = 1; d * d <= n; d++) if (n % d === 0) out.push(`${d} × ${n / d}`);
+  return out;
+}
+
+function mdDivision(a, b) {
+  return `${a} : ${b} = ${Math.floor(a / b)}, resto ${a % b}`;
+}
+
+function multiplosDivisoresLista(nivel) {
+  const n = pick(nivel.bases);
   const multiplos = Array.from({ length: 5 }, (_, i) => n * (i + 1));
   return {
     enunciado: `Escribe los 5 primeros múltiplos de ${n} (sin contar el 0).`,
     datos: [`Número: ${n}`],
     operacion: `${n} × 1, ${n} × 2, ${n} × 3, ${n} × 4, ${n} × 5`,
     solucion: `${multiplos.join(", ")}.`,
+  };
+}
+
+function multiplosDivisoresEquipos(nivel) {
+  const k = pick(nivel === MD_NIVELES.acs ? [2] : nivel.bases.filter((b) => b <= 9));
+  const [min, max] = nivel.ninos;
+  const n = randomInt(min, max);
+  const q = Math.floor(n / k);
+  const r = n % k;
+  if (k === 2) {
+    return {
+      enunciado: `En el patio hay ${n} niños y niñas. ¿Pueden ponerse todos por parejas sin que nadie se quede solo? ¿Cuántas parejas salen?`,
+      datos: [`Niños y niñas: ${n}`, `Por parejas: de 2 en 2`],
+      operacion: mdDivision(n, 2),
+      solucion: r === 0
+        ? `Sí. Salen ${q} parejas y no se queda nadie solo: ${n} es múltiplo de 2 (termina en cifra par).`
+        : `No. Salen ${q} parejas y se queda 1 solo: ${n} no es múltiplo de 2 (termina en cifra impar).`,
+    };
+  }
+  return {
+    enunciado: `En el patio hay ${n} niños y niñas, y la monitora quiere hacer equipos de ${k}. ¿Puede hacerlo sin que nadie se quede fuera? ¿Cuántos equipos completos salen y cuántos niños se quedan sin equipo?`,
+    datos: [`Niños y niñas: ${n}`, `En cada equipo: ${k}`],
+    operacion: mdDivision(n, k),
+    solucion: r === 0
+      ? `Sí. Salen ${q} equipos y no se queda nadie fuera, porque ${k} es divisor de ${n}.`
+      : `No. Salen ${q} equipos completos y se ${r === 1 ? "queda 1 niño" : `quedan ${r} niños`} sin equipo, porque ${k} no es divisor de ${n}.`,
+  };
+}
+
+function multiplosDivisoresSillas(nivel) {
+  const n = pick(nivel.sillas);
+  return {
+    enunciado: `Para la función del colegio hay que colocar ${n} sillas en filas iguales, sin que sobre ninguna. Escribe todas las formas posibles: cuántas filas y cuántas sillas en cada fila.`,
+    datos: [`Sillas: ${n}`],
+    operacion: `Parejas que multiplicadas dan ${n}: ${mdParejas(n).join(" · ")}`,
+    solucion: `${mdDivisores(n).map((d) => `${d} ${d === 1 ? "fila" : "filas"} de ${n / d}`).join(", ")}. Son tantas formas como divisores tiene ${n}: ${mdDivisores(n).join(", ")}.`,
+  };
+}
+
+function multiplosDivisoresCajas(nivel) {
+  const b = pick(nivel.cajas);
+  const [p1, p2] = pickTwo(NOMBRES);
+  const qOk = randomInt(3, nivel === MD_NIVELES["6"] ? 12 : 9);
+  const ok = b * qOk;
+  const qNo = randomInt(3, nivel === MD_NIVELES["6"] ? 12 : 9);
+  const no = b * qNo + randomInt(1, b - 1);
+  const okPrimero = Math.random() < 0.5;
+  const [a1, n1, a2, n2] = okPrimero ? [p1, ok, p2, no] : [p1, no, p2, ok];
+  const quienOk = okPrimero ? p1 : p2;
+  const quienNo = okPrimero ? p2 : p1;
+  return {
+    enunciado: `En la tienda los rotuladores se venden solo en cajas de ${b}. ${a1} necesita exactamente ${n1} rotuladores y ${a2} necesita ${n2}. ¿Quién puede comprar justo los que necesita con cajas completas? ¿Cuántas cajas compra?`,
+    datos: [`Rotuladores por caja: ${b}`, `${a1}: ${n1}`, `${a2}: ${n2}`],
+    operacion: `${mdDivision(ok, b)} · ${mdDivision(no, b)}`,
+    solucion: `${quienOk}, que compra ${qOk} cajas: ${ok} es múltiplo de ${b} (${b} × ${qOk} = ${ok}). ${quienNo} no puede, porque ${no} no es múltiplo de ${b}.`,
+  };
+}
+
+function multiplosDivisoresRana(nivel) {
+  const b = pick(nivel.bases);
+  const pasos = nivel === MD_NIVELES.acs || nivel === MD_NIVELES.disc ? 6 : 8;
+  const casillas = Array.from({ length: pasos }, (_, i) => b * (i + 1));
+  const lejos = b * randomInt(pasos + 3, pasos + 12);
+  const meta = Math.random() < 0.5 ? lejos : lejos + randomInt(1, b - 1);
+  const pisa = meta % b === 0;
+  return {
+    enunciado: `Una rana sale de la casilla 0 y avanza dando saltos de ${b} en ${b}. Escribe las ${pasos} primeras casillas que pisa. ¿Pisará la casilla ${meta}? ¿Por qué?`,
+    datos: [`Salto: ${b} casillas`, `Casilla que se pregunta: ${meta}`],
+    operacion: `${b} × 1, ${b} × 2, ${b} × 3… · ${mdDivision(meta, b)}`,
+    solucion: `${casillas.join(", ")}. ${pisa ? `Sí pisa la ${meta}: es múltiplo de ${b} (salto ${meta / b}).` : `No pisa la ${meta}: no es múltiplo de ${b}, salta de la ${meta - (meta % b)} a la ${meta - (meta % b) + b}.`}`,
+  };
+}
+
+const MD_CRITERIO = {
+  2: (n) => `termina en ${n % 10}${n % 2 === 0 ? ", cifra par" : ", cifra impar"}`,
+  3: (n) => `sus cifras suman ${String(n).split("").join(" + ")} = ${String(n).split("").reduce((s, c) => s + Number(c), 0)}`,
+  5: (n) => `termina en ${n % 10}`,
+  9: (n) => `sus cifras suman ${String(n).split("").reduce((s, c) => s + Number(c), 0)}`,
+  10: (n) => `termina en ${n % 10}`,
+};
+
+function multiplosDivisoresCriterios(nivel) {
+  const min = nivel.cifras === 4 ? 1000 : 100;
+  const max = nivel.cifras === 4 ? 9999 : 999;
+  // Se parte de un múltiplo de algún divisor para que casi siempre haya
+  // al menos un «sí» entre las bolsas.
+  const base = pick([2, 3, 5, 6, 10, 15, 30].concat(nivel.crit.includes(9) ? [9, 18, 45] : []));
+  const n = base * randomInt(Math.ceil(min / base), Math.floor(max / base));
+  const lista = nivel.crit;
+  const filas = lista.map((c) => `De ${c}: ${n % c === 0 ? "sí" : "no"} (${MD_CRITERIO[c](n)})`);
+  return {
+    enunciado: `En la recogida solidaria del colegio se han juntado ${n} tapones. Sin hacer la división, usa los criterios de divisibilidad: ¿se pueden repartir en bolsas de ${lista.slice(0, -1).join(", ")} o de ${lista[lista.length - 1]} sin que sobre ninguno?`,
+    datos: [`Tapones: ${n}`, `Bolsas de: ${lista.join(", ")}`],
+    operacion: lista.map((c) => `${c}: ${MD_CRITERIO[c](n)}`).join(" · "),
+    solucion: `${filas.join(". ")}.`,
+  };
+}
+
+function multiplosDivisoresPrimo(nivel) {
+  const [min, max] = nivel.primos;
+  const esPrimo = (x) => mdDivisores(x).length === 2;
+  const quierePrimo = Math.random() < 0.5;
+  let n;
+  do {
+    n = randomInt(min, max);
+  } while (esPrimo(n) !== quierePrimo || (!quierePrimo && n % 2 === 0 && Math.random() < 0.6));
+  const divs = mdDivisores(n);
+  const ejemplo = mdParejas(n)[1];
+  return {
+    enunciado: `${pick(NOMBRES)} quiere colocar ${n} baldosas formando un rectángulo de más de una fila, con todas las filas iguales. ¿Puede hacerlo? Si puede, escribe una forma. ¿${n} es un número primo o compuesto?`,
+    datos: [`Baldosas: ${n}`],
+    operacion: `Divisores de ${n}: ${divs.join(", ")}`,
+    solucion: quierePrimo
+      ? `No puede: ${n} es primo, solo tiene dos divisores (1 y ${n}), así que solo cabe en 1 fila de ${n}.`
+      : `Sí: por ejemplo, ${ejemplo.split(" × ")[0]} filas de ${ejemplo.split(" × ")[1]} (${ejemplo} = ${n}). ${n} es compuesto: tiene más de dos divisores.`,
   };
 }
 
@@ -820,22 +984,29 @@ function multiplosDivisoresMCD(curso) {
   };
 }
 
+const MD_PROBLEMAS_5 = [multiplosDivisoresLista, multiplosDivisoresEquipos, multiplosDivisoresSillas, multiplosDivisoresCajas, multiplosDivisoresRana, multiplosDivisoresCriterios, multiplosDivisoresPrimo];
+
 function genMultiplosDivisores(curso) {
-  return pick([multiplosDivisoresLista, multiplosDivisoresMCM, multiplosDivisoresMCD])(curso);
+  if (curso === "6") {
+    const g = mdSiguiente("6", ["mcm", "mcd", "mcm", "mcd", multiplosDivisoresSillas, multiplosDivisoresCriterios, multiplosDivisoresPrimo, multiplosDivisoresCajas]);
+    if (g === "mcm") return multiplosDivisoresMCM("6");
+    if (g === "mcd") return multiplosDivisoresMCD("6");
+    return g(MD_NIVELES["6"]);
+  }
+  return mdSiguiente("5", MD_PROBLEMAS_5)(MD_NIVELES["5"]);
 }
 
 function genMultiplosDivisoresACS() {
-  const n = pick([2, 5, 10]);
-  const multiplos = Array.from({ length: 5 }, (_, i) => n * (i + 1));
-  return {
-    enunciado: `Escribe los 5 primeros múltiplos de ${n} (sin contar el 0).`,
-    datos: [`Número: ${n}`],
-    operacion: `${n} × 1, ${n} × 2, ${n} × 3, ${n} × 4, ${n} × 5`,
-    solucion: `${multiplos.join(", ")}.`,
-  };
+  return mdSiguiente("acs", [multiplosDivisoresLista, multiplosDivisoresEquipos, multiplosDivisoresCajas, multiplosDivisoresRana])(MD_NIVELES.acs);
 }
 
-function genMultiplosDivisoresAltas() {
+// Discalculia: las mismas situaciones de 5º con números pequeños (no el
+// nivel de ACS), igual que en la práctica de la página.
+function genMultiplosDivisoresDiscalculia() {
+  return mdSiguiente("disc", [multiplosDivisoresLista, multiplosDivisoresEquipos, multiplosDivisoresSillas, multiplosDivisoresCajas, multiplosDivisoresRana, multiplosDivisoresPrimo])(MD_NIVELES.disc);
+}
+
+function multiplosDivisoresTresAutobuses() {
   const [a, b] = randomDistintos(6, 15);
   let c;
   do {
@@ -848,6 +1019,34 @@ function genMultiplosDivisoresAltas() {
     operacion: `m.c.m.(${a}, ${b}, ${c}) = ${resultado}`,
     solucion: `${resultado} minutos. Volverán a coincidir los tres dentro de ${resultado} minutos.`,
   };
+}
+
+// Un intervalo de exactamente m.c.m. números contiene un único múltiplo
+// común: así la respuesta es única.
+function multiplosDivisoresCanicas() {
+  let a, b, m;
+  do {
+    [a, b] = randomDistintos(4, 12);
+    m = lcm(a, b);
+  } while (m > 60 || m === Math.max(a, b));
+  const total = m * randomInt(2, Math.max(2, Math.floor(150 / m)));
+  const desde = total - randomInt(0, m - 1);
+  const hasta = desde + m - 1;
+  const nombre = pick(NOMBRES);
+  return {
+    enunciado: `${nombre} tiene entre ${desde} y ${hasta} canicas. Si las agrupa de ${a} en ${a} no le sobra ninguna, y si las agrupa de ${b} en ${b} tampoco. ¿Cuántas canicas tiene?`,
+    datos: [`Entre ${desde} y ${hasta} canicas`, `Grupos de ${a}: no sobra`, `Grupos de ${b}: no sobra`],
+    operacion: `Múltiplos comunes de ${a} y ${b}: ${m}, ${m * 2}, ${m * 3}… (m.c.m. = ${m})`,
+    solucion: `${total} canicas: es el único múltiplo común de ${a} y ${b} entre ${desde} y ${hasta}.`,
+  };
+}
+
+function genMultiplosDivisoresAltas() {
+  const g = mdSiguiente("altas", ["tres", "canicas", "criterios", "primo"]);
+  if (g === "tres") return multiplosDivisoresTresAutobuses();
+  if (g === "canicas") return multiplosDivisoresCanicas();
+  if (g === "criterios") return multiplosDivisoresCriterios(MD_NIVELES["6"]);
+  return multiplosDivisoresPrimo({ primos: [51, 150] });
 }
 
 function fraccionesTartaResto(curso) {
@@ -2280,7 +2479,7 @@ const TOPICS = [
   { id: "numeros-romanos", label: "Números romanos", category: "Operaciones básicas", generate: genNumerosRomanos, generateACS: genNumerosRomanosACS, generateAltas: genNumerosRomanosAltas, resumen: "Los números romanos se escriben combinando las letras I, V, X, L, C, D y M según reglas de suma y resta." },
   { id: "potencias", label: "Las potencias", category: "Operaciones básicas", generate: genPotencias, generateACS: genPotenciasACS, generateAltas: genPotenciasAltas, resumen: "Una potencia es una multiplicación de un mismo número (la base) tantas veces como indica el exponente." },
   { id: "numeros-enteros", label: "Números enteros", category: "Operaciones básicas", generate: genNumerosEnteros, generateACS: genNumerosEnterosACS, generateAltas: genNumerosEnterosAltas, resumen: "Los números enteros incluyen los positivos, los negativos y el cero. Sirven para representar cambios en dos sentidos, como subir o bajar." },
-  { id: "multiplos-divisores", label: "Múltiplos, divisores y m.c.m.", category: "Operaciones básicas", generate: genMultiplosDivisores, generateACS: genMultiplosDivisoresACS, generateAltas: genMultiplosDivisoresAltas, resumen: "Los múltiplos de un número se obtienen multiplicándolo por 1, 2, 3... El m.c.m. es el menor múltiplo común de dos números." },
+  { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", category: "Operaciones básicas", generate: genMultiplosDivisores, generateACS: genMultiplosDivisoresACS, generateDiscalculia: genMultiplosDivisoresDiscalculia, generateAltas: genMultiplosDivisoresAltas, resumen: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo. En 6º: el m.c.m. es el menor múltiplo común de dos números y el M.C.D., su mayor divisor común." },
   { id: "fracciones", label: "Fracciones", category: "Fracciones y decimales", generate: genFracciones, generateACS: genFraccionesACS, generateAltas: genFraccionesAltas, resumen: "Una fracción representa las partes que se toman de un todo dividido en partes iguales." },
   { id: "operaciones-fracciones", label: "Operaciones con fracciones", category: "Fracciones y decimales", generate: genOperacionesFracciones, generateACS: genOperacionesFraccionesACS, generateAltas: genOperacionesFraccionesAltas, resumen: "Para sumar o restar fracciones con distinto denominador, primero hay que buscar un denominador común." },
   { id: "decimales", label: "Números decimales (redondeo)", category: "Fracciones y decimales", generate: genDecimales, generateACS: genDecimalesACS, generateAltas: genDecimalesAltas, resumen: "Los números decimales tienen una parte entera y una parte decimal separadas por una coma. Redondear es aproximar a un número más sencillo." },
@@ -2451,6 +2650,16 @@ function getTopicsByCategory() {
 const DISCALCULIA_SCAFFOLD = " Tómate tu tiempo.";
 
 function generarProblemas(topic, curso, count, dificultad) {
+  // Un tema puede dar a la discalculia sus propios problemas en vez de
+  // los de ACS (generateDiscalculia); los demás siguen con los de ACS.
+  if (dificultad === "discalculia" && topic.generateDiscalculia) {
+    const problems = [];
+    for (let i = 0; i < count; i++) {
+      const p = topic.generateDiscalculia(curso);
+      problems.push({ ...p, enunciado: p.enunciado + DISCALCULIA_SCAFFOLD });
+    }
+    return problems;
+  }
   if (dificultad === "acs" || dificultad === "discalculia") {
     if (!topic.generateACS) return generarProblemas(topic, curso, count, "none");
     const problems = [];
