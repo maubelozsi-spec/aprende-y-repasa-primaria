@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Múltiplos, divisores y números primos</h1>
-        <p class="content-subtitle">Criterios de divisibilidad, números primos y compuestos.</p>
+        <p class="content-subtitle">Entiende qué son con fichas y tablas, aprende los criterios de divisibilidad y practica con preguntas y problemas que explican cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -56,6 +56,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -78,6 +79,16 @@
 
         <div class="tip-box">
           <strong>Fíjate:</strong> "42 es múltiplo de 6" y "6 es divisor de 42" son la misma idea vista desde dos lados: 6 × 7 = 42.
+        </div>
+
+        <h2>Cómo encontrar todos los divisores</h2>
+        <div class="rule-box esdrujula">
+          <h4>Busca parejas que multiplicadas den el número</h4>
+          <p>Divide el número entre 1, 2, 3, 4... Cada división exacta te da <strong>dos divisores a la vez</strong>. Cuando el cociente sea igual o más pequeño que el número entre el que divides, detente: ya los tienes todos.</p>
+          <p class="examples"><strong>Ejemplo con 18:</strong> 1 × 18 · 2 × 9 · 3 × 6 (18 : 4 no es exacta, 18 : 5 tampoco, y 18 : 6 = 3 ya salió). Divisores de 18: 1, 2, 3, 6, 9 y 18.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Siempre se cumple:</strong> el 1 es divisor de todos los números, y todo número es divisor y múltiplo de sí mismo. En la pestaña <strong>Explora</strong> puedes verlo colocando fichas en filas iguales.
         </div>
 
         <h2>Criterios de divisibilidad</h2>
@@ -145,6 +156,70 @@
         <div class="difficulty-box" id="difficulty-box"></div>
       </section>
 
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="md-rect">
+          <h2>1. Coloca fichas en filas iguales</h2>
+          <p class="md-explore-intro">Elige cuántas fichas tienes y cuántas pones en cada fila. Si no sobra ninguna, has encontrado un divisor.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Fichas</span>
+              <button type="button" class="btn btn-secondary" data-step="n" data-delta="-1" aria-label="Una ficha menos">−</button>
+              <output id="md-rect-n">12</output>
+              <button type="button" class="btn btn-secondary" data-step="n" data-delta="1" aria-label="Una ficha más">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">En cada fila</span>
+              <button type="button" class="btn btn-secondary" data-step="k" data-delta="-1" aria-label="Una ficha menos por fila">−</button>
+              <output id="md-rect-k">5</output>
+              <button type="button" class="btn btn-secondary" data-step="k" data-delta="1" aria-label="Una ficha más por fila">+</button>
+            </div>
+          </div>
+          <div class="md-dots-wrap"><div class="md-dots" id="md-rect-dots" aria-hidden="true"></div></div>
+          <p class="md-msg" id="md-rect-msg" aria-live="polite"></p>
+          <div class="actions-row">
+            <button type="button" class="btn btn-primary" id="md-rect-all">Ver todos los divisores</button>
+          </div>
+          <div class="md-result" id="md-rect-all-out" aria-live="polite"></div>
+        </div>
+
+        <div class="md-explore-card" id="md-cien">
+          <h2>2. La tabla del 100</h2>
+          <div class="choice-row md-mode-row" id="md-cien-modes">
+            <button type="button" class="btn btn-secondary active" data-cien-mode="multiplos">Colorear múltiplos</button>
+            <button type="button" class="btn btn-secondary" data-cien-mode="criba">Criba de Eratóstenes (primos)</button>
+          </div>
+          <div id="md-cien-multiplos-ctrl">
+            <p class="md-explore-intro">Elige un número para colorear sus múltiplos. Si eliges otro más, verás en morado los <strong>múltiplos comunes</strong>.</p>
+            <div class="md-pick-row"><span class="md-stepper-label">Número 1</span><div class="md-pick" id="md-cien-a"></div></div>
+            <div class="md-pick-row"><span class="md-stepper-label">Número 2</span><div class="md-pick" id="md-cien-b"></div></div>
+          </div>
+          <div id="md-cien-criba-ctrl" hidden>
+            <p class="md-explore-intro">Hace más de 2000 años, Eratóstenes encontró los números primos así: tachaba los múltiplos de cada primo. Lo que queda sin tachar son números primos.</p>
+            <div class="actions-row">
+              <button type="button" class="btn btn-primary" id="md-criba-next">Siguiente paso</button>
+              <button type="button" class="btn btn-secondary" id="md-criba-reset">Empezar de nuevo</button>
+            </div>
+          </div>
+          <div class="md-hundred" id="md-cien-grid"></div>
+          <div class="md-result" id="md-cien-msg" aria-live="polite"></div>
+        </div>
+
+        <div class="md-explore-card" id="md-detective">
+          <h2>3. Detective de la divisibilidad</h2>
+          <p class="md-explore-intro">Escribe un número y mira qué criterios cumple. Al final se comprueba haciendo la división.</p>
+          <label class="md-detective-input">Número:
+            <input type="number" class="number-input" id="md-det-n" min="1" max="99999" value="348" inputmode="numeric">
+          </label>
+          <div class="md-criteria" id="md-det-out" aria-live="polite"></div>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
+      </section>
+
       <!-- ================= PRÁCTICA ================= -->
       <section id="tab-practica" class="tab-panel">
         <div class="game-card" id="practica-multiplos">
@@ -160,6 +235,7 @@
             <button class="btn btn-secondary" data-mode="divisores">Divisores</button>
             <button class="btn btn-secondary" data-mode="divisibilidad">Divisibilidad</button>
             <button class="btn btn-secondary" data-mode="primoscompuesto">Primos y compuestos</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
             <button class="btn btn-secondary" data-mode="mcd">M.C.D. <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mcm">m.c.m. <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
@@ -169,6 +245,11 @@
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
