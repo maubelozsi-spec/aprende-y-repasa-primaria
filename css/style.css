@@ -3258,7 +3258,7 @@ main.content.content-ancha {
   font-size: 1rem;
 }
 
-/* ---------- Múltiplos y divisores: Explora ---------- */
+/* ---------- Pestaña Explora (múltiplos y divisores, fracciones) ---------- */
 
 .md-explore-card {
   background: var(--surface);
@@ -3431,3 +3431,22 @@ main.content.content-ancha {
   .md-cell { font-size: 11px; border-radius: 4px; }
   .md-hundred { gap: 2px; }
 }
+
+/* ---------- Fracciones: Explora ---------- */
+
+.fr-line { margin: 12px 0 0; overflow-x: auto; }
+
+.fr-stack { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 0; }
+
+.fr-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+.fr-row-label { min-width: 70px; font-size: 18px; font-weight: 800; }
+
+.fr-a { color: var(--color-indigo); }
+.fr-b { color: var(--color-teal); }
+
+.fr-comp-controls { display: flex; flex-wrap: wrap; gap: 16px 40px; margin: 18px 0 8px; }
+
+.fr-comp-group { display: flex; flex-direction: column; gap: 8px; }
+
+.fr-comp-title { margin: 0; font-size: 17px; font-weight: 800; }
