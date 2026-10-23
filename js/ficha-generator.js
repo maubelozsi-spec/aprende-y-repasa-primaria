@@ -2544,6 +2544,21 @@ const DIFFICULTY_FICHA_NOTES = {
   disgrafia: "Disgrafía: los apartados de Datos y Operación ya vienen resueltos; solo hay que completar la Solución.",
 };
 
+// Nota de la adaptación para la cabecera de un examen con varios temas.
+// En discalculia, los temas con generateDiscalculia no usan el nivel de
+// ACS sino los contenidos del curso con números pequeños: la nota lo
+// dice para que no prometa algo distinto de lo que trae el examen.
+function notaDificultadExamen(dificultad, topics) {
+  if (dificultad !== "discalculia") return DIFFICULTY_FICHA_NOTES[dificultad];
+  const propios = topics.filter((t) => t.generateDiscalculia);
+  if (!propios.length) return DIFFICULTY_FICHA_NOTES.discalculia;
+  if (propios.length === topics.length) {
+    return "Discalculia: los mismos contenidos del curso con números más pequeños, pensado para dar más tiempo y reducir la carga numérica.";
+  }
+  const nombres = propios.map((t) => `«${t.label}»`).join(", ");
+  return `Discalculia: en ${nombres}, los mismos contenidos del curso con números más pequeños; en el resto de temas, el mismo nivel de dificultad que la ACS. Pensado para dar más tiempo y reducir la carga numérica.`;
+}
+
 function buildFichaDocument({ topic, curso, fecha, problems, dificultad, showSolutions }) {
   const blocks = fichaInicio({ area: "Matemáticas", curso, contenido: topic.label, fecha, soluciones: showSolutions });
 

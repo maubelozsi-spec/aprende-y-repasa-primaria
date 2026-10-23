@@ -3,11 +3,12 @@
 // dificultad (a diferencia de js/examen-generator.js, que no lo tiene).
 // Combina varios temas del banco TOPICS de ficha-generator.js en una
 // única prueba, reutilizando generarProblemas / buildProblemParagraphs
-// / applyDislexiaStyling / DIFFICULTY_FICHA_NOTES ya definidos allí.
+// / applyDislexiaStyling / notaDificultadExamen ya definidos allí.
 // Se usa desde el Generador de Unidad Didáctica (motor "mate-examen").
 // ============================================================
 
-function buildMateExamenHeaderBlocks(curso, fecha, temaLabels, dificultad) {
+function buildMateExamenHeaderBlocks(curso, fecha, topics, dificultad) {
+  const temaLabels = topics.map((t) => t.label);
   const contenidoText = temaLabels.length <= 3 ? temaLabels.join(", ") : `${temaLabels.length} temas combinados`;
   const blocks = [
     { runs: [{ text: "Aprende y Repasa", bold: true, size: 18, color: "595959" }], spacingAfter: 30 },
@@ -27,7 +28,7 @@ function buildMateExamenHeaderBlocks(curso, fecha, temaLabels, dificultad) {
       spacingAfter: 120,
     },
   ];
-  const note = DIFFICULTY_FICHA_NOTES[dificultad];
+  const note = notaDificultadExamen(dificultad, topics);
   if (note) blocks.push({ runs: [{ text: note, italic: true, color: "0369A1" }], spacingAfter: 100 });
   return blocks;
 }
@@ -42,9 +43,8 @@ function buildMateExamenTopicHeader(label) {
 }
 
 function buildMateExamenDocument({ curso, fecha, bloques, dificultad, showSolutions }) {
-  const temaLabels = bloques.map((b) => b.topic.label);
   let blocks = [];
-  blocks.push(...buildMateExamenHeaderBlocks(curso, fecha, temaLabels, dificultad));
+  blocks.push(...buildMateExamenHeaderBlocks(curso, fecha, bloques.map((b) => b.topic), dificultad));
 
   let globalIndex = 0;
   bloques.forEach((bloque) => {
