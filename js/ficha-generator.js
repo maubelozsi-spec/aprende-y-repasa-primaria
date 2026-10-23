@@ -2479,7 +2479,7 @@ const TOPICS = [
   { id: "numeros-romanos", label: "Números romanos", category: "Operaciones básicas", generate: genNumerosRomanos, generateACS: genNumerosRomanosACS, generateAltas: genNumerosRomanosAltas, resumen: "Los números romanos se escriben combinando las letras I, V, X, L, C, D y M según reglas de suma y resta." },
   { id: "potencias", label: "Las potencias", category: "Operaciones básicas", generate: genPotencias, generateACS: genPotenciasACS, generateAltas: genPotenciasAltas, resumen: "Una potencia es una multiplicación de un mismo número (la base) tantas veces como indica el exponente." },
   { id: "numeros-enteros", label: "Números enteros", category: "Operaciones básicas", generate: genNumerosEnteros, generateACS: genNumerosEnterosACS, generateAltas: genNumerosEnterosAltas, resumen: "Los números enteros incluyen los positivos, los negativos y el cero. Sirven para representar cambios en dos sentidos, como subir o bajar." },
-  { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", category: "Operaciones básicas", generate: genMultiplosDivisores, generateACS: genMultiplosDivisoresACS, generateDiscalculia: genMultiplosDivisoresDiscalculia, generateAltas: genMultiplosDivisoresAltas, resumen: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo. En 6º: el m.c.m. es el menor múltiplo común de dos números y el M.C.D., su mayor divisor común." },
+  { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", category: "Operaciones básicas", generate: genMultiplosDivisores, generateACS: genMultiplosDivisoresACS, generateDiscalculia: genMultiplosDivisoresDiscalculia, generateAltas: genMultiplosDivisoresAltas, resumen: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo.", resumen6: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo. El m.c.m. es el menor múltiplo común de dos números y el M.C.D., su mayor divisor común." },
   { id: "fracciones", label: "Fracciones", category: "Fracciones y decimales", generate: genFracciones, generateACS: genFraccionesACS, generateAltas: genFraccionesAltas, resumen: "Una fracción representa las partes que se toman de un todo dividido en partes iguales." },
   { id: "operaciones-fracciones", label: "Operaciones con fracciones", category: "Fracciones y decimales", generate: genOperacionesFracciones, generateACS: genOperacionesFraccionesACS, generateAltas: genOperacionesFraccionesAltas, resumen: "Para sumar o restar fracciones con distinto denominador, primero hay que buscar un denominador común." },
   { id: "decimales", label: "Números decimales (redondeo)", category: "Fracciones y decimales", generate: genDecimales, generateACS: genDecimalesACS, generateAltas: genDecimalesAltas, resumen: "Los números decimales tienen una parte entera y una parte decimal separadas por una coma. Redondear es aproximar a un número más sencillo." },
@@ -2549,7 +2549,10 @@ function buildFichaDocument({ topic, curso, fecha, problems, dificultad, showSol
 
   if (!showSolutions) {
     blocks.push(fichaApartado("Recuerda"));
-    blocks.push({ runs: [{ text: topic.resumen }], spacingAfter: 60 });
+    // resumen6 (opcional): «Recuerda» propio de 6º cuando el de 5º no
+    // debe nombrar contenidos del curso siguiente.
+    const resumen = curso === "6" && topic.resumen6 ? topic.resumen6 : topic.resumen;
+    blocks.push({ runs: [{ text: resumen }], spacingAfter: 60 });
     blocks.push({
       runs: [{ text: "Lee bien cada problema. Escribe los datos, haz las operaciones y escribe la solución con su palabra.", italic: true, size: 18, color: FICHA_GRIS }],
       spacingAfter: 60,
