@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Fracciones y número mixto</h1>
-        <p class="content-subtitle">Numerador y denominador, propias e impropias, número mixto y comparación.</p>
+        <p class="content-subtitle">Entiende las fracciones con barras y la recta numérica, y practica leerlas, compararlas, ordenarlas, buscar equivalentes y resolver problemas, con la explicación de cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -56,6 +56,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -95,6 +96,9 @@
           <p>El numerador es <strong>mayor o igual</strong> que el denominador. Representa una unidad completa o más.</p>
           <div class="grid-example" id="ejemplo-impropia"></div>
         </div>
+        <div class="tip-box">
+          <strong>Compárala con la unidad:</strong> si el numerador es menor que el denominador, la fracción es <strong>menor que 1</strong>; si son iguales, es <strong>igual a 1</strong> (4/4 = una unidad entera); si el numerador es mayor, es <strong>mayor que 1</strong>.
+        </div>
 
         <h2>El número mixto</h2>
         <p>Una fracción impropia se puede escribir como un <strong>número mixto</strong>: un número entero más una fracción propia.</p>
@@ -115,19 +119,32 @@
           <p>Es mayor la que tiene el denominador más pequeño (las partes son más grandes).</p>
           <p class="examples"><strong>Ejemplo:</strong> 2/3 &gt; 2/5</p>
         </div>
+        <div class="tip-box">
+          <strong>Para ordenar</strong> varias fracciones, compáralas de dos en dos con estas reglas y escríbelas de menor a mayor: 1/5 &lt; 3/5 &lt; 4/5. Si una es menor que 1 y la otra mayor que 1, ya sabes cuál es mayor sin hacer nada más.
+        </div>
+
+        <h2>Fracciones equivalentes</h2>
+        <div class="rule-box aguda">
+          <h4>¿Qué son?</h4>
+          <p>Dos fracciones son <strong>equivalentes</strong> cuando representan la misma cantidad, aunque tengan distinto numerador y denominador.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 1/2 = 2/4 = 3/6 (todas representan "la mitad").</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Cómo obtenerlas: ampliar y simplificar</h4>
+          <p><strong>Ampliar:</strong> se multiplican el numerador y el denominador por el <strong>mismo número</strong>. <strong>Simplificar:</strong> se dividen los dos entre el mismo número.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 2/3 → (2 × 2)/(3 × 2) = 4/6 &nbsp;·&nbsp; 6/8 → (6 : 2)/(8 : 2) = 3/4</p>
+        </div>
+        <div class="tip-box">
+          <strong>Cuidado:</strong> sumar el mismo número arriba y abajo <strong>no</strong> da una fracción equivalente: 1/2 y 2/3 no valen lo mismo. Para comprobar si dos fracciones son equivalentes, multiplica en cruz: 2/3 y 4/6 → 2 × 6 = 12 y 3 × 4 = 12. Si salen iguales, son equivalentes.
+        </div>
 
         <div class="grade-section">
           <span class="grade-badge">Contenido de 6º</span>
-          <h2>Fracciones equivalentes</h2>
+          <h2>Comparar con distinto denominador</h2>
           <div class="rule-box aguda">
-            <h4>¿Qué son?</h4>
-            <p>Dos fracciones son <strong>equivalentes</strong> cuando representan la misma cantidad, aunque tengan distinto numerador y denominador.</p>
-            <p class="examples"><strong>Ejemplo:</strong> 1/2 = 2/4 = 3/6 (todas representan "la mitad").</p>
-          </div>
-          <div class="rule-box llana">
-            <h4>Cómo obtenerlas</h4>
-            <p>Se multiplican (o dividen) el numerador y el denominador por el <strong>mismo número</strong>.</p>
-            <p class="examples"><strong>Ejemplo:</strong> 2/3 × (2/2) = 4/6 &nbsp;·&nbsp; 8/12 ÷ (4/4) = 2/3</p>
+            <h4>Reducir a común denominador</h4>
+            <p>Si no tienen ni el mismo numerador ni el mismo denominador, se buscan fracciones equivalentes con el <strong>mismo denominador</strong> (el m.c.m. de los denominadores) y se comparan los numeradores.</p>
+            <p class="examples"><strong>Ejemplo:</strong> 2/3 y 3/4 → m.c.m.(3, 4) = 12 → 8/12 y 9/12 → 2/3 &lt; 3/4.</p>
           </div>
 
           <h2>Fracción irreducible</h2>
@@ -149,6 +166,97 @@
         <div class="difficulty-box" id="difficulty-box"></div>
       </section>
 
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="fr-build">
+          <h2>1. Construye una fracción</h2>
+          <p class="md-explore-intro">El denominador dice en cuántas partes iguales se divide cada unidad; el numerador, cuántas partes tomas.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Numerador</span>
+              <button type="button" class="btn btn-secondary" data-fr="build" data-key="n" data-delta="-1" aria-label="Numerador menos uno">−</button>
+              <output id="fr-build-n">3</output>
+              <button type="button" class="btn btn-secondary" data-fr="build" data-key="n" data-delta="1" aria-label="Numerador más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Denominador</span>
+              <button type="button" class="btn btn-secondary" data-fr="build" data-key="d" data-delta="-1" aria-label="Denominador menos uno">−</button>
+              <output id="fr-build-d">5</output>
+              <button type="button" class="btn btn-secondary" data-fr="build" data-key="d" data-delta="1" aria-label="Denominador más uno">+</button>
+            </div>
+          </div>
+          <div class="grid-example" id="fr-build-bars"></div>
+          <div class="fr-line" id="fr-build-line"></div>
+          <p class="md-msg" id="fr-build-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="fr-equiv">
+          <h2>2. Fracciones equivalentes</h2>
+          <p class="md-explore-intro">Multiplica el numerador y el denominador por el mismo número: las partes son más pequeñas, pero la parte coloreada mide lo mismo.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Fracción</span>
+              <button type="button" class="btn btn-secondary" data-fr="equiv" data-key="base" data-delta="-1" aria-label="Fracción anterior">−</button>
+              <output id="fr-equiv-base">1/2</output>
+              <button type="button" class="btn btn-secondary" data-fr="equiv" data-key="base" data-delta="1" aria-label="Fracción siguiente">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Multiplica por</span>
+              <button type="button" class="btn btn-secondary" data-fr="equiv" data-key="k" data-delta="-1" aria-label="Multiplicar por uno menos">−</button>
+              <output id="fr-equiv-k">2</output>
+              <button type="button" class="btn btn-secondary" data-fr="equiv" data-key="k" data-delta="1" aria-label="Multiplicar por uno más">+</button>
+            </div>
+          </div>
+          <div class="fr-stack" id="fr-equiv-bars"></div>
+          <p class="md-msg ok" id="fr-equiv-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="fr-comp">
+          <h2>3. ¿Cuál es mayor?</h2>
+          <p class="md-explore-intro">Cambia las dos fracciones y compáralas con las barras y en la recta numérica.</p>
+          <div class="fr-comp-controls">
+            <div class="fr-comp-group fr-a">
+              <p class="fr-comp-title">Fracción A: <output id="fr-comp-a"></output></p>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Numerador</span>
+              <button type="button" class="btn btn-secondary" data-fr="comp" data-key="n1" data-delta="-1" aria-label="Numerador de A menos uno">−</button>
+              <output id="fr-comp-n1"></output>
+              <button type="button" class="btn btn-secondary" data-fr="comp" data-key="n1" data-delta="1" aria-label="Numerador de A más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Denominador</span>
+              <button type="button" class="btn btn-secondary" data-fr="comp" data-key="d1" data-delta="-1" aria-label="Denominador de A menos uno">−</button>
+              <output id="fr-comp-d1"></output>
+              <button type="button" class="btn btn-secondary" data-fr="comp" data-key="d1" data-delta="1" aria-label="Denominador de A más uno">+</button>
+            </div>
+            </div>
+            <div class="fr-comp-group fr-b">
+              <p class="fr-comp-title">Fracción B: <output id="fr-comp-b"></output></p>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Numerador</span>
+              <button type="button" class="btn btn-secondary" data-fr="comp" data-key="n2" data-delta="-1" aria-label="Numerador de B menos uno">−</button>
+              <output id="fr-comp-n2"></output>
+              <button type="button" class="btn btn-secondary" data-fr="comp" data-key="n2" data-delta="1" aria-label="Numerador de B más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Denominador</span>
+              <button type="button" class="btn btn-secondary" data-fr="comp" data-key="d2" data-delta="-1" aria-label="Denominador de B menos uno">−</button>
+              <output id="fr-comp-d2"></output>
+              <button type="button" class="btn btn-secondary" data-fr="comp" data-key="d2" data-delta="1" aria-label="Denominador de B más uno">+</button>
+            </div>
+            </div>
+          </div>
+          <div class="fr-stack" id="fr-comp-bars"></div>
+          <div class="fr-line" id="fr-comp-line"></div>
+          <p class="md-msg" id="fr-comp-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
+      </section>
+
       <!-- ================= PRÁCTICA ================= -->
       <section id="tab-practica" class="tab-panel">
         <div class="game-card" id="practica-fracciones">
@@ -161,11 +269,15 @@
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
             <button class="btn btn-secondary active" data-mode="identificar">Identificar</button>
+            <button class="btn btn-secondary" data-mode="leer">Leer y escribir</button>
             <button class="btn btn-secondary" data-mode="propiaimpropia">Propia o impropia</button>
-            <button class="btn btn-secondary" data-mode="mixto">A número mixto</button>
+            <button class="btn btn-secondary" data-mode="mixto">Número mixto</button>
             <button class="btn btn-secondary" data-mode="comparar">Comparar</button>
-            <button class="btn btn-secondary" data-mode="equivalentes">Equivalentes <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
-            <button class="btn btn-secondary" data-mode="irreducible">Simplificar <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+            <button class="btn btn-secondary" data-mode="ordenar">Ordenar</button>
+            <button class="btn btn-secondary" data-mode="equivalentes">Equivalentes</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
+            <button class="btn btn-secondary" data-mode="comundenominador">Común denominador <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+            <button class="btn btn-secondary" data-mode="irreducible">Irreducible <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
@@ -174,6 +286,11 @@
           <div class="sentence-display" id="word-display" style="display:none;"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 

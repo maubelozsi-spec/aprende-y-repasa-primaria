@@ -785,21 +785,21 @@ const MD_NIVELES = {
 // todas. Como cada ficha se genera de golpe, si ha pasado más de un
 // segundo desde el último problema se empieza baraja nueva, para que
 // una ficha no herede lo que sobró de la anterior.
-const MD_BARAJAS = {};
-let mdUltimoUso = 0;
-function mdSiguiente(clave, generadores) {
+const FICHA_BARAJAS = {};
+let fichaUltimoUso = 0;
+function siguienteDeBaraja(clave, generadores) {
   const ahora = Date.now();
-  if (ahora - mdUltimoUso > 1000) Object.keys(MD_BARAJAS).forEach((k) => delete MD_BARAJAS[k]);
-  mdUltimoUso = ahora;
-  if (!MD_BARAJAS[clave] || !MD_BARAJAS[clave].length) {
+  if (ahora - fichaUltimoUso > 1000) Object.keys(FICHA_BARAJAS).forEach((k) => delete FICHA_BARAJAS[k]);
+  fichaUltimoUso = ahora;
+  if (!FICHA_BARAJAS[clave] || !FICHA_BARAJAS[clave].length) {
     const copia = generadores.slice();
     for (let i = copia.length - 1; i > 0; i--) {
       const j = randomInt(0, i);
       [copia[i], copia[j]] = [copia[j], copia[i]];
     }
-    MD_BARAJAS[clave] = copia;
+    FICHA_BARAJAS[clave] = copia;
   }
-  return MD_BARAJAS[clave].pop();
+  return FICHA_BARAJAS[clave].pop();
 }
 
 function mdDivisores(n) {
@@ -888,7 +888,8 @@ function multiplosDivisoresRana(nivel) {
   const b = pick(nivel.bases);
   const pasos = nivel === MD_NIVELES.acs || nivel === MD_NIVELES.disc ? 6 : 8;
   const casillas = Array.from({ length: pasos }, (_, i) => b * (i + 1));
-  const lejos = b * randomInt(pasos + 3, pasos + 12);
+  const pequeno = nivel === MD_NIVELES.acs || nivel === MD_NIVELES.disc;
+  const lejos = b * (pequeno ? randomInt(pasos + 2, pasos + 4) : randomInt(pasos + 3, pasos + 12));
   const meta = Math.random() < 0.5 ? lejos : lejos + randomInt(1, b - 1);
   const pisa = meta % b === 0;
   return {
@@ -988,22 +989,29 @@ const MD_PROBLEMAS_5 = [multiplosDivisoresLista, multiplosDivisoresEquipos, mult
 
 function genMultiplosDivisores(curso) {
   if (curso === "6") {
-    const g = mdSiguiente("6", ["mcm", "mcd", "mcm", "mcd", multiplosDivisoresSillas, multiplosDivisoresCriterios, multiplosDivisoresPrimo, multiplosDivisoresCajas]);
+    const g = siguienteDeBaraja("6", ["mcm", "mcd", "mcm", "mcd", multiplosDivisoresSillas, multiplosDivisoresCriterios, multiplosDivisoresPrimo, multiplosDivisoresCajas]);
     if (g === "mcm") return multiplosDivisoresMCM("6");
     if (g === "mcd") return multiplosDivisoresMCD("6");
     return g(MD_NIVELES["6"]);
   }
-  return mdSiguiente("5", MD_PROBLEMAS_5)(MD_NIVELES["5"]);
+  return siguienteDeBaraja("5", MD_PROBLEMAS_5)(MD_NIVELES["5"]);
 }
 
 function genMultiplosDivisoresACS() {
-  return mdSiguiente("acs", [multiplosDivisoresLista, multiplosDivisoresEquipos, multiplosDivisoresCajas, multiplosDivisoresRana])(MD_NIVELES.acs);
+  return siguienteDeBaraja("acs", [multiplosDivisoresLista, multiplosDivisoresEquipos, multiplosDivisoresCajas, multiplosDivisoresRana])(MD_NIVELES.acs);
 }
 
-// Discalculia: las mismas situaciones de 5º con números pequeños (no el
-// nivel de ACS), igual que en la práctica de la página.
-function genMultiplosDivisoresDiscalculia() {
-  return mdSiguiente("disc", [multiplosDivisoresLista, multiplosDivisoresEquipos, multiplosDivisoresSillas, multiplosDivisoresCajas, multiplosDivisoresRana, multiplosDivisoresPrimo])(MD_NIVELES.disc);
+// Discalculia: los contenidos del curso con números pequeños (no el
+// nivel de ACS). En 6º entran el m.c.m. y el M.C.D. con los rangos
+// pequeños de multiplosDivisoresMCM/MCD.
+function genMultiplosDivisoresDiscalculia(curso) {
+  if (curso === "6") {
+    const g = siguienteDeBaraja("disc6", ["mcm", "mcd", multiplosDivisoresSillas, multiplosDivisoresCajas, multiplosDivisoresPrimo, multiplosDivisoresLista]);
+    if (g === "mcm") return multiplosDivisoresMCM("5");
+    if (g === "mcd") return multiplosDivisoresMCD("5");
+    return g(MD_NIVELES.disc);
+  }
+  return siguienteDeBaraja("disc", [multiplosDivisoresLista, multiplosDivisoresEquipos, multiplosDivisoresSillas, multiplosDivisoresCajas, multiplosDivisoresRana, multiplosDivisoresPrimo])(MD_NIVELES.disc);
 }
 
 function multiplosDivisoresTresAutobuses() {
@@ -1042,70 +1050,245 @@ function multiplosDivisoresCanicas() {
 }
 
 function genMultiplosDivisoresAltas() {
-  const g = mdSiguiente("altas", ["tres", "canicas", "criterios", "primo"]);
+  const g = siguienteDeBaraja("altas", ["tres", "canicas", "criterios", "primo"]);
   if (g === "tres") return multiplosDivisoresTresAutobuses();
   if (g === "canicas") return multiplosDivisoresCanicas();
   if (g === "criterios") return multiplosDivisoresCriterios(MD_NIVELES["6"]);
   return multiplosDivisoresPrimo({ primos: [51, 150] });
 }
 
-function fraccionesTartaResto(curso) {
-  const den = curso === "6" ? randomInt(6, 12) : randomInt(3, 8);
+// ---- Fracciones ----
+// Como en múltiplos y divisores, los problemas reciben un nivel. En 5º
+// (programación del Tema 4): concepto, equivalencia, comparación y
+// ordenación con igual numerador o denominador, número mixto y fracción
+// de una cantidad. En 6º se añaden el común denominador y la fracción
+// irreducible.
+const FR_NIVELES = {
+  "5": { dens: [3, 4, 5, 6, 8], factores: [2, 3, 4], clase: [12, 30], comunDen: false },
+  "6": { dens: [4, 5, 6, 8, 9, 10, 12], factores: [2, 3, 4, 5, 6], clase: [20, 60], comunDen: true },
+  disc: { dens: [2, 3, 4, 5, 6], factores: [2, 3], clase: [10, 24], comunDen: false },
+  disc6: { dens: [2, 3, 4, 5, 6], factores: [2, 3], clase: [10, 24], comunDen: true },
+};
+
+const FR_NOMBRES_FICHA = ["Marta", "Hugo", "Lucía", "Diego", "Sara", "Iván", "Noa", "Bruno"];
+
+function frIrreducible(nivel) {
+  let n, d;
+  do {
+    d = pick(nivel.dens.filter((x) => x <= 8));
+    n = randomInt(1, d - 1);
+  } while (gcd(n, d) !== 1);
+  return [n, d];
+}
+
+function fraccionesTartaResto(nivel) {
+  const den = pick(nivel.dens.filter((x) => x >= 4));
   const comidos = randomInt(1, den - 1);
   const quedan = den - comidos;
   return {
-    enunciado: `Una tarta se divide en ${den} trozos iguales. Se han comido ${comidos} trozos. ¿Qué fracción de la tarta queda?`,
+    enunciado: `Una tarta se divide en ${den} trozos iguales. Se ${comidos === 1 ? "ha comido 1 trozo" : `han comido ${comidos} trozos`}. ¿Qué fracción de la tarta queda? Escríbela también con letras.`,
     datos: [`Trozos totales: ${den}`, `Trozos comidos: ${comidos}`],
     operacion: `${den}/${den} − ${comidos}/${den} = ${quedan}/${den}`,
-    solucion: `${quedan}/${den}. Queda ${quedan}/${den} de la tarta.`,
+    solucion: `${quedan}/${den} («${fraccionEnLetras(quedan, den)}»). Queda ${quedan}/${den} de la tarta.`,
   };
 }
 
-function fraccionesEquivalente(curso) {
-  const den = curso === "6" ? randomInt(3, 8) : randomInt(2, 5);
-  const num = randomInt(1, den - 1);
-  const factor = randomInt(2, curso === "6" ? 6 : 4);
+const FR_NUM_LETRAS = ["cero", "un", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce"];
+const FR_DEN_LETRAS = { 2: "medio", 3: "tercio", 4: "cuarto", 5: "quinto", 6: "sexto", 7: "séptimo", 8: "octavo", 9: "noveno", 10: "décimo", 11: "onceavo", 12: "doceavo" };
+
+function fraccionEnLetras(n, d) {
+  return n === 1 ? `un ${FR_DEN_LETRAS[d]}` : `${FR_NUM_LETRAS[n]} ${FR_DEN_LETRAS[d]}s`;
+}
+
+function fraccionesEquivalente(nivel) {
+  const [num, den] = frIrreducible(nivel);
+  const factor = pick(nivel.factores);
   const numEq = num * factor;
   const denEq = den * factor;
+  if (Math.random() < 0.5) {
+    return {
+      enunciado: `Completa la fracción equivalente: ${num}/${den} = ?/${denEq}.`,
+      datos: [`Fracción: ${num}/${den}`, `Nuevo denominador: ${denEq}`],
+      operacion: `${denEq} : ${den} = ${factor}. ${num} × ${factor} = ${numEq}`,
+      solucion: `${numEq}/${denEq}. La fracción equivalente es ${numEq}/${denEq}.`,
+    };
+  }
   return {
-    enunciado: `Completa la fracción equivalente: ${num}/${den} = ?/${denEq}`,
-    datos: [`Fracción: ${num}/${den}`, `Nuevo denominador: ${denEq}`],
-    operacion: `${denEq} ÷ ${den} = ${factor}. ${num} × ${factor} = ${numEq}`,
-    solucion: `${numEq}/${denEq}. La fracción equivalente es ${numEq}/${denEq}.`,
+    enunciado: `Simplifica para completar la fracción equivalente: ${numEq}/${denEq} = ?/${den}.`,
+    datos: [`Fracción: ${numEq}/${denEq}`, `Nuevo denominador: ${den}`],
+    operacion: `${denEq} : ${den} = ${factor}. ${numEq} : ${factor} = ${num}`,
+    solucion: `${num}/${den}. La fracción equivalente es ${num}/${den}.`,
   };
 }
 
-function fraccionesDeGrupo(curso) {
-  const den = curso === "6" ? randomInt(4, 8) : randomInt(2, 5);
+function fraccionesDeGrupo(nivel) {
+  const den = pick(nivel.dens.filter((x) => x <= 8));
   const num = randomInt(1, den - 1);
-  const multiplo = randomInt(2, curso === "6" ? 12 : 6);
+  const [min, max] = nivel.clase;
+  const multiplo = randomInt(Math.ceil(min / den), Math.floor(max / den));
   const total = den * multiplo;
   const parte = num * multiplo;
   return {
-    enunciado: `En una clase de ${total} alumnos, ${num}/${den} partes son niñas. ¿Cuántas niñas hay en la clase?`,
+    enunciado: `En una clase de ${total} alumnos, ${num}/${den} de los alumnos son niñas. ¿Cuántas niñas hay en la clase?`,
     datos: [`Total de alumnos: ${total}`, `Fracción de niñas: ${num}/${den}`],
-    operacion: `${total} ÷ ${den} = ${multiplo}. ${multiplo} × ${num} = ${parte}`,
+    operacion: `${total} : ${den} = ${multiplo}. ${multiplo} × ${num} = ${parte}`,
     solucion: `${parte}. Hay ${parte} niñas en la clase.`,
   };
 }
 
-function genFracciones(curso) {
-  return pick([fraccionesTartaResto, fraccionesEquivalente, fraccionesDeGrupo])(curso);
+// Compara a/b y c/d: en 5º con igual denominador o igual numerador, en
+// 6º con distinto denominador (común denominador).
+function frParaComparar(nivel) {
+  const tipo = nivel.comunDen ? "distinto" : pick(["den", "num"]);
+  let a, b, c, d;
+  if (tipo === "den") {
+    b = d = pick(nivel.dens.filter((x) => x >= 4));
+    a = randomInt(1, b - 1);
+    do { c = randomInt(1, b - 1); } while (c === a);
+  } else if (tipo === "num") {
+    a = c = randomInt(1, 2);
+    const dens = nivel.dens.filter((x) => x > a);
+    b = pick(dens);
+    do { d = pick(dens); } while (d === b);
+  } else {
+    do {
+      b = pick(nivel.dens);
+      d = pick(nivel.dens);
+      a = randomInt(1, b - 1);
+      c = randomInt(1, d - 1);
+    } while (b === d || a * d === b * c || lcm(b, d) > 60);
+  }
+  return { tipo, a, b, c, d };
 }
 
-function genFraccionesACS() {
+function frRazonComparar({ tipo, a, b, c, d }) {
+  if (tipo === "den") return `Mismo denominador (${b}): es mayor la de numerador más grande`;
+  if (tipo === "num") return `Mismo numerador (${a}): es mayor la de denominador más pequeño`;
+  const m = lcm(b, d);
+  return `m.c.m.(${b}, ${d}) = ${m}: ${a}/${b} = ${a * (m / b)}/${m} y ${c}/${d} = ${c * (m / d)}/${m}`;
+}
+
+function fraccionesComparar(nivel) {
+  const f = frParaComparar(nivel);
+  const [p1, p2] = pickTwo(FR_NOMBRES_FICHA);
+  const mayorEsA = f.a * f.d > f.c * f.b;
+  const signo = mayorEsA ? ">" : "<";
+  return {
+    enunciado: `${p1} ha leído ${f.a}/${f.b} de un libro y ${p2} ha leído ${f.c}/${f.d} del mismo libro. ¿Quién ha leído más? Escribe las dos fracciones con el signo < o > y explica cómo lo sabes.`,
+    datos: [`${p1}: ${f.a}/${f.b}`, `${p2}: ${f.c}/${f.d}`],
+    operacion: frRazonComparar(f),
+    solucion: `${f.a}/${f.b} ${signo} ${f.c}/${f.d}. Ha leído más ${mayorEsA ? p1 : p2}.`,
+  };
+}
+
+function fraccionesOrdenar(nivel) {
+  let fr;
+  if (nivel.comunDen) {
+    do {
+      const dens = [2, 3, 4, 5, 6, 8, 10, 12].sort(() => Math.random() - 0.5).slice(0, 3);
+      fr = dens.map((d) => [randomInt(1, d - 1), d]);
+    } while (new Set(fr.map(([n, d]) => n / d)).size < 3 || fr.some(([n, d]) => gcd(n, d) !== 1) || lcm(lcm(fr[0][1], fr[1][1]), fr[2][1]) > 60);
+  } else if (Math.random() < 0.5) {
+    const d = pick(nivel.dens.filter((x) => x >= 4));
+    const nums = [];
+    while (nums.length < 3) {
+      const n = randomInt(1, d - 1);
+      if (!nums.includes(n)) nums.push(n);
+    }
+    fr = nums.map((n) => [n, d]);
+  } else {
+    const n = randomInt(1, 2);
+    const dens = nivel.dens.filter((x) => x > n).sort(() => Math.random() - 0.5).slice(0, 3);
+    fr = dens.map((d) => [n, d]);
+  }
+  const nombres = FR_NOMBRES_FICHA.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+  const ordenados = fr.map((f, i) => ({ f, nombre: nombres[i] })).sort((x, y) => x.f[0] / x.f[1] - y.f[0] / y.f[1]);
+  const m = lcm(lcm(fr[0][1], fr[1][1]), fr[2][1]);
+  const mismoDen = fr.every(([, d]) => d === fr[0][1]);
+  const mismoNum = fr.every(([n]) => n === fr[0][0]);
+  return {
+    enunciado: `En una carrera de relevos, ${nombres.map((nm, i) => `${nm} ha recorrido ${fr[i][0]}/${fr[i][1]} del circuito`).join(", ").replace(/, ([^,]*)$/, " y $1")}. Ordena las fracciones de menor a mayor. ¿Quién ha recorrido más?`,
+    datos: nombres.map((nm, i) => `${nm}: ${fr[i][0]}/${fr[i][1]}`),
+    operacion: mismoDen
+      ? `Mismo denominador: se ordenan por el numerador`
+      : mismoNum
+        ? `Mismo numerador: cuanto mayor es el denominador, menor es la fracción`
+        : `Denominador común ${m}: ${fr.map(([n, d]) => `${n}/${d} = ${n * (m / d)}/${m}`).join(" · ")}`,
+    solucion: `${ordenados.map((o) => `${o.f[0]}/${o.f[1]}`).join(" < ")}. Ha recorrido más ${ordenados[2].nombre}.`,
+  };
+}
+
+function fraccionesMixto(nivel) {
+  const d = pick(nivel.dens.filter((x) => x >= 3 && x <= 8));
+  const q = randomInt(1, nivel === FR_NIVELES["6"] ? 4 : 3);
+  const r = randomInt(1, d - 1);
+  const n = q * d + r;
+  return {
+    enunciado: `Cada tarta se corta en ${d} trozos iguales y en la mesa hay ${n} trozos. ¿Cuántas tartas enteras se pueden formar y cuántos trozos sobran? Escribe la cantidad como fracción y como número mixto.`,
+    datos: [`Trozos por tarta: ${d}`, `Trozos en la mesa: ${n}`],
+    operacion: `${n} : ${d} = ${q}, resto ${r}`,
+    solucion: `${q} ${q === 1 ? "tarta entera" : "tartas enteras"} y ${r} ${r === 1 ? "trozo" : "trozos"}: ${n}/${d} = ${q} ${r}/${d}.`,
+  };
+}
+
+function fraccionesSimplificar(nivel) {
+  const [n, d] = frIrreducible(nivel);
+  const g = pick(nivel === FR_NIVELES.disc6 ? [2, 3] : [2, 3, 4, 5, 6]);
+  const N = n * g;
+  const D = d * g;
+  return {
+    enunciado: `Simplifica la fracción ${N}/${D} hasta llegar a la fracción irreducible.`,
+    datos: [`Fracción: ${N}/${D}`],
+    operacion: `M.C.D.(${N}, ${D}) = ${g}. ${N} : ${g} = ${n}; ${D} : ${g} = ${d}`,
+    solucion: `${n}/${d}. Es irreducible: ${n} y ${d} no tienen más divisor común que el 1.`,
+  };
+}
+
+function genFracciones(curso) {
+  if (curso === "6") {
+    return siguienteDeBaraja("fr6", [fraccionesEquivalente, fraccionesDeGrupo, fraccionesComparar, fraccionesOrdenar, fraccionesSimplificar, fraccionesMixto])(FR_NIVELES["6"]);
+  }
+  return siguienteDeBaraja("fr5", [fraccionesTartaResto, fraccionesEquivalente, fraccionesDeGrupo, fraccionesComparar, fraccionesOrdenar, fraccionesMixto])(FR_NIVELES["5"]);
+}
+
+function fraccionesTartaACS() {
   const den = pick([2, 3, 4]);
   const comidos = randomInt(1, den - 1);
   const quedan = den - comidos;
   return {
-    enunciado: `Una tarta se divide en ${den} trozos iguales. Se han comido ${comidos} trozo${comidos === 1 ? "" : "s"}. ¿Qué fracción de la tarta queda?`,
+    enunciado: `Una tarta se divide en ${den} trozos iguales. Se ${comidos === 1 ? "ha comido 1 trozo" : `han comido ${comidos} trozos`}. ¿Qué fracción de la tarta queda?`,
     datos: [`Trozos totales: ${den}`, `Trozos comidos: ${comidos}`],
     operacion: `${den}/${den} − ${comidos}/${den} = ${quedan}/${den}`,
     solucion: `${quedan}/${den}. Queda ${quedan}/${den} de la tarta.`,
   };
 }
 
-function genFraccionesAltas() {
+function fraccionesMitadACS() {
+  const [den, nombre] = pick([[2, "la mitad"], [4, "la cuarta parte"]]);
+  const total = den * randomInt(2, 5);
+  return {
+    enunciado: `${pick(FR_NOMBRES_FICHA)} tiene ${total} cromos y regala ${nombre} (1/${den}) a su hermana. ¿Cuántos cromos le regala?`,
+    datos: [`Cromos: ${total}`, `Regala: 1/${den}`],
+    operacion: `${total} : ${den} = ${total / den}`,
+    solucion: `${total / den} cromos. Le regala ${total / den} cromos.`,
+  };
+}
+
+function genFraccionesACS() {
+  return siguienteDeBaraja("frAcs", [fraccionesTartaACS, fraccionesMitadACS, fraccionesTartaACS])();
+}
+
+// Discalculia: los contenidos del curso con denominadores hasta 6 (no
+// el nivel de ACS). En 6º entran el común denominador y la fracción
+// irreducible con números pequeños.
+function genFraccionesDiscalculia(curso) {
+  if (curso === "6") {
+    return siguienteDeBaraja("frDisc6", [fraccionesEquivalente, fraccionesDeGrupo, fraccionesComparar, fraccionesSimplificar, fraccionesMixto])(FR_NIVELES.disc6);
+  }
+  return siguienteDeBaraja("frDisc", [fraccionesTartaResto, fraccionesEquivalente, fraccionesDeGrupo, fraccionesComparar, fraccionesMixto])(FR_NIVELES.disc);
+}
+
+function fraccionesHuerto() {
   const den1 = randomInt(3, 6);
   const num1 = randomInt(1, den1 - 1);
   const den2 = randomInt(3, 6);
@@ -1117,9 +1300,13 @@ function genFraccionesAltas() {
   return {
     enunciado: `En un huerto de ${total} plantas, ${num1}/${den1} son tomateras. De esas tomateras, ${num2}/${den2} ya tienen fruto. ¿Cuántas tomateras tienen fruto?`,
     datos: [`Total de plantas: ${total}`, `Fracción de tomateras: ${num1}/${den1}`, `Fracción con fruto: ${num2}/${den2}`],
-    operacion: `${total} ÷ ${den1} × ${num1} = ${parteUno} tomateras. ${parteUno} ÷ ${den2} × ${num2} = ${parteDos}`,
+    operacion: `${total} : ${den1} × ${num1} = ${parteUno} tomateras. ${parteUno} : ${den2} × ${num2} = ${parteDos}`,
     solucion: `${parteDos}. Hay ${parteDos} tomateras con fruto.`,
   };
+}
+
+function genFraccionesAltas() {
+  return siguienteDeBaraja("frAltas", [fraccionesHuerto, () => fraccionesOrdenar(FR_NIVELES["6"]), () => fraccionesComparar(FR_NIVELES["6"]), () => fraccionesSimplificar(FR_NIVELES["6"])])();
 }
 
 function operacionesFraccionesSuma(curso) {
@@ -2480,7 +2667,7 @@ const TOPICS = [
   { id: "potencias", label: "Las potencias", category: "Operaciones básicas", generate: genPotencias, generateACS: genPotenciasACS, generateAltas: genPotenciasAltas, resumen: "Una potencia es una multiplicación de un mismo número (la base) tantas veces como indica el exponente." },
   { id: "numeros-enteros", label: "Números enteros", category: "Operaciones básicas", generate: genNumerosEnteros, generateACS: genNumerosEnterosACS, generateAltas: genNumerosEnterosAltas, resumen: "Los números enteros incluyen los positivos, los negativos y el cero. Sirven para representar cambios en dos sentidos, como subir o bajar." },
   { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", category: "Operaciones básicas", generate: genMultiplosDivisores, generateACS: genMultiplosDivisoresACS, generateDiscalculia: genMultiplosDivisoresDiscalculia, generateAltas: genMultiplosDivisoresAltas, resumen: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo.", resumen6: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo. El m.c.m. es el menor múltiplo común de dos números y el M.C.D., su mayor divisor común." },
-  { id: "fracciones", label: "Fracciones", category: "Fracciones y decimales", generate: genFracciones, generateACS: genFraccionesACS, generateAltas: genFraccionesAltas, resumen: "Una fracción representa las partes que se toman de un todo dividido en partes iguales." },
+  { id: "fracciones", label: "Fracciones", category: "Fracciones y decimales", generate: genFracciones, generateACS: genFraccionesACS, generateDiscalculia: genFraccionesDiscalculia, generateAltas: genFraccionesAltas, resumen: "Una fracción representa las partes iguales que se toman de un todo: el denominador dice en cuántas partes se divide y el numerador, cuántas se toman. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número.", resumen6: "Una fracción representa las partes iguales que se toman de un todo. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número. Para comparar fracciones con distinto denominador se reducen a común denominador, y la fracción irreducible se obtiene dividiendo los dos términos entre su M.C.D." },
   { id: "operaciones-fracciones", label: "Operaciones con fracciones", category: "Fracciones y decimales", generate: genOperacionesFracciones, generateACS: genOperacionesFraccionesACS, generateAltas: genOperacionesFraccionesAltas, resumen: "Para sumar o restar fracciones con distinto denominador, primero hay que buscar un denominador común." },
   { id: "decimales", label: "Números decimales (redondeo)", category: "Fracciones y decimales", generate: genDecimales, generateACS: genDecimalesACS, generateAltas: genDecimalesAltas, resumen: "Los números decimales tienen una parte entera y una parte decimal separadas por una coma. Redondear es aproximar a un número más sencillo." },
   { id: "decimales-md", label: "Multiplicación y división de decimales", category: "Fracciones y decimales", generate: genDecimalesMD, generateACS: genDecimalesMDACS, generateAltas: genDecimalesMDAltas, resumen: "Al multiplicar o dividir decimales se opera igual que con números enteros, teniendo cuidado con la coma decimal." },
