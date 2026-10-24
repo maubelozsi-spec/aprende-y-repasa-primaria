@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas · 6º de Primaria</p>
         <h1>Las potencias</h1>
-        <p class="content-subtitle">Base, exponente, cuadrados y cubos.</p>
+        <p class="content-subtitle">Entiende qué es una potencia con cubitos y cajas, calcula cuadrados, cubos y potencias de 10 y descompón números grandes, con la explicación de cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -51,6 +51,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -74,19 +75,23 @@
         <div class="rule-box aguda">
           <h4>Base y exponente</h4>
           <p>La <strong>base</strong> es el número que se multiplica por sí mismo. El <strong>exponente</strong> indica cuántas veces se repite la base como factor.</p>
-          <p class="examples"><strong>Ejemplo:</strong> 3⁴ = 3 × 3 × 3 × 3 = 81. Se lee "tres elevado a cuatro".</p>
+          <p class="examples"><strong>Ejemplo:</strong> 3⁴ = 3 × 3 × 3 × 3 = 81. Se lee «tres elevado a cuatro».</p>
+        </div>
+
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> 3⁴ <em>no</em> es 3 × 4 = 12. El exponente no multiplica a la base: dice cuántas veces se repite. 3⁴ = 3 × 3 × 3 × 3 = 81.
         </div>
 
         <h2>Cuadrados y cubos</h2>
         <div class="rule-box llana">
           <h4>Elevar al cuadrado</h4>
-          <p>Un número <strong>elevado al cuadrado</strong> (exponente 2) es ese número multiplicado por sí mismo una vez.</p>
-          <p class="examples"><strong>Ejemplo:</strong> 5² = 5 × 5 = 25</p>
+          <p>Un número <strong>elevado al cuadrado</strong> (exponente 2) es ese número multiplicado por sí mismo: aparece <strong>2 veces</strong> como factor. Se llama así porque es el número de cuadraditos de un cuadrado de ese lado.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 5² = 5 × 5 = 25 (un cuadrado de 5 filas de 5)</p>
         </div>
         <div class="rule-box esdrujula">
           <h4>Elevar al cubo</h4>
-          <p>Un número <strong>elevado al cubo</strong> (exponente 3) es ese número multiplicado por sí mismo dos veces.</p>
-          <p class="examples"><strong>Ejemplo:</strong> 4³ = 4 × 4 × 4 = 64</p>
+          <p>Un número <strong>elevado al cubo</strong> (exponente 3) aparece <strong>3 veces</strong> como factor. Es el número de cubitos de un cubo de esa arista.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 4³ = 4 × 4 × 4 = 64 (4 capas de 4 × 4 = 16 cubitos)</p>
         </div>
 
         <h2>Potencias de base 10</h2>
@@ -96,9 +101,24 @@
           <tr><td>10²</td><td>10 × 10</td><td>100</td></tr>
           <tr><td>10³</td><td>10 × 10 × 10</td><td>1.000</td></tr>
           <tr><td>10⁴</td><td>10 × 10 × 10 × 10</td><td>10.000</td></tr>
+          <tr><td>10⁶</td><td>10 × 10 × 10 × 10 × 10 × 10</td><td>1.000.000 (un millón)</td></tr>
         </table>
         <div class="tip-box">
-          <strong>Truco:</strong> una potencia de base 10 se calcula rápido: el exponente indica cuántos ceros se añaden al 1.
+          <strong>Truco:</strong> una potencia de base 10 es un 1 seguido de tantos ceros como indica el exponente. Y para multiplicar por ella, se añaden esos ceros: 7 × 10³ = 7.000.
+        </div>
+
+        <h2>Descomponer un número con potencias de 10</h2>
+        <div class="rule-box llana">
+          <h4>Cada cifra, por su potencia de 10</h4>
+          <p>Cada cifra se multiplica por la potencia de 10 de su lugar. El exponente es el número de cifras que tiene a su derecha. Las cifras 0 no se escriben, pero guardan el sitio.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 40.302 = 4 × 10⁴ + 3 × 10² + 2</p>
+        </div>
+
+        <h2>Potencias en la vida diaria</h2>
+        <div class="rule-box aguda">
+          <h4>Cajas dentro de cajas</h4>
+          <p>Cuando algo se repite «dentro» de lo mismo, aparece una potencia. 5 cajas con 5 bolsas cada una y 5 engranajes en cada bolsa son 5 × 5 × 5 = 5³ = 125 engranajes.</p>
+          <p class="examples"><strong>También:</strong> las baldosas de un suelo cuadrado (lado²), los cubitos de un cubo (arista³) o un mensaje que cada persona reenvía a 3 amigos (3, 3², 3³…).</p>
         </div>
 
         <h2>Tabla de potencias frecuentes</h2>
@@ -111,7 +131,7 @@
         </table>
 
         <div class="tip-box">
-          <strong>Cuidado:</strong> un número elevado a 1 es él mismo (7¹ = 7), y un número elevado a 0 es siempre 1 (7⁰ = 1).
+          <strong>Cuidado:</strong> un número elevado a 1 es él mismo (7¹ = 7), y cualquier número distinto de 0 elevado a 0 vale 1 (7⁰ = 1).
         </div>
 
         <p style="text-align:center; margin-top:32px;">
@@ -119,6 +139,80 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="po-cubo">
+          <h2>1. Cuadrados y cubos con cubitos</h2>
+          <p class="md-explore-intro">Cambia el lado y mira cuántos cuadraditos o cubitos hacen falta.</p>
+          <div class="md-controls">
+            <div class="choice-row" id="po-cubo-tipo">
+              <button type="button" class="btn btn-secondary active" data-po-tipo="cuadrado">Cuadrado</button>
+              <button type="button" class="btn btn-secondary" data-po-tipo="cubo">Cubo</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Lado</span>
+              <button type="button" class="btn btn-secondary" data-po="cubo" data-key="n" data-delta="-1" aria-label="Lado menos uno">−</button>
+              <output id="po-cubo-n"></output>
+              <button type="button" class="btn btn-secondary" data-po="cubo" data-key="n" data-delta="1" aria-label="Lado más uno">+</button>
+            </div>
+          </div>
+          <div class="po-draw" id="po-cubo-draw"></div>
+          <p class="md-msg ok" id="po-cubo-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="po-pot">
+          <h2>2. Una potencia por dentro</h2>
+          <p class="md-explore-intro">Elige la base y el exponente. Mira cómo crece al subir el exponente.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label po-base">Base</span>
+              <button type="button" class="btn btn-secondary" data-po="pot" data-key="b" data-delta="-1" aria-label="Base menos uno">−</button>
+              <output id="po-pot-b"></output>
+              <button type="button" class="btn btn-secondary" data-po="pot" data-key="b" data-delta="1" aria-label="Base más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label po-exp">Exponente</span>
+              <button type="button" class="btn btn-secondary" data-po="pot" data-key="e" data-delta="-1" aria-label="Exponente menos uno">−</button>
+              <output id="po-pot-e"></output>
+              <button type="button" class="btn btn-secondary" data-po="pot" data-key="e" data-delta="1" aria-label="Exponente más uno">+</button>
+            </div>
+          </div>
+          <p class="po-big" id="po-pot-big"></p>
+          <div class="md-msg ok" id="po-pot-msg" aria-live="polite"></div>
+        </div>
+
+        <div class="md-explore-card" id="po-diez">
+          <h2>3. Potencias de 10</h2>
+          <p class="md-explore-intro">Sube el exponente y cuenta los ceros.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Exponente</span>
+              <button type="button" class="btn btn-secondary" data-po="diez" data-key="e" data-delta="-1" aria-label="Exponente menos uno">−</button>
+              <output id="po-diez-e"></output>
+              <button type="button" class="btn btn-secondary" data-po="diez" data-key="e" data-delta="1" aria-label="Exponente más uno">+</button>
+            </div>
+          </div>
+          <p class="po-big" id="po-diez-big"></p>
+          <p class="md-msg ok" id="po-diez-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="po-desc">
+          <h2>4. Descomponer un número</h2>
+          <p class="md-explore-intro">Cada cifra se multiplica por la potencia de 10 de su lugar.</p>
+          <div class="md-controls">
+            <p class="po-big" id="po-desc-num"></p>
+            <button type="button" class="btn btn-secondary" id="po-desc-otro">Otro número</button>
+          </div>
+          <div class="po-tabla-wrap" id="po-desc-tabla"></div>
+          <p class="md-msg ok" id="po-desc-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -132,8 +226,13 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="calcular">Calcular la potencia</button>
-            <button class="btn btn-secondary" data-mode="descomponer">Escribir como multiplicación</button>
+            <button class="btn btn-secondary active" data-mode="calcular">Calcular</button>
+            <button class="btn btn-secondary" data-mode="multiplicacion">Potencia y multiplicación</button>
+            <button class="btn btn-secondary" data-mode="leer">Leer: base y exponente</button>
+            <button class="btn btn-secondary" data-mode="diez">Potencias de 10</button>
+            <button class="btn btn-secondary" data-mode="descomponer">Descomponer números</button>
+            <button class="btn btn-secondary" data-mode="comparar">Comparar</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
@@ -141,6 +240,11 @@
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
