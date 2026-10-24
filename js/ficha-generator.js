@@ -3546,7 +3546,7 @@ const ngCifraEn = (n, p) => Math.floor(n / 10 ** p) % 10;
 const ngRedondear = (n, p) => Math.round(n / 10 ** p) * 10 ** p;
 const NG_ORDEN_PL = ["unidades", "decenas", "centenas", "unidades de millar", "decenas de millar", "centenas de millar", "unidades de millón", "decenas de millón", "centenas de millón"];
 const NG_A_ORDEN = ["a la unidad", "a la decena", "a la centena", "al millar", "a la decena de millar", "a la centena de millar", "al millón", "a la decena de millón", "a la centena de millón"];
-const NG_SIGLA = ["U", "D", "C", "UM", "DM", "CM", "U. mill.", "D. mill.", "C. mill."];
+const NG_SIGLA = ["U", "D", "C", "UM", "DM", "CM", "UMM", "DMM", "CMM"];
 
 const NG_UNI = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
 const NG_10_29 = ["diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiuno", "veintidós", "veintitrés", "veinticuatro", "veinticinco", "veintiséis", "veintisiete", "veintiocho", "veintinueve"];
@@ -3643,7 +3643,7 @@ function ngDescomponer(nivel) {
   const suma = d.map(([x, p]) => ngMiles(x * 10 ** p)).join(" + ");
   return {
     enunciado: `Descompón el número ${ngMiles(n)} de dos formas: en órdenes (por ejemplo, 3 CM + 4 DM…) y como suma de valores.`,
-    datos: ["U, D, C: unidades, decenas, centenas. UM, DM, CM: de millar. U. mill., D. mill., C. mill.: de millón."],
+    datos: ["U, D, C: unidades, decenas, centenas. UM, DM, CM: de millar. UMM, DMM, CMM: de millón."],
     operacion: `${ngMiles(n)} = ${ordenes}`,
     solucion: `${ordenes} · ${ngMiles(n)} = ${suma}.`,
   };

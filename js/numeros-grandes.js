@@ -44,7 +44,7 @@ const ORDEN = ["unidad", "decena", "centena", "unidad de millar", "decena de mil
 const ORDEN_PL = ["unidades", "decenas", "centenas", "unidades de millar", "decenas de millar", "centenas de millar", "unidades de millón", "decenas de millón", "centenas de millón"];
 // «Redondea a la decena», «al millar», «al millón»…
 const A_ORDEN = ["a la unidad", "a la decena", "a la centena", "al millar", "a la decena de millar", "a la centena de millar", "al millón", "a la decena de millón", "a la centena de millón"];
-const SIGLA = ["U", "D", "C", "UM", "DM", "CM", "U. mill.", "D. mill.", "C. mill."];
+const SIGLA = ["U", "D", "C", "UM", "DM", "CM", "UMM", "DMM", "CMM"];
 
 // ------------------------------------------------------------
 // Números en letras
@@ -206,7 +206,7 @@ function genValor(L, mill = false) {
       visual: tiraCifras(n, p),
       options: uniqueOptions(correct, vecinos),
       correct,
-      hint: "Desde la derecha: U, D, C (unidades) · UM, DM, CM (millares) · U, D, C de millón.",
+      hint: "Desde la derecha: U, D, C (unidades) · UM, DM, CM (millares) · UMM, DMM, CMM (millones).",
       explain: `El ${d} es una ${correct}: vale ${miles(d * pot10(p))}.`,
     };
   }
@@ -253,7 +253,7 @@ function genDescomponer(L, mill = false) {
     display,
     options: uniqueOptions(correct, [miles(Number(d.filter((x) => x).join(""))), ...parecidos(n).map(miles)]),
     correct,
-    hint: conOrdenes ? "U = unidades, D = decenas, C = centenas, UM = unidades de millar, DM = decenas de millar, CM = centenas de millar. Pon un 0 en los lugares que no aparecen." : "Suma los valores. Pon un 0 en los lugares que no aparecen.",
+    hint: conOrdenes ? "U = unidades, D = decenas, C = centenas, UM = unidades de millar, DM = decenas de millar, CM = centenas de millar, UMM = unidades de millón, DMM = decenas de millón, CMM = centenas de millón. Pon un 0 en los lugares que no aparecen." : "Suma los valores. Pon un 0 en los lugares que no aparecen.",
     explain: `${display} = ${correct}. Los lugares que faltan llevan un 0.`,
   };
 }
