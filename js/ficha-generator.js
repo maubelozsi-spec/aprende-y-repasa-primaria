@@ -2111,75 +2111,214 @@ function genDecimalesMDAltas() {
   return siguienteDeBaraja("dmAltas", [dmBolsasAltas, dmPresupuestoAltas, () => dmBotellas(DM_NIVELES["6"]), () => dmCompra7(DM_NIVELES["6"])])();
 }
 
-function porcentajesDirecto(curso) {
-  const precio = roundMoney(randomInt(500, curso === "6" ? 9900 : 5000) / 100);
-  const pct = curso === "6" ? pick([10, 15, 20, 25, 30, 40]) : pick([10, 20, 25, 50]);
-  const resultado = roundMoney((precio * pct) / 100);
+// ---- Porcentajes ----
+// 5º (Tema 9): qué es un porcentaje, porcentajes de cabeza, el
+// porcentaje de una cantidad y los descuentos e impuestos (el reto del
+// mercado medieval). 6º (SdA 5): además fracción, decimal y porcentaje
+// y qué porcentaje es. Las cantidades se eligen para que todo salga
+// exacto: nada de redondear céntimos sin decirlo.
+const PC_NIVELES = {
+  "5": { pcts: [5, 10, 15, 20, 25, 30, 40, 50, 75], max: 400 },
+  "6": { pcts: [5, 12, 15, 20, 25, 30, 35, 40, 60, 75], max: 800 },
+  disc: { pcts: [10, 25, 50], max: 100 },
+};
+
+// Cantidad múltiplo de 10 para la que el p% es entero.
+function pcCantidad(p, max, min = 20) {
+  const base = 100 / gcd(p, 100);
+  const paso = lcm(base, 10);
+  const k = Math.max(1, Math.ceil(min / paso));
+  return paso * randomInt(k, Math.max(k, Math.floor(max / paso)));
+}
+
+const pcEur = (c) => (c % 100 === 0 ? String(c / 100) : `${Math.floor(c / 100)},${String(c % 100).padStart(2, "0")}`);
+
+function pcDe(nivel) {
+  const p = pick(nivel.pcts);
+  const total = pcCantidad(p, nivel.max, 40);
+  const r = (p * total) / 100;
+  const cosa = pick(["van al colegio andando", "comen en el comedor", "practican algún deporte", "tienen mascota"]);
   return {
-    enunciado: `Calcula el ${pct}% de ${fmtEs(precio)} €.`,
-    datos: [`Cantidad: ${fmtEs(precio)} €`, `Porcentaje: ${pct}%`],
-    operacion: `${fmtEs(precio)} × ${pct} ÷ 100 = ${fmtEs(resultado)}`,
-    solucion: `${fmtEs(resultado)} €. El ${pct}% de ${fmtEs(precio)} € es ${fmtEs(resultado)} €.`,
+    enunciado: `En un grupo de ${total} alumnos, el ${p}% ${cosa}. ¿Cuántos alumnos son?`,
+    datos: [`Total: ${total} alumnos`, `Porcentaje: ${p}%`],
+    operacion: `${total} × ${p} : 100 = ${total * p} : 100 = ${r}`,
+    solucion: `${r} alumnos.`,
   };
 }
 
-function porcentajesDescuentoRecargo(curso) {
-  const precio = roundMoney(randomInt(500, curso === "6" ? 9900 : 5000) / 100);
-  const pct = curso === "6" ? pick([10, 15, 20, 25, 30, 40]) : pick([10, 20, 25, 50]);
-  const esDescuento = Math.random() < 0.5;
-  const cambio = roundMoney((precio * pct) / 100);
-  const final = roundMoney(esDescuento ? precio - cambio : precio + cambio);
-  const etiqueta = esDescuento ? "descuento" : "recargo";
+function pcCabeza(nivel) {
+  // Múltiplo de 20: el 50%, el 25% y el 10% salen enteros.
+  const cant = 20 * randomInt(2, nivel === PC_NIVELES.disc ? 5 : 20);
   return {
-    enunciado: `Un artículo cuesta ${fmtEs(precio)} €. Tiene un ${etiqueta} del ${pct}%. ¿Cuánto cuesta ahora?`,
-    datos: [`Precio inicial: ${fmtEs(precio)} €`, `${etiqueta[0].toUpperCase()}${etiqueta.slice(1)}: ${pct}%`],
-    operacion: `${pct}% de ${fmtEs(precio)} = ${fmtEs(cambio)}. ${fmtEs(precio)} ${esDescuento ? "−" : "+"} ${fmtEs(cambio)} = ${fmtEs(final)}`,
-    solucion: `${fmtEs(final)} €. Ahora cuesta ${fmtEs(final)} €.`,
+    enunciado: `Calcula de cabeza el 50%, el 25% y el 10% de ${cant}.`,
+    datos: [`Cantidad: ${cant}`],
+    operacion: `50% → ${cant} : 2 · 25% → ${cant} : 4 · 10% → ${cant} : 10`,
+    solucion: `50% = ${cant / 2}; 25% = ${cant / 4}; 10% = ${cant / 10}.`,
   };
 }
 
-function porcentajesInverso(curso) {
-  const totalUnidades = randomInt(curso === "6" ? 3 : 1, curso === "6" ? 15 : 6) * 20;
-  const pct = curso === "6" ? pick([5, 10, 15, 20, 25, 30, 40, 50, 60, 75]) : pick([10, 20, 25, 50]);
-  const parte = (totalUnidades * pct) / 100;
+function pcQueEs(nivel) {
+  const p = pick(nivel === PC_NIVELES.disc ? [10, 20, 25, 50, 75] : [4, 8, 15, 25, 35, 40, 60, 75, 90]);
+  const dec = p % 10 === 0 ? `0,${p / 10}` : `0,${String(p).padStart(2, "0")}`;
   return {
-    enunciado: `De un grupo de ${totalUnidades} personas, ${parte} son socios de un club deportivo. ¿Qué porcentaje del grupo son socios?`,
-    datos: [`Total: ${totalUnidades}`, `Socios: ${parte}`],
-    operacion: `${parte} ÷ ${totalUnidades} × 100 = ${pct}%`,
-    solucion: `${pct}%. Los socios son el ${pct}% del grupo.`,
+    enunciado: `Escribe el ${p}% como fracción con denominador 100 y como número decimal. ¿Cuántos cuadraditos colorearías en una cuadrícula de 100?`,
+    datos: [`Porcentaje: ${p}%`],
+    operacion: `${p}% = ${p} de cada 100 = ${p}/100 = ${p} : 100`,
+    solucion: `${p}/100 = ${dec}. Colorearía ${p} cuadraditos.`,
+  };
+}
+
+function pcRebaja(nivel) {
+  const p = pick(nivel.pcts.filter((x) => x <= 50));
+  const precio = pcCantidad(p, Math.min(nivel.max, 200), 20);
+  const desc = (p * precio) / 100;
+  const objeto = pick(["unas zapatillas", "una mochila", "un balón", "un juego de mesa", "una chaqueta"]);
+  return {
+    enunciado: `En las rebajas, ${objeto} de ${precio} € tiene un descuento del ${p}%. ¿Cuánto se descuenta? ¿Cuánto hay que pagar?`,
+    datos: [`Precio: ${precio} €`, `Descuento: ${p}%`],
+    operacion: `${p}% de ${precio} = ${precio} × ${p} : 100 = ${desc}; ${precio} − ${desc} = ${precio - desc}`,
+    solucion: `Se descuentan ${desc} € y hay que pagar ${precio - desc} €.`,
+  };
+}
+
+// Reto de la UDI del Tema 9: el folleto del mercado medieval.
+function pcMercado(nivel) {
+  const objeto = pick(["una espada de madera", "un escudo pintado", "un tarro de miel", "una capa de lana", "un libro de leyendas"]);
+  const pd = pick(nivel === PC_NIVELES.disc ? [10, 50] : [10, 20, 25]);
+  const pi = 10;
+  const precio = pcCantidad(pd, 100, 20);
+  const conImpuesto = precio + (precio * pi) / 100;
+  const esImpuesto = Math.random() < 0.5;
+  if (esImpuesto) {
+    return {
+      enunciado: `Para el folleto del mercado medieval: ${objeto} cuesta ${precio} € y hay que sumarle un impuesto del ${pi}%. ¿Qué precio final hay que poner en el folleto?`,
+      datos: [`Precio: ${precio} €`, `Impuesto: ${pi}%`],
+      operacion: `${pi}% de ${precio} = ${(precio * pi) / 100}; ${precio} + ${(precio * pi) / 100} = ${conImpuesto}`,
+      solucion: `${conImpuesto} €.`,
+    };
+  }
+  const desc = (precio * pd) / 100;
+  return {
+    enunciado: `Para el folleto del mercado medieval: ${objeto} cuesta ${precio} € y el último día tiene un descuento del ${pd}%. ¿Cuánto costará el último día?`,
+    datos: [`Precio: ${precio} €`, `Descuento: ${pd}%`],
+    operacion: `${pd}% de ${precio} = ${desc}; ${precio} − ${desc} = ${precio - desc}`,
+    solucion: `${precio - desc} €.`,
+  };
+}
+
+// 6º
+const PC_TRIPLETAS = [[1, 2, 50], [1, 4, 25], [3, 4, 75], [1, 5, 20], [2, 5, 40], [3, 5, 60], [4, 5, 80], [3, 10, 30], [7, 10, 70], [3, 20, 15], [7, 20, 35], [1, 25, 4], [3, 25, 12]];
+
+function pcFracDecPct(nivel) {
+  const [n, d, p] = pick(nivel === PC_NIVELES.disc ? PC_TRIPLETAS.slice(0, 5) : PC_TRIPLETAS);
+  const dec = p % 10 === 0 ? `0,${p / 10}` : `0,${String(p).padStart(2, "0")}`;
+  return {
+    enunciado: `Completa: la fracción ${n}/${d} es igual al número decimal ___ y al porcentaje ___ %.`,
+    datos: [`Fracción: ${n}/${d}`],
+    operacion: `${n}/${d} = ${p}/100 (multiplicando por ${100 / d}) = ${dec}`,
+    solucion: `${n}/${d} = ${dec} = ${p}%.`,
+  };
+}
+
+function pcQuePorcentaje(nivel) {
+  const p = pick(nivel === PC_NIVELES.disc ? [10, 25, 50] : [5, 10, 15, 20, 25, 30, 40, 60, 75, 80]);
+  const total = pcCantidad(p, nivel === PC_NIVELES.disc ? 100 : 400, 20);
+  const parte = (p * total) / 100;
+  return {
+    enunciado: `En una encuesta a ${total} personas, ${parte} dicen que ahorran energía apagando las luces. ¿Qué porcentaje son?`,
+    datos: [`Total: ${total}`, `Parte: ${parte}`],
+    operacion: `${parte} : ${total} × 100 = ${p}`,
+    solucion: `El ${p}%.`,
+  };
+}
+
+// SdA 5 de 6º: «La energía».
+function pcEnergia(nivel) {
+  const total = pick([200, 250, 300, 400, 500]);
+  const opciones = [10, 20, 30, 40, 50].filter((x) => (x * total) % 100 === 0);
+  const pCal = pick(opciones.filter((x) => x >= 30));
+  const pLuz = pick(opciones.filter((x) => x <= 20));
+  const cal = (pCal * total) / 100;
+  const luz = (pLuz * total) / 100;
+  return {
+    enunciado: `Una casa gasta ${total} kWh de energía al mes. El ${pCal}% es para la calefacción y el ${pLuz}% para la luz. ¿Cuántos kWh gasta en cada cosa? ¿Qué porcentaje queda para lo demás?`,
+    datos: [`Total: ${total} kWh`, `Calefacción: ${pCal}%`, `Luz: ${pLuz}%`],
+    operacion: `${pCal}% de ${total} = ${cal}; ${pLuz}% de ${total} = ${luz}; 100 − ${pCal} − ${pLuz} = ${100 - pCal - pLuz}`,
+    solucion: `Calefacción: ${cal} kWh; luz: ${luz} kWh. Queda el ${100 - pCal - pLuz}% para lo demás.`,
+  };
+}
+
+function pcIva(nivel) {
+  const precio = randomInt(1, 9) * 100;
+  const iva = (precio * 21) / 100;
+  return {
+    enunciado: `Un ordenador cuesta ${precio} € sin impuestos. Hay que sumarle el 21% de IVA. ¿Cuánto es el IVA? ¿Cuál es el precio final?`,
+    datos: [`Precio: ${precio} €`, `IVA: 21%`],
+    operacion: `21% de ${precio} = ${precio} × 21 : 100 = ${iva}; ${precio} + ${iva} = ${precio + iva}`,
+    solucion: `El IVA son ${iva} € y el precio final es ${precio + iva} €.`,
   };
 }
 
 function genPorcentajes(curso) {
-  return pick([porcentajesDirecto, porcentajesDescuentoRecargo, porcentajesInverso])(curso);
+  if (curso === "6") {
+    return siguienteDeBaraja("pc6", [pcFracDecPct, pcQuePorcentaje, pcEnergia, pcRebaja, pcIva, pcDe])(PC_NIVELES["6"]);
+  }
+  return siguienteDeBaraja("pc5", [pcQueEs, pcCabeza, pcDe, pcRebaja, pcMercado, pcMercado])(PC_NIVELES["5"]);
 }
 
-function genPorcentajesACS() {
+function pcAcsUno() {
   const pct = pick([10, 50]);
   const cantidad = pct === 10 ? randomInt(2, 10) * 10 : randomInt(2, 20) * 2;
   const resultado = (cantidad * pct) / 100;
   return {
     enunciado: `Calcula el ${pct}% de ${cantidad}.`,
     datos: [`Cantidad: ${cantidad}`, `Porcentaje: ${pct}%`],
-    operacion: pct === 10 ? `${cantidad} ÷ 10 = ${resultado}` : `${cantidad} ÷ 2 = ${resultado}`,
+    operacion: pct === 10 ? `${cantidad} : 10 = ${resultado}` : `${cantidad} : 2 = ${resultado}`,
     solucion: `${resultado}. El ${pct}% de ${cantidad} es ${resultado}.`,
   };
 }
 
-function genPorcentajesAltas() {
-  const precio = roundMoney(randomInt(1000, 9900) / 100);
-  const pct1 = pick([10, 15, 20, 25, 30]);
-  const pct2 = pick([5, 10, 15, 21]);
-  const cambio1 = roundMoney((precio * pct1) / 100);
-  const tras1 = roundMoney(precio - cambio1);
-  const cambio2 = roundMoney((tras1 * pct2) / 100);
-  const final = roundMoney(tras1 + cambio2);
+function pcAcsClase() {
+  const total = pick([10, 20, 30]);
+  const pct = pick([10, 50]);
   return {
-    enunciado: `Un artículo cuesta ${fmtEs(precio)} €. Primero tiene un descuento del ${pct1}% y después se le aplica un ${pct2}% de IVA sobre el nuevo precio. ¿Cuánto cuesta finalmente?`,
-    datos: [`Precio inicial: ${fmtEs(precio)} €`, `Descuento: ${pct1}%`, `IVA: ${pct2}%`],
-    operacion: `${pct1}% de ${fmtEs(precio)} = ${fmtEs(cambio1)}. ${fmtEs(precio)} − ${fmtEs(cambio1)} = ${fmtEs(tras1)}. ${pct2}% de ${fmtEs(tras1)} = ${fmtEs(cambio2)}. ${fmtEs(tras1)} + ${fmtEs(cambio2)} = ${fmtEs(final)}`,
-    solucion: `${fmtEs(final)} €. Cuesta finalmente ${fmtEs(final)} €.`,
+    enunciado: `En una clase de ${total} alumnos, el ${pct}% son chicas. ¿Cuántas chicas hay?`,
+    datos: [`Alumnos: ${total}`, `Porcentaje: ${pct}%`],
+    operacion: pct === 10 ? `${total} : 10 = ${total / 10}` : `${total} : 2 = ${total / 2}`,
+    solucion: `${(total * pct) / 100} chicas.`,
   };
+}
+
+function genPorcentajesACS() {
+  return siguienteDeBaraja("pcAcs", [pcAcsUno, pcAcsClase, pcAcsUno])();
+}
+
+// Discalculia: los contenidos del curso con el 10%, el 25% y el 50% y
+// cantidades pequeñas (no el nivel de ACS).
+function genPorcentajesDiscalculia(curso) {
+  const d = PC_NIVELES.disc;
+  if (curso === "6") return siguienteDeBaraja("pcDisc6", [pcFracDecPct, pcQuePorcentaje, pcRebaja, pcDe, pcQueEs])(d);
+  return siguienteDeBaraja("pcDisc5", [pcQueEs, pcCabeza, pcDe, pcRebaja, pcMercado])(d);
+}
+
+function pcDescuentoIvaAltas() {
+  // Precio múltiplo de 100 y descuento múltiplo de 10: el IVA del 21%
+  // sobre el precio rebajado sale en céntimos exactos.
+  const precio = randomInt(1, 9) * 100;
+  const pd = pick([10, 20, 25, 30, 40, 50]);
+  const tras = precio - (precio * pd) / 100;
+  const ivaC = tras * 21; // en céntimos
+  const finalC = tras * 100 + ivaC;
+  return {
+    enunciado: `Un artículo cuesta ${precio} €. Primero tiene un descuento del ${pd}% y después se le aplica un 21% de IVA sobre el nuevo precio. ¿Cuánto cuesta finalmente?`,
+    datos: [`Precio inicial: ${precio} €`, `Descuento: ${pd}%`, `IVA: 21%`],
+    operacion: `${pd}% de ${precio} = ${(precio * pd) / 100}; ${precio} − ${(precio * pd) / 100} = ${tras}; 21% de ${tras} = ${pcEur(ivaC)}; ${tras} + ${pcEur(ivaC)} = ${pcEur(finalC)}`,
+    solucion: `${pcEur(finalC)} €.`,
+  };
+}
+
+function genPorcentajesAltas() {
+  return siguienteDeBaraja("pcAltas", [pcDescuentoIvaAltas, () => pcQuePorcentaje(PC_NIVELES["6"]), () => pcEnergia(PC_NIVELES["6"]), () => pcFracDecPct(PC_NIVELES["6"])])();
 }
 
 function problemasMixtosCompraGrupo(curso) {
@@ -3221,7 +3360,7 @@ const TOPICS = [
   { id: "operaciones-fracciones", label: "Operaciones con fracciones", category: "Fracciones y decimales", generate: genOperacionesFracciones, generateACS: genOperacionesFraccionesACS, generateDiscalculia: genOperacionesFraccionesDiscalculia, generateAltas: genOperacionesFraccionesAltas, resumen: "Para sumar o restar fracciones con el mismo denominador, se suman o restan los numeradores y el denominador se queda igual. Para calcular la fracción de una cantidad, se divide la cantidad entre el denominador y se multiplica por el numerador. En las operaciones combinadas, primero los paréntesis.", resumen6: "Para sumar o restar fracciones con distinto denominador, primero se reducen a común denominador. Para multiplicar, numerador por numerador y denominador por denominador; para dividir, se multiplica por la segunda fracción invertida. En las combinadas: paréntesis, después multiplicaciones y divisiones, y por último sumas y restas." },
   { id: "decimales", label: "Números decimales", category: "Fracciones y decimales", generate: genDecimales, generateACS: genDecimalesACS, generateDiscalculia: genDecimalesDiscalculia, generateAltas: genDecimalesAltas, resumen: "Un número decimal tiene parte entera y parte decimal, separadas por la coma: décimas, centésimas y milésimas. Para comparar, se mira la parte entera y después cifra a cifra (3,45 < 3,5). Para sumar y restar, las comas van una debajo de otra y se rellenan con ceros las cifras que falten.", resumen6: "Un número decimal tiene parte entera y parte decimal, separadas por la coma. Para sumar y restar, las comas van alineadas. Para redondear, se mira la cifra siguiente: si es 5 o más, sube. Una fracción se pasa a decimal dividiendo el numerador entre el denominador (3/4 = 0,75)." },
   { id: "decimales-md", label: "Multiplicación y división de decimales", category: "Fracciones y decimales", generate: genDecimalesMD, generateACS: genDecimalesMDACS, generateDiscalculia: genDecimalesMDDiscalculia, generateAltas: genDecimalesMDAltas, resumen: "Para multiplicar decimales, se multiplica sin comas y se separan tantas cifras decimales como tengan los dos factores juntos. Al multiplicar por 10, 100 o 1000 la coma se mueve a la derecha, y al dividir, a la izquierda. Al dividir un decimal entre un natural, la coma se pone en el cociente al bajar la primera cifra decimal.", resumen6: "Para multiplicar decimales, se multiplica sin comas y se separan tantas cifras decimales como tengan los dos factores. Para dividir entre un decimal, se mueve la coma a la derecha en el dividendo y en el divisor hasta que el divisor no tenga coma. Si la división no es exacta, se pone la coma y se sigue dividiendo con ceros." },
-  { id: "porcentajes", label: "Porcentajes", category: "Fracciones y decimales", generate: genPorcentajes, generateACS: genPorcentajesACS, generateAltas: genPorcentajesAltas, resumen: "Un porcentaje indica una parte de cada 100. Calcular el X% de una cantidad es multiplicarla por X y dividir entre 100." },
+  { id: "porcentajes", label: "Porcentajes", category: "Fracciones y decimales", generate: genPorcentajes, generateACS: genPorcentajesACS, generateDiscalculia: genPorcentajesDiscalculia, generateAltas: genPorcentajesAltas, resumen: "Un porcentaje indica una parte de cada 100: 25% = 25/100 = 0,25. Para calcular el X% de una cantidad, se multiplica por X y se divide entre 100. En un descuento se resta y en un impuesto se suma. De cabeza: 50% = la mitad, 25% = la cuarta parte, 10% = dividir entre 10.", resumen6: "Un porcentaje indica una parte de cada 100: 3/5 = 60/100 = 0,6 = 60%. Para calcular el X% de una cantidad, se multiplica por X y se divide entre 100; para saber qué porcentaje es una parte, se divide la parte entre el total y se multiplica por 100. En un descuento se resta y en un impuesto se suma." },
   { id: "problemas-mixtos", label: "Problemas mixtos (varios pasos)", category: "Problemas mixtos", generate: genProblemasMixtos, resumen: "Algunos problemas necesitan encadenar varias operaciones seguidas para llegar a la solución final." },
   { id: "medidas", label: "Medidas y conversiones", category: "Geometría y medidas", generate: genMedidas, generateACS: genMedidasACS, generateAltas: genMedidasAltas, resumen: "Para cambiar de una unidad de medida a otra, se multiplica o se divide según la equivalencia entre ellas." },
   { id: "areas", label: "Áreas y perímetros", category: "Geometría y medidas", generate: genAreas, generateACS: genAreasACS, generateAltas: genAreasAltas, resumen: "El área mide la superficie de una figura: en un rectángulo es base × altura, y en un triángulo es (base × altura) ÷ 2." },
