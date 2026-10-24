@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Números decimales</h1>
-        <p class="content-subtitle">Relación con las fracciones, comparación, suma y resta.</p>
+        <p class="content-subtitle">Entiende los decimales con la cuadrícula de centésimas y la recta numérica, y practica leerlos, compararlos, ordenarlos, sumarlos y restarlos, con la explicación de cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -56,6 +56,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -69,7 +70,10 @@
           <tr><td>3</td><td>,</td><td>4</td><td>5</td><td>7</td></tr>
         </table>
         <div class="tip-box">
-          <strong>3,457</strong> se lee "tres unidades cuatro décimas, cinco centésimas y siete milésimas".
+          <strong>Cómo se lee:</strong> se lee la parte entera con «unidades» y la parte decimal con el nombre de su última cifra. <strong>3,457</strong> se lee «tres unidades y cuatrocientas cincuenta y siete milésimas». También se puede leer «tres coma cuatrocientos cincuenta y siete».
+        </div>
+        <div class="tip-box">
+          <strong>Cómo se descompone:</strong> 3,457 = 3 U + 4 d + 5 c + 7 m = 3 + 0,4 + 0,05 + 0,007. Recuerda: 1 unidad = 10 décimas = 100 centésimas = 1000 milésimas.
         </div>
 
         <h2>Relación con las fracciones</h2>
@@ -92,6 +96,12 @@
           <p>Primero se compara la <strong>parte entera</strong>. Si es igual, se comparan las décimas; si también son iguales, las centésimas, y así sucesivamente.</p>
           <p class="examples"><strong>Ejemplo:</strong> 3,45 &lt; 3,5 (las décimas: 4 &lt; 5) · 2,7 = 2,70 (los ceros a la derecha no cambian el valor)</p>
         </div>
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> pensar que 3,45 es mayor que 3,5 «porque 45 es mayor que 5». Iguala las cifras con ceros: 3,45 y 3,50. Ahora se ve que 45 centésimas son menos que 50 centésimas.
+        </div>
+        <div class="tip-box">
+          <strong>En la recta numérica:</strong> entre 2 y 3 hay 10 décimas (2,1; 2,2; … 2,9), y entre 2,3 y 2,4 hay 10 centésimas (2,31; 2,32; … 2,39). Siempre cabe otro decimal entre dos decimales.
+        </div>
 
         <h2>Suma y resta de decimales</h2>
         <div class="rule-box diptongo">
@@ -99,7 +109,7 @@
           <p>Se colocan los números en columna alineando las <strong>comas</strong> (y por tanto las unidades con unidades, décimas con décimas...), y se suma o resta como con números naturales.</p>
         </div>
         <div class="tip-box">
-          <strong>Ejemplo:</strong> 2,5 + 1,3 = 3,8
+          <strong>Ejemplo:</strong> 2,5 + 1,3 = 3,8 · Para restar <strong>9,4 − 5,15</strong>, iguala las cifras decimales con un cero: 9,40 − 5,15 = 4,25.
         </div>
 
         <div class="grade-section">
@@ -119,6 +129,15 @@
           <div class="tip-box">
             <strong>Ejemplo:</strong> 3,467 a las décimas → miramos el 6 (centésimas) → como es 5 o más, la décima sube: 4 → 5 → <strong>3,5</strong>.
           </div>
+          <div class="tip-box">
+            <strong>Cuidado:</strong> redondear no es cortar. 5,96 a las décimas es <strong>6,0</strong> (el 9 sube a 10 y se lleva una a las unidades), no 5,9.
+          </div>
+
+          <h2>Decimales y fracciones</h2>
+          <div class="rule-box llana">
+            <h4>De fracción a decimal</h4>
+            <p>Se divide el numerador entre el denominador: 3/4 = 3 : 4 = <strong>0,75</strong>. También se puede buscar una fracción equivalente con denominador 10, 100 o 1000: 3/4 = 75/100 = 0,75.</p>
+          </div>
         </div>
 
         <p style="text-align:center; margin-top:32px;">
@@ -126,6 +145,53 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="de-build">
+          <h2>1. Construye un número decimal</h2>
+          <p class="md-explore-intro">Sube o baja cada cifra. La cuadrícula es una unidad partida en 100 centésimas: cada columna es una décima.</p>
+          <div class="de-places" id="de-build-places"></div>
+          <p class="de-big" id="de-build-num" aria-live="polite"></p>
+          <div class="de-build-view">
+            <div class="de-grid" id="de-build-grid" aria-hidden="true"></div>
+            <div class="md-msg ok" id="de-build-msg" aria-live="polite"></div>
+          </div>
+          <div class="fr-line" id="de-build-line"></div>
+        </div>
+
+        <div class="md-explore-card" id="de-comp">
+          <h2>2. ¿Cuál es mayor?</h2>
+          <p class="md-explore-intro">Escribe dos números decimales (con coma) y compáralos cifra a cifra.</p>
+          <div class="de-inputs">
+            <label>A <input type="text" class="number-input" id="de-comp-a" value="3,45" inputmode="decimal" autocomplete="off"></label>
+            <label>B <input type="text" class="number-input" id="de-comp-b" value="3,5" inputmode="decimal" autocomplete="off"></label>
+          </div>
+          <div id="de-comp-table"></div>
+          <div class="fr-line" id="de-comp-line"></div>
+          <p class="md-msg ok" id="de-comp-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="de-col">
+          <h2>3. Suma y resta en columna</h2>
+          <p class="md-explore-intro">Las comas van una debajo de otra. Si faltan cifras, se rellenan con ceros.</p>
+          <div class="choice-row md-mode-row" id="de-col-op">
+            <button type="button" class="btn btn-secondary active" data-de-op="+">Sumar</button>
+            <button type="button" class="btn btn-secondary" data-de-op="−">Restar</button>
+          </div>
+          <div class="de-inputs">
+            <label>Primer número <input type="text" class="number-input" id="de-col-a" value="9,4" inputmode="decimal" autocomplete="off"></label>
+            <label>Segundo número <input type="text" class="number-input" id="de-col-b" value="5,15" inputmode="decimal" autocomplete="off"></label>
+          </div>
+          <div id="de-col-out"></div>
+          <p class="md-msg ok" id="de-col-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -139,17 +205,28 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="fraccionadecimal">Fracción a decimal</button>
+            <button class="btn btn-secondary active" data-mode="leer">Leer y escribir</button>
+            <button class="btn btn-secondary" data-mode="valor">Valor de las cifras</button>
+            <button class="btn btn-secondary" data-mode="fraccionadecimal">Fracción decimal</button>
             <button class="btn btn-secondary" data-mode="comparar">Comparar</button>
+            <button class="btn btn-secondary" data-mode="ordenar">Ordenar</button>
+            <button class="btn btn-secondary" data-mode="recta">Recta numérica</button>
             <button class="btn btn-secondary" data-mode="sumarrestar">Sumar y restar</button>
-            <button class="btn btn-secondary" data-mode="redondear">Redondear <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
+            <button class="btn btn-secondary" data-mode="redondear">Redondear y fracciones <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
           <p class="instructions" id="instructions"></p>
+          <div class="grid-example" id="game-visual" style="display:none;"></div>
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 

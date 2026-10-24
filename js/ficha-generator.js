@@ -1596,76 +1596,300 @@ function genOperacionesFraccionesAltas() {
   return siguienteDeBaraja("ofAltas", [ofExcursion, () => ofDividir(OF_NIVELES["6"]), () => ofPrioridad(OF_NIVELES["6"]), () => ofEnergia(OF_NIVELES["6"])])();
 }
 
-function decimalesRedondeo(curso) {
-  const entero = randomInt(1, curso === "6" ? 99 : 20);
-  const milesimas = randomInt(0, 999);
-  const numero = entero + milesimas / 1000;
-  const decimalesRedondeoN = curso === "6" ? 2 : 1;
-  const factor = Math.pow(10, decimalesRedondeoN);
-  const redondeado = Math.round(numero * factor) / factor;
-  const nombreRedondeo = decimalesRedondeoN === 1 ? "las décimas" : "las centésimas";
+// ---- Números decimales ----
+// 5º (Temas 6 y 7): leer y escribir, descomponer, fracción decimal,
+// comparar y ordenar, la recta y la suma y resta. 6º: además redondear
+// y pasar cualquier fracción a decimal. Los valores van en milésimas
+// enteras para no arrastrar errores de coma flotante.
+const DE_NIVELES = {
+  "5": { entMax: 20, kMax: 3, kSuma: 2 },
+  "6": { entMax: 99, kMax: 3, kSuma: 3 },
+  acs: { entMax: 9, kMax: 1, kSuma: 1 },
+  disc: { entMax: 9, kMax: 2, kSuma: 2 },
+};
+
+function deFmt(mil, k) {
+  const ent = Math.floor(mil / 1000);
+  return k === 0 ? String(ent) : `${ent},${String(mil % 1000).padStart(3, "0").slice(0, k)}`;
+}
+
+function deCifras(mil) {
+  return mil % 1000 === 0 ? 0 : mil % 100 === 0 ? 1 : mil % 10 === 0 ? 2 : 3;
+}
+
+const deMin = (mil) => deFmt(mil, deCifras(mil));
+
+function deAleatorio(nivel, k, entMin = 0) {
+  let f;
+  do {
+    f = randomInt(1, Math.pow(10, k) - 1);
+  } while (f % 10 === 0);
+  return randomInt(entMin, nivel.entMax) * 1000 + f * Math.pow(10, 3 - k);
+}
+
+const DE_UNI_F = ["cero", "una", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiuna", "veintidós", "veintitrés", "veinticuatro", "veinticinco", "veintiséis", "veintisiete", "veintiocho", "veintinueve"];
+const DE_DECENAS = { 3: "treinta", 4: "cuarenta", 5: "cincuenta", 6: "sesenta", 7: "setenta", 8: "ochenta", 9: "noventa" };
+const DE_CENTENAS_F = { 1: "ciento", 2: "doscientas", 3: "trescientas", 4: "cuatrocientas", 5: "quinientas", 6: "seiscientas", 7: "setecientas", 8: "ochocientas", 9: "novecientas" };
+
+function dePalabras(n) {
+  if (n < 30) return DE_UNI_F[n];
+  if (n < 100) return DE_DECENAS[Math.floor(n / 10)] + (n % 10 ? " y " + DE_UNI_F[n % 10] : "");
+  if (n === 100) return "cien";
+  return DE_CENTENAS_F[Math.floor(n / 100)] + (n % 100 ? " " + dePalabras(n % 100) : "");
+}
+
+const DE_LUGAR = { 1: ["décima", "décimas"], 2: ["centésima", "centésimas"], 3: ["milésima", "milésimas"] };
+
+function deLeer(mil, k) {
+  const ent = Math.floor(mil / 1000);
+  const dec = Math.floor((mil % 1000) / Math.pow(10, 3 - k));
+  const partes = [];
+  if (ent > 0) partes.push(`${dePalabras(ent)} ${ent === 1 ? "unidad" : "unidades"}`);
+  if (dec > 0) partes.push(`${dePalabras(dec)} ${DE_LUGAR[k][dec === 1 ? 0 : 1]}`);
+  return partes.join(" y ");
+}
+
+function deLeerEscribir(nivel) {
+  const k1 = randomInt(1, nivel.kMax);
+  const k2 = randomInt(1, nivel.kMax);
+  const a = deAleatorio(nivel, k1);
+  const b = deAleatorio(nivel, k2);
   return {
-    enunciado: `Redondea el número ${fmtEs(numero, 3)} a ${nombreRedondeo}.`,
-    datos: [`Número: ${fmtEs(numero, 3)}`],
-    operacion: `Miramos la cifra siguiente a ${nombreRedondeo}: si es 5 o más, redondeamos hacia arriba.`,
-    solucion: `${fmtEs(redondeado, decimalesRedondeoN)}. El número redondeado es ${fmtEs(redondeado, decimalesRedondeoN)}.`,
+    enunciado: `Escribe con cifras: «${deLeer(a, k1)}». Escribe con letras: ${deFmt(b, k2)}.`,
+    datos: [`Con cifras: «${deLeer(a, k1)}»`, `Con letras: ${deFmt(b, k2)}`],
+    operacion: `${DE_LUGAR[k1][1]}: ${k1 === 1 ? "1 cifra decimal" : `${k1} cifras decimales`} · ${deFmt(b, k2)}: la última cifra está en las ${DE_LUGAR[k2][1]}`,
+    solucion: `${deFmt(a, k1)} · «${deLeer(b, k2)}».`,
   };
 }
 
-function decimalesComparar(curso) {
-  const max = curso === "6" ? 9999 : 999;
-  const a = roundMoney(randomInt(100, max) / 100);
-  let b = roundMoney(randomInt(100, max) / 100);
-  while (b === a) b = roundMoney(randomInt(100, max) / 100);
-  const mayor = a > b ? a : b;
-  const menor = a > b ? b : a;
+function deDescomponer(nivel) {
+  const k = Math.max(2, nivel.kMax);
+  let mil, cifras;
+  do {
+    mil = deAleatorio(nivel, k, 1);
+    cifras = deFmt(mil, k).replace(",", "");
+  } while (new Set(cifras).size !== cifras.length);
+  const num = deFmt(mil, k);
+  const dec = num.split(",")[1];
+  const pos = randomInt(1, k);
+  const ent = Math.floor(mil / 1000);
   return {
-    enunciado: `¿Cuál de estos dos números es mayor: ${fmtEs(a)} o ${fmtEs(b)}?`,
-    datos: [`Número 1: ${fmtEs(a)}`, `Número 2: ${fmtEs(b)}`],
-    operacion: `Comparamos la parte entera y luego las cifras decimales una a una.`,
-    solucion: `${fmtEs(mayor)}. ${fmtEs(mayor)} es mayor que ${fmtEs(menor)}.`,
+    enunciado: `Descompón el número ${num} en unidades, décimas${k === 3 ? ", centésimas y milésimas" : " y centésimas"}. ¿Cuánto vale el ${dec[pos - 1]}?`,
+    datos: [`Número: ${num}`],
+    operacion: `${ent} U + ${dec.split("").map((c, i) => `${c} ${["d", "c", "m"][i]}`).join(" + ")}`,
+    solucion: `${num} = ${[String(ent)].concat(dec.split("").map((c, i) => (c === "0" ? null : deFmt(Number(c) * Math.pow(10, 2 - i), i + 1))).filter(Boolean)).join(" + ")}. El ${dec[pos - 1]} vale ${dec[pos - 1]} ${DE_LUGAR[pos][dec[pos - 1] === "1" ? 0 : 1]} (${deFmt(Number(dec[pos - 1]) * Math.pow(10, 3 - pos), pos)}).`,
   };
 }
 
-function decimalesFraccion(curso) {
-  const decimales = curso === "6" ? 2 : 1;
-  const denominador = Math.pow(10, decimales);
-  const numerador = randomInt(1, denominador - 1);
-  const decimal = numerador / denominador;
+function deFraccion(nivel) {
+  const k1 = randomInt(1, nivel.kMax);
+  const den = Math.pow(10, k1);
+  let n;
+  do {
+    n = randomInt(1, den * 2);
+  } while (n % 10 === 0 || n === den);
+  const k2 = randomInt(1, nivel.kMax);
+  const b = deAleatorio({ entMax: 0 }, k2);
+  const nb = b / Math.pow(10, 3 - k2);
   return {
-    enunciado: `Escribe en forma decimal la fracción ${numerador}/${denominador}.`,
-    datos: [`Fracción: ${numerador}/${denominador}`],
-    operacion: `${numerador} ÷ ${denominador} = ${fmtEs(decimal, decimales)}`,
-    solucion: `${fmtEs(decimal, decimales)}. La fracción ${numerador}/${denominador} es ${fmtEs(decimal, decimales)}.`,
+    enunciado: `Escribe en forma decimal la fracción ${n}/${den}, y en forma de fracción decimal el número ${deFmt(b, k2)}.`,
+    datos: [`Fracción: ${n}/${den}`, `Decimal: ${deFmt(b, k2)}`],
+    operacion: `${n}/${den} son ${n} ${DE_LUGAR[k1][1]} · ${deFmt(b, k2)} son ${nb} ${DE_LUGAR[k2][nb === 1 ? 0 : 1]}`,
+    solucion: `${n}/${den} = ${deFmt(n * Math.pow(10, 3 - k1), k1)} · ${deFmt(b, k2)} = ${nb}/${Math.pow(10, k2)}.`,
+  };
+}
+
+function deOrdenar(nivel) {
+  const nombres = NOMBRES.slice().sort(() => Math.random() - 0.5).slice(0, 4);
+  const vals = new Set();
+  // Alturas reales de 10-12 años: entre 1,30 y 1,65 m, con una o dos cifras decimales.
+  while (vals.size < 4) vals.add(Math.random() < 0.3 ? randomInt(13, 16) * 100 : randomInt(130, 165) * 10);
+  const alturas = [...vals];
+  const orden = alturas.map((v, i) => ({ v, n: nombres[i] })).sort((x, y) => x.v - y.v);
+  return {
+    enunciado: `Estas son las alturas de cuatro amigos: ${nombres.map((n, i) => `${n}, ${deMin(alturas[i])} m`).join("; ")}. Ordénalas de menor a mayor. ¿Quién es el más alto?`,
+    datos: nombres.map((n, i) => `${n}: ${deMin(alturas[i])} m`),
+    operacion: `Igualando con ceros: ${alturas.map((v) => deFmt(v, 2)).join(" · ")}`,
+    solucion: `${orden.map((o) => deMin(o.v)).join(" < ")}. El más alto es ${orden[3].n}.`,
+  };
+}
+
+function deRecta(nivel) {
+  const ent = randomInt(0, Math.min(nivel.entMax, 9));
+  if (nivel.kMax === 1) {
+    return {
+      enunciado: `Escribe los números decimales que hay en la recta entre ${ent} y ${ent + 1}, de décima en décima.`,
+      datos: [`Desde ${ent} hasta ${ent + 1}`],
+      operacion: `Cada paso es 0,1`,
+      solucion: `${Array.from({ length: 9 }, (_, i) => deFmt(ent * 1000 + (i + 1) * 100, 1)).join("; ")}.`,
+    };
+  }
+  const d = randomInt(1, 8);
+  const lo = ent * 1000 + d * 100;
+  return {
+    enunciado: `Escribe tres números decimales que estén entre ${deFmt(lo, 1)} y ${deFmt(lo + 100, 1)} en la recta numérica.`,
+    datos: [`Entre ${deFmt(lo, 1)} y ${deFmt(lo + 100, 1)}`],
+    operacion: `${deFmt(lo, 1)} = ${deFmt(lo, 2)} y ${deFmt(lo + 100, 1)} = ${deFmt(lo + 100, 2)}`,
+    solucion: `Cualquiera de ${deFmt(lo + 10, 2)} a ${deFmt(lo + 90, 2)}, por ejemplo ${deFmt(lo + 20, 2)}; ${deFmt(lo + 50, 2)}; ${deFmt(lo + 80, 2)}.`,
+  };
+}
+
+function deSumaResta(nivel) {
+  const resta = Math.random() < 0.5;
+  const ka = randomInt(1, nivel.kSuma);
+  let kb = randomInt(1, nivel.kSuma);
+  if (nivel.kSuma > 1 && ka === kb) kb = ka === 1 ? 2 : 1;
+  let a = deAleatorio(nivel, ka, resta ? 1 : 0);
+  let b = deAleatorio(nivel, kb);
+  if (resta && a < b) [a, b] = [b, a];
+  if (resta && a === b) a += 1000;
+  const k = Math.max(deCifras(a), deCifras(b));
+  const r = resta ? a - b : a + b;
+  const op = resta ? "−" : "+";
+  return {
+    enunciado: `Calcula en columna: ${deMin(a)} ${op} ${deMin(b)}.`,
+    datos: [`Primer número: ${deMin(a)}`, `Segundo número: ${deMin(b)}`],
+    operacion: `Con las comas alineadas: ${deFmt(a, k)} ${op} ${deFmt(b, k)} = ${deFmt(r, k)}`,
+    solucion: `${deMin(r)}. El resultado es ${deMin(r)}.`,
+  };
+}
+
+// Reto de la UDI del Tema 7: lista de gastos e ingresos de una campaña.
+function deCampana(nivel) {
+  const centimos = (max) => randomInt(2, max) * 100 + randomInt(0, 19) * 5;
+  const g1 = centimos(nivel === DE_NIVELES["6"] ? 30 : 15);
+  const g2 = centimos(nivel === DE_NIVELES["6"] ? 20 : 9);
+  const gastos = g1 + g2;
+  const ingreso = (Math.ceil(gastos / 500) * 5 + randomInt(1, 4) * 5) * 100;
+  const queda = ingreso - gastos;
+  const e = (c) => deFmt(c * 10, 2);
+  return {
+    enunciado: `Para la campaña por la igualdad, la clase gasta ${e(g1)} € en cartulinas y ${e(g2)} € en rotuladores, e ingresa ${ingreso / 100} € vendiendo pulseras. ¿Cuánto han gastado en total? ¿Cuánto dinero les queda?`,
+    datos: [`Cartulinas: ${e(g1)} €`, `Rotuladores: ${e(g2)} €`, `Ingresos: ${ingreso / 100} €`],
+    operacion: `${e(g1)} + ${e(g2)} = ${e(gastos)}; ${ingreso / 100},00 − ${e(gastos)} = ${e(queda)}`,
+    solucion: `Han gastado ${e(gastos)} € y les quedan ${e(queda)} €.`,
+  };
+}
+
+function deRedondear(nivel) {
+  const lugares = nivel === DE_NIVELES.disc ? [[0, "las unidades"], [1, "las décimas"]] : [[0, "las unidades"], [1, "las décimas"], [2, "las centésimas"]];
+  const [k, nombre] = pick(lugares);
+  const kNum = nivel === DE_NIVELES.disc ? 2 : 3;
+  const mil = deAleatorio(nivel, kNum, 1);
+  const paso = Math.pow(10, 3 - k);
+  const trunc = Math.floor(mil / paso) * paso;
+  const siguiente = Math.floor((mil % paso) / (paso / 10));
+  const r = siguiente >= 5 ? trunc + paso : trunc;
+  return {
+    enunciado: `Un producto cuesta ${deFmt(mil, kNum)} €. Redondea el precio a ${nombre}.`,
+    datos: [`Precio: ${deFmt(mil, kNum)} €`, `Redondear a ${nombre}`],
+    operacion: `La cifra siguiente a ${nombre} es ${siguiente}: ${siguiente >= 5 ? "es 5 o más, sube" : "es menor que 5, se queda igual"}`,
+    solucion: `${deFmt(r, k)} €.`,
+  };
+}
+
+const DE_FRACCIONES = [[1, 2], [1, 4], [3, 4], [1, 5], [2, 5], [3, 5], [4, 5], [1, 8], [3, 8], [5, 8], [7, 20], [9, 25], [3, 50], [5, 4], [7, 2]];
+
+function deFraccionCualquiera(nivel) {
+  const [n, d] = pick(nivel === DE_NIVELES.disc ? DE_FRACCIONES.slice(0, 7) : DE_FRACCIONES);
+  const mil = (n * 1000) / d;
+  let equiv = "";
+  for (const D of [10, 100, 1000]) {
+    if (D % d === 0) {
+      equiv = ` = ${(n * D) / d}/${D}`;
+      break;
+    }
+  }
+  return {
+    enunciado: `Escribe la fracción ${n}/${d} como número decimal.`,
+    datos: [`Fracción: ${n}/${d}`],
+    operacion: `${n} : ${d} = ${deMin(mil)}${equiv ? ` (${n}/${d}${equiv})` : ""}`,
+    solucion: `${deMin(mil)}. La fracción ${n}/${d} es ${deMin(mil)}.`,
+  };
+}
+
+// Reto de la SdA 4 de 6º: «Nuestra población».
+function dePoblacion(nivel) {
+  const a = 1000 + randomInt(480, 560);
+  let b;
+  do {
+    b = 1000 + randomInt(48, 56) * 10;
+  } while (b === a);
+  const [mayor, menor] = a > b ? ["6º A", "6º B"] : ["6º B", "6º A"];
+  const diff = Math.abs(a - b);
+  return {
+    enunciado: `La altura media de 6º A es ${deMin(a)} m y la de 6º B es ${deMin(b)} m. ¿Qué clase tiene la altura media mayor? ¿Cuál es la diferencia? Redondea la altura de 6º A a las centésimas.`,
+    datos: [`6º A: ${deMin(a)} m`, `6º B: ${deMin(b)} m`],
+    operacion: `${deFmt(Math.max(a, b), 3)} − ${deFmt(Math.min(a, b), 3)} = ${deFmt(diff, 3)}; ${deMin(a)} → centésimas`,
+    solucion: `${mayor} (${deMin(Math.max(a, b))} > ${deMin(Math.min(a, b))}). Diferencia: ${deMin(diff)} m. 6º A redondeada: ${deFmt(Math.floor(a / 10) * 10 + ((a % 10) >= 5 ? 10 : 0), 2)} m.`,
   };
 }
 
 function genDecimales(curso) {
-  return pick([decimalesRedondeo, decimalesComparar, decimalesFraccion])(curso);
+  if (curso === "6") {
+    return siguienteDeBaraja("de6", [deRedondear, deFraccionCualquiera, deOrdenar, deSumaResta, dePoblacion, deCampana, deDescomponer])(DE_NIVELES["6"]);
+  }
+  return siguienteDeBaraja("de5", [deLeerEscribir, deDescomponer, deFraccion, deOrdenar, deRecta, deSumaResta, deCampana])(DE_NIVELES["5"]);
 }
 
-function genDecimalesACS() {
+function deDineroACS() {
+  const [p1, p2] = pickTwo(NOMBRES);
+  const a = randomInt(10, 59) * 100;
+  let b;
+  do {
+    b = randomInt(10, 59) * 100;
+  } while (b === a);
+  return {
+    enunciado: `${p1} tiene ${deFmt(a, 1)} € y ${p2} tiene ${deFmt(b, 1)} €. ¿Quién tiene más dinero?`,
+    datos: [`${p1}: ${deFmt(a, 1)} €`, `${p2}: ${deFmt(b, 1)} €`],
+    operacion: `Se compara primero la parte entera y después las décimas`,
+    solucion: `${a > b ? p1 : p2}: ${deFmt(Math.max(a, b), 1)} > ${deFmt(Math.min(a, b), 1)}.`,
+  };
+}
+
+function deFraccionACS() {
   const numerador = randomInt(1, 9);
-  const decimal = numerador / 10;
   return {
     enunciado: `Escribe en forma decimal la fracción ${numerador}/10.`,
     datos: [`Fracción: ${numerador}/10`],
-    operacion: `${numerador} ÷ 10 = ${fmtEs(decimal, 1)}`,
-    solucion: `${fmtEs(decimal, 1)}. La fracción ${numerador}/10 es ${fmtEs(decimal, 1)}.`,
+    operacion: `${numerador}/10 son ${numerador} ${numerador === 1 ? "décima" : "décimas"}`,
+    solucion: `0,${numerador}. La fracción ${numerador}/10 es 0,${numerador}.`,
+  };
+}
+
+function genDecimalesACS() {
+  return siguienteDeBaraja("deAcs", [deFraccionACS, deDineroACS, () => deLeerEscribir(DE_NIVELES.acs), () => deRecta(DE_NIVELES.acs)])();
+}
+
+// Discalculia: los contenidos del curso con décimas y centésimas y
+// partes enteras pequeñas (no el nivel de ACS).
+function genDecimalesDiscalculia(curso) {
+  const d = DE_NIVELES.disc;
+  if (curso === "6") {
+    return siguienteDeBaraja("deDisc6", [deRedondear, deFraccionCualquiera, deOrdenar, deSumaResta, deDescomponer])(d);
+  }
+  return siguienteDeBaraja("deDisc5", [deLeerEscribir, deDescomponer, deFraccion, deOrdenar, deRecta, deSumaResta])(d);
+}
+
+function deRedondeoMilesimas() {
+  const entero = randomInt(1, 99);
+  let parte;
+  do {
+    parte = randomInt(1, 9999);
+  } while (parte % 10 === 0);
+  const diezmil = entero * 10000 + parte;
+  const r = Math.floor(diezmil / 10) + (diezmil % 10 >= 5 ? 1 : 0);
+  const n = `${entero},${String(parte).padStart(4, "0")}`;
+  return {
+    enunciado: `Redondea el número ${n} a las milésimas.`,
+    datos: [`Número: ${n}`],
+    operacion: `La cifra siguiente a las milésimas es ${diezmil % 10}: ${diezmil % 10 >= 5 ? "sube" : "se queda igual"}`,
+    solucion: `${deFmt(r, 3)}. El número redondeado es ${deFmt(r, 3)}.`,
   };
 }
 
 function genDecimalesAltas() {
-  const entero = randomInt(1, 99);
-  const decimalPart = randomInt(0, 9999);
-  const numero = entero + decimalPart / 10000;
-  const redondeado = Math.round(numero * 1000) / 1000;
-  return {
-    enunciado: `Redondea el número ${fmtEs(numero, 4)} a las milésimas.`,
-    datos: [`Número: ${fmtEs(numero, 4)}`],
-    operacion: `Miramos la cifra siguiente a las milésimas: si es 5 o más, redondeamos hacia arriba.`,
-    solucion: `${fmtEs(redondeado, 3)}. El número redondeado es ${fmtEs(redondeado, 3)}.`,
-  };
+  return siguienteDeBaraja("deAltas", [deRedondeoMilesimas, () => deFraccionCualquiera(DE_NIVELES["6"]), () => dePoblacion(DE_NIVELES["6"]), () => deCampana(DE_NIVELES["6"])])();
 }
 
 function decimalesMDMultiplicar(curso) {
@@ -2841,7 +3065,7 @@ const TOPICS = [
   { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", category: "Operaciones básicas", generate: genMultiplosDivisores, generateACS: genMultiplosDivisoresACS, generateDiscalculia: genMultiplosDivisoresDiscalculia, generateAltas: genMultiplosDivisoresAltas, resumen: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo.", resumen6: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo. El m.c.m. es el menor múltiplo común de dos números y el M.C.D., su mayor divisor común." },
   { id: "fracciones", label: "Fracciones", category: "Fracciones y decimales", generate: genFracciones, generateACS: genFraccionesACS, generateDiscalculia: genFraccionesDiscalculia, generateAltas: genFraccionesAltas, resumen: "Una fracción representa las partes iguales que se toman de un todo: el denominador dice en cuántas partes se divide y el numerador, cuántas se toman. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número.", resumen6: "Una fracción representa las partes iguales que se toman de un todo. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número. Para comparar fracciones con distinto denominador se reducen a común denominador, y la fracción irreducible se obtiene dividiendo los dos términos entre su M.C.D." },
   { id: "operaciones-fracciones", label: "Operaciones con fracciones", category: "Fracciones y decimales", generate: genOperacionesFracciones, generateACS: genOperacionesFraccionesACS, generateDiscalculia: genOperacionesFraccionesDiscalculia, generateAltas: genOperacionesFraccionesAltas, resumen: "Para sumar o restar fracciones con el mismo denominador, se suman o restan los numeradores y el denominador se queda igual. Para calcular la fracción de una cantidad, se divide la cantidad entre el denominador y se multiplica por el numerador. En las operaciones combinadas, primero los paréntesis.", resumen6: "Para sumar o restar fracciones con distinto denominador, primero se reducen a común denominador. Para multiplicar, numerador por numerador y denominador por denominador; para dividir, se multiplica por la segunda fracción invertida. En las combinadas: paréntesis, después multiplicaciones y divisiones, y por último sumas y restas." },
-  { id: "decimales", label: "Números decimales (redondeo)", category: "Fracciones y decimales", generate: genDecimales, generateACS: genDecimalesACS, generateAltas: genDecimalesAltas, resumen: "Los números decimales tienen una parte entera y una parte decimal separadas por una coma. Redondear es aproximar a un número más sencillo." },
+  { id: "decimales", label: "Números decimales", category: "Fracciones y decimales", generate: genDecimales, generateACS: genDecimalesACS, generateDiscalculia: genDecimalesDiscalculia, generateAltas: genDecimalesAltas, resumen: "Un número decimal tiene parte entera y parte decimal, separadas por la coma: décimas, centésimas y milésimas. Para comparar, se mira la parte entera y después cifra a cifra (3,45 < 3,5). Para sumar y restar, las comas van una debajo de otra y se rellenan con ceros las cifras que falten.", resumen6: "Un número decimal tiene parte entera y parte decimal, separadas por la coma. Para sumar y restar, las comas van alineadas. Para redondear, se mira la cifra siguiente: si es 5 o más, sube. Una fracción se pasa a decimal dividiendo el numerador entre el denominador (3/4 = 0,75)." },
   { id: "decimales-md", label: "Multiplicación y división de decimales", category: "Fracciones y decimales", generate: genDecimalesMD, generateACS: genDecimalesMDACS, generateAltas: genDecimalesMDAltas, resumen: "Al multiplicar o dividir decimales se opera igual que con números enteros, teniendo cuidado con la coma decimal." },
   { id: "porcentajes", label: "Porcentajes", category: "Fracciones y decimales", generate: genPorcentajes, generateACS: genPorcentajesACS, generateAltas: genPorcentajesAltas, resumen: "Un porcentaje indica una parte de cada 100. Calcular el X% de una cantidad es multiplicarla por X y dividir entre 100." },
   { id: "problemas-mixtos", label: "Problemas mixtos (varios pasos)", category: "Problemas mixtos", generate: genProblemasMixtos, resumen: "Algunos problemas necesitan encadenar varias operaciones seguidas para llegar a la solución final." },
