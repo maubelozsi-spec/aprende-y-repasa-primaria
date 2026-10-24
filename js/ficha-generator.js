@@ -82,8 +82,6 @@ function pickTwo(arr) {
   return [arr[i], arr[j]];
 }
 
-const SUPERINDICES = { 2: "²", 3: "³", 4: "⁴", 5: "⁵" };
-
 // ---------------- Generadores de problemas por tema ----------------
 // Cada función recibe el curso ("5" o "6") y devuelve
 // { enunciado, datos: string[], operacion, solucion }
@@ -618,87 +616,217 @@ function genNumerosRomanosAltas() {
   };
 }
 
-function potenciasCalcular(curso) {
-  const base = randomInt(2, curso === "6" ? 12 : 9);
-  const exp = curso === "6" ? pick([2, 3]) : 2;
-  const valor = Math.pow(base, exp);
-  const signo = SUPERINDICES[exp];
-  const factores = Array(exp).fill(base).join(" × ");
-  return {
-    enunciado: `Calcula la potencia ${base}${signo}.`,
-    datos: [`Base: ${base}`, `Exponente: ${exp}`],
-    operacion: `${base}${signo} = ${factores} = ${valor}`,
-    solucion: `${valor}. ${base} elevado a ${exp} es ${valor}.`,
-  };
-}
+// ---- Las potencias ----
+const poSup = (e) => String(e).split("").map((d) => "⁰¹²³⁴⁵⁶⁷⁸⁹"[d]).join("");
+const poPot = (b, e) => `${b}${poSup(e)}`;
+const poMiles = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const poFact = (b, e) => Array(e).fill(b).join(" × ");
+const poLetras = (arr, f) => arr.map((x, i) => `${"abcdef"[i]}) ${f(x)}`).join("   ");
+const PO_NUM = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce"];
+const poLeer = (b, e) => `${PO_NUM[b]} ${e === 2 ? "al cuadrado" : e === 3 ? "al cubo" : `elevado a ${PO_NUM[e]}`}`;
 
-function potenciasComparar(curso) {
-  const base1 = randomInt(2, curso === "6" ? 6 : 4);
-  const exp1 = curso === "6" ? pick([2, 3]) : 2;
-  const base2 = randomInt(2, curso === "6" ? 6 : 4);
-  const exp2 = curso === "6" ? pick([2, 3]) : 2;
-  const val1 = Math.pow(base1, exp1);
-  const val2 = Math.pow(base2, exp2);
-  const signo1 = SUPERINDICES[exp1];
-  const signo2 = SUPERINDICES[exp2];
-  const etiqueta1 = `${base1}${signo1}`;
-  const etiqueta2 = `${base2}${signo2}`;
-  if (val1 === val2) {
-    return {
-      enunciado: `¿Cuál es mayor, ${etiqueta1} o ${etiqueta2}?`,
-      datos: [etiqueta1, etiqueta2],
-      operacion: `${etiqueta1} = ${val1}. ${etiqueta2} = ${val2}.`,
-      solucion: `${etiqueta1} y ${etiqueta2} son iguales (ambos valen ${val1}).`,
-    };
+// Varias potencias distintas sacadas de una lista.
+function poVarias(lista, n) {
+  const copia = lista.slice();
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [copia[i], copia[j]] = [copia[j], copia[i]];
   }
-  const mayor = val1 > val2 ? etiqueta1 : etiqueta2;
+  return copia.slice(0, n);
+}
+
+const PO_NIVELES = {
+  "5": { pots: [[2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [9, 2], [2, 3], [3, 3], [4, 3], [5, 3]], e10: 4, cifras: 4, lado: 9, arista: 5 },
+  "6": { pots: [[6, 2], [7, 2], [8, 2], [9, 2], [11, 2], [12, 2], [3, 3], [4, 3], [5, 3], [6, 3], [2, 4], [2, 5], [2, 6], [3, 4], [5, 4]], e10: 7, cifras: 6, lado: 15, arista: 8 },
+  disc: { pots: [[2, 2], [3, 2], [4, 2], [5, 2], [2, 3], [3, 3]], e10: 3, cifras: 4, lado: 6, arista: 3 },
+};
+
+function poCalcular(nivel) {
+  const ps = poVarias(nivel.pots, 3);
   return {
-    enunciado: `¿Cuál es mayor, ${etiqueta1} o ${etiqueta2}?`,
-    datos: [etiqueta1, etiqueta2],
-    operacion: `${etiqueta1} = ${val1}. ${etiqueta2} = ${val2}.`,
-    solucion: `${mayor}. ${mayor} es mayor (${Math.max(val1, val2)} > ${Math.min(val1, val2)}).`,
+    enunciado: `Escribe cada potencia como multiplicación y calcula su valor: ${poLetras(ps, ([b, e]) => poPot(b, e))}.`,
+    datos: ["La base se repite como factor tantas veces como dice el exponente."],
+    operacion: ps.map(([b, e], i) => `${"abc"[i]}) ${poPot(b, e)} = ${poFact(b, e)} = ${poMiles(b ** e)}`).join(" · "),
+    solucion: ps.map(([b, e], i) => `${"abc"[i]}) ${poMiles(b ** e)}`).join("; ") + ".",
   };
 }
 
-function potenciasDiez(curso) {
-  const exp = curso === "6" ? randomInt(2, 5) : randomInt(2, 3);
-  const valor = Math.pow(10, exp);
-  const signo = SUPERINDICES[exp];
+function poEscribir(nivel) {
+  const ps = poVarias(nivel.pots, 3);
   return {
-    enunciado: `¿Cuánto vale 10${signo}?`,
-    datos: [`Base: 10`, `Exponente: ${exp}`],
-    operacion: `10${signo} = ${Array(exp).fill(10).join(" × ")} = ${valor}`,
-    solucion: `${valor}. 10 elevado a ${exp} es ${valor}.`,
+    enunciado: `Escribe en forma de potencia y di cómo se lee: ${poLetras(ps, ([b, e]) => poFact(b, e))}.`,
+    datos: ["Base: el número que se repite.", "Exponente: las veces que se repite."],
+    operacion: ps.map(([b, e], i) => `${"abc"[i]}) ${poFact(b, e)} = ${poPot(b, e)}`).join(" · "),
+    solucion: ps.map(([b, e], i) => `${"abc"[i]}) ${poPot(b, e)}, «${poLeer(b, e)}»`).join("; ") + ".",
   };
 }
 
+function poDiez(nivel) {
+  const e1 = randomInt(2, nivel.e10);
+  let e2;
+  do e2 = randomInt(2, nivel.e10);
+  while (e2 === e1);
+  const a = randomInt(2, 9);
+  const e3 = randomInt(2, nivel.e10);
+  return {
+    enunciado: `a) Escribe como potencia de 10: ${poMiles(10 ** e1)} y ${poMiles(10 ** e2)}.   b) Calcula: ${a} × ${poPot(10, e3)}.`,
+    datos: ["Una potencia de 10 es un 1 seguido de tantos ceros como dice el exponente."],
+    operacion: `a) ${poMiles(10 ** e1)} tiene ${e1} ceros → ${poPot(10, e1)}; ${poMiles(10 ** e2)} tiene ${e2} ceros → ${poPot(10, e2)}.   b) ${poPot(10, e3)} = ${poMiles(10 ** e3)}; ${a} × ${poMiles(10 ** e3)} = ${poMiles(a * 10 ** e3)}`,
+    solucion: `a) ${poPot(10, e1)} y ${poPot(10, e2)}. b) ${poMiles(a * 10 ** e3)}.`,
+  };
+}
+
+function poNumeroConCeros(cifras) {
+  const d = [randomInt(1, 9)];
+  for (let i = 1; i < cifras; i++) d.push(Math.random() < 0.35 ? 0 : randomInt(1, 9));
+  if (!d.slice(1).includes(0)) d[randomInt(1, cifras - 1)] = 0;
+  return d;
+}
+const poDescomp = (d) => d.map((x, i) => [x, d.length - 1 - i]).filter(([x]) => x !== 0).map(([x, p]) => (p === 0 ? String(x) : p === 1 ? `${x} × 10` : `${x} × ${poPot(10, p)}`)).join(" + ");
+
+function poDescomponer(nivel) {
+  const d1 = poNumeroConCeros(nivel.cifras);
+  const d2 = poNumeroConCeros(nivel.cifras);
+  const n1 = Number(d1.join(""));
+  const n2 = Number(d2.join(""));
+  return {
+    enunciado: `a) Descompón con potencias de 10 el número ${poMiles(n1)}.   b) ¿Qué número es ${poDescomp(d2)}?`,
+    datos: ["El exponente de cada cifra es el número de cifras que tiene a su derecha.", "Los ceros no se escriben, pero guardan su lugar."],
+    operacion: `a) ${poMiles(n1)} = ${poDescomp(d1)}   b) ${d2.map((x, i) => x * 10 ** (d2.length - 1 - i)).filter((x) => x).map(poMiles).join(" + ")} = ${poMiles(n2)}`,
+    solucion: `a) ${poDescomp(d1)}. b) ${poMiles(n2)}.`,
+  };
+}
+
+function poOrdenar(nivel) {
+  // Una pareja con base y exponente cambiados, que es donde está la trampa.
+  const trampa = pick(nivel === PO_NIVELES.disc ? [[[2, 3], [3, 2]]] : [[[2, 5], [5, 2]], [[3, 4], [4, 3]], [[2, 3], [3, 2]], [[2, 6], [6, 2]]]);
+  const usados = new Set(trampa.map(([b, e]) => b ** e));
+  const ps = trampa.slice();
+  while (ps.length < (nivel === PO_NIVELES.disc ? 3 : 4)) {
+    const p = pick(nivel.pots.concat([[10, 2]]));
+    if (!usados.has(p[0] ** p[1])) {
+      usados.add(p[0] ** p[1]);
+      ps.push(p);
+    }
+  }
+  const mezcla = poVarias(ps, ps.length);
+  const orden = mezcla.slice().sort((x, y) => x[0] ** x[1] - y[0] ** y[1]);
+  return {
+    enunciado: `Calcula y ordena de menor a mayor: ${mezcla.map(([b, e]) => poPot(b, e)).join(", ")}.`,
+    datos: mezcla.map(([b, e]) => poPot(b, e)),
+    operacion: mezcla.map(([b, e]) => `${poPot(b, e)} = ${poMiles(b ** e)}`).join("; "),
+    solucion: `${orden.map(([b, e]) => poPot(b, e)).join(" < ")}. Cambiar la base por el exponente cambia el resultado.`,
+  };
+}
+
+function poCajas(nivel) {
+  const b = randomInt(nivel === PO_NIVELES.disc ? 2 : 3, nivel === PO_NIVELES.disc ? 4 : nivel === PO_NIVELES["6"] ? 9 : 6);
+  const v = b ** 3;
+  return {
+    enunciado: `En la fábrica de máquinas guardan ${b} cajas. En cada caja hay ${b} bolsas y en cada bolsa, ${b} engranajes. ¿Cuántos engranajes hay? Escríbelo como potencia.`,
+    datos: [`Cajas: ${b}`, `Bolsas por caja: ${b}`, `Engranajes por bolsa: ${b}`],
+    operacion: `${poFact(b, 3)} = ${poPot(b, 3)} = ${poMiles(v)}`,
+    solucion: `${poPot(b, 3)} = ${poMiles(v)} engranajes.`,
+  };
+}
+
+function poBaldosas(nivel) {
+  const b = randomInt(3, nivel.lado);
+  return {
+    enunciado: `Un patio cuadrado tiene ${b} baldosas en cada lado. ¿Cuántas baldosas tiene en total? Escríbelo como potencia.`,
+    datos: [`Baldosas por lado: ${b}`],
+    operacion: `${b} filas de ${b}: ${b} × ${b} = ${poPot(b, 2)} = ${b * b}`,
+    solucion: `${poPot(b, 2)} = ${b * b} baldosas.`,
+  };
+}
+
+function poCubitos(nivel) {
+  const b = randomInt(2, nivel.arista);
+  const v = b ** 3;
+  return {
+    enunciado: `Con cubitos iguales se construye un cubo grande con ${b} cubitos en cada arista. ¿Cuántos cubitos hacen falta?`,
+    datos: [`Cubitos por arista: ${b}`],
+    operacion: `${b} capas de ${b} × ${b} = ${b * b}: ${poFact(b, 3)} = ${poPot(b, 3)} = ${poMiles(v)}`,
+    solucion: `${poPot(b, 3)} = ${poMiles(v)} cubitos.`,
+  };
+}
+
+function poCadena(nivel) {
+  const [bmax, dmax] = nivel.cadena || (nivel === PO_NIVELES.disc ? [3, 3] : [4, 5]);
+  const b = randomInt(2, bmax);
+  const dia = randomInt(Math.min(dmax, 4), dmax);
+  const nombre = pick(NOMBRES);
+  return {
+    enunciado: `${nombre} envía un mensaje a ${b} amigos (día 1). Al día siguiente, cada uno lo reenvía a ${b} personas nuevas, y así cada día. ¿Cuántas personas lo reciben el día ${dia}? Escríbelo como potencia.`,
+    datos: [`Día 1: ${b} personas`, `Cada día se multiplica por ${b}`],
+    operacion: `Día ${dia}: ${poFact(b, dia)} = ${poPot(b, dia)} = ${poMiles(b ** dia)}`,
+    solucion: `${poPot(b, dia)} = ${poMiles(b ** dia)} personas.`,
+  };
+}
+
+// 6º (SdA 2): calcular, escribir y leer potencias, potencias de 10,
+// descomposición, comparar y problemas. 5º: cuadrados, cubos y
+// potencias de 10 sencillas, con problemas de baldosas, cajas y cubitos.
 function genPotencias(curso) {
-  return pick([potenciasCalcular, potenciasComparar, potenciasDiez])(curso);
+  if (curso === "6") {
+    return siguienteDeBaraja("po6", [poCalcular, poEscribir, poDiez, poDescomponer, poOrdenar, poCajas, poBaldosas, poCubitos, poCadena])(PO_NIVELES["6"]);
+  }
+  return siguienteDeBaraja("po5", [poCalcular, poEscribir, poDiez, poBaldosas, poCajas, poCubitos])(PO_NIVELES["5"]);
+}
+
+function poAcsCuadrado() {
+  const b = randomInt(2, 5);
+  return {
+    enunciado: `Calcula ${poPot(b, 2)}. Recuerda: ${poPot(b, 2)} es ${b} × ${b}.`,
+    datos: [`Base: ${b}`, "Exponente: 2"],
+    operacion: `${b} × ${b} = ${b * b}`,
+    solucion: `${b * b}.`,
+  };
+}
+
+function poAcsBaldosas() {
+  const b = randomInt(2, 5);
+  return {
+    enunciado: `Un suelo cuadrado tiene ${b} baldosas en cada lado. Dibújalo y cuenta: ¿cuántas baldosas tiene?`,
+    datos: [`Baldosas por lado: ${b}`],
+    operacion: `${b} filas de ${b}: ${b} × ${b} = ${b * b}`,
+    solucion: `${b * b} baldosas (${poPot(b, 2)}).`,
+  };
 }
 
 function genPotenciasACS() {
-  const base = randomInt(2, 5);
-  const valor = base * base;
+  return siguienteDeBaraja("poAcs", [poAcsCuadrado, poAcsBaldosas, poAcsCuadrado, poAcsBaldosas])();
+}
+
+// Discalculia: los contenidos del curso con potencias pequeñas.
+function genPotenciasDiscalculia(curso) {
+  const d = PO_NIVELES.disc;
+  if (curso === "6") return siguienteDeBaraja("poDisc6", [poCalcular, poEscribir, poDiez, poDescomponer, poOrdenar, poBaldosas, poCubitos])(d);
+  return siguienteDeBaraja("poDisc5", [poCalcular, poEscribir, poDiez, poBaldosas, poCajas, poCubitos])(d);
+}
+
+function poCuboMayor() {
+  const a = randomInt(3, 8);
   return {
-    enunciado: `Calcula la potencia ${base}².`,
-    datos: [`Base: ${base}`, `Exponente: 2`],
-    operacion: `${base}² = ${base} × ${base} = ${valor}`,
-    solucion: `${valor}. ${base} elevado a 2 es ${valor}.`,
+    enunciado: `Un cubo de cubitos tiene ${a} cubitos de arista. ¿Cuántos cubitos hay que añadir para convertirlo en un cubo de ${a + 1} cubitos de arista?`,
+    datos: [`Arista inicial: ${a}`, `Arista final: ${a + 1}`],
+    operacion: `${poPot(a + 1, 3)} − ${poPot(a, 3)} = ${(a + 1) ** 3} − ${a ** 3} = ${(a + 1) ** 3 - a ** 3}`,
+    solucion: `${(a + 1) ** 3 - a ** 3} cubitos.`,
+  };
+}
+
+function poComparar210() {
+  return {
+    enunciado: "¿Qué es mayor, 2¹⁰ o 10³? ¿Y 2²⁰ o 10⁶? Explica cómo lo has averiguado sin calcular 2²⁰ entero.",
+    datos: ["2¹⁰ = 2 × 2 × … × 2 (10 veces)", "2²⁰ = 2¹⁰ × 2¹⁰"],
+    operacion: "2¹⁰ = 1.024 > 1.000 = 10³. 2²⁰ = 2¹⁰ × 2¹⁰ = 1.024 × 1.024, y 10⁶ = 1.000 × 1.000",
+    solucion: "2¹⁰ > 10³ y 2²⁰ > 10⁶ (2²⁰ = 1.048.576).",
   };
 }
 
 function genPotenciasAltas() {
-  const base = randomInt(6, 15);
-  const exp = pick([3, 4]);
-  const valor = Math.pow(base, exp);
-  const signo = SUPERINDICES[exp];
-  const factores = Array(exp).fill(base).join(" × ");
-  return {
-    enunciado: `Calcula la potencia ${base}${signo}.`,
-    datos: [`Base: ${base}`, `Exponente: ${exp}`],
-    operacion: `${base}${signo} = ${factores} = ${valor}`,
-    solucion: `${valor}. ${base} elevado a ${exp} es ${valor}.`,
-  };
+  const alto = { pots: [[11, 2], [12, 2], [7, 3], [8, 3], [9, 3], [2, 8], [2, 9], [3, 5], [4, 5], [6, 4]], e10: 9, cifras: 7, lado: 25, arista: 12, cadena: [5, 7] };
+  return siguienteDeBaraja("poAltas", [poCuboMayor, poComparar210, () => poDescomponer(alto), () => poCalcular(alto), () => poCadena(alto)])();
 }
 
 // ---- Números enteros ----
@@ -3555,7 +3683,7 @@ const TOPICS = [
   { id: "divisiones", label: "Divisiones", category: "Operaciones básicas", generate: genDivisiones, generateACS: genDivisionesACS, generateAltas: genDivisionesAltas, resumen: "Dividir es repartir una cantidad en partes iguales." },
   { id: "operaciones-combinadas", label: "Operaciones combinadas", category: "Operaciones básicas", generate: genOperacionesCombinadas, generateACS: genOperacionesCombinadasACS, generateAltas: genOperacionesCombinadasAltas, resumen: "Cuando hay varias operaciones juntas, primero se resuelven los paréntesis, luego multiplicaciones y divisiones, y por último sumas y restas." },
   { id: "numeros-romanos", label: "Números romanos", category: "Operaciones básicas", generate: genNumerosRomanos, generateACS: genNumerosRomanosACS, generateAltas: genNumerosRomanosAltas, resumen: "Los números romanos se escriben combinando las letras I, V, X, L, C, D y M según reglas de suma y resta." },
-  { id: "potencias", label: "Las potencias", category: "Operaciones básicas", generate: genPotencias, generateACS: genPotenciasACS, generateAltas: genPotenciasAltas, resumen: "Una potencia es una multiplicación de un mismo número (la base) tantas veces como indica el exponente." },
+  { id: "potencias", label: "Las potencias", category: "Operaciones básicas", generate: genPotencias, generateACS: genPotenciasACS, generateDiscalculia: genPotenciasDiscalculia, generateAltas: genPotenciasAltas, resumen: "Una potencia es una multiplicación de factores iguales: 4³ = 4 × 4 × 4 = 64. La base (4) es el factor que se repite y el exponente (3), las veces que se repite. Con exponente 2 se dice «al cuadrado» y con 3, «al cubo». Ojo: 4³ no es 4 × 3.", resumen6: "Una potencia es una multiplicación de factores iguales: 4³ = 4 × 4 × 4 = 64 (base 4, exponente 3; no es 4 × 3). Una potencia de 10 es un 1 seguido de tantos ceros como dice el exponente: 10⁵ = 100.000. Para descomponer un número, cada cifra se multiplica por la potencia de 10 de su lugar: 40.302 = 4 × 10⁴ + 3 × 10² + 2." },
   { id: "numeros-enteros", label: "Números enteros", category: "Operaciones básicas", generate: genNumerosEnteros, generateACS: genNumerosEnterosACS, generateDiscalculia: genNumerosEnterosDiscalculia, generateAltas: genNumerosEnterosAltas, resumen: "Los números enteros son los positivos, los negativos y el cero. Los negativos se escriben con el signo − y sirven para temperaturas bajo cero, sótanos, profundidades bajo el nivel del mar o deudas. En la recta numérica, el mayor es el que está más a la derecha: −2 > −6.", resumen6: "Los números enteros son los positivos, los negativos y el cero. En la recta, el mayor es el que está más a la derecha (−2 > −6). El valor absoluto es la distancia hasta el 0 (|−5| = 5) y el opuesto está al otro lado, a la misma distancia (−5 y 5). Para sumar: mismo signo, se suman y se deja el signo; distinto signo, se restan y se deja el signo del de mayor valor absoluto." },
   { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", category: "Operaciones básicas", generate: genMultiplosDivisores, generateACS: genMultiplosDivisoresACS, generateDiscalculia: genMultiplosDivisoresDiscalculia, generateAltas: genMultiplosDivisoresAltas, resumen: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo.", resumen6: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo. El m.c.m. es el menor múltiplo común de dos números y el M.C.D., su mayor divisor común." },
   { id: "fracciones", label: "Fracciones", category: "Fracciones y decimales", generate: genFracciones, generateACS: genFraccionesACS, generateDiscalculia: genFraccionesDiscalculia, generateAltas: genFraccionesAltas, resumen: "Una fracción representa las partes iguales que se toman de un todo: el denominador dice en cuántas partes se divide y el numerador, cuántas se toman. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número.", resumen6: "Una fracción representa las partes iguales que se toman de un todo. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número. Para comparar fracciones con distinto denominador se reducen a común denominador, y la fracción irreducible se obtiene dividiendo los dos términos entre su M.C.D." },
