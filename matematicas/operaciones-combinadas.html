@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Operaciones combinadas</h1>
-        <p class="content-subtitle">El orden de las operaciones y los paréntesis.</p>
+        <p class="content-subtitle">Aprende en qué orden se resuelven las operaciones, para qué sirven los paréntesis y cómo escribir un problema con una sola operación combinada, con la resolución paso a paso.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -38,7 +38,12 @@
           <span>Descárgala en Word, trabájala en papel y comprueba tus respuestas.</span>
         </div>
           <div class="ficha-download-group">
+            <span class="grade-tag">5º</span>
             <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="5">Descargar ficha y soluciones (Word)</button>
+          </div>
+          <div class="ficha-download-group">
+            <span class="grade-tag">6º</span>
+            <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="6">Descargar ficha y soluciones (Word)</button>
           </div>
       </div>
 
@@ -51,6 +56,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -77,6 +83,17 @@
           <strong>Ejemplo:</strong> 5 + 3 × 2 → primero 3 × 2 = 6 → después 5 + 6 = <strong>11</strong>. (¡No es 16! Eso pasaría si sumáramos primero 5 + 3.)
         </div>
 
+        <h2>Mismo nivel: de izquierda a derecha</h2>
+        <p>La multiplicación y la división tienen el <strong>mismo nivel</strong>: ninguna va antes que la otra. Lo mismo pasa con la suma y la resta. Cuando aparecen juntas, se hacen en el orden en que están escritas, <strong>de izquierda a derecha</strong>.</p>
+        <table class="rules-table">
+          <tr><th>Operación</th><th>Bien (de izquierda a derecha)</th><th>Mal</th></tr>
+          <tr><td>24 ÷ 4 × 2</td><td>6 × 2 = <strong>12</strong></td><td>24 ÷ 8 = 3</td></tr>
+          <tr><td>20 − 5 + 3</td><td>15 + 3 = <strong>18</strong></td><td>20 − 8 = 12</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> pensar que la multiplicación siempre va antes que la división, o la suma antes que la resta. No: entre ellas manda el orden de izquierda a derecha.
+        </div>
+
         <h2>Los paréntesis mandan primero</h2>
         <div class="rule-box sobresdrujula">
           <h4>¿Para qué sirven?</h4>
@@ -88,14 +105,23 @@
 
         <h2>Compara: mismo número, distinto resultado</h2>
         <table class="rules-table">
-          <tr><th>Sin paréntesis</th><th>Resultado</th><th>Con paréntesis</th><th>Resultado</th></tr>
-          <tr><td>5 + 3 × 2</td><td>11</td><td>(5 + 3) × 2</td><td>16</td></tr>
-          <tr><td>20 − 4 × 3</td><td>8</td><td>(20 − 4) × 3</td><td>48</td></tr>
-          <tr><td>10 + 20 ÷ 5</td><td>14</td><td>(10 + 20) ÷ 5</td><td>6</td></tr>
+          <tr><th>Sin paréntesis</th><th>Con paréntesis</th></tr>
+          <tr><td>5 + 3 × 2 = <strong>11</strong></td><td>(5 + 3) × 2 = <strong>16</strong></td></tr>
+          <tr><td>20 − 4 × 3 = <strong>8</strong></td><td>(20 − 4) × 3 = <strong>48</strong></td></tr>
+          <tr><td>10 + 20 ÷ 5 = <strong>14</strong></td><td>(10 + 20) ÷ 5 = <strong>6</strong></td></tr>
         </table>
 
         <div class="tip-box">
-          <strong>Truco:</strong> antes de calcular nada, mira la operación entera y decide el orden: paréntesis → × y ÷ → + y −. Así no te equivocarás.
+          <strong>Truco:</strong> antes de calcular nada, mira la operación entera y decide el orden: paréntesis → × y ÷ → + y −. Escribe la operación de nuevo en cada paso, cambiando solo lo que has calculado:
+          5 + 3 × (6 − 2) = 5 + 3 × 4 = 5 + 12 = 17.
+        </div>
+
+        <h2>Un problema, una operación combinada</h2>
+        <div class="rule-box llana">
+          <h4>Escribe el problema con una sola expresión</h4>
+          <p>Compras 3 cuadernos a 2 € y 2 bolígrafos a 1 €, y pagas con 10 €. Lo que cuesta todo va entre paréntesis, porque hay que calcularlo antes de restarlo:</p>
+          <p class="examples"><strong>10 − (3 × 2 + 2 × 1)</strong> = 10 − (6 + 2) = 10 − 8 = 2 € de vuelta.</p>
+          <p>Sin el paréntesis, 10 − 3 × 2 + 2 × 1 = 10 − 6 + 2 = 6, que no es la respuesta.</p>
         </div>
 
         <p style="text-align:center; margin-top:32px;">
@@ -103,6 +129,51 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="oc-pasos">
+          <h2>1. Resuelve paso a paso</h2>
+          <p class="md-explore-intro">Pulsa «Siguiente paso»: se resalta la operación que toca y se explica por qué.</p>
+          <div class="md-controls">
+            <div class="choice-row" id="oc-pasos-tipo">
+              <button type="button" class="btn btn-secondary active" data-oc-tipo="sin">Sin paréntesis</button>
+              <button type="button" class="btn btn-secondary" data-oc-tipo="con">Con paréntesis</button>
+            </div>
+          </div>
+          <div class="oc-pasos" id="oc-pasos-expr" aria-live="polite"></div>
+          <div class="actions-row">
+            <button type="button" class="btn btn-primary" id="oc-pasos-sig">Siguiente paso</button>
+            <button type="button" class="btn btn-secondary" id="oc-pasos-otra">Otra operación</button>
+          </div>
+          <p class="md-msg ok" id="oc-pasos-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="oc-par">
+          <h2>2. Los paréntesis cambian el resultado</h2>
+          <p class="md-explore-intro">Mismos números y mismas operaciones. Elige dónde poner los paréntesis y mira qué pasa.</p>
+          <div class="choice-row" id="oc-par-opciones"></div>
+          <p class="md-msg ok" id="oc-par-msg" aria-live="polite"></p>
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="oc-par-otros">Otros números</button>
+          </div>
+        </div>
+
+        <div class="md-explore-card" id="oc-nivel">
+          <h2>3. Mismo nivel: de izquierda a derecha</h2>
+          <p class="md-explore-intro">Cuando todas las operaciones son del mismo nivel, el orden importa.</p>
+          <p class="po-big" id="oc-nivel-expr"></p>
+          <div class="md-msg ok" id="oc-nivel-msg" aria-live="polite"></div>
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="oc-nivel-otro">Otro ejemplo</button>
+          </div>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -116,9 +187,12 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="sinparentesis">Sin paréntesis</button>
+            <button class="btn btn-secondary active" data-mode="primero">¿Qué va primero?</button>
+            <button class="btn btn-secondary" data-mode="sinparentesis">Sin paréntesis</button>
+            <button class="btn btn-secondary" data-mode="mismonivel">Mismo nivel</button>
             <button class="btn btn-secondary" data-mode="conparentesis">Con paréntesis</button>
-            <button class="btn btn-secondary" data-mode="primerpaso">¿Qué se resuelve primero?</button>
+            <button class="btn btn-secondary" data-mode="colocar">Pon los paréntesis</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
@@ -126,6 +200,11 @@
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 

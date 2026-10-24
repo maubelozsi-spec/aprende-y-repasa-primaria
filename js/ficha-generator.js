@@ -440,114 +440,335 @@ function genDivisionesAltas() {
   };
 }
 
-function operacionesCombinadasCompra(curso) {
-  const isSixth = curso === "6";
-  const p1 = isSixth ? roundMoney(randomInt(150, 500) / 100) : randomInt(2, 9);
-  const p2 = isSixth ? roundMoney(randomInt(150, 500) / 100) : randomInt(2, 9);
-  const n1 = randomInt(2, 4);
-  const n2 = randomInt(2, 4);
-  const objeto1 = pick(["cuadernos", "bolígrafos", "rotuladores", "libros"]);
-  const objeto2 = pick(["carpetas", "reglas", "gomas", "libretas"]);
-  const gasto = roundMoney(n1 * p1 + n2 * p2);
-  const billetesPosibles = [10, 20, 50, 100];
-  const billete = billetesPosibles.find((b) => b > gasto) ?? Math.ceil(gasto / 50) * 50 + 50;
-  const vuelta = roundMoney(billete - gasto);
-  const fmt = (n) => fmtAuto(n);
+// ---- Operaciones combinadas ----
+// Mini motor: fichas de números, operaciones y paréntesis; se resuelve
+// con la jerarquía (paréntesis → × y ÷ → + y −, de izquierda a derecha)
+// y solo con naturales (sin restas negativas ni divisiones con resto).
+const OC_PREC = { "+": 1, "−": 1, "×": 2, "÷": 2 };
+const ocEsOp = (t) => typeof t === "string" && t in OC_PREC;
+
+function ocStr(tokens) {
+  let s = "";
+  tokens.forEach((t, i) => {
+    if (i > 0 && t !== ")" && tokens[i - 1] !== "(") s += " ";
+    s += t;
+  });
+  return s;
+}
+
+function ocAplicar(a, op, b) {
+  if (op === "+") return a + b;
+  if (op === "−") return a >= b ? a - b : null;
+  if (op === "×") return a * b;
+  return b !== 0 && a % b === 0 ? a / b : null;
+}
+
+// Devuelve { valor, pasos: [expresión tras cada paso] } o null.
+function ocResolver(tokens) {
+  let t = tokens.slice();
+  const pasos = [];
+  const limpiar = () => {
+    for (let i = 0; i + 2 < t.length; i++) {
+      if (t[i] === "(" && typeof t[i + 1] === "number" && t[i + 2] === ")") {
+        t.splice(i, 3, t[i + 1]);
+        i = -1;
+      }
+    }
+  };
+  limpiar();
+  for (let guard = 0; t.length > 1 && guard < 20; guard++) {
+    let a = 0;
+    let b = t.length;
+    let open = -1;
+    for (let i = 0; i < t.length; i++) {
+      if (t[i] === "(") open = i;
+      if (t[i] === ")") {
+        a = open + 1;
+        b = i;
+        break;
+      }
+    }
+    const ops = [];
+    for (let i = a; i < b; i++) if (ocEsOp(t[i])) ops.push(i);
+    const k = ops.find((i) => OC_PREC[t[i]] === 2) ?? ops[0];
+    if (k === undefined) return null;
+    const v = ocAplicar(t[k - 1], t[k], t[k + 1]);
+    // Sin pasos que den 0 o 1 (evita ÷ 1 y × 0 sin sentido).
+    if (v === null || v <= 1) return null;
+    t.splice(k - 1, 3, v);
+    limpiar();
+    pasos.push(ocStr(t));
+  }
+  return typeof t[0] === "number" ? { valor: t[0], pasos } : null;
+}
+
+const ocCadena = (tokens, r) => [ocStr(tokens)].concat(r.pasos).join(" = ");
+
+const OC_NIVELES = {
+  "5": { max: 12, ops: [2, 3], maxRes: 150, paren: 0.5 },
+  "6": { max: 15, ops: [3, 4], maxRes: 300, paren: 0.6 },
+  disc: { max: 9, ops: [2, 2], maxRes: 60, paren: 0.5 },
+  altas: { max: 20, ops: [4, 5], maxRes: 500, paren: 0.8 },
+};
+
+// Expresión al azar en la que la jerarquía importa (operar de izquierda a
+// derecha sin mirarla daría otro resultado, o los paréntesis cambian algo).
+function ocExpresion(nivel, conParentesis) {
+  for (let intento = 0; intento < 5000; intento++) {
+    const n = randomInt(nivel.ops[0], nivel.ops[1]);
+    const nums = [];
+    const ops = [];
+    for (let i = 0; i <= n; i++) nums.push(randomInt(2, nivel.max));
+    for (let i = 0; i < n; i++) ops.push(pick(["+", "−", "×", "÷"]));
+    ops.forEach((o, i) => {
+      if (o === "÷") nums[i + 1] = randomInt(2, Math.min(nivel.max, 9));
+    });
+    if (!ops.some((o) => OC_PREC[o] === 1) || !ops.some((o) => OC_PREC[o] === 2)) continue;
+    let s = -1;
+    let e = -1;
+    if (conParentesis) {
+      s = randomInt(0, n - 1);
+      e = randomInt(s + 1, n);
+      if (s === 0 && e === n) continue;
+    }
+    const tokens = [];
+    for (let i = 0; i <= n; i++) {
+      if (i === s) tokens.push("(");
+      tokens.push(nums[i]);
+      if (i === e) tokens.push(")");
+      if (i < n) tokens.push(ops[i]);
+    }
+    const r = ocResolver(tokens);
+    if (!r || r.valor > nivel.maxRes) continue;
+    if (conParentesis) {
+      const sin = ocResolver(tokens.filter((x) => x !== "(" && x !== ")"));
+      if (sin && sin.valor === r.valor) continue;
+    }
+    return { tokens, r };
+  }
+  return null;
+}
+
+function ocCalcular(nivel) {
+  const e1 = ocExpresion(nivel, false);
+  const e2 = ocExpresion(nivel, true);
   return {
-    enunciado: `${pick(NOMBRES)} compra ${n1} ${objeto1} a ${fmt(p1)} € cada uno y ${n2} ${objeto2} a ${fmt(p2)} € cada una. Paga con un billete de ${billete} €. ¿Cuánto le devuelven?`,
-    datos: [`${n1} ${objeto1} a ${fmt(p1)} € cada uno`, `${n2} ${objeto2} a ${fmt(p2)} € cada una`, `Paga con: ${billete} €`],
-    operacion: `${billete} − (${n1} × ${fmt(p1)} + ${n2} × ${fmt(p2)}) = ${billete} − ${fmt(gasto)} = ${fmt(vuelta)}`,
-    solucion: `${fmt(vuelta)} €. Le devuelven ${fmt(vuelta)} €.`,
+    enunciado: `Calcula paso a paso, escribiendo la operación de nuevo en cada paso: a) ${ocStr(e1.tokens)}   b) ${ocStr(e2.tokens)}.`,
+    datos: ["Orden: paréntesis → multiplicaciones y divisiones → sumas y restas.", "Dentro del mismo nivel, de izquierda a derecha."],
+    operacion: `a) ${ocCadena(e1.tokens, e1.r)} · b) ${ocCadena(e2.tokens, e2.r)}`,
+    solucion: `a) ${e1.r.valor}; b) ${e2.r.valor}.`,
   };
 }
 
-function operacionesCombinadasExpresion(curso) {
-  const a = randomInt(2, 9);
-  const b = randomInt(2, 9);
-  const c = randomInt(2, 9);
-  if (curso === "6") {
-    const paso1 = a + b;
-    const paso2 = paso1 * c;
-    const divisores = [2, 3, 4, 5, 6].filter((x) => paso2 % x === 0);
-    const d = divisores.length ? pick(divisores) : 1;
-    const paso3 = paso2 / d;
-    const e = randomInt(2, 15);
-    const resultado = paso3 + e;
+function ocMismoNivel(nivel) {
+  // a ÷ b × c con a múltiplo de b × c: así el camino equivocado (a ÷ (b × c)) también se puede calcular.
+  const b = randomInt(2, nivel === OC_NIVELES.disc ? 3 : 6);
+  const c = randomInt(2, nivel === OC_NIVELES.disc ? 3 : 6);
+  const a = b * c * randomInt(nivel === OC_NIVELES.disc ? 1 : 2, nivel === OC_NIVELES.disc ? 2 : 4);
+  // x − y − z > 0, para que el camino equivocado también se pueda escribir.
+  const x = randomInt(12, nivel === OC_NIVELES.disc ? 20 : 40);
+  const z = randomInt(2, 9);
+  const y = randomInt(2, x - z - 1);
+  const v1 = (a / b) * c;
+  const v2 = x - y + z;
+  const mal1 = `${a} ÷ ${b * c} = ${a / (b * c)}`;
+  return {
+    enunciado: `Calcula: a) ${a} ÷ ${b} × ${c}   b) ${x} − ${y} + ${z}. ¿Por qué no se puede empezar por la operación de la derecha?`,
+    datos: ["Multiplicación y división tienen el mismo nivel.", "Suma y resta tienen el mismo nivel."],
+    operacion: `a) ${a} ÷ ${b} × ${c} = ${a / b} × ${c} = ${v1} · b) ${x} − ${y} + ${z} = ${x - y} + ${z} = ${v2}`,
+    solucion: `a) ${v1}; b) ${v2}. Se hacen de izquierda a derecha: empezando por la derecha saldría ${mal1} en a) y ${x} − ${y + z} = ${x - y - z} en b), que está mal.`,
+  };
+}
+
+function ocColocar(nivel) {
+  for (let intento = 0; intento < 500; intento++) {
+    const base = ocExpresion({ ...nivel, ops: [2, nivel === OC_NIVELES.altas ? 3 : 2] }, false);
+    if (!base) continue;
+    const nums = base.tokens.filter((x) => typeof x === "number");
+    const ops = base.tokens.filter(ocEsOp);
+    const n = ops.length;
+    const variantes = [];
+    for (let s = 0; s < n; s++) {
+      for (let e = s + 1; e <= n; e++) {
+        if (s === 0 && e === n) continue;
+        const t = [];
+        for (let i = 0; i <= n; i++) {
+          if (i === s) t.push("(");
+          t.push(nums[i]);
+          if (i === e) t.push(")");
+          if (i < n) t.push(ops[i]);
+        }
+        const r = ocResolver(t);
+        if (r && r.valor !== base.r.valor) variantes.push({ t, r });
+      }
+    }
+    // Un resultado que solo da una colocación.
+    const unica = variantes.filter((v) => variantes.filter((w) => w.r.valor === v.r.valor).length === 1);
+    if (!unica.length) continue;
+    const obj = pick(unica);
     return {
-      enunciado: `Calcula: (${a} + ${b}) × ${c} ÷ ${d} + ${e}`,
-      datos: [`Expresión: (${a} + ${b}) × ${c} ÷ ${d} + ${e}`],
-      operacion: `Paréntesis: ${a} + ${b} = ${paso1}. Multiplicación: ${paso1} × ${c} = ${paso2}. División: ${paso2} ÷ ${d} = ${paso3}. Suma: ${paso3} + ${e} = ${resultado}`,
-      solucion: `${resultado}. El resultado es ${resultado}.`,
+      enunciado: `Coloca un paréntesis en ${ocStr(base.tokens)} para que el resultado sea ${obj.r.valor}. ¿Cuánto da sin paréntesis?`,
+      datos: [`Sin paréntesis: ${ocStr(base.tokens)}`, `Resultado buscado: ${obj.r.valor}`],
+      operacion: `${ocCadena(obj.t, obj.r)} · Sin paréntesis: ${ocCadena(base.tokens, base.r)}`,
+      solucion: `${ocStr(obj.t)} = ${obj.r.valor}. Sin paréntesis da ${base.r.valor}.`,
     };
   }
-  const d = randomInt(2, 20);
-  const paso1 = a + b;
-  const paso2 = paso1 * c;
-  const resultado = paso2 - d;
+  return ocCalcular(nivel);
+}
+
+// --- Problemas: se escriben con una sola operación combinada ---
+function ocProblema(texto, tokens, unidad, datos) {
+  const r = ocResolver(tokens);
+  if (!r) return null;
   return {
-    enunciado: `Calcula: (${a} + ${b}) × ${c} − ${d}`,
-    datos: [`Expresión: (${a} + ${b}) × ${c} − ${d}`],
-    operacion: `Paréntesis primero: ${a} + ${b} = ${paso1}. Multiplicación: ${paso1} × ${c} = ${paso2}. Resta: ${paso2} − ${d} = ${resultado}`,
-    solucion: `${resultado}. El resultado es ${resultado}.`,
+    enunciado: `${texto} Escribe una sola operación combinada y resuélvela.`,
+    datos,
+    operacion: ocCadena(tokens, r),
+    solucion: `${r.valor} ${unidad}.`,
   };
 }
 
-function operacionesCombinadasTrabajo(curso) {
-  const horas = randomInt(3, 8);
-  const tarifa = curso === "6" ? roundMoney(randomInt(800, 1500) / 100) : randomInt(5, 12);
-  const dias = randomInt(2, 5);
-  const gastos = curso === "6" ? roundMoney(randomInt(500, 3000) / 100) : randomInt(5, 30);
-  const fmt = (n) => fmtAuto(n);
-  const porDia = roundMoney(horas * tarifa);
-  const totalBruto = roundMoney(porDia * dias);
-  const neto = roundMoney(totalBruto - gastos);
+function ocCompra(nivel) {
+  const pequeño = nivel === OC_NIVELES.disc;
+  for (let i = 0; i < 200; i++) {
+    const n1 = randomInt(2, 4);
+    const p1 = randomInt(2, pequeño ? 4 : 9);
+    const n2 = randomInt(2, 5);
+    const p2 = randomInt(1, 3);
+    const gasto = n1 * p1 + n2 * p2;
+    const billete = [10, 20, 50].find((b) => b > gasto);
+    if (!billete) continue;
+    const nombre = pick(NOMBRES);
+    const p = ocProblema(
+      `${nombre} compra ${n1} cuadernos a ${p1} € cada uno y ${n2} ${n2 === 1 ? "bolígrafo" : "bolígrafos"} a ${p2} € cada uno. Paga con un billete de ${billete} €. ¿Cuánto le devuelven?`,
+      [billete, "−", "(", n1, "×", p1, "+", n2, "×", p2, ")"],
+      "€ de vuelta",
+      [`${n1} cuadernos a ${p1} €`, `${n2} bolígrafos a ${p2} €`, `Paga con ${billete} €`]
+    );
+    if (p) return p;
+  }
+  return null;
+}
+
+function ocReparto(nivel) {
+  const n = randomInt(nivel === OC_NIVELES.disc ? 2 : 3, nivel === OC_NIVELES.disc ? 4 : 6);
+  const total = n * randomInt(nivel === OC_NIVELES.disc ? 3 : 6, nivel === OC_NIVELES.disc ? 6 : 15);
+  const a = randomInt(2, total - 2);
   const nombre = pick(NOMBRES);
-  return {
-    enunciado: `${nombre} trabaja ${horas} horas al día a ${fmt(tarifa)} € la hora, durante ${dias} días. Si tiene ${fmt(gastos)} € de gastos, ¿cuánto dinero le queda?`,
-    datos: [`Horas al día: ${horas}`, `Precio por hora: ${fmt(tarifa)} €`, `Días trabajados: ${dias}`, `Gastos: ${fmt(gastos)} €`],
-    operacion: `${horas} × ${fmt(tarifa)} = ${fmt(porDia)} €/día. ${fmt(porDia)} × ${dias} = ${fmt(totalBruto)} €. ${fmt(totalBruto)} − ${fmt(gastos)} = ${fmt(neto)}`,
-    solucion: `${fmt(neto)} €. Le quedan ${fmt(neto)} €.`,
-  };
+  return ocProblema(
+    `${nombre} tiene ${a} cromos y su prima ${total - a}. Los juntan y los reparten a partes iguales entre ${n} amigos. ¿Cuántos cromos recibe cada uno?`,
+    ["(", a, "+", total - a, ")", "÷", n],
+    "cromos cada uno",
+    [`Cromos de ${nombre}: ${a}`, `Cromos de la prima: ${total - a}`, `Amigos: ${n}`]
+  );
+}
+
+function ocExcursion(nivel) {
+  const alumnos = randomInt(nivel === OC_NIVELES.disc ? 5 : 18, nivel === OC_NIVELES.disc ? 10 : 28);
+  const entrada = randomInt(2, nivel === OC_NIVELES.disc ? 4 : 7);
+  const bus = randomInt(nivel === OC_NIVELES.disc ? 10 : 60, nivel === OC_NIVELES.disc ? 30 : 150);
+  return ocProblema(
+    `Una clase de ${alumnos} alumnos va al museo. Cada entrada cuesta ${entrada} € y el autobús cuesta ${bus} € en total. ¿Cuánto cuesta la excursión?`,
+    [alumnos, "×", entrada, "+", bus],
+    "€",
+    [`Alumnos: ${alumnos}`, `Entrada: ${entrada} €`, `Autobús: ${bus} €`]
+  );
+}
+
+function ocAhorro(nivel) {
+  const semanas = randomInt(3, nivel === OC_NIVELES.disc ? 5 : 12);
+  const ahorro = randomInt(3, nivel === OC_NIVELES.disc ? 5 : 15);
+  const gasto = randomInt(2, semanas * ahorro - 2);
+  const nombre = pick(NOMBRES);
+  return ocProblema(
+    `${nombre} ahorra ${ahorro} € cada semana durante ${semanas} semanas. Después se gasta ${gasto} € en un libro. ¿Cuánto dinero le queda?`,
+    [semanas, "×", ahorro, "−", gasto],
+    "€",
+    [`Ahorro semanal: ${ahorro} €`, `Semanas: ${semanas}`, `Gasto: ${gasto} €`]
+  );
+}
+
+// 6º (SdA 1): repartir horas y gastos de una actividad.
+function ocCampamento() {
+  for (let i = 0; i < 200; i++) {
+    const ninos = randomInt(3, 6) * 5;
+    const precio = randomInt(4, 12);
+    const material = randomInt(20, 90);
+    const grupos = pick([2, 3, 4, 5, 6]);
+    const total = ninos * precio + material;
+    if (total % grupos !== 0) continue;
+    return ocProblema(
+      `Para un campamento se apuntan ${ninos} niños y cada uno paga ${precio} €. Además, una empresa dona ${material} € para material. Todo el dinero se reparte a partes iguales entre ${grupos} actividades. ¿Cuánto dinero tiene cada actividad?`,
+      ["(", ninos, "×", precio, "+", material, ")", "÷", grupos],
+      "€ cada actividad",
+      [`Niños: ${ninos}`, `Pago por niño: ${precio} €`, `Donación: ${material} €`, `Actividades: ${grupos}`]
+    );
+  }
+  return null;
+}
+
+// 5º: cajas y sueltas, con una resta final.
+function ocCajas(nivel) {
+  const cajas = randomInt(3, nivel === OC_NIVELES.disc ? 5 : 9);
+  const porCaja = randomInt(6, nivel === OC_NIVELES.disc ? 10 : 24);
+  const sueltas = randomInt(2, porCaja - 1);
+  const rotas = randomInt(2, 9);
+  return ocProblema(
+    `En el almacén hay ${cajas} cajas de ${porCaja} botellas y ${sueltas} botellas sueltas. Se rompen ${rotas} botellas. ¿Cuántas botellas quedan?`,
+    [cajas, "×", porCaja, "+", sueltas, "−", rotas],
+    "botellas",
+    [`Cajas: ${cajas} de ${porCaja}`, `Sueltas: ${sueltas}`, `Rotas: ${rotas}`]
+  );
 }
 
 function genOperacionesCombinadas(curso) {
-  return pick([operacionesCombinadasCompra, operacionesCombinadasExpresion, operacionesCombinadasTrabajo])(curso);
+  const conProblema = (f) => (nivel) => f(nivel) || ocCalcular(nivel);
+  if (curso === "6") {
+    return siguienteDeBaraja("oc6", [ocCalcular, ocMismoNivel, ocColocar, conProblema(ocCompra), conProblema(ocCampamento), conProblema(ocReparto), conProblema(ocExcursion), ocCalcular])(OC_NIVELES["6"]);
+  }
+  return siguienteDeBaraja("oc5", [ocCalcular, ocMismoNivel, ocColocar, conProblema(ocCompra), conProblema(ocCajas), conProblema(ocAhorro), conProblema(ocExcursion)])(OC_NIVELES["5"]);
+}
+
+function ocAcsCalcular() {
+  const a = randomInt(2, 6);
+  const b = randomInt(2, 5);
+  const c = randomInt(2, 5);
+  return {
+    enunciado: `Calcula ${a} + ${b} × ${c}. Primero haz la multiplicación y rodéala con un círculo.`,
+    datos: ["Primero la multiplicación, después la suma."],
+    operacion: `${b} × ${c} = ${b * c}; ${a} + ${b * c} = ${a + b * c}`,
+    solucion: `${a + b * c}.`,
+  };
+}
+
+function ocAcsCajas() {
+  const cajas = randomInt(2, 4);
+  const porCaja = randomInt(2, 6);
+  const sueltas = randomInt(1, 5);
+  return {
+    enunciado: `Hay ${cajas} cajas con ${porCaja} lápices cada una y ${sueltas} ${sueltas === 1 ? "lápiz suelto" : "lápices sueltos"}. ¿Cuántos lápices hay?`,
+    datos: [`${cajas} cajas de ${porCaja}`, `Sueltos: ${sueltas}`],
+    operacion: `${cajas} × ${porCaja} + ${sueltas} = ${cajas * porCaja} + ${sueltas} = ${cajas * porCaja + sueltas}`,
+    solucion: `${cajas * porCaja + sueltas} lápices.`,
+  };
 }
 
 function genOperacionesCombinadasACS() {
-  const precio = randomInt(2, 5);
-  const cantidad = randomInt(2, 4);
-  const extra = randomInt(1, 5);
-  const nombre = pick(NOMBRES);
-  const objeto = pick(["caramelos", "cromos", "lápices", "canicas"]);
-  const total = cantidad * precio + extra;
-  return {
-    enunciado: `${nombre} compra ${cantidad} bolsas de ${objeto} a ${precio} € cada una y además paga ${extra} € de propina. ¿Cuánto gasta en total?`,
-    datos: [`${cantidad} bolsas a ${precio} € cada una`, `Propina: ${extra} €`],
-    operacion: `${cantidad} × ${precio} + ${extra} = ${total}`,
-    solucion: `${total}. Gasta ${total} € en total.`,
-  };
+  return siguienteDeBaraja("ocAcs", [ocAcsCalcular, ocAcsCajas, ocAcsCalcular, ocAcsCajas])();
+}
+
+// Discalculia: los contenidos del curso con dos operaciones y números pequeños.
+function genOperacionesCombinadasDiscalculia(curso) {
+  const d = OC_NIVELES.disc;
+  const conProblema = (f) => (nivel) => f(nivel) || ocCalcular(nivel);
+  const lista = [ocCalcular, ocMismoNivel, ocColocar, conProblema(ocCompra), conProblema(ocReparto), conProblema(curso === "6" ? ocExcursion : ocCajas)];
+  return siguienteDeBaraja(`ocDisc${curso}`, lista)(d);
 }
 
 function genOperacionesCombinadasAltas() {
-  const a = randomInt(4, 12);
-  const b = randomInt(4, 12);
-  const c = randomInt(3, 9);
-  const paso1 = a + b;
-  const paso2 = paso1 * c;
-  const divisores = [2, 3, 4, 5, 6, 7].filter((x) => paso2 % x === 0);
-  const d = divisores.length ? pick(divisores) : 1;
-  const paso3 = paso2 / d;
-  const e = randomInt(5, 30);
-  const paso4 = paso3 - e;
-  const f = randomInt(2, 9);
-  const resultado = paso4 * f;
-  return {
-    enunciado: `Calcula: ((${a} + ${b}) × ${c} ÷ ${d} − ${e}) × ${f}`,
-    datos: [`Expresión: ((${a} + ${b}) × ${c} ÷ ${d} − ${e}) × ${f}`],
-    operacion: `Paréntesis interno: ${a} + ${b} = ${paso1}. × ${c} = ${paso2}. ÷ ${d} = ${paso3}. − ${e} = ${paso4}. × ${f} = ${resultado}`,
-    solucion: `${resultado}. El resultado es ${resultado}.`,
-  };
+  const alto = OC_NIVELES.altas;
+  const conProblema = (f) => () => f(OC_NIVELES["6"]) || ocCalcular(alto);
+  return siguienteDeBaraja("ocAltas", [() => ocCalcular(alto), () => ocColocar(alto), () => ocCalcular(alto), conProblema(ocCampamento), conProblema(ocCompra)])();
 }
 
 function numerosRomanosAFormato(curso) {
@@ -3681,7 +3902,7 @@ const TOPICS = [
   { id: "restas", label: "Restas", category: "Operaciones básicas", generate: genRestas, generateACS: genRestasACS, generateAltas: genRestasAltas, resumen: "Restar es quitar una cantidad de otra para saber cuánto queda o la diferencia entre ellas." },
   { id: "multiplicaciones", label: "Multiplicaciones", category: "Operaciones básicas", generate: genMultiplicaciones, generateACS: genMultiplicacionesACS, generateAltas: genMultiplicacionesAltas, resumen: "Multiplicar es sumar un mismo número varias veces de forma rápida." },
   { id: "divisiones", label: "Divisiones", category: "Operaciones básicas", generate: genDivisiones, generateACS: genDivisionesACS, generateAltas: genDivisionesAltas, resumen: "Dividir es repartir una cantidad en partes iguales." },
-  { id: "operaciones-combinadas", label: "Operaciones combinadas", category: "Operaciones básicas", generate: genOperacionesCombinadas, generateACS: genOperacionesCombinadasACS, generateAltas: genOperacionesCombinadasAltas, resumen: "Cuando hay varias operaciones juntas, primero se resuelven los paréntesis, luego multiplicaciones y divisiones, y por último sumas y restas." },
+  { id: "operaciones-combinadas", label: "Operaciones combinadas", category: "Operaciones básicas", generate: genOperacionesCombinadas, generateACS: genOperacionesCombinadasACS, generateDiscalculia: genOperacionesCombinadasDiscalculia, generateAltas: genOperacionesCombinadasAltas, resumen: "En una operación combinada se resuelven primero los paréntesis, después las multiplicaciones y divisiones y por último las sumas y restas. Las del mismo nivel se hacen de izquierda a derecha: 24 ÷ 4 × 2 = 6 × 2 = 12. Escribe la operación de nuevo en cada paso." },
   { id: "numeros-romanos", label: "Números romanos", category: "Operaciones básicas", generate: genNumerosRomanos, generateACS: genNumerosRomanosACS, generateAltas: genNumerosRomanosAltas, resumen: "Los números romanos se escriben combinando las letras I, V, X, L, C, D y M según reglas de suma y resta." },
   { id: "potencias", label: "Las potencias", category: "Operaciones básicas", generate: genPotencias, generateACS: genPotenciasACS, generateDiscalculia: genPotenciasDiscalculia, generateAltas: genPotenciasAltas, resumen: "Una potencia es una multiplicación de factores iguales: 4³ = 4 × 4 × 4 = 64. La base (4) es el factor que se repite y el exponente (3), las veces que se repite. Con exponente 2 se dice «al cuadrado» y con 3, «al cubo». Ojo: 4³ no es 4 × 3.", resumen6: "Una potencia es una multiplicación de factores iguales: 4³ = 4 × 4 × 4 = 64 (base 4, exponente 3; no es 4 × 3). Una potencia de 10 es un 1 seguido de tantos ceros como dice el exponente: 10⁵ = 100.000. Para descomponer un número, cada cifra se multiplica por la potencia de 10 de su lugar: 40.302 = 4 × 10⁴ + 3 × 10² + 2." },
   { id: "numeros-enteros", label: "Números enteros", category: "Operaciones básicas", generate: genNumerosEnteros, generateACS: genNumerosEnterosACS, generateDiscalculia: genNumerosEnterosDiscalculia, generateAltas: genNumerosEnterosAltas, resumen: "Los números enteros son los positivos, los negativos y el cero. Los negativos se escriben con el signo − y sirven para temperaturas bajo cero, sótanos, profundidades bajo el nivel del mar o deudas. En la recta numérica, el mayor es el que está más a la derecha: −2 > −6.", resumen6: "Los números enteros son los positivos, los negativos y el cero. En la recta, el mayor es el que está más a la derecha (−2 > −6). El valor absoluto es la distancia hasta el 0 (|−5| = 5) y el opuesto está al otro lado, a la misma distancia (−5 y 5). Para sumar: mismo signo, se suman y se deja el signo; distinto signo, se restan y se deja el signo del de mayor valor absoluto." },
