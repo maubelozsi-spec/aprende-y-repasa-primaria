@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Números grandes y aproximación</h1>
-        <p class="content-subtitle">Valor posicional en números de 6 cifras, comparación y redondeo.</p>
+        <p class="content-subtitle">Lee, escribe, descompón, compara y redondea números de hasta 6 cifras (5º) y de millones (6º), tocando cada cifra para ver lo que vale.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -56,6 +56,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -81,13 +82,25 @@
         <div class="rule-box aguda">
           <h4>Descomposición</h4>
           <p>348.256 = 300.000 + 40.000 + 8.000 + 200 + 50 + 6</p>
+          <p>348.256 = 3 CM + 4 DM + 8 UM + 2 C + 5 D + 6 U</p>
+        </div>
+
+        <h2>Los ceros guardan el sitio</h2>
+        <p>Los ceros no se leen, pero hay que escribirlos: ocupan el lugar de los órdenes que no se nombran.</p>
+        <table class="rules-table">
+          <tr><th>Se dice</th><th>Bien</th><th>Mal</th></tr>
+          <tr><td>trescientos cinco mil veintisiete</td><td><strong>305.027</strong></td><td>35.027 · 30.527</td></tr>
+          <tr><td>cuarenta mil seis</td><td><strong>40.006</strong></td><td>406 · 40.600</td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Truco para escribir un número dictado:</strong> escribe el grupo de los miles y después el de las unidades. El grupo de las unidades tiene siempre 3 cifras: «mil seis» es 1.<strong>006</strong>.
         </div>
 
         <h2>Comparar y ordenar números</h2>
         <div class="rule-box llana">
           <h4>Cómo comparar</h4>
           <p>Primero se compara el número de cifras: gana el que tiene más cifras. Si tienen las mismas cifras, se comparan de izquierda a derecha hasta encontrar una cifra distinta.</p>
-          <p class="examples"><strong>Ejemplos:</strong> 348.256 &lt; 348.512 (la centena de millar y la decena de millar coinciden, pero 2 &lt; 5 en la unidad de millar) · 63.000 &lt; 630.000 (menos cifras)</p>
+          <p class="examples"><strong>Ejemplos:</strong> 348.256 &lt; 348.512 (coinciden la centena de millar, la decena de millar y la unidad de millar, pero en las centenas 2 &lt; 5) · 98.000 &lt; 102.000 (aunque empiece por 9, tiene menos cifras)</p>
         </div>
 
         <h2>Aproximar (redondear) números</h2>
@@ -108,6 +121,10 @@
           <tr><td>273.849</td><td>al millar</td><td>274.000</td></tr>
           <tr><td>273.849</td><td>a la centena</td><td>273.800</td></tr>
         </table>
+
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> subir la cifra y olvidar los ceros. 273.849 al millar es 274.000, no 274.849. Redondear sirve para dar un número fácil de recordar: «unos 274.000».
+        </div>
 
         <div class="tip-box">
           <strong>Truco:</strong> subraya la cifra de la posición pedida y mira solo la que tiene justo a la derecha. Esa es la que decide si sube o se queda igual.
@@ -134,10 +151,16 @@
             <strong>Se lee:</strong> trescientos cuarenta y ocho millones doscientos cincuenta y seis mil setecientos diecinueve. Cada grupo de 3 cifras (millones, millares, unidades) se separa con un punto.
           </div>
 
+          <div class="rule-box llana">
+            <h4>Un millón, veintiún millones</h4>
+            <p>Se dice «un millón» (1.000.000) y «dos millones», «veintiún millones» (21.000.000). Y se dice «mil», no «un mil»: 1.500 es «mil quinientos».</p>
+            <p class="examples"><strong>Con ceros:</strong> «dos millones cuarenta mil» se escribe 2.040.000: el grupo de los miles es 040 y el de las unidades, 000.</p>
+          </div>
+
           <div class="rule-box aguda">
             <h4>Aproximar al millón</h4>
             <p>Se aplica la misma regla del redondeo, mirando la cifra a la derecha de la posición del millón.</p>
-            <p class="examples"><strong>Ejemplo:</strong> 6.482.930 aproximado al millón → se mira el 4 (decena de millón) → como es menor que 5, se queda en <strong>6.000.000</strong>.</p>
+            <p class="examples"><strong>Ejemplo:</strong> 6.482.930 aproximado al millón → se mira el 4, que está a su derecha (centena de millar) → como es menor que 5, se queda en <strong>6.000.000</strong>.</p>
           </div>
         </div>
 
@@ -146,6 +169,52 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="ng-tabla">
+          <h2>1. Toca una cifra</h2>
+          <p class="md-explore-intro">Toca cualquier cifra del número para ver qué lugar ocupa y cuánto vale.</p>
+          <div class="md-controls">
+            <div class="choice-row" id="ng-tabla-tipo">
+              <button type="button" class="btn btn-secondary active" data-ng-tipo="miles">Hasta 6 cifras</button>
+              <button type="button" class="btn btn-secondary" data-ng-tipo="mill">Con millones (6º)</button>
+            </div>
+          </div>
+          <div class="pv-tiles ng-tabla" id="ng-tabla-cifras"></div>
+          <div class="md-msg ok" id="ng-tabla-msg" aria-live="polite"></div>
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="ng-tabla-otro">Otro número</button>
+          </div>
+        </div>
+
+        <div class="md-explore-card" id="ng-red">
+          <h2>2. Redondear en la recta</h2>
+          <p class="md-explore-intro">Elige a qué lugar redondear: el número se va al extremo que tiene más cerca.</p>
+          <p class="po-big" id="ng-red-num"></p>
+          <div class="choice-row" id="ng-red-ordenes"></div>
+          <div class="fr-line" id="ng-red-recta"></div>
+          <p class="md-msg ok" id="ng-red-msg" aria-live="polite"></p>
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="ng-red-otro">Otro número</button>
+          </div>
+        </div>
+
+        <div class="md-explore-card" id="ng-comp">
+          <h2>3. Comparar cifra a cifra</h2>
+          <p class="md-explore-intro">Con las mismas cifras, se mira de izquierda a derecha hasta encontrar la primera distinta.</p>
+          <div class="po-tabla-wrap" id="ng-comp-tabla"></div>
+          <p class="md-msg ok" id="ng-comp-msg" aria-live="polite"></p>
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="ng-comp-otro">Otros números</button>
+          </div>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -159,18 +228,26 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="valorposicional">Valor posicional</button>
-            <button class="btn btn-secondary" data-mode="comparar">Comparar números</button>
-            <button class="btn btn-secondary" data-mode="aproximar">Aproximar</button>
-            <button class="btn btn-secondary" data-mode="millones">Valor posicional (millones) <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+            <button class="btn btn-secondary active" data-mode="leer">Leer y escribir</button>
+            <button class="btn btn-secondary" data-mode="valor">Valor de cada cifra</button>
+            <button class="btn btn-secondary" data-mode="descomponer">Descomponer</button>
+            <button class="btn btn-secondary" data-mode="comparar">Comparar y ordenar</button>
+            <button class="btn btn-secondary" data-mode="redondear">Redondear</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
+            <button class="btn btn-secondary" data-mode="millones">Millones <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
           <p class="instructions" id="instructions"></p>
-          <div class="pv-tiles" id="tiles-display" style="display:none;"></div>
-          <div class="sentence-display" id="word-display" style="display:none;"></div>
+          <div id="game-visual" style="display:none;"></div>
+          <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
