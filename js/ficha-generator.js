@@ -1892,69 +1892,223 @@ function genDecimalesAltas() {
   return siguienteDeBaraja("deAltas", [deRedondeoMilesimas, () => deFraccionCualquiera(DE_NIVELES["6"]), () => dePoblacion(DE_NIVELES["6"]), () => deCampana(DE_NIVELES["6"])])();
 }
 
-function decimalesMDMultiplicar(curso) {
-  const precio = roundMoney(randomInt(105, curso === "6" ? 995 : 495) / 100);
-  const cantidad = randomInt(2, curso === "6" ? 9 : 6);
-  const total = roundMoney(precio * cantidad);
+// ---- Multiplicación y división de decimales ----
+// 5º (Tema 8): decimal × natural, decimal × decimal, × y : 10, 100 y
+// 1000, decimal : natural y la compra con 7 €. 6º: además dividir
+// entre un decimal y sacar decimales en el cociente. Los importes van
+// en céntimos enteros para no arrastrar errores de coma flotante.
+const DM_NIVELES = {
+  "5": { precio: [60, 500], kilos: [2, 6], max: 9 },
+  "6": { precio: [105, 995], kilos: [3, 9], max: 15 },
+  disc: { precio: [50, 300], kilos: [2, 4], max: 5 },
+};
+
+const dmEur = (c) => `${Math.floor(c / 100)},${String(c % 100).padStart(2, "0")}`;
+
+// {n, k}: cifras sin coma y número de decimales.
+function dmFmt(n, k) {
+  while (k > 0 && n % 10 === 0) {
+    n /= 10;
+    k--;
+  }
+  if (k === 0) return String(n);
+  const s = String(n).padStart(k + 1, "0");
+  return `${s.slice(0, -k)},${s.slice(-k)}`;
+}
+
+function dmPrecioKilos(nivel) {
+  const precio = randomInt(nivel.precio[0] / 5, nivel.precio[1] / 5) * 5;
+  const kilos = randomInt(nivel.kilos[0], nivel.kilos[1]);
+  const fruta = pick(["naranjas", "manzanas", "peras", "tomates"]);
   return {
-    enunciado: `Un kilo de naranjas cuesta ${fmtEs(precio)} €. ¿Cuánto cuestan ${cantidad} kilos?`,
-    datos: [`Precio por kilo: ${fmtEs(precio)} €`, `Cantidad: ${cantidad} kg`],
-    operacion: `${fmtEs(precio)} × ${cantidad} = ${fmtEs(total)}`,
-    solucion: `${fmtEs(total)} €. Cuestan ${fmtEs(total)} €.`,
+    enunciado: `Un kilo de ${fruta} cuesta ${dmEur(precio)} €. ¿Cuánto cuestan ${kilos} kilos?`,
+    datos: [`Precio por kilo: ${dmEur(precio)} €`, `Cantidad: ${kilos} kg`],
+    operacion: `${dmEur(precio)} × ${kilos} = ${dmEur(precio * kilos)}`,
+    solucion: `${dmEur(precio * kilos)} €. Cuestan ${dmEur(precio * kilos)} €.`,
   };
 }
 
-function decimalesMDDividirPrecio(curso) {
-  const precio = roundMoney(randomInt(105, curso === "6" ? 995 : 495) / 100);
-  const cantidad = randomInt(2, curso === "6" ? 9 : 6);
-  const total = roundMoney(precio * cantidad);
+function dmPrecioUnidad(nivel) {
+  const precio = randomInt(nivel.precio[0] / 5, nivel.precio[1] / 5) * 5;
+  const kilos = randomInt(nivel.kilos[0], nivel.kilos[1]);
   return {
-    enunciado: `${cantidad} kilos de peras cuestan ${fmtEs(total)} € en total. ¿Cuánto cuesta 1 kilo?`,
-    datos: [`Precio total: ${fmtEs(total)} €`, `Cantidad: ${cantidad} kg`],
-    operacion: `${fmtEs(total)} ÷ ${cantidad} = ${fmtEs(precio)}`,
-    solucion: `${fmtEs(precio)} €. Un kilo cuesta ${fmtEs(precio)} €.`,
+    enunciado: `${kilos} kilos de peras cuestan ${dmEur(precio * kilos)} € en total. ¿Cuánto cuesta 1 kilo?`,
+    datos: [`Precio total: ${dmEur(precio * kilos)} €`, `Cantidad: ${kilos} kg`],
+    operacion: `${dmEur(precio * kilos)} : ${kilos} = ${dmEur(precio)}`,
+    solucion: `${dmEur(precio)} €. Un kilo cuesta ${dmEur(precio)} €.`,
   };
 }
 
-function decimalesMDReparto(curso) {
-  const personas = randomInt(2, curso === "6" ? 9 : 5);
-  const porPersona = (curso === "6" ? randomInt(50, 300) : randomInt(15, 100)) / 10;
-  const total = Math.round(porPersona * personas * 10) / 10;
-  const unidad = pick(["litros de agua", "kilos de arroz", "metros de cuerda"]);
+function dmReparto(nivel) {
+  const personas = randomInt(2, nivel.max);
+  const porPersona = randomInt(11, nivel === DM_NIVELES.disc ? 40 : 120);
+  const total = porPersona * personas;
+  const [unidad, quien] = pick([["litros de agua", "botella"], ["kilos de arroz", "bolsa"], ["metros de cuerda", "equipo"]]);
   return {
-    enunciado: `Se reparten ${fmtEs(total, 1)} ${unidad} entre ${personas} personas a partes iguales. ¿Cuánto le toca a cada una?`,
-    datos: [`Total: ${fmtEs(total, 1)} ${unidad}`, `Personas: ${personas}`],
-    operacion: `${fmtEs(total, 1)} ÷ ${personas} = ${fmtEs(porPersona, 1)}`,
-    solucion: `${fmtEs(porPersona, 1)} ${unidad}. Le toca ${fmtEs(porPersona, 1)} ${unidad} a cada una.`,
+    enunciado: `Se reparten ${dmFmt(total, 1)} ${unidad} a partes iguales en ${personas} ${quien === "equipo" ? "equipos" : quien + "s"}. ¿Cuánto le toca a cada ${quien}?`,
+    datos: [`Total: ${dmFmt(total, 1)} ${unidad}`, `Partes: ${personas}`],
+    operacion: `${dmFmt(total, 1)} : ${personas} = ${dmFmt(porPersona, 1)}`,
+    solucion: `${dmFmt(porPersona, 1)} ${unidad} para cada ${quien}.`,
+  };
+}
+
+function dmArea(nivel) {
+  // Los dos lados con una cifra decimal (no 3,0): así la regla de contar decimales se ve.
+  let a, b;
+  do {
+    a = randomInt(nivel === DM_NIVELES.disc ? 11 : 21, nivel === DM_NIVELES["6"] ? 95 : 60);
+    b = randomInt(nivel === DM_NIVELES.disc ? 11 : 15, nivel === DM_NIVELES["6"] ? 75 : 45);
+  } while (a % 10 === 0 || b % 10 === 0);
+  return {
+    enunciado: `El suelo de una habitación rectangular mide ${dmFmt(a, 1)} m de largo y ${dmFmt(b, 1)} m de ancho. ¿Cuántos metros cuadrados mide?`,
+    datos: [`Largo: ${dmFmt(a, 1)} m`, `Ancho: ${dmFmt(b, 1)} m`],
+    operacion: `${dmFmt(a, 1)} × ${dmFmt(b, 1)}: ${a} × ${b} = ${a * b}; 1 + 1 = 2 cifras decimales → ${dmFmt(a * b, 2)}`,
+    solucion: `${dmFmt(a * b, 2)} m². El suelo mide ${dmFmt(a * b, 2)} m².`,
+  };
+}
+
+function dmPotencias(nivel) {
+  const caso = randomInt(1, 3);
+  if (caso === 1) {
+    const precio = randomInt(nivel.precio[0] / 5, nivel.precio[1] / 5) * 5;
+    const n = nivel === DM_NIVELES.disc ? 10 : pick([10, 100]);
+    const lugares = String(n).length - 1;
+    return {
+      enunciado: `${n} cuadernos iguales cuestan ${dmEur(precio * n)} €. ¿Cuánto cuesta un cuaderno?`,
+      datos: [`Cuadernos: ${n}`, `Precio total: ${dmEur(precio * n)} €`],
+      operacion: `${dmEur(precio * n)} : ${n} → la coma se mueve ${lugares} ${lugares === 1 ? "lugar" : "lugares"} a la izquierda`,
+      solucion: `${dmEur(precio)} €. Un cuaderno cuesta ${dmEur(precio)} €.`,
+    };
+  }
+  const precio = randomInt(nivel.precio[0] / 5, nivel.precio[1] / 5) * 5;
+  const n = caso === 2 ? 10 : nivel === DM_NIVELES.disc ? 10 : pick([100, 1000]);
+  return {
+    enunciado: `Un lápiz cuesta ${dmEur(precio)} €. ¿Cuánto cuestan ${n} lápices?`,
+    datos: [`Precio de un lápiz: ${dmEur(precio)} €`, `Lápices: ${n}`],
+    operacion: `${dmEur(precio)} × ${n} → la coma se mueve ${String(n).length - 1} ${n === 10 ? "lugar" : "lugares"} a la derecha`,
+    solucion: `${dmEur(precio * n)} €. Cuestan ${dmEur(precio * n)} €.`,
+  };
+}
+
+// Reto de la UDI del Tema 8: la lista de la compra saludable con 7 €.
+function dmCompra7(nivel) {
+  const productos = [
+    ["kg de manzanas", "kg de manzanas", 120, 190],
+    ["kg de plátanos", "kg de plátanos", 140, 220],
+    ["litro de leche", "litros de leche", 75, 115],
+    ["barra de pan integral", "barras de pan integral", 60, 110],
+    ["kg de zanahorias", "kg de zanahorias", 80, 130],
+  ].sort(() => Math.random() - 0.5).slice(0, 3);
+  const items = productos.map(([sing, pl, min, max]) => {
+    const cant = randomInt(1, nivel === DM_NIVELES.disc ? 1 : 2);
+    return { nombre: cant === 1 ? sing : pl, precio: randomInt(min / 5, max / 5) * 5, cant };
+  });
+  const total = items.reduce((s, it) => s + it.precio * it.cant, 0);
+  const lista = items.map((it) => `${it.cant} ${it.nombre} a ${dmEur(it.precio)} €`);
+  return {
+    enunciado: `Lista de la compra saludable con un presupuesto de 7 €: ${lista.slice(0, -1).join(", ")} y ${lista[lista.length - 1]}. ¿Cuánto cuesta todo? ¿Te llega con 7 €? ¿Cuánto sobra o cuánto falta?`,
+    datos: items.map((it) => `${it.nombre}: ${it.cant} × ${dmEur(it.precio)} €`),
+    operacion: `${items.map((it) => `${dmEur(it.precio)} × ${it.cant} = ${dmEur(it.precio * it.cant)}`).join("; ")}; total = ${dmEur(total)}`,
+    solucion: `Cuesta ${dmEur(total)} €. ${total <= 700 ? `Llega y sobran ${dmEur(700 - total)} €.` : `No llega: faltan ${dmEur(total - 700)} €.`}`,
+  };
+}
+
+// 6º: dividir entre un decimal.
+function dmBotellas(nivel) {
+  const [cap, k] = pick(nivel === DM_NIVELES.disc ? [[5, 1], [25, 2]] : [[5, 1], [25, 2], [75, 2], [15, 1], [33, 2]]);
+  const botellas = randomInt(4, nivel === DM_NIVELES.disc ? 10 : 24);
+  const total = cap * botellas;
+  return {
+    enunciado: `Tenemos ${dmFmt(total, k)} litros de zumo y lo vamos a repartir en botellas de ${dmFmt(cap, k)} litros. ¿Cuántas botellas se llenan?`,
+    datos: [`Zumo: ${dmFmt(total, k)} l`, `Cada botella: ${dmFmt(cap, k)} l`],
+    operacion: `${dmFmt(total, k)} : ${dmFmt(cap, k)} → se mueve la coma ${k} ${k === 1 ? "lugar" : "lugares"} en los dos: ${total} : ${cap} = ${botellas}`,
+    solucion: `${botellas} botellas.`,
+  };
+}
+
+function dmCocienteDecimal(nivel) {
+  let euros, amigos;
+  do {
+    amigos = pick(nivel === DM_NIVELES.disc ? [2, 4, 5] : [4, 5, 8]);
+    euros = randomInt(5, nivel === DM_NIVELES.disc ? 20 : 45);
+  } while (euros % amigos === 0 || (euros * 100) % amigos !== 0);
+  const c = (euros * 100) / amigos;
+  return {
+    enunciado: `${amigos} amigos se reparten ${euros} € a partes iguales. ¿Cuánto dinero le toca a cada uno?`,
+    datos: [`Dinero: ${euros} €`, `Amigos: ${amigos}`],
+    operacion: `${euros} : ${amigos} = ${Math.floor(euros / amigos)} y sobran ${euros % amigos}; se pone la coma y se sigue dividiendo: ${dmEur(c)}`,
+    solucion: `${dmEur(c)} € a cada uno.`,
   };
 }
 
 function genDecimalesMD(curso) {
-  return pick([decimalesMDMultiplicar, decimalesMDDividirPrecio, decimalesMDReparto])(curso);
+  if (curso === "6") {
+    return siguienteDeBaraja("dm6", [dmBotellas, dmCocienteDecimal, dmArea, dmPrecioUnidad, dmPotencias, dmCompra7, dmBotellas])(DM_NIVELES["6"]);
+  }
+  return siguienteDeBaraja("dm5", [dmPrecioKilos, dmPrecioUnidad, dmReparto, dmArea, dmPotencias, dmCompra7])(DM_NIVELES["5"]);
+}
+
+function dmNaranjasACS() {
+  const precio = pick([150, 250, 50, 110, 320, 120]);
+  const cantidad = randomInt(2, 3);
+  return {
+    enunciado: `Un kilo de naranjas cuesta ${dmEur(precio)} €. ¿Cuánto cuestan ${cantidad} kilos?`,
+    datos: [`Precio por kilo: ${dmEur(precio)} €`, `Cantidad: ${cantidad} kg`],
+    operacion: `${dmEur(precio)} × ${cantidad} = ${dmEur(precio * cantidad)}`,
+    solucion: `${dmEur(precio * cantidad)} €. Cuestan ${dmEur(precio * cantidad)} €.`,
+  };
+}
+
+function dmDiezACS() {
+  const d = randomInt(11, 59);
+  return {
+    enunciado: `Un cuaderno cuesta ${dmEur(d * 10)} €. ¿Cuánto cuestan 10 cuadernos?`,
+    datos: [`Un cuaderno: ${dmEur(d * 10)} €`, `Cuadernos: 10`],
+    operacion: `${dmEur(d * 10)} × 10 → la coma se mueve 1 lugar a la derecha`,
+    solucion: `${dmEur(d * 100)} €. Cuestan ${dmEur(d * 100)} €.`,
+  };
 }
 
 function genDecimalesMDACS() {
-  const precio = pick([1.5, 2.5, 0.5, 1.1, 3.2]);
-  const cantidad = randomInt(2, 3);
-  const total = roundMoney(precio * cantidad);
+  return siguienteDeBaraja("dmAcs", [dmNaranjasACS, dmDiezACS, dmNaranjasACS])();
+}
+
+// Discalculia: los contenidos del curso con números pequeños (no el
+// nivel de ACS).
+function genDecimalesMDDiscalculia(curso) {
+  const d = DM_NIVELES.disc;
+  if (curso === "6") {
+    return siguienteDeBaraja("dmDisc6", [dmBotellas, dmCocienteDecimal, dmPrecioKilos, dmPotencias, dmArea])(d);
+  }
+  return siguienteDeBaraja("dmDisc5", [dmPrecioKilos, dmPrecioUnidad, dmReparto, dmPotencias, dmArea])(d);
+}
+
+function dmBolsasAltas() {
+  const precio = randomInt(15, 60) * 10;
+  const cantidad = randomInt(3, 12);
+  const total = precio * cantidad;
   return {
-    enunciado: `Un kilo de naranjas cuesta ${fmtEs(precio)} €. ¿Cuánto cuestan ${cantidad} kilos?`,
-    datos: [`Precio por kilo: ${fmtEs(precio)} €`, `Cantidad: ${cantidad} kg`],
-    operacion: `${fmtEs(precio)} × ${cantidad} = ${fmtEs(total)}`,
-    solucion: `${fmtEs(total)} €. Cuestan ${fmtEs(total)} €.`,
+    enunciado: `Se han gastado ${dmEur(total)} € en comprar bolsas de chuches a ${dmEur(precio)} € cada una. ¿Cuántas bolsas se han comprado?`,
+    datos: [`Gasto total: ${dmEur(total)} €`, `Precio por bolsa: ${dmEur(precio)} €`],
+    operacion: `${dmEur(total)} : ${dmEur(precio)} = ${cantidad}`,
+    solucion: `${cantidad}. Se han comprado ${cantidad} bolsas.`,
+  };
+}
+
+function dmPresupuestoAltas() {
+  const precio = randomInt(35, 95) * 5;
+  const presupuesto = randomInt(10, 30) * 100;
+  const caben = Math.floor(presupuesto / precio);
+  return {
+    enunciado: `Con ${presupuesto / 100} € queremos comprar cuadernos de ${dmEur(precio)} € cada uno. ¿Cuántos cuadernos podemos comprar como máximo? ¿Cuánto dinero sobra?`,
+    datos: [`Presupuesto: ${presupuesto / 100} €`, `Precio de un cuaderno: ${dmEur(precio)} €`],
+    operacion: `${presupuesto / 100} : ${dmEur(precio)} = ${presupuesto} : ${precio} = ${caben} y sobra; ${dmEur(precio)} × ${caben} = ${dmEur(precio * caben)}`,
+    solucion: `${caben} cuadernos, y sobran ${dmEur(presupuesto - precio * caben)} €.`,
   };
 }
 
 function genDecimalesMDAltas() {
-  const precio = roundMoney(randomInt(15, 60) / 10);
-  const cantidad = randomInt(3, 12);
-  const total = roundMoney(precio * cantidad);
-  return {
-    enunciado: `Se han gastado ${fmtEs(total)} € en comprar bolsas de chuches a ${fmtEs(precio)} € cada una. ¿Cuántas bolsas se han comprado?`,
-    datos: [`Gasto total: ${fmtEs(total)} €`, `Precio por bolsa: ${fmtEs(precio)} €`],
-    operacion: `${fmtEs(total)} ÷ ${fmtEs(precio)} = ${cantidad}`,
-    solucion: `${cantidad}. Se han comprado ${cantidad} bolsas.`,
-  };
+  return siguienteDeBaraja("dmAltas", [dmBolsasAltas, dmPresupuestoAltas, () => dmBotellas(DM_NIVELES["6"]), () => dmCompra7(DM_NIVELES["6"])])();
 }
 
 function porcentajesDirecto(curso) {
@@ -3066,7 +3220,7 @@ const TOPICS = [
   { id: "fracciones", label: "Fracciones", category: "Fracciones y decimales", generate: genFracciones, generateACS: genFraccionesACS, generateDiscalculia: genFraccionesDiscalculia, generateAltas: genFraccionesAltas, resumen: "Una fracción representa las partes iguales que se toman de un todo: el denominador dice en cuántas partes se divide y el numerador, cuántas se toman. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número.", resumen6: "Una fracción representa las partes iguales que se toman de un todo. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número. Para comparar fracciones con distinto denominador se reducen a común denominador, y la fracción irreducible se obtiene dividiendo los dos términos entre su M.C.D." },
   { id: "operaciones-fracciones", label: "Operaciones con fracciones", category: "Fracciones y decimales", generate: genOperacionesFracciones, generateACS: genOperacionesFraccionesACS, generateDiscalculia: genOperacionesFraccionesDiscalculia, generateAltas: genOperacionesFraccionesAltas, resumen: "Para sumar o restar fracciones con el mismo denominador, se suman o restan los numeradores y el denominador se queda igual. Para calcular la fracción de una cantidad, se divide la cantidad entre el denominador y se multiplica por el numerador. En las operaciones combinadas, primero los paréntesis.", resumen6: "Para sumar o restar fracciones con distinto denominador, primero se reducen a común denominador. Para multiplicar, numerador por numerador y denominador por denominador; para dividir, se multiplica por la segunda fracción invertida. En las combinadas: paréntesis, después multiplicaciones y divisiones, y por último sumas y restas." },
   { id: "decimales", label: "Números decimales", category: "Fracciones y decimales", generate: genDecimales, generateACS: genDecimalesACS, generateDiscalculia: genDecimalesDiscalculia, generateAltas: genDecimalesAltas, resumen: "Un número decimal tiene parte entera y parte decimal, separadas por la coma: décimas, centésimas y milésimas. Para comparar, se mira la parte entera y después cifra a cifra (3,45 < 3,5). Para sumar y restar, las comas van una debajo de otra y se rellenan con ceros las cifras que falten.", resumen6: "Un número decimal tiene parte entera y parte decimal, separadas por la coma. Para sumar y restar, las comas van alineadas. Para redondear, se mira la cifra siguiente: si es 5 o más, sube. Una fracción se pasa a decimal dividiendo el numerador entre el denominador (3/4 = 0,75)." },
-  { id: "decimales-md", label: "Multiplicación y división de decimales", category: "Fracciones y decimales", generate: genDecimalesMD, generateACS: genDecimalesMDACS, generateAltas: genDecimalesMDAltas, resumen: "Al multiplicar o dividir decimales se opera igual que con números enteros, teniendo cuidado con la coma decimal." },
+  { id: "decimales-md", label: "Multiplicación y división de decimales", category: "Fracciones y decimales", generate: genDecimalesMD, generateACS: genDecimalesMDACS, generateDiscalculia: genDecimalesMDDiscalculia, generateAltas: genDecimalesMDAltas, resumen: "Para multiplicar decimales, se multiplica sin comas y se separan tantas cifras decimales como tengan los dos factores juntos. Al multiplicar por 10, 100 o 1000 la coma se mueve a la derecha, y al dividir, a la izquierda. Al dividir un decimal entre un natural, la coma se pone en el cociente al bajar la primera cifra decimal.", resumen6: "Para multiplicar decimales, se multiplica sin comas y se separan tantas cifras decimales como tengan los dos factores. Para dividir entre un decimal, se mueve la coma a la derecha en el dividendo y en el divisor hasta que el divisor no tenga coma. Si la división no es exacta, se pone la coma y se sigue dividiendo con ceros." },
   { id: "porcentajes", label: "Porcentajes", category: "Fracciones y decimales", generate: genPorcentajes, generateACS: genPorcentajesACS, generateAltas: genPorcentajesAltas, resumen: "Un porcentaje indica una parte de cada 100. Calcular el X% de una cantidad es multiplicarla por X y dividir entre 100." },
   { id: "problemas-mixtos", label: "Problemas mixtos (varios pasos)", category: "Problemas mixtos", generate: genProblemasMixtos, resumen: "Algunos problemas necesitan encadenar varias operaciones seguidas para llegar a la solución final." },
   { id: "medidas", label: "Medidas y conversiones", category: "Geometría y medidas", generate: genMedidas, generateACS: genMedidasACS, generateAltas: genMedidasAltas, resumen: "Para cambiar de una unidad de medida a otra, se multiplica o se divide según la equivalencia entre ellas." },
