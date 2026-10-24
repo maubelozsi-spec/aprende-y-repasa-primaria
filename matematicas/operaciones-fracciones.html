@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Operaciones con fracciones</h1>
-        <p class="content-subtitle">Fracción de un número, suma y resta de fracciones.</p>
+        <p class="content-subtitle">Fracción de una cantidad, suma y resta de fracciones y operaciones combinadas, con barras y fichas para entenderlas y práctica que explica cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -56,6 +56,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -70,6 +71,9 @@
         <div class="tip-box">
           <strong>Ejemplo:</strong> 3/4 de 20 → 20 ÷ 4 = 5 → 5 × 3 = <strong>15</strong>.
         </div>
+        <div class="tip-box">
+          <strong>¿Y lo que queda?</strong> Si de 20 caramelos regalo 3/4 (15), me quedan 20 − 15 = 5, que es justo 1/4 de 20.
+        </div>
 
         <h2>Suma y resta de fracciones con el mismo denominador</h2>
         <div class="rule-box llana">
@@ -83,6 +87,16 @@
         <div class="tip-box">
           <strong>Cuidado:</strong> si al sumar el numerador supera al denominador, el resultado es una fracción impropia (puede convertirse a número mixto). Ejemplo: 3/5 + 3/5 = 6/5.
         </div>
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> los denominadores <strong>no se suman</strong>. 2/7 + 3/7 no es 5/14: las partes siguen siendo séptimos, solo hay más.
+        </div>
+
+        <h2>Operaciones combinadas con fracciones</h2>
+        <div class="rule-box esdrujula">
+          <h4>Con el mismo denominador</h4>
+          <p>Se resuelven primero los <strong>paréntesis</strong> y después las sumas y restas <strong>de izquierda a derecha</strong>. Un entero se puede escribir como fracción con el mismo denominador: 1 = 8/8.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 1 − (2/8 + 3/8) = 8/8 − 5/8 = <strong>3/8</strong></p>
+        </div>
 
         <div class="grade-section">
           <span class="grade-badge">Contenido de 6º</span>
@@ -90,7 +104,7 @@
           <div class="rule-box aguda">
             <h4>Otra forma de verla</h4>
             <p>Toda fracción a/b se puede interpretar como una <strong>división</strong>: el numerador dividido entre el denominador.</p>
-            <p class="examples"><strong>Ejemplo:</strong> 3/4 = 3 ÷ 4 = 0,75</p>
+            <p class="examples"><strong>Ejemplo:</strong> 3/4 = 3 ÷ 4 = 0,75. Si se reparten 3 pizzas entre 4 amigos, a cada uno le tocan 3/4 de pizza.</p>
           </div>
 
           <h2>Suma y resta con distinto denominador</h2>
@@ -104,7 +118,7 @@
           <div class="rule-box esdrujula">
             <h4>Cómo se multiplican</h4>
             <p>Se multiplican los numeradores entre sí, y los denominadores entre sí.</p>
-            <p class="examples"><strong>Ejemplo:</strong> 2/3 × 3/4 = (2×3)/(3×4) = <strong>6/12</strong></p>
+            <p class="examples"><strong>Ejemplo:</strong> 2/3 × 3/4 = (2×3)/(3×4) = <strong>6/12</strong> = 1/2. Si multiplicas por un número entero, multiplica solo el numerador: 2/5 × 3 = 6/5.</p>
           </div>
 
           <h2>División de fracciones</h2>
@@ -115,7 +129,14 @@
           </div>
 
           <div class="tip-box">
-            <strong>Truco:</strong> "para dividir fracciones, la segunda se voltea y se multiplica".
+            <strong>Truco:</strong> "para dividir fracciones, la segunda se voltea y se multiplica". Es lo mismo que multiplicar en cruz: 1/2 ÷ 1/3 = (1 × 3)/(2 × 1) = 3/2.
+          </div>
+
+          <h2>Combinadas con multiplicaciones y divisiones</h2>
+          <div class="rule-box aguda">
+            <h4>Prioridad de las operaciones</h4>
+            <p>Primero los paréntesis, después multiplicaciones y divisiones, y por último sumas y restas.</p>
+            <p class="examples"><strong>Ejemplo:</strong> 1/2 + 1/3 × 3/4 = 1/2 + 3/12 = 6/12 + 3/12 = <strong>9/12</strong> = 3/4</p>
           </div>
         </div>
 
@@ -124,6 +145,111 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="of-cant">
+          <h2>1. La fracción de una cantidad</h2>
+          <p class="md-explore-intro">Reparte las fichas en tantos grupos iguales como dice el denominador y quédate con los que dice el numerador.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Numerador</span>
+              <button type="button" class="btn btn-secondary" data-of="cant" data-key="n" data-delta="-1" aria-label="Numerador menos uno">−</button>
+              <output id="of-cant-n"></output>
+              <button type="button" class="btn btn-secondary" data-of="cant" data-key="n" data-delta="1" aria-label="Numerador más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Denominador</span>
+              <button type="button" class="btn btn-secondary" data-of="cant" data-key="d" data-delta="-1" aria-label="Denominador menos uno">−</button>
+              <output id="of-cant-d"></output>
+              <button type="button" class="btn btn-secondary" data-of="cant" data-key="d" data-delta="1" aria-label="Denominador más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Fichas en cada grupo</span>
+              <button type="button" class="btn btn-secondary" data-of="cant" data-key="m" data-delta="-1" aria-label="Una ficha menos por grupo">−</button>
+              <output id="of-cant-m"></output>
+              <button type="button" class="btn btn-secondary" data-of="cant" data-key="m" data-delta="1" aria-label="Una ficha más por grupo">+</button>
+            </div>
+          </div>
+          <div class="of-groups" id="of-cant-groups" aria-hidden="true"></div>
+          <p class="md-msg ok" id="of-cant-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="of-suma">
+          <h2>2. Sumar y restar con el mismo denominador</h2>
+          <p class="md-explore-intro">Las partes son del mismo tamaño: solo cambia cuántas hay. El denominador no se toca.</p>
+          <div class="choice-row md-mode-row" id="of-suma-op">
+            <button type="button" class="btn btn-secondary active" data-of-op="+">Sumar</button>
+            <button type="button" class="btn btn-secondary" data-of-op="−">Restar</button>
+          </div>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Primera</span>
+              <button type="button" class="btn btn-secondary" data-of="suma" data-key="a" data-delta="-1" aria-label="Numerador de la primera menos uno">−</button>
+              <output id="of-suma-a"></output>
+              <button type="button" class="btn btn-secondary" data-of="suma" data-key="a" data-delta="1" aria-label="Numerador de la primera más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Segunda</span>
+              <button type="button" class="btn btn-secondary" data-of="suma" data-key="b" data-delta="-1" aria-label="Numerador de la segunda menos uno">−</button>
+              <output id="of-suma-b"></output>
+              <button type="button" class="btn btn-secondary" data-of="suma" data-key="b" data-delta="1" aria-label="Numerador de la segunda más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Denominador</span>
+              <button type="button" class="btn btn-secondary" data-of="suma" data-key="d" data-delta="-1" aria-label="Denominador menos uno">−</button>
+              <output id="of-suma-d"></output>
+              <button type="button" class="btn btn-secondary" data-of="suma" data-key="d" data-delta="1" aria-label="Denominador más uno">+</button>
+            </div>
+          </div>
+          <div class="fr-stack" id="of-suma-bars"></div>
+          <p class="md-msg ok" id="of-suma-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="of-dist">
+          <h2>3. Sumar con distinto denominador <span class="status-pill status-grade6">6º</span></h2>
+          <p class="md-explore-intro">Si las partes no son del mismo tamaño, no se pueden juntar. Primero se cortan todas en partes iguales (común denominador).</p>
+          <div class="fr-comp-controls">
+            <div class="fr-comp-group fr-a">
+              <p class="fr-comp-title">Primera: <output id="of-dist-f1"></output></p>
+              <div class="md-stepper">
+                <span class="md-stepper-label">Numerador</span>
+                <button type="button" class="btn btn-secondary" data-of="dist" data-key="a" data-delta="-1" aria-label="Numerador de la primera menos uno">−</button>
+                <output id="of-dist-a"></output>
+                <button type="button" class="btn btn-secondary" data-of="dist" data-key="a" data-delta="1" aria-label="Numerador de la primera más uno">+</button>
+              </div>
+              <div class="md-stepper">
+                <span class="md-stepper-label">Denominador</span>
+                <button type="button" class="btn btn-secondary" data-of="dist" data-key="b" data-delta="-1" aria-label="Denominador de la primera menos uno">−</button>
+                <output id="of-dist-b"></output>
+                <button type="button" class="btn btn-secondary" data-of="dist" data-key="b" data-delta="1" aria-label="Denominador de la primera más uno">+</button>
+              </div>
+            </div>
+            <div class="fr-comp-group fr-b">
+              <p class="fr-comp-title">Segunda: <output id="of-dist-f2"></output></p>
+              <div class="md-stepper">
+                <span class="md-stepper-label">Numerador</span>
+                <button type="button" class="btn btn-secondary" data-of="dist" data-key="c" data-delta="-1" aria-label="Numerador de la segunda menos uno">−</button>
+                <output id="of-dist-c"></output>
+                <button type="button" class="btn btn-secondary" data-of="dist" data-key="c" data-delta="1" aria-label="Numerador de la segunda más uno">+</button>
+              </div>
+              <div class="md-stepper">
+                <span class="md-stepper-label">Denominador</span>
+                <button type="button" class="btn btn-secondary" data-of="dist" data-key="e" data-delta="-1" aria-label="Denominador de la segunda menos uno">−</button>
+                <output id="of-dist-e"></output>
+                <button type="button" class="btn btn-secondary" data-of="dist" data-key="e" data-delta="1" aria-label="Denominador de la segunda más uno">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="fr-stack" id="of-dist-bars"></div>
+          <p class="md-msg ok" id="of-dist-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -139,18 +265,26 @@
           <div class="choice-row" id="mode-picker">
             <button class="btn btn-secondary active" data-mode="fracciondenum">Fracción de un número</button>
             <button class="btn btn-secondary" data-mode="sumarrestar">Sumar y restar</button>
+            <button class="btn btn-secondary" data-mode="combinadas">Combinadas</button>
             <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
             <button class="btn btn-secondary" data-mode="distintodenom">Distinto denominador <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="multiplicar">Multiplicar <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="dividir">Dividir <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="comodivision">Como división <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+            <button class="btn btn-secondary" data-mode="combinadas6">Combinadas con × <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
           <p class="instructions" id="instructions"></p>
+          <div class="grid-example" id="game-visual" style="display:none;"></div>
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 

@@ -1309,91 +1309,235 @@ function genFraccionesAltas() {
   return siguienteDeBaraja("frAltas", [fraccionesHuerto, () => fraccionesOrdenar(FR_NIVELES["6"]), () => fraccionesComparar(FR_NIVELES["6"]), () => fraccionesSimplificar(FR_NIVELES["6"])])();
 }
 
-function operacionesFraccionesSuma(curso) {
-  if (curso === "6") {
-    const d1 = randomInt(2, 6);
-    const d2 = randomInt(2, 6);
-    const n1 = randomInt(1, d1 - 1);
-    const n2 = randomInt(1, d2 - 1);
-    const comunDen = lcm(d1, d2);
-    const num1 = n1 * (comunDen / d1);
-    const num2 = n2 * (comunDen / d2);
-    const sumaNum = num1 + num2;
+// ---- Operaciones con fracciones ----
+// 5º (programación del Tema 5): suma y resta con igual denominador,
+// fracción de una cantidad y operaciones combinadas con igual
+// denominador. 6º: distinto denominador, multiplicación, división,
+// la fracción como división y combinadas con prioridad.
+const OF_NIVELES = {
+  "5": { dens: [4, 5, 6, 7, 8, 9, 10], dist: [2, 3, 4, 5, 6], max: 120 },
+  "6": { dens: [4, 5, 6, 8, 9, 10, 12], dist: [2, 3, 4, 5, 6, 8], max: 180 },
+  disc5: { dens: [3, 4, 5, 6], dist: [2, 3, 4], max: 40 },
+  disc6: { dens: [3, 4, 5, 6], dist: [2, 3, 4], max: 40 },
+};
+
+// "= 1/2" o "= 2" si la fracción se puede simplificar.
+function ofSimplifica(n, d) {
+  const g = gcd(n, d);
+  if (g === 1 || n === 0) return "";
+  return d / g === 1 ? ` = ${n / g}` : ` = ${n / g}/${d / g}`;
+}
+
+function ofSumaResta(nivel) {
+  const d = pick(nivel.dens);
+  if (Math.random() < 0.5) {
+    const a = randomInt(1, d - 1);
+    const b = randomInt(1, d - 1);
     return {
-      enunciado: `Calcula: ${n1}/${d1} + ${n2}/${d2}`,
-      datos: [`Fracción 1: ${n1}/${d1}`, `Fracción 2: ${n2}/${d2}`],
-      operacion: `${n1}/${d1} + ${n2}/${d2} = ${num1}/${comunDen} + ${num2}/${comunDen} = ${sumaNum}/${comunDen}`,
-      solucion: `${sumaNum}/${comunDen}. El resultado es ${sumaNum}/${comunDen}.`,
+      enunciado: `Calcula: ${a}/${d} + ${b}/${d}.`,
+      datos: [`Fracción 1: ${a}/${d}`, `Fracción 2: ${b}/${d}`],
+      operacion: `Mismo denominador: ${a} + ${b} = ${a + b}. ${a}/${d} + ${b}/${d} = ${a + b}/${d}`,
+      solucion: `${a + b}/${d}${ofSimplifica(a + b, d)}. El resultado es ${a + b}/${d}.`,
     };
   }
-  const den = randomInt(4, 10);
-  const n1 = randomInt(1, den - 2);
-  const n2 = randomInt(1, den - n1 - 1);
-  const suma = n1 + n2;
+  const a = randomInt(2, d);
+  const b = randomInt(1, a - 1);
   return {
-    enunciado: `Calcula: ${n1}/${den} + ${n2}/${den}`,
-    datos: [`Fracción 1: ${n1}/${den}`, `Fracción 2: ${n2}/${den}`],
-    operacion: `${n1}/${den} + ${n2}/${den} = ${suma}/${den}`,
-    solucion: `${suma}/${den}. El resultado es ${suma}/${den}.`,
+    enunciado: `Calcula: ${a}/${d} − ${b}/${d}.`,
+    datos: [`Fracción 1: ${a}/${d}`, `Fracción 2: ${b}/${d}`],
+    operacion: `Mismo denominador: ${a} − ${b} = ${a - b}. ${a}/${d} − ${b}/${d} = ${a - b}/${d}`,
+    solucion: `${a - b}/${d}${ofSimplifica(a - b, d)}. El resultado es ${a - b}/${d}.`,
   };
 }
 
-function operacionesFraccionesResta(curso) {
-  if (curso === "6") {
-    let d1 = randomInt(2, 6);
-    let d2 = randomInt(2, 6);
-    let n1 = randomInt(1, d1 - 1);
-    let n2 = randomInt(1, d2 - 1);
-    const comunDen = lcm(d1, d2);
-    let num1 = n1 * (comunDen / d1);
-    let num2 = n2 * (comunDen / d2);
-    if (num1 < num2) {
-      [d1, d2] = [d2, d1];
-      [n1, n2] = [n2, n1];
-      [num1, num2] = [num2, num1];
-    }
-    const resultNum = num1 - num2;
-    return {
-      enunciado: `Calcula: ${n1}/${d1} − ${n2}/${d2}`,
-      datos: [`Fracción 1: ${n1}/${d1}`, `Fracción 2: ${n2}/${d2}`],
-      operacion: `${n1}/${d1} − ${n2}/${d2} = ${num1}/${comunDen} − ${num2}/${comunDen} = ${resultNum}/${comunDen}`,
-      solucion: `${resultNum}/${comunDen}. El resultado es ${resultNum}/${comunDen}.`,
-    };
-  }
-  const den = randomInt(4, 10);
-  const n1 = randomInt(2, den - 1);
-  const n2 = randomInt(1, n1 - 1);
-  const resultado = n1 - n2;
+function ofPizza(nivel) {
+  const d = pick(nivel.dens.filter((x) => x >= 4));
+  const a = randomInt(1, d - 2);
+  const b = randomInt(1, d - 1 - a);
+  const [p1, p2] = pickTwo(NOMBRES);
   return {
-    enunciado: `Calcula: ${n1}/${den} − ${n2}/${den}`,
-    datos: [`Fracción 1: ${n1}/${den}`, `Fracción 2: ${n2}/${den}`],
-    operacion: `${n1}/${den} − ${n2}/${den} = ${resultado}/${den}`,
-    solucion: `${resultado}/${den}. El resultado es ${resultado}/${den}.`,
+    enunciado: `Una pizza está cortada en ${d} trozos iguales. ${p1} se come ${a}/${d} y ${p2}, ${b}/${d}. ¿Qué fracción de pizza se han comido entre los dos? ¿Qué fracción queda?`,
+    datos: [`${p1}: ${a}/${d}`, `${p2}: ${b}/${d}`],
+    operacion: `${a}/${d} + ${b}/${d} = ${a + b}/${d}; ${d}/${d} − ${a + b}/${d} = ${d - a - b}/${d}`,
+    solucion: `Se han comido ${a + b}/${d} y queda ${d - a - b}/${d} de la pizza.`,
   };
 }
 
-function operacionesFraccionesMultiplicacion(curso) {
-  const den = curso === "6" ? randomInt(3, 8) : randomInt(2, 6);
-  const num = randomInt(1, den - 1);
-  const entero = randomInt(2, curso === "6" ? 6 : 4);
-  const productoNum = num * entero;
-  const g = gcd(productoNum, den);
-  const numSimpl = productoNum / g;
-  const denSimpl = den / g;
+function ofCantidad(nivel) {
+  const d = pick(nivel.dens.filter((x) => x <= 8));
+  const n = randomInt(1, d - 1);
+  const m = randomInt(Math.ceil(20 / d), Math.floor(nivel.max / d));
+  const T = d * m;
+  const leidas = n * m;
   return {
-    enunciado: `Calcula: ${num}/${den} × ${entero}`,
-    datos: [`Fracción: ${num}/${den}`, `Número: ${entero}`],
-    operacion: `${num} × ${entero} = ${productoNum}. ${productoNum}/${den}${g > 1 ? ` = ${numSimpl}/${denSimpl} (simplificando entre ${g})` : ""}`,
-    solucion: g > 1 ? `${numSimpl}/${denSimpl}. El resultado es ${numSimpl}/${denSimpl}.` : `${productoNum}/${den}. El resultado es ${productoNum}/${den}.`,
+    enunciado: `Un libro tiene ${T} páginas y ${pick(NOMBRES)} ya ha leído ${n}/${d} del libro. ¿Cuántas páginas ha leído? ¿Cuántas le quedan por leer?`,
+    datos: [`Páginas del libro: ${T}`, `Fracción leída: ${n}/${d}`],
+    operacion: `${T} : ${d} = ${m}; ${m} × ${n} = ${leidas}; ${T} − ${leidas} = ${T - leidas}`,
+    solucion: `Ha leído ${leidas} páginas y le quedan ${T - leidas}.`,
+  };
+}
+
+function ofDinero(nivel) {
+  const d = pick(nivel.dens.filter((x) => x <= 6));
+  const n = randomInt(1, d - 1);
+  const m = randomInt(Math.ceil(10 / d), Math.floor(Math.min(nivel.max, 90) / d));
+  const T = d * m;
+  const gasto = n * m;
+  return {
+    enunciado: `${pick(NOMBRES)} tiene ${T} € ahorrados y se gasta ${n}/${d} en un regalo. ¿Cuánto cuesta el regalo? ¿Cuánto dinero le queda?`,
+    datos: [`Ahorros: ${T} €`, `Fracción gastada: ${n}/${d}`],
+    operacion: `${T} : ${d} = ${m}; ${m} × ${n} = ${gasto}; ${T} − ${gasto} = ${T - gasto}`,
+    solucion: `El regalo cuesta ${gasto} € y le quedan ${T - gasto} €.`,
+  };
+}
+
+// Reto de la UDI del Tema 5: la energía que queda al final del día.
+function ofEnergia(nivel) {
+  const d = pick(nivel.dens.filter((x) => x >= 5));
+  const a = randomInt(1, d - 3);
+  const b = randomInt(1, d - 2 - a);
+  const c = randomInt(1, d - 1 - a - b);
+  const r = d - a - b - c;
+  return {
+    enunciado: `Empiezas el día con toda tu energía (1). En el colegio gastas ${a}/${d}, en el entrenamiento ${b}/${d} y haciendo los deberes ${c}/${d}. ¿Qué fracción de energía te queda por la noche?`,
+    datos: [`Colegio: ${a}/${d}`, `Entrenamiento: ${b}/${d}`, `Deberes: ${c}/${d}`],
+    operacion: `1 − (${a}/${d} + ${b}/${d} + ${c}/${d}) = ${d}/${d} − ${a + b + c}/${d} = ${r}/${d}`,
+    solucion: `${r}/${d}${ofSimplifica(r, d)}. Te queda ${r}/${d} de energía.`,
+  };
+}
+
+function ofCombinadaIgual(nivel) {
+  const d = pick(nivel.dens.filter((x) => x >= 5));
+  const b = randomInt(1, d - 2);
+  const c = randomInt(1, d - 1 - b);
+  const a = b + c + randomInt(1, d - 1);
+  const r = a - b - c;
+  return {
+    enunciado: `Calcula: ${a}/${d} − (${b}/${d} + ${c}/${d}).`,
+    datos: [`Operación combinada con denominador ${d}`],
+    operacion: `Primero el paréntesis: ${b}/${d} + ${c}/${d} = ${b + c}/${d}. Después: ${a}/${d} − ${b + c}/${d} = ${r}/${d}`,
+    solucion: `${r}/${d}${ofSimplifica(r, d)}. El resultado es ${r}/${d}.`,
+  };
+}
+
+function ofDosFracciones(dens) {
+  let b, d;
+  do {
+    b = pick(dens);
+    d = pick(dens);
+  } while (b === d || lcm(b, d) > 36);
+  return [ofNumeradorIrreducible(b), b, ofNumeradorIrreducible(d), d];
+}
+
+// Numerador al azar que deja la fracción irreducible (1/2, no 2/4).
+function ofNumeradorIrreducible(d) {
+  let n;
+  do {
+    n = randomInt(1, d - 1);
+  } while (gcd(n, d) !== 1);
+  return n;
+}
+
+function ofDistinta(nivel) {
+  let [n1, d1, n2, d2] = ofDosFracciones(nivel.dist);
+  const resta = Math.random() < 0.5;
+  if (resta && n1 * d2 < n2 * d1) [n1, d1, n2, d2] = [n2, d2, n1, d1];
+  if (resta && n1 * d2 === n2 * d1) return ofDistinta(nivel);
+  const m = lcm(d1, d2);
+  const A = n1 * (m / d1);
+  const C = n2 * (m / d2);
+  const r = resta ? A - C : A + C;
+  const op = resta ? "−" : "+";
+  return {
+    enunciado: `Calcula: ${n1}/${d1} ${op} ${n2}/${d2}.`,
+    datos: [`Fracción 1: ${n1}/${d1}`, `Fracción 2: ${n2}/${d2}`],
+    operacion: `m.c.m.(${d1}, ${d2}) = ${m}. ${n1}/${d1} ${op} ${n2}/${d2} = ${A}/${m} ${op} ${C}/${m} = ${r}/${m}`,
+    solucion: `${r}/${m}${ofSimplifica(r, m)}. El resultado es ${r}/${m}${ofSimplifica(r, m)}.`,
+  };
+}
+
+function ofMultiplicar(nivel) {
+  if (Math.random() < 0.4) {
+    const den = pick(nivel.dist.concat([7, 8]));
+    const num = ofNumeradorIrreducible(den);
+    const entero = randomInt(2, 6);
+    const p = num * entero;
+    return {
+      enunciado: `Calcula: ${num}/${den} × ${entero}.`,
+      datos: [`Fracción: ${num}/${den}`, `Número: ${entero}`],
+      operacion: `${num} × ${entero} = ${p}; el denominador no cambia: ${p}/${den}`,
+      solucion: `${p}/${den}${ofSimplifica(p, den)}. El resultado es ${p}/${den}.`,
+    };
+  }
+  const [a, b, c, d] = ofDosFracciones(nivel.dist.concat([7, 8]));
+  return {
+    enunciado: `Calcula: ${a}/${b} × ${c}/${d}.`,
+    datos: [`Fracción 1: ${a}/${b}`, `Fracción 2: ${c}/${d}`],
+    operacion: `(${a} × ${c})/(${b} × ${d}) = ${a * c}/${b * d}`,
+    solucion: `${a * c}/${b * d}${ofSimplifica(a * c, b * d)}. El resultado es ${a * c}/${b * d}.`,
+  };
+}
+
+function ofDividir(nivel) {
+  let a, b, c, d;
+  do {
+    [a, b, c, d] = ofDosFracciones(nivel.dist.concat([7, 8]));
+  } while (a * d === b * c);
+  return {
+    enunciado: `Calcula: ${a}/${b} : ${c}/${d}.`,
+    datos: [`Fracción 1: ${a}/${b}`, `Fracción 2: ${c}/${d}`],
+    operacion: `${a}/${b} × ${d}/${c} = (${a} × ${d})/(${b} × ${c}) = ${a * d}/${b * c}`,
+    solucion: `${a * d}/${b * c}${ofSimplifica(a * d, b * c)}. El resultado es ${a * d}/${b * c}.`,
+  };
+}
+
+function ofComoDivision() {
+  const d = pick([2, 4, 5, 10]);
+  let n;
+  do {
+    n = randomInt(2, d * 2);
+  } while (n % d === 0);
+  const dec = String(n / d).replace(".", ",");
+  return {
+    enunciado: `Se reparten ${n} pizzas iguales entre ${d} amigos a partes iguales. ¿Qué fracción de pizza le toca a cada uno? Escríbela también como número decimal.`,
+    datos: [`Pizzas: ${n}`, `Amigos: ${d}`],
+    operacion: `${n} : ${d} = ${n}/${d} = ${dec}`,
+    solucion: `${n}/${d} de pizza (${dec}) para cada uno.`,
+  };
+}
+
+function ofPrioridad(nivel) {
+  let a, b, c, d, e, f, num, den;
+  const resta = Math.random() < 0.4;
+  do {
+    b = pick(nivel.dist);
+    a = ofNumeradorIrreducible(b);
+    d = pick(nivel.dist);
+    c = ofNumeradorIrreducible(d);
+    f = pick(nivel.dist);
+    e = ofNumeradorIrreducible(f);
+    const m = lcm(b, d * f);
+    num = resta ? a * (m / b) - c * e * (m / (d * f)) : a * (m / b) + c * e * (m / (d * f));
+    den = m;
+  } while (num <= 0 || den > 60);
+  const op = resta ? "−" : "+";
+  return {
+    enunciado: `Calcula respetando la prioridad de las operaciones: ${a}/${b} ${op} ${c}/${d} × ${e}/${f}.`,
+    datos: [`Primero la multiplicación, después la ${resta ? "resta" : "suma"}`],
+    operacion: `${c}/${d} × ${e}/${f} = ${c * e}/${d * f}; ${a}/${b} ${op} ${c * e}/${d * f} = ${num}/${den}`,
+    solucion: `${num}/${den}${ofSimplifica(num, den)}. El resultado es ${num}/${den}${ofSimplifica(num, den)}.`,
   };
 }
 
 function genOperacionesFracciones(curso) {
-  return pick([operacionesFraccionesSuma, operacionesFraccionesResta, operacionesFraccionesMultiplicacion])(curso);
+  if (curso === "6") {
+    return siguienteDeBaraja("of6", [ofDistinta, ofDistinta, ofMultiplicar, ofDividir, ofComoDivision, ofPrioridad, ofCantidad])(OF_NIVELES["6"]);
+  }
+  return siguienteDeBaraja("of5", [ofSumaResta, ofSumaResta, ofPizza, ofCantidad, ofDinero, ofCombinadaIgual, ofEnergia])(OF_NIVELES["5"]);
 }
 
-function genOperacionesFraccionesACS() {
-  const den = pick([2, 4]);
+function ofRegaloACS() {
+  const den = pick([2, 3, 4]);
   const multiplo = randomInt(2, 6);
   const total = den * multiplo;
   const resultado = total / den;
@@ -1401,27 +1545,55 @@ function genOperacionesFraccionesACS() {
   return {
     enunciado: `Tengo ${total} ${objeto} y regalo 1/${den}. ¿${cuantosFor(objeto)} ${objeto} regalo?`,
     datos: [`Total: ${total} ${objeto}`, `Fracción: 1/${den}`],
-    operacion: `${total} ÷ ${den} = ${resultado}`,
+    operacion: `${total} : ${den} = ${resultado}`,
     solucion: `${resultado}. Regalo ${resultado} ${objeto}.`,
   };
 }
 
-function genOperacionesFraccionesAltas() {
-  const den1 = randomInt(2, 8);
-  const num1 = randomInt(1, den1 - 1);
-  const den2 = randomInt(2, 8);
-  const num2 = randomInt(1, den2 - 1);
-  const productoNum = num1 * den2;
-  const productoDen = den1 * num2;
-  const g = gcd(productoNum, productoDen);
-  const numSimpl = productoNum / g;
-  const denSimpl = productoDen / g;
+function ofSumaACS() {
+  const d = pick([3, 4]);
+  const a = randomInt(1, d - 2 || 1);
+  const b = randomInt(1, d - a - 1 || 1);
   return {
-    enunciado: `Calcula: ${num1}/${den1} ÷ ${num2}/${den2}`,
-    datos: [`Fracción 1: ${num1}/${den1}`, `Fracción 2: ${num2}/${den2}`],
-    operacion: `${num1}/${den1} ÷ ${num2}/${den2} = ${num1}/${den1} × ${den2}/${num2} = ${productoNum}/${productoDen}${g > 1 ? ` = ${numSimpl}/${denSimpl} (simplificando entre ${g})` : ""}`,
-    solucion: g > 1 ? `${numSimpl}/${denSimpl}. El resultado es ${numSimpl}/${denSimpl}.` : `${productoNum}/${productoDen}. El resultado es ${productoNum}/${productoDen}.`,
+    enunciado: `Una tableta de chocolate tiene ${d} trozos iguales. Me como ${a}/${d} por la mañana y ${b}/${d} por la tarde. ¿Qué fracción de la tableta me he comido?`,
+    datos: [`Mañana: ${a}/${d}`, `Tarde: ${b}/${d}`],
+    operacion: `${a}/${d} + ${b}/${d} = ${a + b}/${d}`,
+    solucion: `${a + b}/${d}. Me he comido ${a + b}/${d} de la tableta.`,
   };
+}
+
+function genOperacionesFraccionesACS() {
+  return siguienteDeBaraja("ofAcs", [ofRegaloACS, ofRegaloACS, ofSumaACS])();
+}
+
+// Discalculia: los contenidos del curso con números pequeños (no el
+// nivel de ACS), como en la práctica de la página.
+function genOperacionesFraccionesDiscalculia(curso) {
+  if (curso === "6") {
+    return siguienteDeBaraja("ofDisc6", [ofDistinta, ofMultiplicar, ofDividir, ofComoDivision, ofCantidad])(OF_NIVELES.disc6);
+  }
+  return siguienteDeBaraja("ofDisc5", [ofSumaResta, ofPizza, ofCantidad, ofDinero, ofCombinadaIgual])(OF_NIVELES.disc5);
+}
+
+function ofExcursion() {
+  const den1 = randomInt(3, 6);
+  const num1 = randomInt(1, den1 - 1);
+  const den2 = randomInt(2, 5);
+  const num2 = randomInt(1, den2 - 1);
+  const k = randomInt(2, 5);
+  const total = den1 * den2 * k;
+  const van = (total / den1) * num1;
+  const bocadillo = (van / den2) * num2;
+  return {
+    enunciado: `En un colegio hay ${total} alumnos. ${num1}/${den1} van de excursión y, de los que van, ${num2}/${den2} llevan bocadillo. ¿Cuántos alumnos llevan bocadillo? ¿Qué fracción del total de alumnos son?`,
+    datos: [`Alumnos: ${total}`, `Van de excursión: ${num1}/${den1}`, `Con bocadillo: ${num2}/${den2} de los que van`],
+    operacion: `${total} : ${den1} × ${num1} = ${van}; ${van} : ${den2} × ${num2} = ${bocadillo}; ${num2}/${den2} × ${num1}/${den1} = ${num1 * num2}/${den1 * den2}`,
+    solucion: `${bocadillo} alumnos, que son ${num1 * num2}/${den1 * den2}${ofSimplifica(num1 * num2, den1 * den2)} del total.`,
+  };
+}
+
+function genOperacionesFraccionesAltas() {
+  return siguienteDeBaraja("ofAltas", [ofExcursion, () => ofDividir(OF_NIVELES["6"]), () => ofPrioridad(OF_NIVELES["6"]), () => ofEnergia(OF_NIVELES["6"])])();
 }
 
 function decimalesRedondeo(curso) {
@@ -2668,7 +2840,7 @@ const TOPICS = [
   { id: "numeros-enteros", label: "Números enteros", category: "Operaciones básicas", generate: genNumerosEnteros, generateACS: genNumerosEnterosACS, generateAltas: genNumerosEnterosAltas, resumen: "Los números enteros incluyen los positivos, los negativos y el cero. Sirven para representar cambios en dos sentidos, como subir o bajar." },
   { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", category: "Operaciones básicas", generate: genMultiplosDivisores, generateACS: genMultiplosDivisoresACS, generateDiscalculia: genMultiplosDivisoresDiscalculia, generateAltas: genMultiplosDivisoresAltas, resumen: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo.", resumen6: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo. El m.c.m. es el menor múltiplo común de dos números y el M.C.D., su mayor divisor común." },
   { id: "fracciones", label: "Fracciones", category: "Fracciones y decimales", generate: genFracciones, generateACS: genFraccionesACS, generateDiscalculia: genFraccionesDiscalculia, generateAltas: genFraccionesAltas, resumen: "Una fracción representa las partes iguales que se toman de un todo: el denominador dice en cuántas partes se divide y el numerador, cuántas se toman. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número.", resumen6: "Una fracción representa las partes iguales que se toman de un todo. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número. Para comparar fracciones con distinto denominador se reducen a común denominador, y la fracción irreducible se obtiene dividiendo los dos términos entre su M.C.D." },
-  { id: "operaciones-fracciones", label: "Operaciones con fracciones", category: "Fracciones y decimales", generate: genOperacionesFracciones, generateACS: genOperacionesFraccionesACS, generateAltas: genOperacionesFraccionesAltas, resumen: "Para sumar o restar fracciones con distinto denominador, primero hay que buscar un denominador común." },
+  { id: "operaciones-fracciones", label: "Operaciones con fracciones", category: "Fracciones y decimales", generate: genOperacionesFracciones, generateACS: genOperacionesFraccionesACS, generateDiscalculia: genOperacionesFraccionesDiscalculia, generateAltas: genOperacionesFraccionesAltas, resumen: "Para sumar o restar fracciones con el mismo denominador, se suman o restan los numeradores y el denominador se queda igual. Para calcular la fracción de una cantidad, se divide la cantidad entre el denominador y se multiplica por el numerador. En las operaciones combinadas, primero los paréntesis.", resumen6: "Para sumar o restar fracciones con distinto denominador, primero se reducen a común denominador. Para multiplicar, numerador por numerador y denominador por denominador; para dividir, se multiplica por la segunda fracción invertida. En las combinadas: paréntesis, después multiplicaciones y divisiones, y por último sumas y restas." },
   { id: "decimales", label: "Números decimales (redondeo)", category: "Fracciones y decimales", generate: genDecimales, generateACS: genDecimalesACS, generateAltas: genDecimalesAltas, resumen: "Los números decimales tienen una parte entera y una parte decimal separadas por una coma. Redondear es aproximar a un número más sencillo." },
   { id: "decimales-md", label: "Multiplicación y división de decimales", category: "Fracciones y decimales", generate: genDecimalesMD, generateACS: genDecimalesMDACS, generateAltas: genDecimalesMDAltas, resumen: "Al multiplicar o dividir decimales se opera igual que con números enteros, teniendo cuidado con la coma decimal." },
   { id: "porcentajes", label: "Porcentajes", category: "Fracciones y decimales", generate: genPorcentajes, generateACS: genPorcentajesACS, generateAltas: genPorcentajesAltas, resumen: "Un porcentaje indica una parte de cada 100. Calcular el X% de una cantidad es multiplicarla por X y dividir entre 100." },
