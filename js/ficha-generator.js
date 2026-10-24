@@ -701,72 +701,274 @@ function genPotenciasAltas() {
   };
 }
 
-function enterosTemperatura(curso) {
-  const inicial = randomInt(-5, 15);
-  const rango = curso === "6" ? 20 : 10;
-  const cambio = randomInt(-rango, rango) || 3;
-  const sube = cambio >= 0;
-  const resultado = inicial + cambio;
+// ---- Números enteros ----
+// Signo menos tipográfico (−) y paréntesis en las sumas: (−3) + (+5) = 2.
+const zeZ = (n) => (n < 0 ? `−${-n}` : String(n));
+const zeP = (n) => (n < 0 ? `(−${-n})` : n > 0 ? `(+${n})` : "0");
+const zePl = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+const zeNoCero = (min, max) => {
+  let n;
+  do n = randomInt(min, max);
+  while (n === 0);
+  return n;
+};
+
+const ZE_NIVELES = {
+  "5": { max: 10, dinero: 100 },
+  "6": { max: 20, dinero: 300 },
+  disc: { max: 8, dinero: 20 },
+};
+
+function zeTemperatura(nivel) {
+  const inicial = randomInt(-nivel.max, Math.min(nivel.max, 12));
+  // Cambios realistas en unas horas: como mucho 12 grados.
+  const cambio = zeNoCero(-Math.min(nivel.max, 12), Math.min(nivel.max, 12));
+  const final = inicial + cambio;
+  const sube = cambio > 0;
   return {
-    enunciado: `La temperatura a las 8h de la mañana era de ${inicial}°C. A lo largo del día ${sube ? "sube" : "baja"} ${Math.abs(cambio)} grados. ¿Qué temperatura hace ahora?`,
-    datos: [`Temperatura inicial: ${inicial}°C`, `Cambio: ${sube ? "+" : "−"}${Math.abs(cambio)}°C`],
-    operacion: `${inicial} ${sube ? "+" : "−"} ${Math.abs(cambio)} = ${resultado}`,
-    solucion: `${resultado}°C. Ahora hace ${resultado}°C.`,
+    enunciado: `A las 8 de la mañana el termómetro marca ${zeZ(inicial)} ºC. Hasta el mediodía la temperatura ${sube ? "sube" : "baja"} ${zePl(Math.abs(cambio), "grado", "grados")}. ¿Qué temperatura hace a mediodía?`,
+    datos: [`Temperatura a las 8: ${zeZ(inicial)} ºC`, `${sube ? "Sube" : "Baja"}: ${zePl(Math.abs(cambio), "grado", "grados")} → ${zeP(cambio)}`],
+    operacion: `${zeP(inicial)} + ${zeP(cambio)} = ${zeZ(final)}`,
+    solucion: `${zeZ(final)} ºC.`,
   };
 }
 
-function enterosBanco(curso) {
-  const inicial = randomInt(curso === "6" ? -200 : -50, curso === "6" ? 500 : 100);
-  const movimiento = randomInt(curso === "6" ? 20 : 10, curso === "6" ? 300 : 60);
-  const esIngreso = Math.random() < 0.5;
-  const resultado = esIngreso ? inicial + movimiento : inicial - movimiento;
+function zeAscensor(nivel) {
+  const sotanos = Math.min(4, nivel.max);
+  const alto = Math.min(12, nivel.max);
+  const nombre = (p) => (p < 0 ? `el sótano ${-p}` : p === 0 ? "la planta baja" : `la planta ${p}`);
+  let inicial;
+  let mov;
+  do {
+    inicial = randomInt(-sotanos, alto);
+    mov = zeNoCero(-alto, alto);
+  } while (inicial + mov < -sotanos || inicial + mov > alto);
+  const final = inicial + mov;
   return {
-    enunciado: `Una cuenta bancaria tiene ${inicial} €. Se ${esIngreso ? "ingresan" : "retiran"} ${movimiento} €. ¿Cuál es el saldo final?`,
-    datos: [`Saldo inicial: ${inicial} €`, `${esIngreso ? "Ingreso" : "Retirada"}: ${movimiento} €`],
-    operacion: `${inicial} ${esIngreso ? "+" : "−"} ${movimiento} = ${resultado}`,
-    solucion: `${resultado} €. El saldo final es ${resultado} €.`,
+    enunciado: `Un ascensor está en ${nombre(inicial)} y ${mov > 0 ? "sube" : "baja"} ${zePl(Math.abs(mov), "planta", "plantas")}. ¿En qué planta queda? (La planta baja es el 0 y los sótanos son negativos.)`,
+    datos: [`Planta de salida: ${zeZ(inicial)}`, `${mov > 0 ? "Sube" : "Baja"}: ${zePl(Math.abs(mov), "planta", "plantas")} → ${zeP(mov)}`],
+    operacion: `${zeP(inicial)} + ${zeP(mov)} = ${zeZ(final)}`,
+    solucion: `${zeZ(final)}: queda en ${nombre(final)}.`,
   };
 }
 
-function enterosAltitud(curso) {
-  const inicial = randomInt(-30, curso === "6" ? 3000 : 200);
-  const cambio = randomInt(curso === "6" ? 20 : 5, curso === "6" ? 500 : 50);
-  const sube = Math.random() < 0.5;
-  const resultado = sube ? inicial + cambio : inicial - cambio;
+// Un buceador siempre está bajo el nivel del mar (negativo) y no sale a la superficie.
+function zeBuceador(nivel) {
+  const prof = nivel === ZE_NIVELES.disc ? 10 : nivel.max * 2;
+  let inicial;
+  let mov;
+  do {
+    inicial = -randomInt(3, prof);
+    mov = zeNoCero(-prof, prof);
+  } while (inicial + mov >= 0 || inicial + mov < -prof - 10);
+  const final = inicial + mov;
   return {
-    enunciado: `Un submarino está a ${inicial} m respecto al nivel del mar. ${sube ? "Sube" : "Baja"} ${cambio} m. ¿A qué altura respecto al nivel del mar queda?`,
-    datos: [`Posición inicial: ${inicial} m`, `Cambio: ${sube ? "+" : "−"}${cambio} m`],
-    operacion: `${inicial} ${sube ? "+" : "−"} ${cambio} = ${resultado}`,
-    solucion: `${resultado} m. Queda a ${resultado} m respecto al nivel del mar.`,
+    enunciado: `Una buceadora está a ${zePl(-inicial, "metro", "metros")} bajo el nivel del mar (${zeZ(inicial)} m). ${mov > 0 ? "Sube" : "Baja"} ${zePl(Math.abs(mov), "metro", "metros")}. ¿A qué profundidad está ahora?`,
+    datos: [`Posición: ${zeZ(inicial)} m`, `${mov > 0 ? "Sube" : "Baja"}: ${zePl(Math.abs(mov), "metro", "metros")} → ${zeP(mov)}`],
+    operacion: `${zeP(inicial)} + ${zeP(mov)} = ${zeZ(final)}`,
+    solucion: `${zeZ(final)} m: está a ${zePl(-final, "metro", "metros")} bajo el nivel del mar.`,
   };
 }
 
+function zeSaldo(nivel) {
+  const paso = nivel.dinero >= 100 ? 5 : 1;
+  let saldo;
+  let mov;
+  do {
+    saldo = paso * zeNoCero(-nivel.dinero / paso / 2, nivel.dinero / paso);
+    mov = paso * zeNoCero(-nivel.dinero / paso, nivel.dinero / paso);
+  } while (saldo + mov === 0);
+  const final = saldo + mov;
+  return {
+    enunciado: `La cuenta de la asociación de madres y padres tiene ${saldo < 0 ? `un saldo de ${zeZ(saldo)} € (debe ${-saldo} €)` : `${saldo} € de saldo`}. ${mov > 0 ? `Ingresan ${mov} € de la venta de papeletas` : `Pagan una factura de ${-mov} €`}. ¿Cuál es el saldo ahora?`,
+    datos: [`Saldo: ${zeZ(saldo)} €`, `${mov > 0 ? "Ingreso" : "Pago"}: ${Math.abs(mov)} € → ${zeP(mov)}`],
+    operacion: `${zeP(saldo)} + ${zeP(mov)} = ${zeZ(final)}`,
+    solucion: `${zeZ(final)} €. ${final < 0 ? `La asociación debe ${-final} €.` : "El saldo es positivo."}`,
+  };
+}
+
+const ZE_CIUDADES = ["Granada", "Jaén", "Burgos", "Soria", "Teruel", "León", "Ávila", "Huesca"];
+
+function zeOrdenarTemperaturas(nivel) {
+  const n = nivel === ZE_NIVELES.disc ? 3 : 4;
+  const ciudades = ZE_CIUDADES.slice().sort(() => Math.random() - 0.5).slice(0, n);
+  const vals = new Set();
+  // Al menos dos negativas, que es donde está la dificultad.
+  while (vals.size < 2) vals.add(-randomInt(1, nivel.max));
+  // Mínimas de enero: las positivas, como mucho 8 ºC.
+  while (vals.size < n) vals.add(randomInt(-nivel.max, Math.min(nivel.max, 8)));
+  const temps = [...vals].sort(() => Math.random() - 0.5);
+  const orden = ciudades.map((c, i) => [c, temps[i]]).sort((a, b) => a[1] - b[1]);
+  return {
+    enunciado: `Una mañana de enero se registran estas temperaturas mínimas: ${ciudades.map((c, i) => `${c}, ${zeZ(temps[i])} ºC`).join("; ")}. Ordénalas de la más fría a la menos fría.`,
+    datos: ciudades.map((c, i) => `${c}: ${zeZ(temps[i])} ºC`),
+    operacion: orden.map((x) => zeZ(x[1])).join(" < "),
+    solucion: `${orden.map((x) => x[0]).join(", ")}. La más fría es ${orden[0][0]} (${zeZ(orden[0][1])} ºC).`,
+  };
+}
+
+function zeComparar(nivel) {
+  const a = -randomInt(1, nivel.max);
+  let b;
+  do b = -randomInt(1, nivel.max);
+  while (b === a);
+  const c = zeNoCero(-nivel.max, nivel.max);
+  let d;
+  do d = randomInt(-nivel.max, nivel.max);
+  while (d === c || Math.sign(d) === Math.sign(c));
+  const s = (x, y) => (x < y ? "<" : ">");
+  return {
+    enunciado: `Escribe el signo < o > entre cada pareja de números: ${zeZ(a)} __ ${zeZ(b)} ; ${zeZ(c)} __ ${zeZ(d)}. Explica cómo lo has pensado con la recta numérica.`,
+    datos: [`Pareja 1: ${zeZ(a)} y ${zeZ(b)}`, `Pareja 2: ${zeZ(c)} y ${zeZ(d)}`],
+    operacion: "En la recta, el número de la derecha es el mayor. Entre dos negativos, es mayor el que está más cerca del 0.",
+    solucion: `${zeZ(a)} ${s(a, b)} ${zeZ(b)} ; ${zeZ(c)} ${s(c, d)} ${zeZ(d)}.`,
+  };
+}
+
+function zeRecta(nivel) {
+  const vals = new Set([0]);
+  while (vals.size < 5) vals.add(randomInt(-Math.min(nivel.max, 10), Math.min(nivel.max, 10)));
+  vals.delete(0);
+  const arr = [...vals].sort(() => Math.random() - 0.5);
+  const orden = arr.slice().sort((x, y) => x - y);
+  return {
+    enunciado: `Dibuja una recta numérica del −10 al 10 y representa en ella los números ${arr.map(zeZ).join(", ")}. Después escríbelos ordenados de menor a mayor.`,
+    datos: [`Números: ${arr.map(zeZ).join(", ")}`],
+    operacion: "Los negativos van a la izquierda del 0 y los positivos, a la derecha.",
+    solucion: orden.map(zeZ).join(" < "),
+  };
+}
+
+function zeDiferencia(nivel) {
+  const min = -randomInt(2, nivel.max);
+  const max = randomInt(1, Math.min(nivel.max + 5, 14));
+  const dif = max - min;
+  const lugar = pick(["Sierra Nevada", "un pueblo de la sierra de Cazorla", "una estación de esquí"]);
+  return {
+    enunciado: `En ${lugar}, la temperatura mínima de un día de invierno fue de ${zeZ(min)} ºC y la máxima, de ${zeZ(max)} ºC. ¿Cuántos grados de diferencia hubo entre la máxima y la mínima?`,
+    datos: [`Mínima: ${zeZ(min)} ºC`, `Máxima: ${zeZ(max)} ºC`],
+    operacion: `De ${zeZ(min)} a 0 hay ${-min}; de 0 a ${zeZ(max)} hay ${max}: ${-min} + ${max} = ${dif}`,
+    solucion: `${zePl(dif, "grado", "grados")} de diferencia.`,
+  };
+}
+
+function zeSumas(nivel) {
+  const pares = [];
+  // Una de cada tipo: dos negativos, distinto signo con resultado negativo y con resultado positivo.
+  const a1 = -randomInt(1, nivel.max);
+  const b1 = -randomInt(1, nivel.max);
+  pares.push([a1, b1]);
+  let a2;
+  let b2;
+  do {
+    a2 = randomInt(1, nivel.max);
+    b2 = -randomInt(1, nivel.max);
+  } while (a2 + b2 >= 0);
+  pares.push([a2, b2]);
+  let a3;
+  let b3;
+  do {
+    a3 = -randomInt(1, nivel.max);
+    b3 = randomInt(1, nivel.max);
+  } while (a3 + b3 <= 0);
+  pares.push([a3, b3]);
+  return {
+    enunciado: `Calcula estas sumas: a) ${zeP(a1)} + ${zeP(b1)}; b) ${zeP(a2)} + ${zeP(b2)}; c) ${zeP(a3)} + ${zeP(b3)}.`,
+    datos: ["Mismo signo: se suman y se deja el signo.", "Distinto signo: se restan y se deja el signo del de mayor valor absoluto."],
+    operacion: pares.map(([a, b], i) => `${"abc"[i]}) ${zeP(a)} + ${zeP(b)} = ${zeZ(a + b)}`).join(" · "),
+    solucion: pares.map(([a, b], i) => `${"abc"[i]}) ${zeZ(a + b)}`).join("; "),
+  };
+}
+
+function zeOpuestoAbsoluto(nivel) {
+  const vals = new Set();
+  while (vals.size < 3) vals.add(zeNoCero(-nivel.max, nivel.max));
+  const arr = [...vals];
+  return {
+    enunciado: `Escribe el opuesto y el valor absoluto de cada número: ${arr.map(zeZ).join(", ")}.`,
+    datos: ["Opuesto: a la misma distancia del 0, al otro lado.", "Valor absoluto: la distancia hasta el 0 (nunca es negativo)."],
+    operacion: arr.map((n) => `op(${zeZ(n)}) = ${zeZ(-n)}; |${zeZ(n)}| = ${Math.abs(n)}`).join(" · "),
+    solucion: arr.map((n) => `${zeZ(n)}: opuesto ${zeZ(-n)}, valor absoluto ${Math.abs(n)}`).join("; ") + ".",
+  };
+}
+
+// 5º: enteros en contextos (temperaturas, ascensores, profundidades, saldos)
+// y comparación. 6º (SdA 7): además recta, opuesto, valor absoluto y suma.
 function genNumerosEnteros(curso) {
-  return pick([enterosTemperatura, enterosBanco, enterosAltitud])(curso);
+  if (curso === "6") {
+    return siguienteDeBaraja("ze6", [zeRecta, zeComparar, zeOpuestoAbsoluto, zeSumas, zeTemperatura, zeAscensor, zeBuceador, zeSaldo, zeDiferencia, zeOrdenarTemperaturas])(ZE_NIVELES["6"]);
+  }
+  return siguienteDeBaraja("ze5", [zeTemperatura, zeAscensor, zeBuceador, zeSaldo, zeOrdenarTemperaturas, zeComparar])(ZE_NIVELES["5"]);
+}
+
+function zeAcsTermometros() {
+  const positivo = randomInt(1, 8);
+  const negativo = randomInt(1, 8);
+  const pos = Math.random() < 0.5;
+  const [ta, tb] = pos ? [positivo, -negativo] : [-negativo, positivo];
+  return {
+    enunciado: `El termómetro A marca ${zeZ(ta)} ºC y el termómetro B marca ${zeZ(tb)} ºC. ¿Cuál marca más frío?`,
+    datos: [`A: ${zeZ(ta)} ºC`, `B: ${zeZ(tb)} ºC`],
+    operacion: `${zeZ(-negativo)} es negativo (bajo cero) y ${positivo} es positivo.`,
+    solucion: `El termómetro ${pos ? "B" : "A"} (${zeZ(-negativo)} ºC): bajo cero hace más frío.`,
+  };
+}
+
+function zeAcsAscensor() {
+  const inicial = randomInt(-2, 4);
+  let mov;
+  do mov = zeNoCero(-3, 3);
+  while (inicial + mov < -2 || inicial + mov > 5);
+  const final = inicial + mov;
+  const nombre = (p) => (p < 0 ? `el sótano ${-p} (${zeZ(p)})` : p === 0 ? "la planta baja (0)" : `la planta ${p}`);
+  return {
+    enunciado: `Estás en ${nombre(inicial)}. El ascensor ${mov > 0 ? "sube" : "baja"} ${zePl(Math.abs(mov), "planta", "plantas")}. ¿A qué planta llegas? Puedes dibujar las plantas para ayudarte.`,
+    datos: [`Sales de: ${zeZ(inicial)}`, `${mov > 0 ? "Sube" : "Baja"}: ${Math.abs(mov)}`],
+    operacion: `${zeZ(inicial)} → ${mov > 0 ? "subo" : "bajo"} ${Math.abs(mov)} → ${zeZ(final)}`,
+    solucion: `${nombre(final)}.`,
+  };
 }
 
 function genNumerosEnterosACS() {
-  const positivo = randomInt(1, 8);
-  const negativo = randomInt(1, 8);
+  return siguienteDeBaraja("zeAcs", [zeAcsTermometros, zeAcsAscensor, zeAcsTermometros, zeAcsAscensor])();
+}
+
+// Discalculia: los contenidos del curso con números pequeños (hasta 8).
+function genNumerosEnterosDiscalculia(curso) {
+  const d = ZE_NIVELES.disc;
+  if (curso === "6") return siguienteDeBaraja("zeDisc6", [zeRecta, zeComparar, zeOpuestoAbsoluto, zeSumas, zeTemperatura, zeAscensor, zeDiferencia])(d);
+  return siguienteDeBaraja("zeDisc5", [zeTemperatura, zeAscensor, zeBuceador, zeSaldo, zeOrdenarTemperaturas, zeComparar])(d);
+}
+
+function zeTemperaturaDosCambios() {
+  const inicial = randomInt(-15, 10);
+  const c1 = zeNoCero(-15, 15);
+  const c2 = zeNoCero(-15, 15);
+  const final = inicial + c1 + c2;
+  const verbo = (c) => `${c > 0 ? "sube" : "baja"} ${zePl(Math.abs(c), "grado", "grados")}`;
   return {
-    enunciado: `Un termómetro marca ${positivo}°C y otro marca −${negativo}°C. ¿Cuál de las dos temperaturas es mayor?`,
-    datos: [`Termómetro A: ${positivo}°C`, `Termómetro B: −${negativo}°C`],
-    operacion: `${positivo} es positivo y −${negativo} es negativo`,
-    solucion: `${positivo}°C es la temperatura mayor (todo número positivo es mayor que cualquier negativo).`,
+    enunciado: `En un refugio de montaña el termómetro marca ${zeZ(inicial)} ºC al amanecer. Por la mañana ${verbo(c1)} y por la tarde ${verbo(c2)}. ¿Qué temperatura marca al final de la tarde? ¿Cuántos grados ha cambiado desde el amanecer?`,
+    datos: [`Amanecer: ${zeZ(inicial)} ºC`, `Mañana: ${zeP(c1)}`, `Tarde: ${zeP(c2)}`],
+    operacion: `${zeP(inicial)} + ${zeP(c1)} + ${zeP(c2)} = ${zeP(inicial + c1)} + ${zeP(c2)} = ${zeZ(final)}`,
+    solucion: `${zeZ(final)} ºC. ${c1 + c2 === 0 ? "Vuelve a la temperatura del amanecer." : `Ha ${c1 + c2 > 0 ? "subido" : "bajado"} ${zePl(Math.abs(c1 + c2), "grado", "grados")} en total.`}`,
+  };
+}
+
+function zeHistoria() {
+  // Años antes de Cristo como negativos. Como no existe el año 0, la
+  // diferencia exacta es un año menos: por eso se pide aproximada.
+  const ac = randomInt(2, 6) * 100;
+  const dc = randomInt(1, 15) * 100;
+  return {
+    enunciado: `Una vasija íbera se fabricó en el año ${ac} antes de Cristo y se encontró en una excavación de Andalucía en el año ${dc} después de Cristo. Escribe los dos años como números enteros y calcula, aproximadamente, cuántos años pasaron.`,
+    datos: [`Fabricación: ${ac} a. C. → ${zeZ(-ac)}`, `Hallazgo: ${dc} d. C. → ${dc}`],
+    operacion: `De ${zeZ(-ac)} a 0 hay ${ac}; de 0 a ${dc} hay ${dc}: ${ac} + ${dc} = ${ac + dc}`,
+    solucion: `Unos ${ac + dc} años.`,
   };
 }
 
 function genNumerosEnterosAltas() {
-  const inicial = randomInt(-100, 100);
-  const cambio1 = randomInt(-80, 80) || 5;
-  const cambio2 = randomInt(-80, 80) || -5;
-  const resultado = inicial + cambio1 + cambio2;
-  return {
-    enunciado: `Un submarino está a ${inicial} m respecto al nivel del mar. Primero ${cambio1 >= 0 ? "sube" : "baja"} ${Math.abs(cambio1)} m y después ${cambio2 >= 0 ? "sube" : "baja"} ${Math.abs(cambio2)} m más. ¿A qué altura respecto al nivel del mar queda?`,
-    datos: [`Posición inicial: ${inicial} m`, `Primer cambio: ${cambio1 >= 0 ? "+" : "−"}${Math.abs(cambio1)} m`, `Segundo cambio: ${cambio2 >= 0 ? "+" : "−"}${Math.abs(cambio2)} m`],
-    operacion: `${inicial} ${cambio1 >= 0 ? "+" : "−"} ${Math.abs(cambio1)} ${cambio2 >= 0 ? "+" : "−"} ${Math.abs(cambio2)} = ${resultado}`,
-    solucion: `${resultado} m. Queda a ${resultado} m respecto al nivel del mar.`,
-  };
+  return siguienteDeBaraja("zeAltas", [zeTemperaturaDosCambios, zeHistoria, () => zeDiferencia({ max: 25 }), () => zeSumas({ max: 50 }), () => zeBuceador({ max: 30 })])();
 }
 
 // ---- Múltiplos, divisores y números primos ----
@@ -3354,7 +3556,7 @@ const TOPICS = [
   { id: "operaciones-combinadas", label: "Operaciones combinadas", category: "Operaciones básicas", generate: genOperacionesCombinadas, generateACS: genOperacionesCombinadasACS, generateAltas: genOperacionesCombinadasAltas, resumen: "Cuando hay varias operaciones juntas, primero se resuelven los paréntesis, luego multiplicaciones y divisiones, y por último sumas y restas." },
   { id: "numeros-romanos", label: "Números romanos", category: "Operaciones básicas", generate: genNumerosRomanos, generateACS: genNumerosRomanosACS, generateAltas: genNumerosRomanosAltas, resumen: "Los números romanos se escriben combinando las letras I, V, X, L, C, D y M según reglas de suma y resta." },
   { id: "potencias", label: "Las potencias", category: "Operaciones básicas", generate: genPotencias, generateACS: genPotenciasACS, generateAltas: genPotenciasAltas, resumen: "Una potencia es una multiplicación de un mismo número (la base) tantas veces como indica el exponente." },
-  { id: "numeros-enteros", label: "Números enteros", category: "Operaciones básicas", generate: genNumerosEnteros, generateACS: genNumerosEnterosACS, generateAltas: genNumerosEnterosAltas, resumen: "Los números enteros incluyen los positivos, los negativos y el cero. Sirven para representar cambios en dos sentidos, como subir o bajar." },
+  { id: "numeros-enteros", label: "Números enteros", category: "Operaciones básicas", generate: genNumerosEnteros, generateACS: genNumerosEnterosACS, generateDiscalculia: genNumerosEnterosDiscalculia, generateAltas: genNumerosEnterosAltas, resumen: "Los números enteros son los positivos, los negativos y el cero. Los negativos se escriben con el signo − y sirven para temperaturas bajo cero, sótanos, profundidades bajo el nivel del mar o deudas. En la recta numérica, el mayor es el que está más a la derecha: −2 > −6.", resumen6: "Los números enteros son los positivos, los negativos y el cero. En la recta, el mayor es el que está más a la derecha (−2 > −6). El valor absoluto es la distancia hasta el 0 (|−5| = 5) y el opuesto está al otro lado, a la misma distancia (−5 y 5). Para sumar: mismo signo, se suman y se deja el signo; distinto signo, se restan y se deja el signo del de mayor valor absoluto." },
   { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", category: "Operaciones básicas", generate: genMultiplosDivisores, generateACS: genMultiplosDivisoresACS, generateDiscalculia: genMultiplosDivisoresDiscalculia, generateAltas: genMultiplosDivisoresAltas, resumen: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo.", resumen6: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo. El m.c.m. es el menor múltiplo común de dos números y el M.C.D., su mayor divisor común." },
   { id: "fracciones", label: "Fracciones", category: "Fracciones y decimales", generate: genFracciones, generateACS: genFraccionesACS, generateDiscalculia: genFraccionesDiscalculia, generateAltas: genFraccionesAltas, resumen: "Una fracción representa las partes iguales que se toman de un todo: el denominador dice en cuántas partes se divide y el numerador, cuántas se toman. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número.", resumen6: "Una fracción representa las partes iguales que se toman de un todo. Dos fracciones son equivalentes si valen lo mismo (1/2 = 2/4): se obtienen multiplicando o dividiendo el numerador y el denominador por el mismo número. Para comparar fracciones con distinto denominador se reducen a común denominador, y la fracción irreducible se obtiene dividiendo los dos términos entre su M.C.D." },
   { id: "operaciones-fracciones", label: "Operaciones con fracciones", category: "Fracciones y decimales", generate: genOperacionesFracciones, generateACS: genOperacionesFraccionesACS, generateDiscalculia: genOperacionesFraccionesDiscalculia, generateAltas: genOperacionesFraccionesAltas, resumen: "Para sumar o restar fracciones con el mismo denominador, se suman o restan los numeradores y el denominador se queda igual. Para calcular la fracción de una cantidad, se divide la cantidad entre el denominador y se multiplica por el numerador. En las operaciones combinadas, primero los paréntesis.", resumen6: "Para sumar o restar fracciones con distinto denominador, primero se reducen a común denominador. Para multiplicar, numerador por numerador y denominador por denominador; para dividir, se multiplica por la segunda fracción invertida. En las combinadas: paréntesis, después multiplicaciones y divisiones, y por último sumas y restas." },

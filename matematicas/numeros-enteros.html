@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas · 6º de Primaria</p>
         <h1>Números enteros</h1>
-        <p class="content-subtitle">Positivos y negativos, la recta numérica y su suma.</p>
+        <p class="content-subtitle">Entiende los números positivos y negativos en la recta numérica, compáralos, súmalos y úsalos con temperaturas, ascensores y cuentas, con la explicación de cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -51,6 +51,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -64,6 +65,9 @@
           <h4>¿Dónde los vemos?</h4>
           <p>En la temperatura (bajo cero), en los pisos de un edificio (sótanos), en el saldo de una cuenta (deudas) o en la altitud (bajo el nivel del mar).</p>
           <p class="examples"><strong>Ejemplo:</strong> −5 ºC significa "5 grados bajo cero".</p>
+        </div>
+        <div class="tip-box">
+          <strong>Cómo se leen:</strong> −4 se lee «menos cuatro» y +4 (o 4) se lee «más cuatro». El 0 no es positivo ni negativo.
         </div>
 
         <h2>La recta numérica</h2>
@@ -79,12 +83,20 @@
           <p>En la recta numérica, los números <strong>crecen hacia la derecha</strong>. Cualquier número positivo es mayor que cualquier número negativo. Entre dos negativos, es mayor el que está más cerca del 0.</p>
           <p class="examples"><strong>Ejemplo:</strong> −2 &gt; −5 (−2 está más cerca del 0) &nbsp;·&nbsp; 3 &gt; −8 (todo positivo es mayor que cualquier negativo)</p>
         </div>
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> pensar que −8 es mayor que −2 «porque 8 es mayor que 2». Piensa en temperaturas: con −8 ºC hace más frío que con −2 ºC, así que −8 &lt; −2.
+        </div>
 
         <h2>Valor absoluto</h2>
         <div class="rule-box esdrujula">
           <h4>¿Qué es?</h4>
           <p>El <strong>valor absoluto</strong> de un número entero es su distancia hasta el 0, sin tener en cuenta el signo. Se escribe entre dos barras verticales.</p>
           <p class="examples"><strong>Ejemplo:</strong> |−5| = 5 &nbsp;·&nbsp; |5| = 5 (ambos están a distancia 5 del cero)</p>
+        </div>
+        <div class="rule-box aguda">
+          <h4>Números opuestos</h4>
+          <p>Dos números son <strong>opuestos</strong> si están a la misma distancia del 0 pero a distinto lado: tienen el mismo valor absoluto y distinto signo.</p>
+          <p class="examples"><strong>Ejemplo:</strong> el opuesto de −6 es 6 · el opuesto de 4 es −4 · (−6) + 6 = 0</p>
         </div>
 
         <h2>Suma de números enteros</h2>
@@ -103,11 +115,86 @@
           <strong>Truco:</strong> imagina que caminas por la recta numérica: sumar un positivo es avanzar a la derecha; sumar un negativo es retroceder a la izquierda.
         </div>
 
+        <h2>Los enteros en la vida diaria</h2>
+        <div class="rule-box llana">
+          <h4>Subir y bajar es sumar</h4>
+          <p>Si la temperatura sube 5 grados, se suma +5; si baja 5 grados, se suma −5. Igual con un ascensor que sube o baja pisos, o una cuenta en la que se ingresa o se saca dinero.</p>
+          <p class="examples"><strong>Ejemplo:</strong> a las 8 h hay −3 ºC y la temperatura sube 7 grados → (−3) + (+7) = <strong>4 ºC</strong></p>
+        </div>
+        <div class="tip-box">
+          <strong>¿Cuántos grados de diferencia?</strong> Cuenta los pasos en la recta. De −3 a 5 hay 3 pasos hasta el 0 y 5 más: <strong>8 grados</strong>. Si los dos son negativos, de −7 a −2 hay 5 pasos.
+        </div>
+
         <p style="text-align:center; margin-top:32px;">
           <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="ze-num">
+          <h2>1. Un número en la recta</h2>
+          <p class="md-explore-intro">Mueve el número y mira dónde está, cuál es su opuesto y cuánto vale su valor absoluto.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Número</span>
+              <button type="button" class="btn btn-secondary" data-ze="num" data-key="a" data-delta="-1" aria-label="Uno menos">−</button>
+              <output id="ze-num-a"></output>
+              <button type="button" class="btn btn-secondary" data-ze="num" data-key="a" data-delta="1" aria-label="Uno más">+</button>
+            </div>
+          </div>
+          <div class="fr-line" id="ze-num-line"></div>
+          <div class="md-msg ok" id="ze-num-msg" aria-live="polite"></div>
+        </div>
+
+        <div class="md-explore-card" id="ze-comp">
+          <h2>2. ¿Cuál es mayor?</h2>
+          <p class="md-explore-intro">En la recta, el número que está más a la derecha es el mayor.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label fr-a">A</span>
+              <button type="button" class="btn btn-secondary" data-ze="comp" data-key="a" data-delta="-1" aria-label="A menos uno">−</button>
+              <output id="ze-comp-a"></output>
+              <button type="button" class="btn btn-secondary" data-ze="comp" data-key="a" data-delta="1" aria-label="A más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label fr-b">B</span>
+              <button type="button" class="btn btn-secondary" data-ze="comp" data-key="b" data-delta="-1" aria-label="B menos uno">−</button>
+              <output id="ze-comp-b"></output>
+              <button type="button" class="btn btn-secondary" data-ze="comp" data-key="b" data-delta="1" aria-label="B más uno">+</button>
+            </div>
+          </div>
+          <div class="fr-line" id="ze-comp-line"></div>
+          <p class="md-msg ok" id="ze-comp-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="ze-suma">
+          <h2>3. Sumar caminando por la recta</h2>
+          <p class="md-explore-intro">Sales del primer número. Si sumas un positivo, avanzas a la derecha; si sumas un negativo, retrocedes a la izquierda.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Sales de</span>
+              <button type="button" class="btn btn-secondary" data-ze="suma" data-key="a" data-delta="-1" aria-label="Salida menos uno">−</button>
+              <output id="ze-suma-a"></output>
+              <button type="button" class="btn btn-secondary" data-ze="suma" data-key="a" data-delta="1" aria-label="Salida más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Sumas</span>
+              <button type="button" class="btn btn-secondary" data-ze="suma" data-key="b" data-delta="-1" aria-label="Sumando menos uno">−</button>
+              <output id="ze-suma-b"></output>
+              <button type="button" class="btn btn-secondary" data-ze="suma" data-key="b" data-delta="1" aria-label="Sumando más uno">+</button>
+            </div>
+          </div>
+          <div class="fr-line" id="ze-suma-line"></div>
+          <p class="md-msg ok" id="ze-suma-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -121,16 +208,25 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="comparar">Comparar</button>
-            <button class="btn btn-secondary" data-mode="absoluto">Valor absoluto</button>
+            <button class="btn btn-secondary active" data-mode="representar">Leer y representar</button>
+            <button class="btn btn-secondary" data-mode="comparar">Comparar</button>
+            <button class="btn btn-secondary" data-mode="ordenar">Ordenar</button>
+            <button class="btn btn-secondary" data-mode="absoluto">Valor absoluto y opuesto</button>
             <button class="btn btn-secondary" data-mode="sumar">Sumar enteros</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
           <p class="instructions" id="instructions"></p>
+          <div class="grid-example" id="game-visual" style="display:none;"></div>
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
