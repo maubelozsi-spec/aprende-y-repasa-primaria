@@ -3258,7 +3258,7 @@ main.content.content-ancha {
   font-size: 1rem;
 }
 
-/* ---------- Pestaña Explora (múltiplos y divisores, fracciones, operaciones con fracciones, decimales, sus operaciones, porcentajes, potencias y operaciones combinadas) ---------- */
+/* ---------- Pestaña Explora (múltiplos y divisores, fracciones, operaciones con fracciones, decimales, sus operaciones, porcentajes, potencias, operaciones combinadas y números grandes) ---------- */
 
 .md-explore-card {
   background: var(--surface);
@@ -3614,3 +3614,32 @@ main.content.content-ancha {
 }
 .oc-final { color: var(--color-success); font-size: 1.8rem; }
 #oc-par-opciones { margin-top: 12px; }
+
+/* Números grandes */
+.ng-tira { gap: 4px; align-items: flex-end; }
+.ng-tira .letter { width: 38px; height: 50px; font-size: 24px; margin: 0; }
+.ng-punto { font-size: 28px; font-weight: 800; line-height: 1; padding: 0 1px; }
+.ng-tabla { gap: 4px; }
+.ng-col {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+.ng-col .letter { width: 36px; height: 48px; font-size: 22px; margin: 0; }
+.ng-col.ng-miles .pv-label { color: var(--color-teal); }
+.ng-col.ng-mill .pv-label { color: var(--color-plum); }
+.ng-col:focus-visible .letter { outline: 3px solid var(--color-indigo); outline-offset: 2px; }
+.ng-comp td, .ng-comp th { text-align: center; padding: 6px 4px; }
+.ng-comp td.ng-igual { color: var(--text-muted); }
+.ng-comp td.ng-dif { background: var(--color-amber-tint); font-weight: 800; box-shadow: inset 0 0 0 2px var(--color-amber); }
+#ng-red-ordenes { margin-top: 8px; }
+.ng-tabla { flex-wrap: nowrap; }
+.ng-tabla .pv-label { max-width: 40px; }
+@media (max-width: 420px) {
+  .ng-tabla, .ng-tira { gap: 2px; }
+  .ng-col .letter, .ng-tira .letter { width: 28px; height: 40px; font-size: 18px; }
+  .ng-tabla .pv-label { font-size: 9px; max-width: 30px; }
+  .ng-punto { font-size: 22px; }
+}

@@ -3539,78 +3539,234 @@ function genCuerposGeometricosAltas() {
   return cuerposEuler();
 }
 
-function numerosGrandesRedondeo(curso) {
-  const n = curso === "6" ? randomInt(1000000, 9999999) : randomInt(100000, 999999);
-  const factor = curso === "6" ? 1000000 : 10000;
-  const unidadNombre = curso === "6" ? "millón" : "decena de millar";
-  const redondeado = Math.round(n / factor) * factor;
-  const contexto = curso === "6" ? `Una empresa factura ${n} €` : `Un estadio tiene ${n} espectadores`;
+// ---- Números grandes ----
+const ngMiles = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const ngCifras = (n) => String(n).split("").map(Number);
+const ngCifraEn = (n, p) => Math.floor(n / 10 ** p) % 10;
+const ngRedondear = (n, p) => Math.round(n / 10 ** p) * 10 ** p;
+const NG_ORDEN_PL = ["unidades", "decenas", "centenas", "unidades de millar", "decenas de millar", "centenas de millar", "unidades de millón", "decenas de millón", "centenas de millón"];
+const NG_A_ORDEN = ["a la unidad", "a la decena", "a la centena", "al millar", "a la decena de millar", "a la centena de millar", "al millón", "a la decena de millón", "a la centena de millón"];
+const NG_SIGLA = ["U", "D", "C", "UM", "DM", "CM", "U. mill.", "D. mill.", "C. mill."];
+
+const NG_UNI = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
+const NG_10_29 = ["diez", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiuno", "veintidós", "veintitrés", "veinticuatro", "veinticinco", "veintiséis", "veintisiete", "veintiocho", "veintinueve"];
+const NG_DEC = ["", "", "", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"];
+const NG_CEN = ["", "ciento", "doscientos", "trescientos", "cuatrocientos", "quinientos", "seiscientos", "setecientos", "ochocientos", "novecientos"];
+
+function ngLetras999(n, apocope) {
+  if (n === 0) return "";
+  if (n === 100) return "cien";
+  const r = n % 100;
+  let t = "";
+  if (r > 0 && r < 10) t = NG_UNI[r];
+  else if (r >= 10 && r < 30) t = NG_10_29[r - 10];
+  else if (r >= 30) t = NG_DEC[Math.floor(r / 10)] + (r % 10 ? ` y ${NG_UNI[r % 10]}` : "");
+  if (apocope) t = t.replace(/veintiuno$/, "veintiún").replace(/(^| )uno$/, "$1un");
+  return [NG_CEN[Math.floor(n / 100)], t].filter(Boolean).join(" ");
+}
+
+function ngLetras(n) {
+  const m = Math.floor(n / 1e6);
+  const k = Math.floor(n / 1e3) % 1000;
+  const u = n % 1000;
+  const partes = [];
+  if (m) partes.push(m === 1 ? "un millón" : `${ngLetras999(m, true)} millones`);
+  if (k) partes.push(k === 1 ? "mil" : `${ngLetras999(k, true)} mil`);
+  if (u) partes.push(ngLetras999(u, false));
+  return partes.join(" ") || "cero";
+}
+
+function ngNumero(nDig, probCero = 0.25) {
+  let s = String(randomInt(1, 9));
+  for (let i = 1; i < nDig; i++) s += Math.random() < probCero ? "0" : String(randomInt(1, 9));
+  return Number(s);
+}
+
+// Con al menos un cero por dentro (es donde están los errores).
+function ngNumeroConCero(nDig) {
+  let n;
+  do n = ngNumero(nDig, 0.3);
+  while (!String(n).slice(1).includes("0") || ngCifras(n).filter((x) => x).length < 2);
+  return n;
+}
+
+const NG_NIVELES = {
+  "5": { dig: [5, 6] },
+  "6": { dig: [7, 9] },
+  disc5: { dig: [4, 5] },
+  disc6: { dig: [6, 7] },
+  acs: { dig: [3, 4] },
+  altas: { dig: [8, 9] },
+};
+const ngDig = (nivel) => randomInt(nivel.dig[0], nivel.dig[1]);
+
+function ngLeerEscribir(nivel) {
+  const a = ngNumeroConCero(ngDig(nivel));
+  const b = ngNumeroConCero(ngDig(nivel));
   return {
-    enunciado: `${contexto}. Aproxima esa cifra a la ${unidadNombre} más cercana.`,
-    datos: [`Número: ${n}`],
-    operacion: `Miramos la cifra siguiente a la ${unidadNombre}: si es 5 o más, redondeamos hacia arriba.`,
-    solucion: `${redondeado}. El número redondeado es ${redondeado}.`,
+    enunciado: `a) Escribe con letras el número ${ngMiles(a)}.   b) Escribe con cifras: «${ngLetras(b)}».`,
+    datos: ["Se lee por grupos de tres cifras: millones, miles y unidades.", "Los ceros no se leen, pero se escriben."],
+    operacion: `a) ${ngMiles(a)} → ${ngLetras(a)} · b) ${ngLetras(b)} → ${ngMiles(b)}`,
+    solucion: `a) ${ngLetras(a)[0].toUpperCase()}${ngLetras(a).slice(1)}. b) ${ngMiles(b)}.`,
   };
 }
 
-function numerosGrandesValorPosicional(curso) {
-  const n = curso === "6" ? randomInt(100000000, 999999999) : randomInt(100000, 999999);
-  const posiciones =
-    curso === "6"
-      ? ["unidad", "decena", "centena", "unidad de millar", "decena de millar", "centena de millar", "unidad de millón", "decena de millón", "centena de millón"]
-      : ["unidad", "decena", "centena", "unidad de millar", "decena de millar", "centena de millar"];
-  const digitos = String(n).split("").reverse();
-  const idx = randomInt(0, posiciones.length - 1);
+function ngValor(nivel) {
+  const nDig = ngDig(nivel);
+  let n;
+  let ps;
+  do {
+    n = ngNumero(nDig, 0.15);
+    const d = ngCifras(n);
+    // Dos cifras que no se repitan en el número, en lugares distintos.
+    ps = [];
+    for (let p = 0; p < nDig; p++) {
+      const x = ngCifraEn(n, p);
+      if (x && d.filter((y) => y === x).length === 1) ps.push(p);
+    }
+  } while (ps.length < 2);
+  const [p1, p2] = [ps[ps.length - 1], pick(ps.slice(0, -1))];
+  const c1 = ngCifraEn(n, p1);
+  const c2 = ngCifraEn(n, p2);
   return {
-    enunciado: `En el número ${n}, ¿qué cifra ocupa la posición de las ${posiciones[idx]}?`,
-    datos: [`Número: ${n}`],
-    operacion: `Contamos las posiciones desde la derecha (unidades, decenas, centenas...).`,
-    solucion: `${digitos[idx]}. La cifra de las ${posiciones[idx]} es ${digitos[idx]}.`,
+    enunciado: `En el número ${ngMiles(n)}, ¿qué lugar ocupan el ${c1} y el ${c2}? ¿Cuánto vale cada uno?`,
+    datos: [`Número: ${ngMiles(n)}`],
+    operacion: `El ${c1} está en las ${NG_ORDEN_PL[p1]}: ${c1} × ${ngMiles(10 ** p1)} = ${ngMiles(c1 * 10 ** p1)}. El ${c2} está en las ${NG_ORDEN_PL[p2]}: ${c2} × ${ngMiles(10 ** p2)} = ${ngMiles(c2 * 10 ** p2)}.`,
+    solucion: `El ${c1}: ${NG_ORDEN_PL[p1]}, vale ${ngMiles(c1 * 10 ** p1)}. El ${c2}: ${NG_ORDEN_PL[p2]}, vale ${ngMiles(c2 * 10 ** p2)}.`,
   };
 }
 
-function numerosGrandesComparar(curso) {
-  const max = curso === "6" ? 999999999 : 999999;
-  const min = curso === "6" ? 100000000 : 100000;
-  const a = randomInt(min, max);
-  let b = randomInt(min, max);
-  while (b === a) b = randomInt(min, max);
-  const mayor = Math.max(a, b);
-  const menor = Math.min(a, b);
+function ngDescomponer(nivel) {
+  const n = ngNumeroConCero(ngDig(nivel));
+  const d = ngCifras(n).map((x, i, a) => [x, a.length - 1 - i]).filter(([x]) => x);
+  const ordenes = d.map(([x, p]) => `${x} ${NG_SIGLA[p]}`).join(" + ");
+  const suma = d.map(([x, p]) => ngMiles(x * 10 ** p)).join(" + ");
   return {
-    enunciado: `¿Cuál de estos dos números es mayor: ${a} o ${b}?`,
-    datos: [`Número 1: ${a}`, `Número 2: ${b}`],
-    operacion: `Comparamos cifra a cifra empezando por la izquierda.`,
-    solucion: `${mayor}. ${mayor} es mayor que ${menor}.`,
+    enunciado: `Descompón el número ${ngMiles(n)} de dos formas: en órdenes (por ejemplo, 3 CM + 4 DM…) y como suma de valores.`,
+    datos: ["U, D, C: unidades, decenas, centenas. UM, DM, CM: de millar. U. mill., D. mill., C. mill.: de millón."],
+    operacion: `${ngMiles(n)} = ${ordenes}`,
+    solucion: `${ordenes} · ${ngMiles(n)} = ${suma}.`,
+  };
+}
+
+function ngOrdenar(nivel) {
+  const nDig = ngDig(nivel);
+  const base = ngNumero(nDig, 0.15);
+  const vals = new Set([base]);
+  while (vals.size < 4) {
+    const d = ngCifras(base);
+    const k = randomInt(1, nDig - 1);
+    d[k] = randomInt(0, 9);
+    vals.add(Math.random() < 0.25 && nDig > 4 ? ngNumero(nDig - 1, 0.15) : Number(d.join("")));
+  }
+  const arr = [...vals];
+  const nombres = ["A", "B", "C", "D"];
+  const que = nDig >= 7 ? pick(["habitantes de cuatro países", "kilómetros recorridos por cuatro satélites"]) : pick(["visitantes de cuatro museos en un año", "habitantes de cuatro ciudades", "libros de cuatro bibliotecas"]);
+  const orden = arr.map((v, i) => [nombres[i], v]).sort((x, y) => y[1] - x[1]);
+  return {
+    enunciado: `Estos son los ${que}: A, ${ngMiles(arr[0])}; B, ${ngMiles(arr[1])}; C, ${ngMiles(arr[2])}; D, ${ngMiles(arr[3])}. Ordénalos de mayor a menor.`,
+    datos: arr.map((v, i) => `${nombres[i]}: ${ngMiles(v)}`),
+    operacion: orden.map(([, v]) => ngMiles(v)).join(" > "),
+    solucion: `${orden.map(([k]) => k).join(", ")} (${orden.map(([, v]) => ngMiles(v)).join(" > ")}).`,
+  };
+}
+
+function ngRedondearDos(nivel) {
+  const nDig = ngDig(nivel);
+  let n;
+  let p1;
+  let p2;
+  do {
+    n = ngNumero(nDig, 0.15);
+    p1 = randomInt(nDig >= 7 ? 3 : 1, nDig - 2);
+    p2 = randomInt(p1 + 1, nDig - 1);
+  } while (ngRedondear(n, p1) === n || ngRedondear(n, p2) === n);
+  const r1 = ngRedondear(n, p1);
+  const r2 = ngRedondear(n, p2);
+  const contexto = nDig >= 9 ? `Una sonda espacial ha recorrido ${ngMiles(n)} km.` : nDig >= 7 ? `Una empresa ha vendido ${ngMiles(n)} botellas de aceite de oliva este año.` : `Un museo ha recibido ${ngMiles(n)} visitantes este año.`;
+  return {
+    enunciado: `${contexto} Redondea el dato ${NG_A_ORDEN[p1]} y ${NG_A_ORDEN[p2]}.`,
+    datos: [`Dato: ${ngMiles(n)}`],
+    operacion: `${NG_A_ORDEN[p1]}: la cifra de la derecha es ${ngCifraEn(n, p1 - 1)} → ${ngMiles(r1)} · ${NG_A_ORDEN[p2]}: la cifra de la derecha es ${ngCifraEn(n, p2 - 1)} → ${ngMiles(r2)}`,
+    solucion: `${NG_A_ORDEN[p1][0].toUpperCase()}${NG_A_ORDEN[p1].slice(1)}: ${ngMiles(r1)}. ${NG_A_ORDEN[p2][0].toUpperCase()}${NG_A_ORDEN[p2].slice(1)}: ${ngMiles(r2)}.`,
+  };
+}
+
+// La noticia dice «unos X»: ¿qué datos exactos pueden ser?
+function ngNoticia(nivel) {
+  const nDig = ngDig(nivel);
+  const p = nDig >= 7 ? 6 : 3;
+  let r;
+  do r = ngRedondear(ngNumero(nDig), p);
+  while (r < 2 * 10 ** p);
+  const u = 10 ** p;
+  const opciones = [r - u / 2 + randomInt(1, u / 2 - 1), r + randomInt(1, u / 2 - 1), r - u / 2 - randomInt(1, u / 2 - 1), r + u / 2 + randomInt(0, u / 2 - 1)];
+  const lista = opciones.slice().sort(() => Math.random() - 0.5);
+  const valen = lista.filter((x) => ngRedondear(x, p) === r);
+  return {
+    enunciado: `Una noticia dice que ${nDig >= 7 ? `un país tiene «unos ${ngMiles(r)} habitantes»` : `«unas ${ngMiles(r)} personas» visitaron una feria`} (dato redondeado ${NG_A_ORDEN[p]}). ¿Cuáles de estos datos exactos pueden ser? ${lista.map(ngMiles).join(" · ")}`,
+    datos: [`Redondeado: ${ngMiles(r)}`, `Pueden ir de ${ngMiles(r - u / 2)} a ${ngMiles(r + u / 2 - 1)}`],
+    operacion: lista.map((x) => `${ngMiles(x)} → ${ngMiles(ngRedondear(x, p))}`).join(" · "),
+    solucion: `${valen.map(ngMiles).join(" y ")}.`,
   };
 }
 
 function genNumerosGrandes(curso) {
-  return pick([numerosGrandesRedondeo, numerosGrandesValorPosicional, numerosGrandesComparar])(curso);
+  if (curso === "6") return siguienteDeBaraja("ng6", [ngLeerEscribir, ngValor, ngDescomponer, ngOrdenar, ngRedondearDos, ngNoticia])(NG_NIVELES["6"]);
+  return siguienteDeBaraja("ng5", [ngLeerEscribir, ngValor, ngDescomponer, ngOrdenar, ngRedondearDos, ngNoticia])(NG_NIVELES["5"]);
+}
+
+function ngAcsValor() {
+  let n;
+  do n = ngNumero(randomInt(3, 4), 0.1);
+  while (new Set(ngCifras(n)).size !== String(n).length);
+  const d = ngCifras(n);
+  const etiquetas = ["U", "D", "C", "UM"];
+  return {
+    enunciado: `Escribe el número ${ngMiles(n)} en la tabla (${etiquetas.slice(0, d.length).reverse().join(", ")}) y di cuánto vale cada cifra.`,
+    datos: [`Número: ${ngMiles(n)}`],
+    operacion: d.map((x, i) => `${x} ${etiquetas[d.length - 1 - i]} = ${ngMiles(x * 10 ** (d.length - 1 - i))}`).join(" · "),
+    solucion: `${ngMiles(n)} = ${d.map((x, i) => ngMiles(x * 10 ** (d.length - 1 - i))).filter((x) => x !== "0").join(" + ")}.`,
+  };
+}
+
+function ngAcsComparar() {
+  const a = ngNumero(3, 0.1);
+  let b;
+  do b = ngNumero(3, 0.1);
+  while (b === a);
+  return {
+    enunciado: `¿Qué número es mayor, ${a} o ${b}? Escribe el signo < o > entre los dos.`,
+    datos: [`${a} y ${b}`],
+    operacion: "Se comparan las centenas; si son iguales, las decenas; y si no, las unidades.",
+    solucion: `${a} ${a < b ? "<" : ">"} ${b}.`,
+  };
 }
 
 function genNumerosGrandesACS() {
-  const n = randomInt(100, 999);
-  const posiciones = ["unidad", "decena", "centena"];
-  const digitos = String(n).split("").reverse();
-  const idx = randomInt(0, 2);
+  return siguienteDeBaraja("ngAcs", [ngAcsValor, ngAcsComparar, ngAcsValor, () => ngLeerEscribir(NG_NIVELES.acs)])();
+}
+
+// Discalculia: los contenidos del curso con números de menos cifras.
+function genNumerosGrandesDiscalculia(curso) {
+  const d = curso === "6" ? NG_NIVELES.disc6 : NG_NIVELES.disc5;
+  return siguienteDeBaraja(`ngDisc${curso}`, [ngLeerEscribir, ngValor, ngDescomponer, ngOrdenar, ngRedondearDos])(d);
+}
+
+function ngCuantosRedondean() {
+  const u = pick([100, 1000]);
+  const r = randomInt(20, 90) * u;
   return {
-    enunciado: `En el número ${n}, ¿qué cifra ocupa la posición de las ${posiciones[idx]}?`,
-    datos: [`Número: ${n}`],
-    operacion: `Contamos las posiciones desde la derecha.`,
-    solucion: `${digitos[idx]}.`,
+    enunciado: `¿Cuántos números naturales distintos dan ${ngMiles(r)} al redondearlos ${u === 100 ? "a la centena" : "al millar"}? ¿Cuál es el menor y cuál el mayor?`,
+    datos: [`Redondeo: ${ngMiles(r)}`],
+    operacion: `Desde ${ngMiles(r - u / 2)} (sube) hasta ${ngMiles(r + u / 2 - 1)} (baja): ${ngMiles(r + u / 2 - 1)} − ${ngMiles(r - u / 2)} + 1 = ${ngMiles(u)}`,
+    solucion: `${ngMiles(u)} números: del ${ngMiles(r - u / 2)} al ${ngMiles(r + u / 2 - 1)}.`,
   };
 }
 
 function genNumerosGrandesAltas() {
-  const n = randomInt(100000000, 999999999);
-  const redondeado = Math.round(n / 1000000) * 1000000;
-  return {
-    enunciado: `Una empresa factura ${n} €. Redondea esa cifra al millón más cercano.`,
-    datos: [`Número: ${n}`],
-    operacion: `Miramos la cifra de las centenas de millar: si es 5 o más, redondeamos hacia arriba.`,
-    solucion: `${redondeado} €.`,
-  };
+  const a = NG_NIVELES.altas;
+  return siguienteDeBaraja("ngAltas", [() => ngLeerEscribir(a), () => ngNoticia(a), ngCuantosRedondean, () => ngDescomponer(a), () => ngRedondearDos(a)])();
 }
 
 function probabilidadCalcular() {
@@ -3897,7 +4053,7 @@ function genTiempoAltas() {
 const TOPICS = [
   { id: "sumas", label: "Sumas", category: "Operaciones básicas", generate: genSumas, generateACS: genSumasACS, generateAltas: genSumasAltas, resumen: "Sumar es juntar cantidades para saber cuántas hay en total." },
   { id: "tablas", label: "Tablas de multiplicar", category: "Operaciones básicas", generate: genTablas, generateACS: genTablasACS, generateAltas: genTablasAltas, resumen: "La tabla de un número es el resultado de multiplicarlo por 1, 2, 3... hasta 10." },
-  { id: "numeros-grandes", label: "Números grandes", category: "Operaciones básicas", generate: genNumerosGrandes, generateACS: genNumerosGrandesACS, generateAltas: genNumerosGrandesAltas, resumen: "En un número, cada cifra vale más o menos según la posición que ocupa: su valor posicional." },
+  { id: "numeros-grandes", label: "Números grandes", category: "Operaciones básicas", generate: genNumerosGrandes, generateACS: genNumerosGrandesACS, generateDiscalculia: genNumerosGrandesDiscalculia, generateAltas: genNumerosGrandesAltas, resumen: "Cada cifra vale según el lugar que ocupa: en 348.256, el 4 está en las decenas de millar y vale 40.000. Los ceros no se leen, pero se escriben. Para comparar, gana el que tiene más cifras; si tienen las mismas, se mira de izquierda a derecha. Para redondear, se mira la cifra de la derecha: si es 5 o más, sube.", resumen6: "Los números se leen por grupos de tres cifras: millones, miles y unidades (348.256.719). Cada cifra vale según su lugar: el 4 de 348.256.719 vale 40.000.000. Los ceros no se leen, pero se escriben. Para redondear al millón, se mira la cifra de las centenas de millar: si es 5 o más, sube." },
   { id: "propiedades-operaciones", label: "Propiedades de las operaciones", category: "Operaciones básicas", generate: genPropiedadesOperaciones, generateACS: genPropiedadesOperacionesACS, generateAltas: genPropiedadesOperacionesAltas, resumen: "Las propiedades de las operaciones permiten reordenar o agrupar números para calcular más fácilmente, sin cambiar el resultado." },
   { id: "restas", label: "Restas", category: "Operaciones básicas", generate: genRestas, generateACS: genRestasACS, generateAltas: genRestasAltas, resumen: "Restar es quitar una cantidad de otra para saber cuánto queda o la diferencia entre ellas." },
   { id: "multiplicaciones", label: "Multiplicaciones", category: "Operaciones básicas", generate: genMultiplicaciones, generateACS: genMultiplicacionesACS, generateAltas: genMultiplicacionesAltas, resumen: "Multiplicar es sumar un mismo número varias veces de forma rápida." },
