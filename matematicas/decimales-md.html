@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Multiplicación y división de decimales</h1>
-        <p class="content-subtitle">Multiplicar decimales y dividir un decimal entre un número natural.</p>
+        <p class="content-subtitle">Multiplica y divide decimales sabiendo dónde va la coma: muévela con 10, 100 y 1000, compruébala estimando y practica con problemas de la compra que explican cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -56,11 +56,22 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
       <!-- ================= TEORÍA ================= -->
       <section id="tab-teoria" class="tab-panel active theory">
+
+        <h2>Multiplicar y dividir por 10, 100 y 1000</h2>
+        <div class="rule-box esdrujula">
+          <h4>La coma se mueve</h4>
+          <p>Al <strong>multiplicar</strong> por 10, 100 o 1000, la coma se mueve 1, 2 o 3 lugares <strong>a la derecha</strong> (tantos como ceros). Al <strong>dividir</strong>, se mueve <strong>a la izquierda</strong>. Si faltan cifras, se añaden ceros.</p>
+          <p class="examples"><strong>Ejemplos:</strong> 3,45 × 100 = 345 · 2,5 × 1000 = 2500 · 47,2 : 10 = 4,72 · 3,6 : 100 = 0,036</p>
+        </div>
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> 2,5 × 10 no es 2,50 (eso vale lo mismo que 2,5). Multiplicar por 10 hace el número diez veces mayor: 2,5 × 10 = 25.
+        </div>
 
         <h2>Multiplicar números decimales</h2>
         <div class="rule-box aguda">
@@ -73,6 +84,12 @@
         <div class="tip-box">
           <strong>Otro ejemplo:</strong> 2,5 × 3 → 25 × 3 = 75 → 1 cifra decimal en total → 7,5
         </div>
+        <div class="tip-box">
+          <strong>Si faltan cifras, se añaden ceros:</strong> 0,3 × 0,2 → 3 × 2 = 6 → hacen falta 2 cifras decimales → 0,06.
+        </div>
+        <div class="tip-box">
+          <strong>Comprueba estimando:</strong> redondea los factores y calcula de cabeza. 3,7 × 2,4 ≈ 4 × 2 = 8, así que el resultado es 8,88 y no 88,8 ni 0,888.
+        </div>
 
         <h2>Dividir un decimal entre un número natural</h2>
         <div class="rule-box llana">
@@ -81,6 +98,9 @@
         </div>
         <div class="tip-box">
           <strong>Ejemplo:</strong> 7,5 ÷ 3 → 7 ÷ 3 = 2 y sobra 1; se baja el 5 (primera cifra decimal), se coloca la coma en el cociente → 15 ÷ 3 = 5 → resultado: 2,5
+        </div>
+        <div class="tip-box">
+          <strong>Si el dividendo es menor que el divisor:</strong> 6,3 ÷ 7 → 6 ÷ 7 = 0, se pone «0,» en el cociente y se baja el 3 → 63 ÷ 7 = 9 → 0,9.
         </div>
 
         <div class="grade-section">
@@ -96,6 +116,16 @@
           <div class="tip-box">
             <strong>Otro ejemplo:</strong> 6,25 ÷ 0,5 → movemos la coma un lugar a la derecha en los dos → 62,5 ÷ 5 = <strong>12,5</strong>
           </div>
+          <div class="tip-box">
+            <strong>Si el dividendo no tiene cifras suficientes,</strong> se añaden ceros: 3 ÷ 0,25 → 300 ÷ 25 = <strong>12</strong>.
+          </div>
+
+          <h2>Sacar decimales en el cociente</h2>
+          <div class="rule-box llana">
+            <h4>Cuando la división no es exacta</h4>
+            <p>Si al terminar sobra algo, se pone la coma en el cociente, se añade un 0 al resto y se sigue dividiendo.</p>
+            <p class="examples"><strong>Ejemplo:</strong> 7 ÷ 4 = 1 y sobran 3 → «1,» y 30 ÷ 4 = 7, sobran 2 → 20 ÷ 4 = 5 → <strong>1,75</strong></p>
+          </div>
         </div>
 
         <p style="text-align:center; margin-top:32px;">
@@ -103,6 +133,52 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="dm-pot">
+          <h2>1. La coma salta</h2>
+          <p class="md-explore-intro">Escribe un número y multiplícalo o divídelo por 10, 100 o 1000. Mira cómo cambia cada cifra de lugar.</p>
+          <div class="de-inputs">
+            <label>Número <input type="text" class="number-input" id="dm-pot-n" value="3,45" inputmode="decimal" autocomplete="off"></label>
+          </div>
+          <div class="choice-row md-mode-row" id="dm-pot-ops">
+            <button type="button" class="btn btn-secondary" data-dm-op="×" data-dm-p="10">× 10</button>
+            <button type="button" class="btn btn-secondary active" data-dm-op="×" data-dm-p="100">× 100</button>
+            <button type="button" class="btn btn-secondary" data-dm-op="×" data-dm-p="1000">× 1000</button>
+            <button type="button" class="btn btn-secondary" data-dm-op=":" data-dm-p="10">: 10</button>
+            <button type="button" class="btn btn-secondary" data-dm-op=":" data-dm-p="100">: 100</button>
+            <button type="button" class="btn btn-secondary" data-dm-op=":" data-dm-p="1000">: 1000</button>
+          </div>
+          <div id="dm-pot-table"></div>
+          <p class="md-msg ok" id="dm-pot-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="dm-mul">
+          <h2>2. Multiplica paso a paso</h2>
+          <p class="md-explore-intro">Se multiplica sin comas y después se cuentan las cifras decimales de los dos factores.</p>
+          <div class="de-inputs">
+            <label>Factor <input type="text" class="number-input" id="dm-mul-a" value="3,7" inputmode="decimal" autocomplete="off"></label>
+            <label>Factor <input type="text" class="number-input" id="dm-mul-b" value="2,4" inputmode="decimal" autocomplete="off"></label>
+          </div>
+          <ol class="dm-steps" id="dm-mul-steps"></ol>
+        </div>
+
+        <div class="md-explore-card" id="dm-div">
+          <h2>3. Divide paso a paso</h2>
+          <p class="md-explore-intro">Escribe el dividendo y el divisor. Si el divisor tiene coma (6º), primero se mueve la coma en los dos.</p>
+          <div class="de-inputs">
+            <label>Dividendo <input type="text" class="number-input" id="dm-div-a" value="7,5" inputmode="decimal" autocomplete="off"></label>
+            <label>Divisor <input type="text" class="number-input" id="dm-div-b" value="3" inputmode="decimal" autocomplete="off"></label>
+          </div>
+          <ol class="dm-steps" id="dm-div-steps"></ol>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -116,8 +192,10 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="multiplicar">Multiplicar</button>
+            <button class="btn btn-secondary active" data-mode="potencias">× y : 10, 100, 1000</button>
+            <button class="btn btn-secondary" data-mode="multiplicar">Multiplicar</button>
             <button class="btn btn-secondary" data-mode="dividir">Dividir</button>
+            <button class="btn btn-secondary" data-mode="estimar">¿Dónde va la coma?</button>
             <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
             <button class="btn btn-secondary" data-mode="dividirdecimal">Dividir entre decimal <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
@@ -127,6 +205,11 @@
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
