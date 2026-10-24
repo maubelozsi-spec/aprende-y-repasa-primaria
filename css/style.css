@@ -3258,7 +3258,7 @@ main.content.content-ancha {
   font-size: 1rem;
 }
 
-/* ---------- Pestaña Explora (múltiplos y divisores, fracciones, operaciones con fracciones, decimales, sus operaciones, porcentajes y potencias) ---------- */
+/* ---------- Pestaña Explora (múltiplos y divisores, fracciones, operaciones con fracciones, decimales, sus operaciones, porcentajes, potencias y operaciones combinadas) ---------- */
 
 .md-explore-card {
   background: var(--surface);
@@ -3593,3 +3593,24 @@ main.content.content-ancha {
 .po-tabla th, .po-tabla td { text-align: center; white-space: nowrap; }
 #po-desc .md-controls { flex-direction: column; align-items: center; }
 #po-desc .po-big { margin: 0; }
+
+/* Operaciones combinadas */
+.oc-pasos {
+  margin: 16px 0 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.oc-linea { color: var(--text-muted); }
+.oc-linea.oc-ahora { color: var(--text); font-size: 1.5rem; }
+.oc-toca {
+  background: var(--color-amber-tint);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0 4px;
+  box-shadow: 0 0 0 2px var(--color-amber);
+}
+.oc-final { color: var(--color-success); font-size: 1.8rem; }
+#oc-par-opciones { margin-top: 12px; }
