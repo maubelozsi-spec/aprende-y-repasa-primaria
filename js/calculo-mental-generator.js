@@ -59,23 +59,28 @@ function trucoLabelCM(text) {
   return { runs: [{ text, bold: true, size: 20 }], spacingBefore: 100, spacingAfter: 60 };
 }
 
-function buildCMDocument({ curso, fecha, bloquesSeleccionados, porTruco, semana, showSolutions }) {
+function buildCMDocument({ curso, fecha, bloquesSeleccionados, semana, showSolutions, lista, conPista }) {
   const blocks = [];
   blocks.push(...buildCMHeaderBlocks(curso, fecha));
 
   bloquesSeleccionados.forEach((bloqueId) => {
+    const trucos = trucosDeBloque(bloqueId, lista);
+    if (!trucos.length) return;
     const bloque = BLOQUES_CALCULO_MENTAL.find((b) => b.id === bloqueId);
     blocks.push(sectionBarCM(bloque.label.toUpperCase()));
 
-    trucosDeBloque(bloqueId).forEach((truco) => {
+    trucos.forEach((truco) => {
       blocks.push(trucoLabelCM(truco.label));
       const ejercicios = semana[truco.id];
       ejercicios.forEach((ej, i) => {
         blocks.push({
-          runs: [{ text: `${i + 1}. ${ej.enunciado} = ` }, { text: showSolutions ? String(ej.respuesta) : "______________", bold: showSolutions }],
+          runs: [{ text: `${i + 1}. ${ej.enunciado}${ej.estimacion ? "" : " ="} ` }, { text: showSolutions ? cmFmt(ej.respuesta) : "______________", bold: showSolutions }],
           spacingAfter: showSolutions ? 20 : 30,
         });
-        if (!showSolutions) {
+        if (showSolutions) {
+          // En las soluciones, los pasos del truco.
+          blocks.push({ runs: [{ text: ej.pasos.join(" → "), italic: true, size: 18, color: "595959" }], spacingAfter: 100 });
+        } else if (conPista) {
           blocks.push({ runs: [{ text: "Pista: " + ej.pista, italic: true, size: 18, color: "595959" }], spacingAfter: 140 });
         }
       });
@@ -86,24 +91,29 @@ function buildCMDocument({ curso, fecha, bloquesSeleccionados, porTruco, semana,
   return blocks;
 }
 
-function generarSemanaCalculoMental(bloquesSeleccionados, porTruco) {
+// Sin operaciones repetidas dentro de un mismo truco.
+function generarSemanaCalculoMental(bloquesSeleccionados, porTruco, nivel = "normal", lista = TRUCOS_CALCULO_MENTAL) {
   const semana = {};
   bloquesSeleccionados.forEach((bloqueId) => {
-    trucosDeBloque(bloqueId).forEach((truco) => {
+    trucosDeBloque(bloqueId, lista).forEach((truco) => {
       const ejercicios = [];
-      for (let i = 0; i < porTruco; i++) ejercicios.push(truco.generar());
+      for (let intento = 0; ejercicios.length < porTruco && intento < porTruco * 20; intento++) {
+        const ej = truco.generar(nivel);
+        if (!ejercicios.some((e) => e.enunciado === ej.enunciado)) ejercicios.push(ej);
+      }
       semana[truco.id] = ejercicios;
     });
   });
   return semana;
 }
 
-function generarCalculoMentalYSoluciones(bloquesSeleccionados, porTruco, curso) {
+function generarCalculoMentalYSoluciones(bloquesSeleccionados, porTruco, curso, { nivel = "normal", lista = TRUCOS_CALCULO_MENTAL, conPista = true } = {}) {
   if (!bloquesSeleccionados.length) throw new Error("Selecciona al menos un bloque.");
-  const semana = generarSemanaCalculoMental(bloquesSeleccionados, porTruco);
+  if (!bloquesSeleccionados.some((b) => trucosDeBloque(b, lista).length)) throw new Error("Con la adaptación ACS, elige el Bloque 1 o el 2.");
+  const semana = generarSemanaCalculoMental(bloquesSeleccionados, porTruco, nivel, lista);
   const fecha = todayEsCalculoMental();
-  const fichaBlocks = buildCMDocument({ curso, fecha, bloquesSeleccionados, porTruco, semana, showSolutions: false });
-  const solucionesBlocks = buildCMDocument({ curso, fecha, bloquesSeleccionados, porTruco, semana, showSolutions: true });
+  const fichaBlocks = buildCMDocument({ curso, fecha, bloquesSeleccionados, semana, showSolutions: false, lista, conPista });
+  const solucionesBlocks = buildCMDocument({ curso, fecha, bloquesSeleccionados, semana, showSolutions: true, lista, conPista });
   const fichaBlob = createDocxBlob(fichaBlocks);
   const solucionesBlob = createDocxBlob(solucionesBlocks);
   return { semana, fichaBlob, solucionesBlob };

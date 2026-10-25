@@ -3667,3 +3667,18 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 .pr-b { color: var(--color-teal); font-weight: 800; }
 .pr-c { color: var(--color-amber); font-weight: 800; }
 #pr-agr-opciones { margin-top: 8px; }
+
+/* Cálculo mental */
+.cm-select {
+  font: inherit;
+  font-size: 16px;
+  padding: 8px 10px;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  max-width: 100%;
+}
+.cm-pasos { margin: 12px 0 0; padding-left: 22px; font-size: 1.05rem; line-height: 1.7; }
+.cm-pasos li.cm-paso-nuevo { font-weight: 800; color: var(--color-indigo); }
+#cm-answer-input { width: 150px; }
