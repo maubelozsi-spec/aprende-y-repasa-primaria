@@ -3258,7 +3258,7 @@ main.content.content-ancha {
   font-size: 1rem;
 }
 
-/* ---------- Pestaña Explora (múltiplos y divisores, fracciones, operaciones con fracciones, decimales, sus operaciones, porcentajes, potencias, operaciones combinadas y números grandes) ---------- */
+/* ---------- Pestaña Explora (múltiplos y divisores, fracciones, operaciones con fracciones, decimales, sus operaciones, porcentajes, potencias, operaciones combinadas, números grandes y romanos) ---------- */
 
 .md-explore-card {
   background: var(--surface);
@@ -3642,4 +3642,23 @@ main.content.content-ancha {
   .ng-col .letter, .ng-tira .letter { width: 28px; height: 40px; font-size: 18px; }
   .ng-tabla .pv-label { font-size: 9px; max-width: 30px; }
   .ng-punto { font-size: 22px; }
+}
+
+/* Números romanos */
+.ro-escrito { letter-spacing: 2px; min-height: 1.4em; }
+.ro-teclas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+.ro-teclas .btn { min-width: 48px; font-size: 1.1rem; font-weight: 800; }
+.ro-suma { color: var(--color-teal); font-weight: 800; }
+.ro-resta { color: var(--color-rose); font-weight: 800; }
+.ro-raya { text-decoration: overline; text-decoration-thickness: 2px; }
+.ro-lug-controles { flex-wrap: wrap; justify-content: center; }
+table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: center; padding: 6px 4px; font-size: 0.85rem; text-transform: none; }
+@media (max-width: 480px) {
+  table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { padding: 4px 2px; font-size: 0.72rem; }
 }
