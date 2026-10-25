@@ -40,6 +40,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
         <button class="tab-btn" data-tab="ficha">Ficha para imprimir</button>
       </div>
@@ -68,27 +69,33 @@
         <div class="rule-box esdrujula">
           <h4>Descomposición en sumas y restas</h4>
           <p>Separa cada número en centenas, decenas y unidades, opera cada parte por separado y junta los resultados al final.</p>
-          <p class="examples"><strong>Ejemplo:</strong> 754 + 238 → centenas: 700+200=900 · decenas: 50+30=80 · unidades: 4+8=12 → 900+80+12=992.</p>
+          <p class="examples"><strong>Ejemplo suma:</strong> 754 + 238 → centenas: 700 + 200 = 900 · decenas: 50 + 30 = 80 · unidades: 4 + 8 = 12 → 900 + 80 + 12 = 992.</p>
+          <p class="examples"><strong>Ejemplo resta:</strong> en la resta se quita el número por partes, uno detrás de otro: 532 − 278 → 532 − 200 = 332 → 332 − 70 = 262 → 262 − 8 = 254. (Restar «decenas con decenas» no funciona: 30 − 70 no se puede.)</p>
         </div>
 
         <div class="rule-box sobresdrujula">
-          <h4>Complemento a 100 / 1000</h4>
+          <h4>Complemento a 100 / 1.000</h4>
           <p>Para restar un número de 100 o de 1000, piensa qué le falta a ese número para llegar hasta ahí.</p>
-          <p class="examples"><strong>Ejemplo:</strong> 100 − 37 → ¿qué le falta a 37 para llegar a 100? 63.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 100 − 37 → de 37 a 40 van 3, y de 40 a 100 van 60: 3 + 60 = 63.</p>
+        </div>
+        <div class="rule-box aguda">
+          <h4>Sumar y restar 9, 99 y 999</h4>
+          <p>Sumar 9 es sumar 10 y quitar 1; sumar 99 es sumar 100 y quitar 1. Para restar, al revés: se resta 10 (o 100) y se suma 1.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 467 + 99 → 467 + 100 = 567 → 567 − 1 = 566.</p>
         </div>
 
         <h2>Bloque 2 · Multiplicación y división ágiles</h2>
 
         <div class="rule-box aguda">
           <h4>Dobles y mitades encadenados</h4>
-          <p>Multiplicar por 4 es doblar dos veces seguidas; multiplicar por 8 es doblar tres veces seguidas.</p>
-          <p class="examples"><strong>Ejemplo:</strong> 23 × 4 → doble de 23 = 46 → doble de 46 = 92.</p>
+          <p>Multiplicar por 4 es doblar dos veces seguidas; multiplicar por 8, tres veces. Dividir entre 4 es hacer la mitad dos veces; entre 8, tres veces.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 23 × 4 → doble de 23 = 46 → doble de 46 = 92. · 280 ÷ 4 → mitad = 140 → mitad = 70.</p>
         </div>
 
         <div class="rule-box llana">
-          <h4>Multiplicar por 10, 100 y 1000</h4>
-          <p>Añade a la derecha del número tantos ceros como tenga la potencia de diez por la que multiplicas.</p>
-          <p class="examples"><strong>Ejemplo:</strong> 47 × 100 = 4700.</p>
+          <h4>Multiplicar y dividir por 10, 100 y 1.000</h4>
+          <p>Para multiplicar, añade a la derecha tantos ceros como tenga el 10, el 100 o el 1.000. Para dividir un número acabado en ceros, quítalos.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 47 × 100 = 4.700 · 3.600 ÷ 100 = 36.</p>
         </div>
 
         <div class="rule-box esdrujula">
@@ -108,12 +115,17 @@
           <p>Multiplica el número por 10 y resta el número original.</p>
           <p class="examples"><strong>Ejemplo:</strong> 34 × 9 → 340 − 34 = 306.</p>
         </div>
+        <div class="rule-box llana">
+          <h4>Multiplicar por 25 y por 50</h4>
+          <p>25 es 100 ÷ 4 y 50 es 100 ÷ 2: multiplica por 100 y divide entre 4 (o entre 2).</p>
+          <p class="examples"><strong>Ejemplo:</strong> 36 × 25 → 3.600 ÷ 4 = 900. · 18 × 50 → 1.800 ÷ 2 = 900.</p>
+        </div>
 
         <h2>Bloque 3 · Trucos avanzados</h2>
 
         <div class="rule-box llana">
           <h4>Multiplicar por 11 (números de dos cifras)</h4>
-          <p>Suma las dos cifras del número y colócala en medio. Si la suma es 10 o más, se lleva 1 a la cifra de las decenas.</p>
+          <p>Separa las dos cifras y pon en medio su suma. Si la suma es 10 o más, en medio va solo la última cifra de la suma y se suma 1 a la primera cifra.</p>
           <p class="examples"><strong>Ejemplo sin llevar:</strong> 45 × 11 → 4+5=9 → 495. <strong>Ejemplo llevando:</strong> 68 × 11 → 6+8=14 → se lleva 1: 748.</p>
         </div>
 
@@ -126,13 +138,23 @@
         <div class="rule-box sobresdrujula">
           <h4>Redondeo para aproximar</h4>
           <p>Redondea los números a la decena o centena más cercana antes de operar, para hacerte una idea rápida del resultado sin calcular la cifra exacta.</p>
-          <p class="examples"><strong>Ejemplo:</strong> 48 + 37 ≈ 50 + 40 = 90 (estimación).</p>
+          <p class="examples"><strong>Ejemplo:</strong> 48 + 37 ≈ 50 + 40 = 90 (estimación; el resultado exacto es 85).</p>
         </div>
 
         <div class="rule-box aguda">
           <h4>Porcentajes mentales sencillos</h4>
-          <p>El 10% se calcula dividiendo entre 10; el 50% es la mitad; el 25% es la mitad de la mitad.</p>
+          <p>El 10% se calcula dividiendo entre 10; el 20%, doblando el 10%; el 50% es la mitad; el 25%, la mitad de la mitad; y el 75%, el 50% más el 25%.</p>
           <p class="examples"><strong>Ejemplo:</strong> 25% de 80 → mitad de 80 = 40 → mitad de 40 = 20.</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Decimales por 10, 100 y 1.000</h4>
+          <p>Al multiplicar, la coma se mueve a la derecha tantos lugares como ceros; al dividir, a la izquierda.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 3,45 × 100 = 345 · 72,5 ÷ 10 = 7,25.</p>
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>Fracción de una cantidad</h4>
+          <p>Divide la cantidad entre el denominador y multiplica por el numerador.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 3/4 de 80 → 80 ÷ 4 = 20 → 20 × 3 = 60.</p>
         </div>
 
         <p style="text-align:center; margin-top:32px;">
@@ -140,6 +162,28 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+        <div class="md-explore-card" id="cm-ex">
+          <h2>Mira el truco paso a paso</h2>
+          <p class="md-explore-intro">Elige un truco: verás una operación y cómo se resuelve de cabeza, un paso cada vez.</p>
+          <div class="generator-field">
+            <label for="cm-ex-trucos">Truco</label>
+            <select id="cm-ex-trucos" class="cm-select"></select>
+          </div>
+          <p class="po-big" id="cm-ex-expr"></p>
+          <ol class="cm-pasos" id="cm-ex-pasos" aria-live="polite"></ol>
+          <div class="actions-row">
+            <button type="button" class="btn btn-primary" id="cm-ex-sig">Siguiente paso</button>
+            <button type="button" class="btn btn-secondary" id="cm-ex-otro">Otro ejemplo</button>
+          </div>
+          <p class="md-msg ok" id="cm-ex-msg"></p>
+        </div>
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -158,12 +202,15 @@
             <div class="mental-line" id="cm-equation"></div>
           </div>
 
-          <p class="instructions" id="cm-hint"></p>
           <div class="mental-inputs-row" id="cm-inputs-row">
-            <input type="number" class="number-input" id="cm-answer-input">
+            <input type="text" inputmode="decimal" autocomplete="off" class="number-input" id="cm-answer-input" aria-label="Tu respuesta">
             <button class="btn btn-primary" id="cm-check-btn">Comprobar</button>
           </div>
           <div class="syllable-row" id="cm-answer-choices" style="display:none;"></div>
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="cm-hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="cm-hint" aria-live="polite"></div>
 
           <div id="cm-feedback" class="feedback-box"></div>
 
@@ -193,6 +240,7 @@
               <button class="btn btn-secondary active" data-curso="5">5º de Primaria</button>
               <button class="btn btn-secondary" data-curso="6">6º de Primaria</button>
             </div>
+            <p class="difficulty-hint">En 6º los números son más grandes. La adaptación elegida arriba también cambia la ficha.</p>
           </div>
 
           <div class="actions-row">
