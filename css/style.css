@@ -3258,7 +3258,7 @@ main.content.content-ancha {
   font-size: 1rem;
 }
 
-/* ---------- Pestaña Explora (múltiplos y divisores, fracciones, operaciones con fracciones, decimales, sus operaciones, porcentajes, potencias, operaciones combinadas, números grandes y romanos) ---------- */
+/* ---------- Pestaña Explora (múltiplos y divisores, fracciones, operaciones con fracciones, decimales, sus operaciones, porcentajes, potencias, operaciones combinadas, números grandes, romanos y propiedades) ---------- */
 
 .md-explore-card {
   background: var(--surface);
@@ -3662,3 +3662,8 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 @media (max-width: 480px) {
   table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { padding: 4px 2px; font-size: 0.72rem; }
 }
+
+/* Propiedades de las operaciones */
+.pr-b { color: var(--color-teal); font-weight: 800; }
+.pr-c { color: var(--color-amber); font-weight: 800; }
+#pr-agr-opciones { margin-top: 8px; }
