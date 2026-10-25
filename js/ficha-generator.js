@@ -771,70 +771,201 @@ function genOperacionesCombinadasAltas() {
   return siguienteDeBaraja("ocAltas", [() => ocCalcular(alto), () => ocColocar(alto), () => ocCalcular(alto), conProblema(ocCampamento), conProblema(ocCompra)])();
 }
 
-function numerosRomanosAFormato(curso) {
-  const max = curso === "6" ? 3999 : 500;
-  const min = curso === "6" ? 500 : 11;
-  const n = randomInt(min, max);
-  const roman = toRoman(n);
+// ---- Números romanos ----
+const RO_V = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+const roMiles = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const roLeer = (s) => s.split("").reduce((t, c, i) => t + (RO_V[c] < (RO_V[s[i + 1]] || 0) ? -RO_V[c] : RO_V[c]), 0);
+
+// Desglose por lugares: 1994 → «M + CM + XC + IV = 1.000 + 900 + 90 + 4».
+function roDesglose(n) {
+  const d = String(n).split("").reverse().map(Number);
+  const partes = d.map((x, i) => [toRoman(x * 10 ** i), x * 10 ** i]).filter(([, v]) => v).reverse();
+  return partes.length > 1 ? `${partes.map(([s]) => s).join(" + ")} = ${partes.map(([, v]) => roMiles(v)).join(" + ")}` : `${partes[0][0]} = ${roMiles(partes[0][1])}`;
+}
+
+const RO_NIVELES = {
+  "5": { max: 500 },
+  "6": { max: 3999 },
+  disc: { max: 100 },
+  acs: { max: 20 },
+};
+
+// Número con muchos 4 y 9, que es donde están las restas.
+function roNumero(nivel) {
+  if (nivel.max <= 20) return randomInt(1, 20);
+  const cifra = () => (Math.random() < 0.4 ? pick([4, 9]) : randomInt(0, 9));
+  let n;
+  do {
+    n = cifra() + cifra() * 10 + (nivel.max >= 500 ? cifra() * 100 : 0) + (nivel.max >= 3999 ? randomInt(0, 3) * 1000 : 0);
+  } while (n < 1 || n > nivel.max);
+  return n;
+}
+
+function roTres(nivel) {
+  const s = new Set();
+  while (s.size < 3) s.add(roNumero(nivel));
+  return [...s];
+}
+
+function roEscribir(nivel) {
+  const ns = roTres(nivel);
   return {
-    enunciado: `Escribe en números romanos el número ${n}.`,
-    datos: [`Número: ${n}`],
-    operacion: `${n} se descompone según el valor de cada cifra romana`,
-    solucion: `${roman}. El número ${n} en números romanos es ${roman}.`,
+    enunciado: `Escribe en números romanos: a) ${roMiles(ns[0])}   b) ${roMiles(ns[1])}   c) ${roMiles(ns[2])}.`,
+    datos: ["Escribe cada lugar por separado (millares, centenas, decenas y unidades) y júntalos.", "El 4 y el 9 se escriben restando: IV, IX, XL, XC, CD, CM."],
+    operacion: ns.map((n, i) => `${"abc"[i]}) ${roMiles(n)} → ${roDesglose(n).split(" = ")[0]}`).join(" · "),
+    solucion: ns.map((n, i) => `${"abc"[i]}) ${toRoman(n)}`).join("; ") + ".",
   };
 }
 
-function numerosRomanosDesdeFormato(curso) {
-  const max = curso === "6" ? 3999 : 500;
-  const min = curso === "6" ? 500 : 11;
-  const n = randomInt(min, max);
-  const roman = toRoman(n);
+function roLeerNumeros(nivel) {
+  const ns = roTres(nivel);
   return {
-    enunciado: `¿Qué número representa la cifra romana ${roman}?`,
-    datos: [`Cifra romana: ${roman}`],
-    operacion: `${roman} se traduce sumando (o restando) el valor de cada letra`,
-    solucion: `${n}. La cifra romana ${roman} representa el número ${n}.`,
+    enunciado: `¿Qué número es cada uno? a) ${toRoman(ns[0])}   b) ${toRoman(ns[1])}   c) ${toRoman(ns[2])}.`,
+    datos: ["Si una letra es menor que la de su derecha, se resta; si no, se suma."],
+    operacion: ns.map((n, i) => `${"abc"[i]}) ${roDesglose(n)}`).join(" · "),
+    solucion: ns.map((n, i) => `${"abc"[i]}) ${roMiles(n)}`).join("; ") + ".",
   };
 }
 
-function numerosRomanosOperacion(curso) {
-  const max = curso === "6" ? 500 : 100;
-  const a = randomInt(10, max);
-  const b = randomInt(10, max);
-  const suma = a + b;
+// Escrituras incorrectas con su valor y la regla que rompen.
+const RO_MAL = [
+  ["IIII", 4, "más de tres letras iguales seguidas"],
+  ["VIIII", 9, "más de tres letras iguales seguidas"],
+  ["XXXX", 40, "más de tres letras iguales seguidas"],
+  ["CCCC", 400, "más de tres letras iguales seguidas"],
+  ["IC", 99, "la I solo resta a V y X"],
+  ["IL", 49, "la I solo resta a V y X"],
+  ["XM", 990, "la X solo resta a L y C"],
+  ["VX", 5, "la V nunca resta"],
+  ["VV", 10, "la V no se repite"],
+  ["LL", 100, "la L no se repite"],
+  ["DD", 1000, "la D no se repite"],
+  ["IIX", 8, "solo se puede restar una letra"],
+  ["XXC", 80, "solo se puede restar una letra"],
+];
+
+function roCorregir(nivel) {
+  const lista = RO_MAL.filter(([, v]) => v <= nivel.max);
+  const elegidas = lista.slice().sort(() => Math.random() - 0.5).slice(0, 3);
   return {
-    enunciado: `Calcula ${toRoman(a)} + ${toRoman(b)} y escribe el resultado en números romanos.`,
-    datos: [`${toRoman(a)} = ${a}`, `${toRoman(b)} = ${b}`],
-    operacion: `${a} + ${b} = ${suma} → ${toRoman(suma)}`,
-    solucion: `${toRoman(suma)}. El resultado es ${toRoman(suma)} (${suma}).`,
+    enunciado: `Estos números romanos están mal escritos. Explica por qué y escríbelos bien: ${elegidas.map(([s]) => s).join(", ")}.`,
+    datos: ["No más de 3 letras iguales seguidas.", "V, L y D no se repiten ni restan.", "Solo restan I, X y C, y solo delante de las dos letras siguientes."],
+    operacion: elegidas.map(([s, v, r]) => `${s}: ${r}`).join(" · "),
+    solucion: elegidas.map(([s, v]) => `${s} quería decir ${roMiles(v)} → ${toRoman(v)}`).join("; ") + ".",
+  };
+}
+
+const RO_HECHOS = [
+  [711, "los musulmanes llegaron a la península ibérica"],
+  [929, "Abderramán III proclamó el Califato de Córdoba"],
+  [1248, "Fernando III conquistó Sevilla"],
+  [1492, "Colón llegó a América"],
+  [1605, "se publicó la primera parte del Quijote"],
+  [1812, "se aprobó la Constitución de Cádiz"],
+  [1929, "se celebró la Exposición Iberoamericana de Sevilla"],
+  [1978, "se aprobó la Constitución española"],
+  [1992, "se celebró la Exposición Universal de Sevilla"],
+];
+const roSiglo = (a) => Math.floor((a - 1) / 100) + 1;
+
+function roSiglos() {
+  const [h1, h2] = RO_HECHOS.slice().sort(() => Math.random() - 0.5);
+  const [a, b] = [h1, h2].sort((x, y) => x[0] - y[0]);
+  return {
+    enunciado: `En el año ${a[0]} ${a[1]} y en el año ${b[0]} ${b[1]}. ¿En qué siglo fue cada hecho? Escríbelo en números romanos.`,
+    datos: [`Años: ${a[0]} y ${b[0]}`, "Truco: quita las dos últimas cifras y suma 1 (si el año no acaba en 00)."],
+    operacion: `${a[0]} → ${Math.floor(a[0] / 100)} + 1 = ${roSiglo(a[0])} · ${b[0]} → ${Math.floor(b[0] / 100)} + 1 = ${roSiglo(b[0])}`,
+    solucion: `Siglo ${toRoman(roSiglo(a[0]))} y siglo ${toRoman(roSiglo(b[0]))}.`,
+  };
+}
+
+function roReyes() {
+  const REY = [["Felipe VI", "sexto"], ["Carlos III", "tercero"], ["Isabel II", "segunda"], ["Fernando VII", "séptimo"], ["Alfonso X", "décimo"], ["Felipe II", "segundo"], ["Felipe V", "quinto"], ["Isabel I", "primera"]];
+  const elegidos = REY.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+  return {
+    enunciado: `Escribe cómo se leen estos nombres de reyes y reinas: ${elegidos.map(([r]) => r).join(", ")}.`,
+    datos: ["Los nombres de reyes, reinas y papas se leen con ordinales hasta el décimo."],
+    operacion: elegidos.map(([r]) => `${r.split(" ").pop()} = ${roLeer(r.split(" ").pop())}`).join(" · "),
+    solucion: elegidos.map(([r, o]) => `${r.split(" ").slice(0, -1).join(" ")} ${o}`).join("; ") + ".",
+  };
+}
+
+function roOperar(nivel) {
+  const max = Math.min(nivel.max, 1500);
+  const a = randomInt(10, Math.max(11, Math.floor(max / 2)));
+  const b = randomInt(5, Math.max(6, Math.floor(max / 2)));
+  const resta = Math.random() < 0.4 && a !== b;
+  const [x, y] = resta ? [Math.max(a, b), Math.min(a, b)] : [a, b];
+  const r = resta ? x - y : x + y;
+  return {
+    enunciado: `Calcula ${toRoman(x)} ${resta ? "−" : "+"} ${toRoman(y)} y escribe el resultado en números romanos.`,
+    datos: [`${toRoman(x)} = ${roMiles(x)}`, `${toRoman(y)} = ${roMiles(y)}`],
+    operacion: `${roMiles(x)} ${resta ? "−" : "+"} ${roMiles(y)} = ${roMiles(r)} → ${roDesglose(r).split(" = ")[0]}`,
+    solucion: `${toRoman(r)} (${roMiles(r)}).`,
+  };
+}
+
+function roOrdenar(nivel) {
+  const s = new Set();
+  while (s.size < 4) s.add(roNumero(nivel));
+  const ns = [...s];
+  const orden = ns.slice().sort((x, y) => x - y);
+  return {
+    enunciado: `Ordena de menor a mayor: ${ns.map(toRoman).join(", ")}.`,
+    datos: ns.map((n) => `${toRoman(n)} = ${roMiles(n)}`),
+    operacion: orden.map(roMiles).join(" < "),
+    solucion: `${orden.map(toRoman).join(" < ")}.`,
   };
 }
 
 function genNumerosRomanos(curso) {
-  return pick([numerosRomanosAFormato, numerosRomanosDesdeFormato, numerosRomanosOperacion])(curso);
+  const nivel = RO_NIVELES[curso === "6" ? "6" : "5"];
+  return siguienteDeBaraja(`ro${curso}`, [roEscribir, roLeerNumeros, roCorregir, roSiglos, roReyes, roOperar, roOrdenar])(nivel);
+}
+
+function roAcsEscribir() {
+  const n = randomInt(1, 20);
+  return {
+    enunciado: `Escribe en números romanos el número ${n}. Usa solo I, V y X.`,
+    datos: ["I = 1, V = 5, X = 10"],
+    operacion: roDesglose(n),
+    solucion: `${toRoman(n)}.`,
+  };
+}
+
+function roAcsReloj() {
+  const n = randomInt(1, 12);
+  return {
+    enunciado: `La aguja pequeña del reloj de la plaza señala el ${toRoman(n)}. ¿Qué hora es (en punto)?`,
+    datos: [`Número romano: ${toRoman(n)}`],
+    operacion: roDesglose(n),
+    solucion: `Las ${n === 1 ? "una" : n} en punto.`,
+  };
 }
 
 function genNumerosRomanosACS() {
-  const n = randomInt(1, 20);
-  const roman = toRoman(n);
+  return siguienteDeBaraja("roAcs", [roAcsEscribir, roAcsReloj, roAcsEscribir, () => roLeerNumeros(RO_NIVELES.acs), () => roOrdenar(RO_NIVELES.acs)])();
+}
+
+// Discalculia: los contenidos del curso con números hasta el 100.
+function genNumerosRomanosDiscalculia(curso) {
+  return siguienteDeBaraja(`roDisc${curso}`, [roEscribir, roLeerNumeros, roCorregir, roSiglos, roReyes, roOrdenar])(RO_NIVELES.disc);
+}
+
+function roAnioActual() {
+  const anio = new Date().getFullYear();
+  const nac = anio - randomInt(10, 12);
   return {
-    enunciado: `Escribe en números romanos el número ${n}.`,
-    datos: [`Número: ${n}`],
-    operacion: `${n} se escribe combinando las letras I, V y X`,
-    solucion: `${roman}. El número ${n} en números romanos es ${roman}.`,
+    enunciado: `Escribe en números romanos el año actual (${anio}) y el año en que naciste (${nac}). ¿Cuántos años hay entre los dos? Escríbelo también en romanos.`,
+    datos: [`Año actual: ${anio}`, `Año de nacimiento: ${nac}`],
+    operacion: `${anio} → ${toRoman(anio)} · ${nac} → ${toRoman(nac)} · ${anio} − ${nac} = ${anio - nac} → ${toRoman(anio - nac)}`,
+    solucion: `${toRoman(anio)}, ${toRoman(nac)} y ${toRoman(anio - nac)}.`,
   };
 }
 
 function genNumerosRomanosAltas() {
-  const a = randomInt(500, 3500);
-  const b = randomInt(100, a - 50);
-  const resultado = a - b;
-  return {
-    enunciado: `Calcula ${toRoman(a)} − ${toRoman(b)} y escribe el resultado en números romanos.`,
-    datos: [`${toRoman(a)} = ${a}`, `${toRoman(b)} = ${b}`],
-    operacion: `${a} − ${b} = ${resultado} → ${toRoman(resultado)}`,
-    solucion: `${toRoman(resultado)}. El resultado es ${toRoman(resultado)} (${resultado}).`,
-  };
+  const n = RO_NIVELES["6"];
+  return siguienteDeBaraja("roAltas", [() => roOperar(n), () => roCorregir(n), roAnioActual, () => roOrdenar(n), () => roEscribir(n)])();
 }
 
 // ---- Las potencias ----
@@ -4059,7 +4190,7 @@ const TOPICS = [
   { id: "multiplicaciones", label: "Multiplicaciones", category: "Operaciones básicas", generate: genMultiplicaciones, generateACS: genMultiplicacionesACS, generateAltas: genMultiplicacionesAltas, resumen: "Multiplicar es sumar un mismo número varias veces de forma rápida." },
   { id: "divisiones", label: "Divisiones", category: "Operaciones básicas", generate: genDivisiones, generateACS: genDivisionesACS, generateAltas: genDivisionesAltas, resumen: "Dividir es repartir una cantidad en partes iguales." },
   { id: "operaciones-combinadas", label: "Operaciones combinadas", category: "Operaciones básicas", generate: genOperacionesCombinadas, generateACS: genOperacionesCombinadasACS, generateDiscalculia: genOperacionesCombinadasDiscalculia, generateAltas: genOperacionesCombinadasAltas, resumen: "En una operación combinada se resuelven primero los paréntesis, después las multiplicaciones y divisiones y por último las sumas y restas. Las del mismo nivel se hacen de izquierda a derecha: 24 ÷ 4 × 2 = 6 × 2 = 12. Escribe la operación de nuevo en cada paso." },
-  { id: "numeros-romanos", label: "Números romanos", category: "Operaciones básicas", generate: genNumerosRomanos, generateACS: genNumerosRomanosACS, generateAltas: genNumerosRomanosAltas, resumen: "Los números romanos se escriben combinando las letras I, V, X, L, C, D y M según reglas de suma y resta." },
+  { id: "numeros-romanos", label: "Números romanos", category: "Operaciones básicas", generate: genNumerosRomanos, generateACS: genNumerosRomanosACS, generateDiscalculia: genNumerosRomanosDiscalculia, generateAltas: genNumerosRomanosAltas, resumen: "I = 1, V = 5, X = 10, L = 50, C = 100, D = 500, M = 1.000. Una letra a la derecha de otra igual o mayor suma; una letra menor a la izquierda de otra mayor resta (IV = 4, XC = 90). No se repite una letra más de 3 veces; V, L y D no se repiten; solo restan I, X y C. Se escribe lugar a lugar: 1994 = M + CM + XC + IV = MCMXCIV." },
   { id: "potencias", label: "Las potencias", category: "Operaciones básicas", generate: genPotencias, generateACS: genPotenciasACS, generateDiscalculia: genPotenciasDiscalculia, generateAltas: genPotenciasAltas, resumen: "Una potencia es una multiplicación de factores iguales: 4³ = 4 × 4 × 4 = 64. La base (4) es el factor que se repite y el exponente (3), las veces que se repite. Con exponente 2 se dice «al cuadrado» y con 3, «al cubo». Ojo: 4³ no es 4 × 3.", resumen6: "Una potencia es una multiplicación de factores iguales: 4³ = 4 × 4 × 4 = 64 (base 4, exponente 3; no es 4 × 3). Una potencia de 10 es un 1 seguido de tantos ceros como dice el exponente: 10⁵ = 100.000. Para descomponer un número, cada cifra se multiplica por la potencia de 10 de su lugar: 40.302 = 4 × 10⁴ + 3 × 10² + 2." },
   { id: "numeros-enteros", label: "Números enteros", category: "Operaciones básicas", generate: genNumerosEnteros, generateACS: genNumerosEnterosACS, generateDiscalculia: genNumerosEnterosDiscalculia, generateAltas: genNumerosEnterosAltas, resumen: "Los números enteros son los positivos, los negativos y el cero. Los negativos se escriben con el signo − y sirven para temperaturas bajo cero, sótanos, profundidades bajo el nivel del mar o deudas. En la recta numérica, el mayor es el que está más a la derecha: −2 > −6.", resumen6: "Los números enteros son los positivos, los negativos y el cero. En la recta, el mayor es el que está más a la derecha (−2 > −6). El valor absoluto es la distancia hasta el 0 (|−5| = 5) y el opuesto está al otro lado, a la misma distancia (−5 y 5). Para sumar: mismo signo, se suman y se deja el signo; distinto signo, se restan y se deja el signo del de mayor valor absoluto." },
   { id: "multiplos-divisores", label: "Múltiplos, divisores y números primos", category: "Operaciones básicas", generate: genMultiplosDivisores, generateACS: genMultiplosDivisoresACS, generateDiscalculia: genMultiplosDivisoresDiscalculia, generateAltas: genMultiplosDivisoresAltas, resumen: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo.", resumen6: "Un número es múltiplo de otro si está en su tabla (6 × 7 = 42), y es divisor si lo divide de forma exacta, sin que sobre nada (42 : 6 = 7, resto 0). Un número primo solo tiene dos divisores: el 1 y él mismo. El m.c.m. es el menor múltiplo común de dos números y el M.C.D., su mayor divisor común." },

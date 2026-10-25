@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas · 6º de Primaria</p>
         <h1>Números romanos</h1>
-        <p class="content-subtitle">Las letras romanas y sus reglas para leer y escribir números.</p>
+        <p class="content-subtitle">Lee y escribe números romanos con sus reglas, descubre por qué IIII o IC están mal y úsalos para los siglos, los reyes y los relojes.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -51,6 +51,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -59,10 +60,12 @@
 
         <h2>Las letras romanas</h2>
         <p>Los romanos representaban los números con letras. Cada letra tiene un valor fijo:</p>
-        <table class="rules-table">
+        <div class="po-tabla-wrap">
+        <table class="rules-table ro-lugares">
           <tr><th>Letra</th><th>I</th><th>V</th><th>X</th><th>L</th><th>C</th><th>D</th><th>M</th></tr>
-          <tr><td>Valor</td><td>1</td><td>5</td><td>10</td><td>50</td><td>100</td><td>500</td><td>1000</td></tr>
+          <tr><td>Valor</td><td>1</td><td>5</td><td>10</td><td>50</td><td>100</td><td>500</td><td>1.000</td></tr>
         </table>
+        </div>
 
         <h2>Reglas para leer y escribir</h2>
         <div class="rule-box aguda">
@@ -81,8 +84,30 @@
           <p class="examples"><strong>Ejemplo:</strong> 4 se escribe IV, nunca IIII.</p>
         </div>
         <div class="rule-box sobresdrujula">
-          <h4>4. Solo se puede restar una letra a la vez</h4>
-          <p>Las letras que restan (I, X, C) solo se colocan delante de la letra inmediatamente superior o de la siguiente: I delante de V o X; X delante de L o C; C delante de D o M.</p>
+          <h4>4. Solo restan I, X y C, de una en una</h4>
+          <p>Las letras que restan (I, X, C) solo se colocan delante de las dos letras siguientes: I delante de V o X; X delante de L o C; C delante de D o M. Y solo se resta una letra cada vez.</p>
+        </div>
+
+        <h2>Errores frecuentes</h2>
+        <div class="po-tabla-wrap"><table class="rules-table">
+          <tr><th>Número</th><th>Mal</th><th>Bien</th><th>Por qué</th></tr>
+          <tr><td>4</td><td>IIII</td><td><strong>IV</strong></td><td>Más de 3 letras iguales seguidas</td></tr>
+          <tr><td>99</td><td>IC</td><td><strong>XCIX</strong></td><td>I solo resta a V y X</td></tr>
+          <tr><td>8</td><td>IIX</td><td><strong>VIII</strong></td><td>Solo se resta una letra</td></tr>
+          <tr><td>10</td><td>VV</td><td><strong>X</strong></td><td>V, L y D no se repiten</td></tr>
+        </table></div>
+
+        <h2>Escribir un número lugar a lugar</h2>
+        <p>Se escribe por separado cada lugar (millares, centenas, decenas y unidades) y se juntan. Los romanos no tenían cero: si un lugar vale 0, no se escribe nada.</p>
+        <div class="po-tabla-wrap"><table class="rules-table ro-lugares">
+          <tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr>
+          <tr><th>U</th><td>I</td><td>II</td><td>III</td><td>IV</td><td>V</td><td>VI</td><td>VII</td><td>VIII</td><td>IX</td></tr>
+          <tr><th>D</th><td>X</td><td>XX</td><td>XXX</td><td>XL</td><td>L</td><td>LX</td><td>LXX</td><td>LXXX</td><td>XC</td></tr>
+          <tr><th>C</th><td>C</td><td>CC</td><td>CCC</td><td>CD</td><td>D</td><td>DC</td><td>DCC</td><td>DCCC</td><td>CM</td></tr>
+          <tr><th>UM</th><td>M</td><td>MM</td><td>MMM</td><td colspan="6"></td></tr>
+        </table></div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> 2.048 = 2.000 + 40 + 8 → MM + XL + VIII = <strong>MMXLVIII</strong>. Para leerlo, se hace al revés.
         </div>
 
         <svg viewBox="0 0 400 130" style="max-width:400px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
@@ -91,23 +116,41 @@
           <line x1="150" y1="50" x2="150" y2="70" stroke="var(--color-teal)" stroke-width="2"/>
           <line x1="230" y1="50" x2="230" y2="70" stroke="var(--color-teal)" stroke-width="2"/>
           <line x1="310" y1="50" x2="310" y2="70" stroke="var(--color-teal)" stroke-width="2"/>
-          <text x="70" y="90" text-anchor="middle" font-size="14" fill="var(--color-teal)">M=1000</text>
+          <text x="70" y="90" text-anchor="middle" font-size="14" fill="var(--color-teal)">M=1.000</text>
           <text x="150" y="90" text-anchor="middle" font-size="14" fill="var(--color-teal)">CM=900</text>
           <text x="230" y="90" text-anchor="middle" font-size="14" fill="var(--color-teal)">XC=90</text>
           <text x="310" y="90" text-anchor="middle" font-size="14" fill="var(--color-teal)">IV=4</text>
-          <text x="200" y="115" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text-muted)">1000 + 900 + 90 + 4 = 1994</text>
+          <text x="200" y="115" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text-muted)">1.000 + 900 + 90 + 4 = 1.994</text>
         </svg>
 
         <h2>Números romanos frecuentes</h2>
-        <table class="rules-table">
+        <div class="po-tabla-wrap"><table class="rules-table">
           <tr><th>Romano</th><th>Valor</th><th>Romano</th><th>Valor</th></tr>
           <tr><td>I, II, III, IV, V</td><td>1, 2, 3, 4, 5</td><td>XL, L</td><td>40, 50</td></tr>
           <tr><td>VI, VII, VIII, IX, X</td><td>6, 7, 8, 9, 10</td><td>XC, C</td><td>90, 100</td></tr>
-          <tr><td>XX, XXX</td><td>20, 30</td><td>CD, D, CM, M</td><td>400, 500, 900, 1000</td></tr>
-        </table>
+          <tr><td>XX, XXX</td><td>20, 30</td><td>CD, D, CM, M</td><td>400, 500, 900, 1.000</td></tr>
+        </table></div>
 
         <div class="tip-box">
-          <strong>¿Dónde los vemos hoy?</strong> En relojes, en los siglos (siglo XXI), en tomos de libros, o detrás del nombre de reyes y papas (Felipe VI, Juan Pablo II).
+          <strong>¿Dónde los vemos hoy?</strong> En relojes, en los siglos (siglo XXI), en tomos y capítulos de libros, o detrás del nombre de reyes y papas (Felipe VI, Juan Pablo II).
+        </div>
+
+        <h2>Los siglos</h2>
+        <div class="rule-box aguda">
+          <h4>¿En qué siglo fue?</h4>
+          <p>El siglo I va del año 1 al 100; el siglo II, del 101 al 200… <strong>Truco:</strong> quita las dos últimas cifras del año y suma 1. Si el año acaba en 00, no se suma.</p>
+          <p class="examples"><strong>Ejemplos:</strong> 1492 → 14 + 1 = 15 → siglo XV · 1812 → siglo XIX · 2000 → siglo XX (es el último año del siglo XX).</p>
+        </div>
+        <div class="rule-box llana">
+          <h4>Reyes, reinas y papas</h4>
+          <p>Se leen con ordinales hasta el décimo: Felipe VI se lee «Felipe sexto»; Isabel II, «Isabel segunda»; Alfonso X, «Alfonso décimo».</p>
+        </div>
+
+        <div class="grade-section">
+          <span class="grade-badge">Para saber más</span>
+          <h2>Números mayores que 3.999</h2>
+          <p>Con las reglas anteriores solo se llega a 3.999 (MMMCMXCIX). Para números mayores, una <strong>raya encima</strong> de una letra multiplica su valor por 1.000.</p>
+          <p class="examples"><span class="ro-raya">V</span> = 5.000 · <span class="ro-raya">X</span> = 10.000 · <span class="ro-raya">IV</span>CC = 4.200</p>
         </div>
 
         <p style="text-align:center; margin-top:32px;">
@@ -115,6 +158,78 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="ro-teclado">
+          <h2>1. Teclado romano</h2>
+          <p class="md-explore-intro">Escribe con las letras: verás cuánto vale y si está bien escrito.</p>
+          <p class="po-big ro-escrito" id="ro-tec-escrito"></p>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" data-ro="I">I</button>
+            <button type="button" class="btn btn-secondary" data-ro="V">V</button>
+            <button type="button" class="btn btn-secondary" data-ro="X">X</button>
+            <button type="button" class="btn btn-secondary" data-ro="L">L</button>
+            <button type="button" class="btn btn-secondary" data-ro="C">C</button>
+            <button type="button" class="btn btn-secondary" data-ro="D">D</button>
+            <button type="button" class="btn btn-secondary" data-ro="M">M</button>
+            <button type="button" class="btn btn-secondary" data-ro="borrar" aria-label="Borrar la última letra">⌫</button>
+            <button type="button" class="btn btn-secondary" data-ro="limpiar">Borrar todo</button>
+          </div>
+          <div class="md-msg ok" id="ro-tec-msg" aria-live="polite"></div>
+        </div>
+
+        <div class="md-explore-card" id="ro-lugares">
+          <h2>2. Del número al romano, lugar a lugar</h2>
+          <p class="md-explore-intro">Cambia cada cifra y mira cómo se escribe cada lugar.</p>
+          <div class="md-controls ro-lug-controles">
+            <div class="md-stepper">
+              <span class="md-stepper-label">UM</span>
+              <button type="button" class="btn btn-secondary" data-ro-lug="0" data-delta="-1" aria-label="Millares menos uno">−</button>
+              <output id="ro-lug-m"></output>
+              <button type="button" class="btn btn-secondary" data-ro-lug="0" data-delta="1" aria-label="Millares más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">C</span>
+              <button type="button" class="btn btn-secondary" data-ro-lug="1" data-delta="-1" aria-label="Centenas menos uno">−</button>
+              <output id="ro-lug-c"></output>
+              <button type="button" class="btn btn-secondary" data-ro-lug="1" data-delta="1" aria-label="Centenas más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">D</span>
+              <button type="button" class="btn btn-secondary" data-ro-lug="2" data-delta="-1" aria-label="Decenas menos uno">−</button>
+              <output id="ro-lug-d"></output>
+              <button type="button" class="btn btn-secondary" data-ro-lug="2" data-delta="1" aria-label="Decenas más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">U</span>
+              <button type="button" class="btn btn-secondary" data-ro-lug="3" data-delta="-1" aria-label="Unidades menos uno">−</button>
+              <output id="ro-lug-u"></output>
+              <button type="button" class="btn btn-secondary" data-ro-lug="3" data-delta="1" aria-label="Unidades más uno">+</button>
+            </div>
+          </div>
+          <div class="po-tabla-wrap" id="ro-lug-tabla"></div>
+          <p class="md-msg ok" id="ro-lug-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="ro-siglos">
+          <h2>3. ¿En qué siglo?</h2>
+          <p class="md-explore-intro">Cambia el año y mira a qué siglo pertenece.</p>
+          <p class="po-big" id="ro-sig-anio"></p>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" data-ro-sig="-100">−100</button>
+            <button type="button" class="btn btn-secondary" data-ro-sig="-1">−1</button>
+            <button type="button" class="btn btn-secondary" data-ro-sig="1">+1</button>
+            <button type="button" class="btn btn-secondary" data-ro-sig="100">+100</button>
+          </div>
+          <p class="md-msg ok" id="ro-sig-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -130,6 +245,9 @@
           <div class="choice-row" id="mode-picker">
             <button class="btn btn-secondary active" data-mode="aromano">De número a romano</button>
             <button class="btn btn-secondary" data-mode="adecimal">De romano a número</button>
+            <button class="btn btn-secondary" data-mode="valido">¿Cuál está bien escrito?</button>
+            <button class="btn btn-secondary" data-mode="vida">Siglos, reyes y relojes</button>
+            <button class="btn btn-secondary" data-mode="operar">Operar</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
@@ -137,6 +255,11 @@
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
