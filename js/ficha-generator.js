@@ -3962,63 +3962,198 @@ function genProbabilidadAltas() {
   return probabilidadComparar();
 }
 
-function propiedadesDistributiva() {
-  const a = randomInt(3, 8);
-  const b = randomInt(3, 9);
-  const c = randomInt(3, 9);
-  const total = a * (b + c);
-  const objeto = pick(["asientos", "sillas", "mesas"]);
+// ---- Propiedades de las operaciones ----
+function pfTres(max) {
+  const s = new Set();
+  while (s.size < 3) s.add(randomInt(2, max));
+  return [...s];
+}
+
+const PF_NIVELES = {
+  "5": { max: 9, resta: false },
+  "6": { max: 12, resta: true },
+  disc: { max: 6, resta: false },
+  altas: { max: 20, resta: true },
+};
+
+function pfDosFormas(nivel) {
+  const [a, b, c] = pfTres(nivel.max);
+  const op = pick(["+", "×"]);
+  const r = (x, y) => (op === "+" ? x + y : x * y);
+  const ab = r(a, b);
+  const bc = r(b, c);
   return {
-    enunciado: `Un cine tiene ${a} filas de ${b} ${objeto} y otras ${a} filas de ${c} ${objeto}. Usa la propiedad distributiva para calcular el total de ${objeto}.`,
-    datos: [`Filas: ${a}`, `${objeto} por fila: ${b} y ${c}`],
-    operacion: `${a} × (${b} + ${c}) = ${a} × ${b + c} = ${total}`,
-    solucion: `${total}. Hay ${total} ${objeto} en total.`,
+    enunciado: `Calcula de dos formas y comprueba que da lo mismo: (${a} ${op} ${b}) ${op} ${c} y ${a} ${op} (${b} ${op} ${c}). ¿Qué propiedad has usado?`,
+    datos: [`(${a} ${op} ${b}) ${op} ${c}`, `${a} ${op} (${b} ${op} ${c})`],
+    operacion: `(${a} ${op} ${b}) ${op} ${c} = ${ab} ${op} ${c} = ${poMiles(r(ab, c))} · ${a} ${op} (${b} ${op} ${c}) = ${a} ${op} ${bc} = ${poMiles(r(a, bc))}`,
+    solucion: `Las dos dan ${poMiles(r(ab, c))}. Propiedad asociativa.`,
   };
 }
 
-function propiedadesConmutativa() {
-  const a = randomInt(3, 9);
-  const b = randomInt(3, 9);
+function pfDistributiva(nivel) {
+  const [a, b, c] = pfTres(nivel.max);
+  const resta = nivel.resta && Math.random() < 0.4;
+  const [x, y] = resta ? [Math.max(b, c), Math.min(b, c)] : [b, c];
+  const s = resta ? "−" : "+";
+  const dentro = resta ? x - y : x + y;
   return {
-    enunciado: `¿Da igual comprar ${a} cajas de ${b} kg cada una, que ${b} cajas de ${a} kg cada una? Explica usando la propiedad conmutativa.`,
-    datos: [`${a} × ${b}`, `${b} × ${a}`],
-    operacion: `${a} × ${b} = ${a * b}. ${b} × ${a} = ${a * b}`,
-    solucion: `Sí, da igual: ${a} × ${b} = ${b} × ${a} = ${a * b} kg (propiedad conmutativa).`,
+    enunciado: `Calcula ${a} × (${x} ${s} ${y}) de dos formas: primero el paréntesis y después con la propiedad distributiva.`,
+    datos: [`${a} × (${x} ${s} ${y})`],
+    operacion: `${a} × (${x} ${s} ${y}) = ${a} × ${dentro} = ${a * dentro} · ${a} × ${x} ${s} ${a} × ${y} = ${a * x} ${s} ${a * y} = ${a * dentro}`,
+    solucion: `${a * dentro} de las dos formas.`,
   };
 }
 
-function propiedadesDosOperaciones() {
-  const a = randomInt(3, 6);
-  const b = randomInt(3, 7);
-  const c = randomInt(3, 7);
-  const extra = randomInt(2, 10);
-  const total = a * (b + c) - extra;
-  const objeto = pick(["cromos", "canicas", "caramelos"]);
+function pfFactorComun(nivel) {
+  const [a, b, c] = pfTres(nivel.max);
+  // Que la suma del paréntesis sea redonda la mitad de las veces.
+  const [p, q] = Math.random() < 0.5 ? [b, 10 - (b % 10 || 5)] : [b, c];
+  if (p === q) return pfDistributiva(nivel);
   return {
-    enunciado: `Un grupo de amigos compra ${a} paquetes de ${b} ${objeto} y otros ${a} paquetes de ${c} ${objeto}. Después regalan ${extra} ${objeto}. ¿Cuántos ${objeto} les quedan?`,
-    datos: [`Paquetes: ${a}`, `${objeto} por paquete: ${b} y ${c}`, `Regalados: ${extra}`],
-    operacion: `${a} × (${b} + ${c}) = ${a * (b + c)}. ${a * (b + c)} − ${extra} = ${total}`,
-    solucion: `${total}. Les quedan ${total} ${objeto}.`,
+    enunciado: `Saca factor común y calcula: ${a} × ${p} + ${a} × ${q}.`,
+    datos: [`El ${a} se repite en los dos sumandos.`],
+    operacion: `${a} × ${p} + ${a} × ${q} = ${a} × (${p} + ${q}) = ${a} × ${p + q} = ${a * (p + q)}`,
+    solucion: `${a} × (${p} + ${q}) = ${a * (p + q)}.`,
   };
 }
 
-function genPropiedadesOperaciones() {
-  return pick([propiedadesDistributiva, propiedadesConmutativa, propiedadesDosOperaciones])();
+function pfQuePropiedad(nivel) {
+  const [a, b, c] = pfTres(nivel.max);
+  const lista = [
+    [`${a} + ${b} = ${b} + ${a}`, "conmutativa"],
+    [`${a} × ${b} = ${b} × ${a}`, "conmutativa"],
+    [`(${a} × ${b}) × ${c} = ${a} × (${b} × ${c})`, "asociativa"],
+    [`(${a} + ${b}) + ${c} = ${a} + (${b} + ${c})`, "asociativa"],
+    [`${a} × (${b} + ${c}) = ${a} × ${b} + ${a} × ${c}`, "distributiva"],
+    [`${a} × 1 = ${a}`, "elemento neutro de la multiplicación"],
+    [`${a} + 0 = ${a}`, "elemento neutro de la suma"],
+  ];
+  const tres = lista.slice().sort(() => Math.random() - 0.5);
+  // Tres igualdades con propiedades distintas.
+  const elegidas = [];
+  for (const it of tres) if (elegidas.length < 3 && !elegidas.some((e) => e[1].split(" ")[0] === it[1].split(" ")[0])) elegidas.push(it);
+  return {
+    enunciado: `Escribe qué propiedad se usa en cada igualdad: a) ${elegidas[0][0]}   b) ${elegidas[1][0]}   c) ${elegidas[2][0]}`,
+    datos: ["Conmutativa: cambia el orden. Asociativa: cambian los paréntesis. Distributiva: un número multiplica a una suma. Elemento neutro: 0 en la suma, 1 en la multiplicación."],
+    operacion: elegidas.map(([e, p], i) => `${"abc"[i]}) ${p}`).join(" · "),
+    solucion: elegidas.map(([, p], i) => `${"abc"[i]}) ${p[0].toUpperCase()}${p.slice(1)}`).join("; ") + ".",
+  };
+}
+
+function pfCalculoMental(nivel) {
+  const x = randomInt(11, 89);
+  const z = 100 - x;
+  let y;
+  do y = randomInt(12, 88);
+  while (y === x || y === z);
+  const [p, q] = pick([[25, 4], [5, 2], [50, 2], [20, 5]]);
+  let k;
+  do k = randomInt(3, nivel.max >= 12 ? 19 : 9);
+  while (k === p || k === q);
+  const m = randomInt(3, 9);
+  const casos = [
+    [`${x} + ${y} + ${z}`, `${x} + ${z} = 100; 100 + ${y} = ${100 + y}`, 100 + y],
+    [`${p} × ${k} × ${q}`, `${p} × ${q} = ${p * q}; ${p * q} × ${k} = ${p * q * k}`, p * q * k],
+    [`${m} × 99`, `${m} × (100 − 1) = ${m * 100} − ${m} = ${m * 99}`, m * 99],
+  ];
+  const usados = nivel === PF_NIVELES.disc || nivel === PF_NIVELES["5"] ? casos.slice(0, 2) : casos;
+  const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return {
+    enunciado: `Calcula de la forma más fácil y explica qué propiedad usas: ${usados.map(([e], i) => `${"abc"[i]}) ${e}`).join("   ")}`,
+    datos: ["Busca parejas que den un número redondo (10, 100) o descompón un número para usar la distributiva."],
+    operacion: usados.map(([, o], i) => `${"abc"[i]}) ${o.replace(/\d{4,}/g, (s) => fmt(Number(s)))}`).join(" · "),
+    solucion: usados.map(([, , v], i) => `${"abc"[i]}) ${fmt(v)}`).join("; ") + ". Propiedades conmutativa y asociativa" + (usados.length > 2 ? "; en c), la distributiva." : "."),
+  };
+}
+
+function pfVerdadFalso(nivel) {
+  const [a, b, c] = pfTres(nivel.max);
+  const [x, y] = [Math.max(a, b) + 2, Math.min(a, b)];
+  return {
+    enunciado: `¿Verdadero o falso? Justifica tu respuesta: a) ${x} − ${y} = ${y} − ${x}   b) ${a} × (${b} + ${c}) = ${a} × ${b} + ${c}   c) ${a} × ${b} = ${b} × ${a}`,
+    datos: ["Calcula los dos lados de cada igualdad."],
+    operacion: `a) ${x} − ${y} = ${x - y}; ${y} − ${x} no se puede · b) ${a} × (${b} + ${c}) = ${a * (b + c)}; ${a} × ${b} + ${c} = ${a * b + c} · c) los dos dan ${a * b}`,
+    solucion: "a) Falso: la resta no es conmutativa. b) Falso: el número tiene que multiplicar a los dos sumandos. c) Verdadero: propiedad conmutativa.",
+  };
+}
+
+function pfProblema(nivel) {
+  const a = randomInt(3, nivel.max >= 12 ? 9 : 6);
+  let b;
+  let c;
+  do {
+    b = randomInt(2, nivel.max);
+    c = randomInt(2, nivel.max);
+  } while (b === c);
+  const ctx = pick([
+    [`Una caja de bombones tiene ${a} filas de ${b} bombones de chocolate negro y ${a} filas de ${c} bombones de chocolate blanco. ¿Cuántos bombones hay?`, "bombones", [`Filas: ${a} de cada tipo`, `Negro: ${b} por fila`, `Blanco: ${c} por fila`]],
+    [`En el huerto escolar hay ${a} filas con ${b} lechugas y ${c} tomateras en cada fila. ¿Cuántas plantas hay?`, "plantas", [`Filas: ${a}`, `Lechugas por fila: ${b}`, `Tomateras por fila: ${c}`]],
+    [`Para la clase se compran ${a} cuadernos a ${b} € y ${a} carpetas a ${c} €. ¿Cuánto se paga?`, "€", [`Cuadernos: ${a} a ${b} €`, `Carpetas: ${a} a ${c} €`]],
+  ]);
+  return {
+    enunciado: `${ctx[0]} Resuélvelo de dos formas.`,
+    datos: ctx[2],
+    operacion: `${a} × ${b} + ${a} × ${c} = ${a * b} + ${a * c} = ${a * (b + c)} · ${a} × (${b} + ${c}) = ${a} × ${b + c} = ${a * (b + c)}`,
+    solucion: `${a * (b + c)} ${ctx[1]} (propiedad distributiva).`,
+  };
+}
+
+function genPropiedadesOperaciones(curso) {
+  if (curso === "6") return siguienteDeBaraja("pf6", [pfQuePropiedad, pfDistributiva, pfFactorComun, pfCalculoMental, pfVerdadFalso, pfProblema, pfDosFormas])(PF_NIVELES["6"]);
+  return siguienteDeBaraja("pf5", [pfQuePropiedad, pfDosFormas, pfDistributiva, pfCalculoMental, pfVerdadFalso, pfProblema])(PF_NIVELES["5"]);
+}
+
+function pfAcsConmutativa() {
+  const a = randomInt(2, 9);
+  let b;
+  do b = randomInt(2, 9);
+  while (b === a);
+  const op = pick(["+", "×"]);
+  const v = op === "+" ? a + b : a * b;
+  return {
+    enunciado: `Calcula ${a} ${op} ${b} y ${b} ${op} ${a}. ¿Da lo mismo?`,
+    datos: [`${a} ${op} ${b}`, `${b} ${op} ${a}`],
+    operacion: `${a} ${op} ${b} = ${v} · ${b} ${op} ${a} = ${v}`,
+    solucion: `Sí, las dos dan ${v}: se puede cambiar el orden (propiedad conmutativa).`,
+  };
+}
+
+function pfAcsResta() {
+  const a = randomInt(6, 12);
+  const b = randomInt(2, 5);
+  return {
+    enunciado: `Calcula ${a} − ${b}. ¿Se puede calcular ${b} − ${a}? ¿Pasa lo mismo que con la suma?`,
+    datos: [`${a} − ${b}`, `${b} − ${a}`],
+    operacion: `${a} − ${b} = ${a - b} · ${b} − ${a} no se puede (${b} es menor que ${a})`,
+    solucion: `${a - b}. No: en la resta no se puede cambiar el orden.`,
+  };
+}
+
+function pfAcsNeutro() {
+  const a = randomInt(3, 20);
+  const suma = Math.random() < 0.5;
+  return {
+    enunciado: suma ? `¿Qué número hay que sumarle a ${a} para que siga siendo ${a}? ¿Y por cuál hay que multiplicarlo?` : `Calcula ${a} × 1 y ${a} + 0. ¿Qué observas?`,
+    datos: [`Número: ${a}`],
+    operacion: `${a} + 0 = ${a} · ${a} × 1 = ${a}`,
+    solucion: suma ? "Hay que sumarle 0 y multiplicarlo por 1 (elemento neutro)." : `Los dos dan ${a}: sumar 0 o multiplicar por 1 no cambia el número.`,
+  };
 }
 
 function genPropiedadesOperacionesACS() {
-  const a = randomInt(2, 5);
-  const b = randomInt(2, 5);
-  return {
-    enunciado: `¿Da igual sumar ${a} + ${b} que ${b} + ${a}? Comprueba el resultado.`,
-    datos: [`${a} + ${b}`, `${b} + ${a}`],
-    operacion: `${a} + ${b} = ${a + b}. ${b} + ${a} = ${a + b}`,
-    solucion: `Sí, da igual: las dos sumas dan ${a + b} (propiedad conmutativa).`,
-  };
+  return siguienteDeBaraja("pfAcs", [pfAcsConmutativa, pfAcsResta, pfAcsConmutativa, pfAcsNeutro, () => pfProblema(PF_NIVELES.disc)])();
+}
+
+// Discalculia: los contenidos del curso con números hasta el 6.
+function genPropiedadesOperacionesDiscalculia(curso) {
+  const lista = [pfQuePropiedad, pfDosFormas, pfDistributiva, pfVerdadFalso, pfProblema];
+  if (curso === "6") lista.push(pfFactorComun);
+  return siguienteDeBaraja(`pfDisc${curso}`, lista)(PF_NIVELES.disc);
 }
 
 function genPropiedadesOperacionesAltas() {
-  return propiedadesDosOperaciones();
+  const n = PF_NIVELES.altas;
+  return siguienteDeBaraja("pfAltas", [() => pfCalculoMental(n), () => pfFactorComun(n), () => pfDistributiva(n), () => pfVerdadFalso(n), () => pfProblema(n)])();
 }
 
 function tablasContenedor() {
@@ -4185,7 +4320,7 @@ const TOPICS = [
   { id: "sumas", label: "Sumas", category: "Operaciones básicas", generate: genSumas, generateACS: genSumasACS, generateAltas: genSumasAltas, resumen: "Sumar es juntar cantidades para saber cuántas hay en total." },
   { id: "tablas", label: "Tablas de multiplicar", category: "Operaciones básicas", generate: genTablas, generateACS: genTablasACS, generateAltas: genTablasAltas, resumen: "La tabla de un número es el resultado de multiplicarlo por 1, 2, 3... hasta 10." },
   { id: "numeros-grandes", label: "Números grandes", category: "Operaciones básicas", generate: genNumerosGrandes, generateACS: genNumerosGrandesACS, generateDiscalculia: genNumerosGrandesDiscalculia, generateAltas: genNumerosGrandesAltas, resumen: "Cada cifra vale según el lugar que ocupa: en 348.256, el 4 está en las decenas de millar y vale 40.000. Los ceros no se leen, pero se escriben. Para comparar, gana el que tiene más cifras; si tienen las mismas, se mira de izquierda a derecha. Para redondear, se mira la cifra de la derecha: si es 5 o más, sube.", resumen6: "Los números se leen por grupos de tres cifras: millones, miles y unidades (348.256.719). Cada cifra vale según su lugar: el 4 de 348.256.719 vale 40.000.000. Los ceros no se leen, pero se escriben. Para redondear al millón, se mira la cifra de las centenas de millar: si es 5 o más, sube." },
-  { id: "propiedades-operaciones", label: "Propiedades de las operaciones", category: "Operaciones básicas", generate: genPropiedadesOperaciones, generateACS: genPropiedadesOperacionesACS, generateAltas: genPropiedadesOperacionesAltas, resumen: "Las propiedades de las operaciones permiten reordenar o agrupar números para calcular más fácilmente, sin cambiar el resultado." },
+  { id: "propiedades-operaciones", label: "Propiedades de las operaciones", category: "Operaciones básicas", generate: genPropiedadesOperaciones, generateACS: genPropiedadesOperacionesACS, generateDiscalculia: genPropiedadesOperacionesDiscalculia, generateAltas: genPropiedadesOperacionesAltas, resumen: "Conmutativa: el orden no cambia el resultado (3 + 5 = 5 + 3). Asociativa: se pueden agrupar de otra manera ((2 × 3) × 4 = 2 × (3 × 4)). Distributiva: 3 × (4 + 5) = 3 × 4 + 3 × 5. Elemento neutro: 0 en la suma y 1 en la multiplicación. La resta y la división no son conmutativas ni asociativas.", resumen6: "Conmutativa, asociativa, distributiva (también con la resta: 6 × (10 − 2) = 60 − 12) y elemento neutro. Sacar factor común es la distributiva al revés: 7 × 8 + 7 × 2 = 7 × (8 + 2) = 70. Las propiedades sirven para calcular de cabeza: 25 × 13 × 4 = 100 × 13 = 1.300." },
   { id: "restas", label: "Restas", category: "Operaciones básicas", generate: genRestas, generateACS: genRestasACS, generateAltas: genRestasAltas, resumen: "Restar es quitar una cantidad de otra para saber cuánto queda o la diferencia entre ellas." },
   { id: "multiplicaciones", label: "Multiplicaciones", category: "Operaciones básicas", generate: genMultiplicaciones, generateACS: genMultiplicacionesACS, generateAltas: genMultiplicacionesAltas, resumen: "Multiplicar es sumar un mismo número varias veces de forma rápida." },
   { id: "divisiones", label: "Divisiones", category: "Operaciones básicas", generate: genDivisiones, generateACS: genDivisionesACS, generateAltas: genDivisionesAltas, resumen: "Dividir es repartir una cantidad en partes iguales." },

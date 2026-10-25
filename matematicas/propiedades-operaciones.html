@@ -27,9 +27,9 @@
 
     <main class="content">
       <header class="content-header">
-        <p class="eyebrow">Matemáticas · 6º de Primaria</p>
+        <p class="eyebrow">Matemáticas</p>
         <h1>Propiedades de las operaciones</h1>
-        <p class="content-subtitle">Conmutativa, asociativa, distributiva y elemento neutro.</p>
+        <p class="content-subtitle">Conmutativa, asociativa, distributiva y elemento neutro: qué dicen, cuándo no se cumplen y cómo usarlas para calcular de cabeza.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -38,6 +38,11 @@
           <span>Descárgala en Word, trabájala en papel y comprueba tus respuestas.</span>
         </div>
           <div class="ficha-download-group">
+            <span class="grade-tag">5º</span>
+            <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="5">Descargar ficha y soluciones (Word)</button>
+          </div>
+          <div class="ficha-download-group">
+            <span class="grade-tag">6º</span>
             <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="6">Descargar ficha y soluciones (Word)</button>
           </div>
       </div>
@@ -51,6 +56,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -64,7 +70,7 @@
           <p class="examples"><strong>Ejemplo:</strong> 4 + 7 = 7 + 4 = 11 &nbsp;·&nbsp; 3 × 5 = 5 × 3 = 15</p>
         </div>
         <div class="tip-box">
-          <strong>Cuidado:</strong> la resta y la división <strong>no</strong> son conmutativas: 9 − 3 ≠ 3 − 9.
+          <strong>Cuidado:</strong> la resta y la división <strong>no</strong> son conmutativas: 9 − 3 = 6, pero 3 − 9 no se puede hacer con números naturales; 12 ÷ 4 = 3, pero 4 ÷ 12 no es exacta.
         </div>
 
         <h2>Propiedad asociativa</h2>
@@ -73,12 +79,19 @@
           <p>Si tenemos tres o más sumandos (o factores), <strong>podemos agruparlos de distinta manera</strong> y el resultado es el mismo.</p>
           <p class="examples"><strong>Ejemplo:</strong> (2 + 3) + 4 = 2 + (3 + 4) = 9 &nbsp;·&nbsp; (2 × 3) × 4 = 2 × (3 × 4) = 24</p>
         </div>
+        <div class="tip-box">
+          <strong>Cuidado:</strong> la resta tampoco es asociativa: (10 − 4) − 2 = 4, pero 10 − (4 − 2) = 8.
+        </div>
 
         <h2>Propiedad distributiva</h2>
         <div class="rule-box esdrujula">
           <h4>De la multiplicación respecto a la suma</h4>
           <p>Para multiplicar un número por una suma, se puede multiplicar ese número por cada sumando por separado y luego sumar los resultados.</p>
           <p class="examples"><strong>Ejemplo:</strong> 3 × (4 + 5) = 3 × 4 + 3 × 5 = 12 + 15 = 27</p>
+          <p class="examples"><strong>También con la resta:</strong> 6 × (10 − 2) = 6 × 10 − 6 × 2 = 60 − 12 = 48</p>
+        </div>
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> multiplicar solo el primer número. 3 × (4 + 5) <em>no</em> es 3 × 4 + 5 = 17: el 3 multiplica a los dos sumandos.
         </div>
 
         <svg viewBox="0 0 460 150" style="max-width:460px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
@@ -92,22 +105,105 @@
           <text x="340" y="123" text-anchor="middle" font-size="16" font-weight="700" fill="var(--color-amber)">3 × 5 = 15</text>
         </svg>
 
+        <div class="rule-box llana">
+          <h4>Al revés: sacar factor común</h4>
+          <p>Si un mismo número multiplica a todos los sumandos, se puede «sacar fuera» y multiplicarlo por la suma.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 7 × 8 + 7 × 2 = 7 × (8 + 2) = 7 × 10 = 70</p>
+        </div>
+
         <h2>Elemento neutro</h2>
         <table class="rules-table">
           <tr><th>Operación</th><th>Elemento neutro</th><th>Ejemplo</th></tr>
           <tr><td>Suma</td><td>el 0 (no cambia el número)</td><td>8 + 0 = 8</td></tr>
           <tr><td>Multiplicación</td><td>el 1 (no cambia el número)</td><td>8 × 1 = 8</td></tr>
         </table>
-
         <div class="tip-box">
-          <strong>¿Para qué sirven estas propiedades?</strong> Te permiten calcular mentalmente más rápido, reordenando o agrupando los números de la forma que te resulte más fácil.
+          <strong>Ojo con el 0 en la multiplicación:</strong> no es neutro. Cualquier número multiplicado por 0 da 0: 8 × 0 = 0.
         </div>
+
+        <h2>Para qué sirven: calcular de cabeza</h2>
+        <table class="rules-table">
+          <tr><th>Cálculo</th><th>Truco</th></tr>
+          <tr><td>38 + 47 + 62</td><td>38 + 62 = 100; 100 + 47 = <strong>147</strong></td></tr>
+          <tr><td>25 × 13 × 4</td><td>25 × 4 = 100; 100 × 13 = <strong>1.300</strong></td></tr>
+          <tr><td>7 × 99</td><td>7 × 100 − 7 = <strong>693</strong></td></tr>
+          <tr><td>6 × 15</td><td>6 × 10 + 6 × 5 = <strong>90</strong></td></tr>
+        </table>
 
         <p style="text-align:center; margin-top:32px;">
           <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="pr-rect">
+          <h2>1. La distributiva con cuadraditos</h2>
+          <p class="md-explore-intro">Cuenta los cuadraditos de dos formas: todos juntos o cada color por separado.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Filas</span>
+              <button type="button" class="btn btn-secondary" data-pr="rect" data-key="a" data-delta="-1" aria-label="Una fila menos">−</button>
+              <output id="pr-rect-a"></output>
+              <button type="button" class="btn btn-secondary" data-pr="rect" data-key="a" data-delta="1" aria-label="Una fila más">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label pr-b">Verdes</span>
+              <button type="button" class="btn btn-secondary" data-pr="rect" data-key="b" data-delta="-1" aria-label="Una columna verde menos">−</button>
+              <output id="pr-rect-b"></output>
+              <button type="button" class="btn btn-secondary" data-pr="rect" data-key="b" data-delta="1" aria-label="Una columna verde más">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label pr-c">Naranjas</span>
+              <button type="button" class="btn btn-secondary" data-pr="rect" data-key="c" data-delta="-1" aria-label="Una columna naranja menos">−</button>
+              <output id="pr-rect-c"></output>
+              <button type="button" class="btn btn-secondary" data-pr="rect" data-key="c" data-delta="1" aria-label="Una columna naranja más">+</button>
+            </div>
+          </div>
+          <div class="po-draw" id="pr-rect-draw"></div>
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="pr-rect-girar">Girar el rectángulo</button>
+          </div>
+          <div class="md-msg ok" id="pr-rect-msg" aria-live="polite"></div>
+        </div>
+
+        <div class="md-explore-card" id="pr-agr">
+          <h2>2. Agrupa para calcular mejor</h2>
+          <p class="md-explore-intro">Elige cómo agrupar. El resultado es el mismo, pero hay una forma más fácil.</p>
+          <p class="po-big" id="pr-agr-expr"></p>
+          <div class="choice-row" id="pr-agr-opciones"></div>
+          <div class="md-msg ok" id="pr-agr-msg" aria-live="polite"></div>
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="pr-agr-otro">Otro ejemplo</button>
+          </div>
+        </div>
+
+        <div class="md-explore-card" id="pr-rd">
+          <h2>3. ¿Y con la resta y la división?</h2>
+          <p class="md-explore-intro">Cambia los números y compara qué pasa al darles la vuelta.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">A</span>
+              <button type="button" class="btn btn-secondary" data-pr-rd="a" data-delta="-1" aria-label="A menos uno">−</button>
+              <output id="pr-rd-a"></output>
+              <button type="button" class="btn btn-secondary" data-pr-rd="a" data-delta="1" aria-label="A más uno">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">B</span>
+              <button type="button" class="btn btn-secondary" data-pr-rd="b" data-delta="-1" aria-label="B menos uno">−</button>
+              <output id="pr-rd-b"></output>
+              <button type="button" class="btn btn-secondary" data-pr-rd="b" data-delta="1" aria-label="B más uno">+</button>
+            </div>
+          </div>
+          <div class="md-msg ok" id="pr-rd-msg" aria-live="polite"></div>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -121,9 +217,12 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="identificar">Identificar la propiedad</button>
+            <button class="btn btn-secondary active" data-mode="identificar">¿Qué propiedad es?</button>
             <button class="btn btn-secondary" data-mode="completar">Completar la igualdad</button>
-            <button class="btn btn-secondary" data-mode="distributiva">Aplicar la distributiva</button>
+            <button class="btn btn-secondary" data-mode="verdad">¿Verdadero o falso?</button>
+            <button class="btn btn-secondary" data-mode="distributiva">Distributiva y factor común</button>
+            <button class="btn btn-secondary" data-mode="calculo">Cálculo mental</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
@@ -131,6 +230,11 @@
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
