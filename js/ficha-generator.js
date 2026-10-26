@@ -3622,80 +3622,353 @@ function genAngulosAltas() {
   return siguienteDeBaraja("anAltas", [anRelojMedia, () => anVueltaCompleta(n), () => anComplementario(n), () => anErrorEscala(n), () => anClasificar(n)])();
 }
 
-function coordenadasTraslacion() {
-  const x = randomInt(-8, 8);
-  const y = randomInt(-8, 8);
-  const dx = randomInt(-5, 5) || 2;
-  const dy = randomInt(-5, 5) || -3;
+// ---------- Coordenadas y movimientos ----------
+// 5º (Tema 3): primer cuadrante, traslaciones en cuadros y giros de un
+// cuarto de vuelta. 6º (SdA 7): los cuatro cuadrantes, vectores,
+// simetría respecto a los ejes, giros respecto al origen y semejanza.
+const coN = (n) => (n < 0 ? `−${-n}` : String(n));
+const coPar = (x, y) => `(${coN(x)}, ${coN(y)})`;
+const coVec = (dx, dy) => `(${dx > 0 ? "+" : ""}${coN(dx)}, ${dy > 0 ? "+" : ""}${coN(dy)})`;
+const coCuadros = (n) => `${n} ${n === 1 ? "cuadro" : "cuadros"}`;
+
+function coPasos(dx, dy) {
+  const h = dx ? `${coCuadros(Math.abs(dx))} a la ${dx > 0 ? "derecha" : "izquierda"}` : "";
+  const v = dy ? `${dx ? Math.abs(dy) : coCuadros(Math.abs(dy))} hacia ${dy > 0 ? "arriba" : "abajo"}` : "";
+  return h && v ? `${h} y ${v}` : h || v;
+}
+
+function coRotar(dx, dy, sentido) {
+  if (sentido === "A") return [-dy, dx];
+  if (sentido === "H") return [dy, -dx];
+  return [-dx, -dy];
+}
+
+const CO_GIRO = {
+  A: "un cuarto de vuelta en sentido contrario a las agujas del reloj",
+  H: "un cuarto de vuelta en el sentido de las agujas del reloj",
+  M: "media vuelta",
+};
+
+// max: hasta dónde llegan las coordenadas; neg: con números negativos.
+const CO_NIVELES = {
+  "5": { max: 9, neg: false, paso: 4 },
+  "6": { max: 7, neg: true, paso: 5 },
+  disc5: { max: 6, neg: false, paso: 3, facil: true },
+  disc6: { max: 5, neg: true, paso: 3, facil: true },
+};
+
+function coPunto(nivel, { lo = nivel.neg ? -nivel.max : 1, hi = nivel.max } = {}) {
+  let x;
+  let y;
+  do {
+    x = randomInt(lo, hi);
+    y = randomInt(lo, hi);
+  } while (x === y || x === 0 || y === 0 || (nivel.neg && x > 0 && y > 0 && Math.random() < 0.7));
+  return [x, y];
+}
+
+function coRepresentar(nivel) {
+  const pts = [];
+  const letras = ["A", "B", "C", "D"];
+  const [x, y] = coPunto(nivel);
+  pts.push([x, y], [y, x]);
+  if (nivel.neg) pts.push([-x, y]);
+  else pts.push([randomInt(1, nivel.max), 0]);
+  pts.push([0, randomInt(1, nivel.max)]);
+  const lista = pts.map(([a, b], i) => `${letras[i]}${coPar(a, b)}`);
+  const sobreEjes = pts.map((p, i) => [p, letras[i]]).filter(([[a, b]]) => a === 0 || b === 0).map(([, l]) => l);
+  return {
+    enunciado: `Dibuja unos ejes de coordenadas en papel cuadriculado y representa los puntos ${lista.join(", ")}. ¿Qué puntos están sobre los ejes? ¿Por qué A y B no están en el mismo sitio?`,
+    datos: lista,
+    operacion: `Primero se cuenta en horizontal (x) y después en vertical (y). ${pts.map(([a, b], i) => `${letras[i]}: ${a === 0 && b === 0 ? "el origen" : a === 0 ? `sobre el eje Y, ${Math.abs(b)} ${b > 0 ? "arriba" : "abajo"}` : b === 0 ? `sobre el eje X, ${Math.abs(a)} a la ${a > 0 ? "derecha" : "izquierda"}` : `${coPasos(a, b)}`}`).join(" · ")}`,
+    solucion: `Sobre los ejes: ${sobreEjes.join(" y ")}. A y B tienen los mismos números en distinto orden: primero va siempre la x, así que son puntos distintos.`,
+  };
+}
+
+function coCuadrantes(nivel) {
+  const pts = [[1, 1], [-1, 1], [-1, -1], [1, -1]].map(([sx, sy]) => [sx * randomInt(1, nivel.max), sy * randomInt(1, nivel.max)]).sort(() => Math.random() - 0.5);
+  const cuad = ([x, y]) => (x > 0 ? (y > 0 ? "1.º" : "4.º") : y > 0 ? "2.º" : "3.º");
+  const letras = ["A", "B", "C", "D"];
+  return {
+    enunciado: `¿En qué cuadrante está cada punto? ${pts.map(([x, y], i) => `${letras[i]}${coPar(x, y)}`).join("   ")}`,
+    datos: ["1.º (+, +) · 2.º (−, +) · 3.º (−, −) · 4.º (+, −)"],
+    operacion: pts.map(([x, y], i) => `${letras[i]}: x ${x > 0 ? "positiva" : "negativa"}, y ${y > 0 ? "positiva" : "negativa"}`).join(" · "),
+    solucion: pts.map((p, i) => `${letras[i]}: ${cuad(p)}`).join("; ") + ".",
+  };
+}
+
+function coTraslacion(nivel) {
+  const lo = nivel.neg ? -nivel.max : 1;
+  let x;
+  let y;
+  let dx;
+  let dy;
+  do {
+    [x, y] = coPunto(nivel);
+    dx = randomInt(-nivel.paso, nivel.paso);
+    dy = randomInt(-nivel.paso, nivel.paso);
+    if (nivel.facil && Math.random() < 0.5) dy = 0;
+  } while (dx === 0 || x + dx < lo || x + dx > nivel.max || y + dy < lo || y + dy > nivel.max);
   const nx = x + dx;
   const ny = y + dy;
+  const como = nivel.neg ? `según el vector ${coVec(dx, dy)}` : coPasos(dx, dy);
   return {
-    enunciado: `Un punto A(${x}, ${y}) se traslada según el vector (${dx >= 0 ? "+" : ""}${dx}, ${dy >= 0 ? "+" : ""}${dy}). ¿Cuáles son las coordenadas del punto B?`,
-    datos: [`Punto A: (${x}, ${y})`, `Vector: (${dx}, ${dy})`],
-    operacion: `(${x} ${dx >= 0 ? "+" : ""}${dx}, ${y} ${dy >= 0 ? "+" : ""}${dy}) = (${nx}, ${ny})`,
-    solucion: `(${nx}, ${ny}). El punto B tiene coordenadas (${nx}, ${ny}).`,
+    enunciado: `Traslada el punto A${coPar(x, y)} ${como}. ¿Cuáles son las coordenadas del punto que obtienes, A'?`,
+    datos: [`A${coPar(x, y)}`, nivel.neg ? `Vector ${coVec(dx, dy)}` : `Movimiento: ${coPasos(dx, dy)}`],
+    operacion: `x: ${coN(x)} ${dx < 0 ? "−" : "+"} ${Math.abs(dx)} = ${coN(nx)} · y: ${coN(y)} ${dy < 0 ? "−" : "+"} ${Math.abs(dy)} = ${coN(ny)}`,
+    solucion: `A'${coPar(nx, ny)}.`,
   };
 }
 
-function coordenadasSimetria() {
-  const x = randomInt(1, 9);
-  const y = randomInt(1, 9);
-  const eje = pick(["X", "Y"]);
-  const simX = eje === "X" ? x : -x;
-  const simY = eje === "X" ? -y : y;
+// Traslación de un triángulo: cada vértice se mueve lo mismo.
+function coTrasladarFigura(nivel) {
+  const lo = nivel.neg ? -nivel.max : 0;
+  let v;
+  let dx;
+  let dy;
+  do {
+    const [x, y] = [randomInt(lo, nivel.max - 3), randomInt(lo, nivel.max - 3)];
+    v = [[x, y], [x + randomInt(2, 3), y], [x, y + randomInt(2, 3)]];
+    dx = randomInt(-nivel.paso, nivel.paso);
+    dy = randomInt(-nivel.paso, nivel.paso);
+  } while (dx === 0 || dy === 0 || v.some(([a, b]) => a + dx < lo || a + dx > nivel.max || b + dy < lo || b + dy > nivel.max));
+  const L = ["A", "B", "C"];
+  const como = nivel.neg ? `según el vector ${coVec(dx, dy)}` : coPasos(dx, dy);
   return {
-    enunciado: `Un punto A(${x}, ${y}) se refleja respecto al eje ${eje}. ¿Cuáles son las coordenadas de su simétrico?`,
-    datos: [`Punto A: (${x}, ${y})`, `Eje de simetría: ${eje}`],
-    operacion: eje === "X" ? `(x, y) → (x, −y) = (${simX}, ${simY})` : `(x, y) → (−x, y) = (${simX}, ${simY})`,
-    solucion: `(${simX}, ${simY}).`,
+    enunciado: `Dibuja el triángulo ${v.map(([a, b], i) => `${L[i]}${coPar(a, b)}`).join(", ")} y trasládalo ${como}. Escribe las coordenadas de los nuevos vértices A', B' y C'.`,
+    datos: v.map(([a, b], i) => `${L[i]}${coPar(a, b)}`),
+    operacion: `A cada vértice se le suma ${coN(dx)} a la x y ${coN(dy)} a la y.`,
+    solucion: `${v.map(([a, b], i) => `${L[i]}'${coPar(a + dx, b + dy)}`).join(", ")}. El triángulo no cambia de forma ni de tamaño.`,
   };
 }
 
-function coordenadasEscala(curso) {
-  const base = randomInt(2, 6);
-  const altura = randomInt(2, 6);
-  const escala = curso === "6" ? randomInt(2, 4) : 2;
-  const nuevaBase = base * escala;
-  const nuevaAltura = altura * escala;
+function coDescubrirVector(nivel) {
+  const t = coTraslacion(nivel);
+  const [x, y] = t.datos[0].match(/[−\d]+/g).map((n) => Number(n.replace("−", "-")));
+  const [nx, ny] = t.solucion.match(/[−\d]+/g).map((n) => Number(n.replace("−", "-")));
+  const dx = nx - x;
+  const dy = ny - y;
   return {
-    enunciado: `Un rectángulo de ${base} × ${altura} cm se amplía a escala ×${escala}. ¿Cuáles son sus nuevas dimensiones?`,
-    datos: [`Rectángulo original: ${base} × ${altura} cm`, `Escala: ×${escala}`],
-    operacion: `${base} × ${escala} = ${nuevaBase}. ${altura} × ${escala} = ${nuevaAltura}`,
-    solucion: `${nuevaBase} × ${nuevaAltura} cm.`,
+    enunciado: `Una figura se ha trasladado: su vértice A${coPar(x, y)} ha llegado a A'${coPar(nx, ny)}. ${nivel.neg ? "¿Cuál es el vector de la traslación?" : "¿Cuántos cuadros se ha movido y hacia dónde?"}`,
+    datos: [`A${coPar(x, y)}`, `A'${coPar(nx, ny)}`],
+    operacion: `En horizontal: ${coN(nx)} − ${x < 0 ? `(${coN(x)})` : x} = ${coN(dx)} · En vertical: ${coN(ny)} − ${y < 0 ? `(${coN(y)})` : y} = ${coN(dy)}`,
+    solucion: nivel.neg ? `El vector ${coVec(dx, dy)}: ${coPasos(dx, dy)}.` : `${coPasos(dx, dy)[0].toUpperCase()}${coPasos(dx, dy).slice(1)}.`,
+  };
+}
+
+// 5º: simétrico respecto a una recta de la cuadrícula.
+function coSimetriaRecta(nivel) {
+  const vertical = Math.random() < 0.5;
+  const k = randomInt(3, nivel.max - 3);
+  const d = randomInt(1, Math.min(k - 1, nivel.max - k, nivel.paso)) * (Math.random() < 0.5 ? 1 : -1);
+  const otra = randomInt(1, nivel.max);
+  const [x, y] = vertical ? [k + d, otra] : [otra, k + d];
+  const [sx, sy] = vertical ? [k - d, y] : [x, k - d];
+  return {
+    enunciado: `Dibuja una recta ${vertical ? "vertical que pase por el " + k + " del eje X" : "horizontal que pase por el " + k + " del eje Y"}: será el eje de simetría. ¿Dónde está el simétrico del punto A${coPar(x, y)}?`,
+    datos: [`A${coPar(x, y)}`, `Eje: recta ${vertical ? "vertical" : "horizontal"} por el ${k}`],
+    operacion: `A está a ${coCuadros(Math.abs(d))} del eje. Se cuentan los mismos al otro lado: ${vertical ? `x = ${sx}, y = ${y}` : `x = ${x}, y = ${sy}`}`,
+    solucion: `A'${coPar(sx, sy)}.`,
+  };
+}
+
+// 6º: simétrico respecto a los ejes.
+function coSimetriaEjes(nivel) {
+  const [x, y] = coPunto(nivel);
+  return {
+    enunciado: `Halla el simétrico del punto A${coPar(x, y)} respecto al eje Y (llámalo B) y respecto al eje X (llámalo C). Dibújalos para comprobarlo.`,
+    datos: [`A${coPar(x, y)}`],
+    operacion: `Respecto al eje Y cambia de signo la x: ${coPar(-x, y)} · Respecto al eje X cambia de signo la y: ${coPar(x, -y)}`,
+    solucion: `B${coPar(-x, y)} y C${coPar(x, -y)}.`,
+  };
+}
+
+function coGiro(nivel, { origen = false, sentidos } = {}) {
+  const sentido = pick(sentidos || (nivel.facil ? ["A", "H"] : ["A", "H", "M"]));
+  let cx = 0;
+  let cy = 0;
+  if (!origen) {
+    cx = randomInt(3, nivel.max - 3);
+    cy = randomInt(3, nivel.max - 3);
+  }
+  const m = origen ? Math.min(nivel.max, nivel.paso) : Math.min(cx - 1, cy - 1, nivel.max - cx, nivel.max - cy, nivel.paso);
+  let dx;
+  let dy;
+  do {
+    dx = randomInt(-m, m);
+    dy = randomInt(-m, m);
+    if (nivel.facil) {
+      if (Math.random() < 0.5) dy = 0;
+      else dx = 0;
+    }
+  } while ((dx === 0 && dy === 0) || (!nivel.facil && (dx === 0 || dy === 0)));
+  const [rx, ry] = coRotar(dx, dy, sentido);
+  const centro = origen ? "el origen" : `C${coPar(cx, cy)}`;
+  return {
+    enunciado: `Gira el punto A${coPar(cx + dx, cy + dy)} ${CO_GIRO[sentido]} alrededor ${origen ? "del origen" : `de C${coPar(cx, cy)}`}. ¿Dónde queda A'? Cuenta los cuadros desde el centro.`,
+    datos: [`A${coPar(cx + dx, cy + dy)}`, `Centro: ${centro}`],
+    operacion: `Desde ${origen ? "el origen" : "C"}, A está ${coPasos(dx, dy)}. Después del giro, A' está ${coPasos(rx, ry)}.`,
+    solucion: `A'${coPar(cx + rx, cy + ry)}.${origen && sentido === "M" ? " Con media vuelta alrededor del origen cambian de signo las dos coordenadas." : ""}`,
+  };
+}
+
+function coMovimiento() {
+  const casos = [
+    ["Una puerta se abre o se cierra", "Giro: gira alrededor de las bisagras."],
+    ["El ascensor sube del primer al cuarto piso", "Traslación: se desliza en línea recta sin girar."],
+    ["Una mariposa con las alas abiertas", "Simetría: una mitad es el reflejo de la otra."],
+    ["Las agujas de un reloj", "Giro: giran alrededor del centro del reloj."],
+    ["Una escalera mecánica lleva una maleta", "Traslación: la maleta se desliza sin girar."],
+    ["Tu cara reflejada en un espejo", "Simetría: el espejo es el eje."],
+    ["Las aspas de un molino", "Giro: giran alrededor del eje del molino."],
+    ["Una pieza de ajedrez avanza tres casillas", "Traslación: se mueve en línea recta sin girar."],
+  ];
+  const tres = casos.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+  return {
+    enunciado: `¿Qué movimiento es: traslación, simetría o giro? ${tres.map(([c], i) => `${"abc"[i]}) ${c}.`).join("   ")}`,
+    datos: ["Traslación: se desliza. Simetría: reflejo en un espejo. Giro: gira alrededor de un punto."],
+    operacion: tres.map(([, r], i) => `${"abc"[i]}) ${r}`).join(" · "),
+    solucion: tres.map(([, r], i) => `${"abc"[i]}) ${r.split(":")[0]}`).join("; ") + ".",
+  };
+}
+
+// Reto de la UDI de 5º: el plano de la feria.
+function coFeria(nivel) {
+  const puestos = ["la noria", "la tómbola", "la pista de coches de choque", "la caseta de tiro", "el puesto de churros", "la casa del terror"].sort(() => Math.random() - 0.5);
+  const usados = new Set();
+  const sitio = () => {
+    let p;
+    do p = coPunto(nivel, { lo: nivel.neg ? -nivel.max : 1 });
+    while (usados.has(p.join()));
+    usados.add(p.join());
+    return p;
+  };
+  const a = sitio();
+  const b = sitio();
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const pasos = coPasos(dx, dy);
+  return {
+    enunciado: `En el plano de la feria, ${puestos[0]} está en ${coPar(a[0], a[1])} y ${puestos[1]} está ${pasos} ${`de ${puestos[0]}`.replace(/^de el /, "del ")}. ¿En qué coordenadas está ${puestos[1]}? Dibuja los dos puestos en el plano.`,
+    datos: [`${puestos[0][0].toUpperCase()}${puestos[0].slice(1)}: ${coPar(a[0], a[1])}`, `${puestos[1][0].toUpperCase()}${puestos[1].slice(1)}: ${pasos} de la anterior`],
+    operacion: `x: ${coN(a[0])} ${dx < 0 ? "−" : "+"} ${Math.abs(dx)} = ${coN(b[0])} · y: ${coN(a[1])} ${dy < 0 ? "−" : "+"} ${Math.abs(dy)} = ${coN(b[1])}`,
+    solucion: `${puestos[1][0].toUpperCase()}${puestos[1].slice(1)} está en ${coPar(b[0], b[1])}.`,
+  };
+}
+
+function coAmpliar(nivel) {
+  const w = randomInt(2, 5);
+  let h;
+  do h = randomInt(2, 6);
+  while (h === w);
+  const k = nivel.facil ? 2 : randomInt(2, 4);
+  return {
+    enunciado: `Un rectángulo de ${w} cm × ${h} cm se amplía a escala ×${k}. ¿Cuánto miden los lados del nuevo rectángulo? ¿Cuántas veces mayor es su perímetro?${nivel.facil ? "" : " ¿Y su área?"}`,
+    datos: [`Rectángulo: ${w} cm × ${h} cm`, `Escala: ×${k}`],
+    operacion: `${w} × ${k} = ${w * k} cm · ${h} × ${k} = ${h * k} cm · Perímetro: ${2 * (w + h)} cm → ${2 * (w + h) * k} cm${nivel.facil ? "" : ` · Área: ${w * h} cm² → ${w * h * k * k} cm²`}`,
+    solucion: `${w * k} cm × ${h * k} cm. El perímetro es ${k} veces mayor${nivel.facil ? "" : ` y el área, ${k * k} veces mayor (${k} × ${k})`}.`,
+  };
+}
+
+function coSemejantes() {
+  const w = randomInt(2, 4);
+  let h;
+  do h = randomInt(2, 5);
+  while (h === w);
+  const s = w;
+  const nombre = pick(NOMBRES);
+  return {
+    enunciado: `${nombre} quiere ampliar un rectángulo de ${w} × ${h} cuadros y dibuja otro de ${w + s} × ${h + s}, sumando ${s} a cada lado. ¿Son semejantes? ¿Cómo debería haberlo hecho para ampliarlo a escala ×2?`,
+    datos: [`Original: ${w} × ${h}`, `Dibujo: ${w + s} × ${h + s}`],
+    operacion: `${w + s} ÷ ${w} = ${(w + s) / w}, pero ${h + s} ÷ ${h} ${(h + s) % h === 0 ? `= ${(h + s) / h}` : "no da exacto"}: los lados no se han multiplicado por el mismo número. A escala ×2: ${w} × 2 = ${w * 2} y ${h} × 2 = ${h * 2}`,
+    solucion: `No son semejantes. Debería haber dibujado un rectángulo de ${w * 2} × ${h * 2}.`,
+  };
+}
+
+function coEscalaPlano(nivel) {
+  const escala = nivel.facil ? 100 : pick([100, 200, 1000]);
+  const cm = randomInt(2, 9);
+  const realCm = cm * escala;
+  return {
+    enunciado: `En un plano a escala 1:${escala}, una habitación mide ${cm} cm de largo. ¿Cuántos metros mide de verdad?`,
+    datos: [`Escala 1:${escala}`, `En el plano: ${cm} cm`],
+    operacion: `${cm} × ${escala} = ${realCm.toLocaleString("es-ES")} cm = ${realCm / 100} m`,
+    solucion: `${realCm / 100} m.`,
   };
 }
 
 function genCoordenadas(curso) {
-  const variantes = curso === "6" ? [coordenadasTraslacion, coordenadasSimetria, coordenadasEscala] : [coordenadasTraslacion, coordenadasSimetria];
-  return pick(variantes)(curso);
+  const n = CO_NIVELES[curso === "6" ? "6" : "5"];
+  if (curso === "6")
+    return siguienteDeBaraja("co6", [coRepresentar, coCuadrantes, coTraslacion, coTrasladarFigura, coSimetriaEjes, (v) => coGiro(v, { origen: true }), coMovimiento, coAmpliar, coSemejantes, coEscalaPlano])(n);
+  return siguienteDeBaraja("co5", [coRepresentar, coTraslacion, coTrasladarFigura, coDescubrirVector, coSimetriaRecta, coGiro, coMovimiento, coFeria])(n);
+}
+
+// Discalculia: los contenidos del curso con números pequeños y giros
+// con el punto en línea recta con el centro.
+function genCoordenadasDiscalculia(curso) {
+  const n = CO_NIVELES[curso === "6" ? "disc6" : "disc5"];
+  if (curso === "6") return siguienteDeBaraja("coDisc6", [coRepresentar, coCuadrantes, coTraslacion, coSimetriaEjes, (v) => coGiro(v, { origen: true }), coMovimiento, coAmpliar])(n);
+  return siguienteDeBaraja("coDisc5", [coRepresentar, coTraslacion, coSimetriaRecta, coGiro, coMovimiento, coFeria])(n);
+}
+
+function coAcsPasos() {
+  const x = randomInt(1, 5);
+  let y;
+  do y = randomInt(1, 5);
+  while (y === x);
+  return {
+    enunciado: `Desde el origen, el punto A está ${x} ${x === 1 ? "paso" : "pasos"} a la derecha y ${y} ${y === 1 ? "paso" : "pasos"} hacia arriba. Escribe sus coordenadas y dibújalo en la cuadrícula.`,
+    datos: [`Derecha: ${x}`, `Arriba: ${y}`],
+    operacion: "Primero se escribe lo que se anda hacia la derecha y después lo que se sube.",
+    solucion: `A(${x}, ${y}).`,
+  };
 }
 
 function genCoordenadasACS() {
-  const x = randomInt(1, 6);
-  const y = randomInt(1, 6);
+  const n = { max: 5, neg: false, paso: 2, facil: true };
+  return siguienteDeBaraja("coAcs", [coAcsPasos, () => coRepresentar(n), coAcsPasos, () => coTraslacion(n), coMovimiento])();
+}
+
+// Altas: movimientos encadenados y giros alrededor de cualquier punto.
+function coCompuesto() {
+  const n = CO_NIVELES["6"];
+  let x;
+  let y;
+  let dx;
+  let dy;
+  do {
+    [x, y] = coPunto(n);
+    dx = randomInt(-4, 4);
+    dy = randomInt(-4, 4);
+  } while (dx === 0 || dy === 0 || Math.abs(x + dx) > 7 || Math.abs(y + dy) > 7);
+  const eje = pick(["X", "Y"]);
+  const [bx, by] = [x + dx, y + dy];
+  const [cx, cy] = eje === "Y" ? [-bx, by] : [bx, -by];
   return {
-    enunciado: `¿Cuáles son las coordenadas del punto A, que está ${x} pasos a la derecha y ${y} pasos hacia arriba del origen?`,
-    datos: [`Pasos a la derecha: ${x}`, `Pasos hacia arriba: ${y}`],
-    operacion: `El punto A tiene de coordenada x = ${x} e y = ${y}`,
-    solucion: `(${x}, ${y}).`,
+    enunciado: `El punto A${coPar(x, y)} se traslada según el vector ${coVec(dx, dy)} y se obtiene B. Después, B se refleja respecto al eje ${eje} y se obtiene C. ¿Cuáles son las coordenadas de B y de C? ¿Se llega al mismo sitio si se hace primero la simetría y después la traslación?`,
+    datos: [`A${coPar(x, y)}`, `Vector ${coVec(dx, dy)}`, `Eje ${eje}`],
+    operacion: `B = ${coPar(bx, by)} · C = ${coPar(cx, cy)} · Al revés: simétrico de A = ${eje === "Y" ? coPar(-x, y) : coPar(x, -y)}, trasladado = ${eje === "Y" ? coPar(-x + dx, y + dy) : coPar(x + dx, -y + dy)}`,
+    solucion: `B${coPar(bx, by)} y C${coPar(cx, cy)}. Al revés se llega a ${eje === "Y" ? coPar(-x + dx, y + dy) : coPar(x + dx, -y + dy)}: el orden de los movimientos importa.`,
+  };
+}
+
+function coGiroFigura() {
+  const sentido = pick(["A", "H"]);
+  const v = [[1, 1], [4, 1], [1, 3]];
+  const r = v.map(([a, b]) => coRotar(a, b, sentido));
+  const L = ["A", "B", "C"];
+  return {
+    enunciado: `Gira el triángulo ${v.map(([a, b], i) => `${L[i]}${coPar(a, b)}`).join(", ")} ${CO_GIRO[sentido]} alrededor del origen. Escribe las coordenadas de A', B' y C' y descubre la regla que siguen.`,
+    datos: v.map(([a, b], i) => `${L[i]}${coPar(a, b)}`),
+    operacion: v.map(([a, b], i) => `${L[i]}: ${coPasos(a, b)} → ${coPasos(r[i][0], r[i][1])}`).join(" · "),
+    solucion: `${r.map(([a, b], i) => `${L[i]}'${coPar(a, b)}`).join(", ")}. Regla: (x, y) → ${sentido === "A" ? "(−y, x)" : "(y, −x)"}: se intercambian las coordenadas y una cambia de signo.`,
   };
 }
 
 function genCoordenadasAltas() {
-  const x = randomInt(1, 6);
-  const y = randomInt(1, 6);
-  const dx = randomInt(1, 4);
-  const dy = randomInt(1, 4);
-  const tx = x + dx;
-  const ty = y + dy;
-  const simX = -tx;
-  const simY = ty;
-  return {
-    enunciado: `Un punto A(${x}, ${y}) se traslada según el vector (+${dx}, +${dy}) para obtener el punto B. Después, B se refleja respecto al eje Y para obtener el punto C. ¿Cuáles son las coordenadas de C?`,
-    datos: [`Punto A: (${x}, ${y})`, `Vector: (+${dx}, +${dy})`],
-    operacion: `B = (${x}+${dx}, ${y}+${dy}) = (${tx}, ${ty}). C = (−${tx}, ${ty}) = (${simX}, ${simY})`,
-    solucion: `(${simX}, ${simY}).`,
-  };
+  const n = CO_NIVELES["6"];
+  return siguienteDeBaraja("coAltas", [coCompuesto, coGiroFigura, () => coGiro(n), () => coAmpliar(n), coSemejantes, () => coDescubrirVector(n)])();
 }
 
 const CUERPOS_POLIEDROS = [
@@ -4424,7 +4697,7 @@ const TOPICS = [
   { id: "proporcionalidad", label: "Proporcionalidad (regla de tres)", category: "Geometría y medidas", generate: genProporcionalidad, generateACS: genProporcionalidadACS, generateAltas: genProporcionalidadAltas, resumen: "En una relación de proporcionalidad, si conocemos el precio de una unidad podemos calcular el de cualquier cantidad." },
   { id: "estadistica", label: "Estadística (media y mediana)", category: "Geometría y medidas", generate: genEstadistica, generateACS: genEstadisticaACS, generateAltas: genEstadisticaAltas, resumen: "La media es la suma de todos los valores dividida entre el número de valores. La mediana es el valor central al ordenarlos." },
   { id: "angulos", label: "Ángulos", category: "Geometría y medidas", generate: genAngulos, generateACS: genAngulosACS, generateDiscalculia: genAngulosDiscalculia, generateAltas: genAngulosAltas, resumen: "Un ángulo se mide en grados (°) con el transportador: el centro en el vértice, un lado en el 0 y se lee en la escala que empieza en ese 0. Agudo: menos de 90°. Recto: 90°. Obtuso: entre 90° y 180°. Llano: 180°. Una vuelta entera son 360°.", resumen6: "Un ángulo se mide en grados con el transportador (cuidado con la escala). Agudo < 90° · recto = 90° · obtuso entre 90° y 180° · llano = 180° · completo = 360°. Dos ángulos son complementarios si suman 90° y suplementarios si suman 180°." },
-  { id: "coordenadas", label: "Coordenadas", category: "Geometría y medidas", generate: genCoordenadas, generateACS: genCoordenadasACS, generateAltas: genCoordenadasAltas, resumen: "Cada punto del plano se localiza con dos coordenadas (x, y) que indican cuánto se mueve en horizontal y en vertical." },
+  { id: "coordenadas", label: "Coordenadas", category: "Geometría y medidas", generate: genCoordenadas, generateACS: genCoordenadasACS, generateDiscalculia: genCoordenadasDiscalculia, generateAltas: genCoordenadasAltas, resumen: "Cada punto del plano tiene dos coordenadas (x, y): primero lo que se anda en horizontal y después lo que se sube. Trasladar es deslizar la figura sin girarla; en la simetría la figura se refleja como en un espejo; en un giro, la figura gira alrededor de un centro. En los tres movimientos no cambian ni la forma ni el tamaño.", resumen6: "En los cuatro cuadrantes, a la izquierda y por debajo del origen las coordenadas son negativas. Traslación: se suma el vector. Simetría respecto al eje Y: cambia de signo la x; respecto al eje X: cambia de signo la y. Media vuelta alrededor del origen: cambian de signo las dos. Dos figuras son semejantes si todos sus lados se multiplican por el mismo número (la escala)." },
   { id: "cuerpos-geometricos", label: "Cuerpos geométricos", category: "Geometría y medidas", generate: genCuerposGeometricos, generateACS: genCuerposGeometricosACS, generateAltas: genCuerposGeometricosAltas, resumen: "Los cuerpos geométricos son figuras de tres dimensiones: los poliedros tienen caras planas y los cuerpos redondos tienen alguna superficie curva." },
   { id: "tiempo", label: "El tiempo", category: "Geometría y medidas", generate: genTiempo, generateACS: genTiempoACS, generateAltas: genTiempoAltas, resumen: "El tiempo se mide en horas, minutos y segundos: 1 día tiene 24 horas, 1 hora 60 minutos y 1 minuto 60 segundos." },
   { id: "probabilidad", label: "Probabilidad", category: "Geometría y medidas", generate: genProbabilidad, generateACS: genProbabilidadACS, generateAltas: genProbabilidadAltas, resumen: "La probabilidad de un suceso se calcula dividiendo los casos favorables entre los casos totales." },

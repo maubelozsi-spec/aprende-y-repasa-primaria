@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Coordenadas, simetrías, traslaciones y giros</h1>
-        <p class="content-subtitle">El plano cartesiano y los movimientos de figuras.</p>
+        <p class="content-subtitle">Lee y sitúa puntos en el plano y mueve figuras con traslaciones, simetrías y giros, con la explicación de cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -56,6 +56,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -63,58 +64,113 @@
       <section id="tab-teoria" class="tab-panel active theory">
 
         <h2>Las coordenadas</h2>
-        <p>Un <strong>plano cartesiano</strong> tiene dos ejes perpendiculares: el eje <strong>X</strong> (horizontal) y el eje <strong>Y</strong> (vertical). Se cruzan en el <strong>origen</strong>, el punto (0, 0).</p>
-        <p>Cada punto se localiza con dos números, sus <strong>coordenadas</strong> (x, y): el primero dice cuánto te mueves en horizontal, el segundo cuánto en vertical.</p>
+        <p>Un <strong>plano de coordenadas</strong> tiene dos ejes que se cortan formando un ángulo recto: el eje <strong>X</strong> (horizontal) y el eje <strong>Y</strong> (vertical). Se cruzan en el <strong>origen</strong>, el punto (0, 0).</p>
+        <p>Cada punto se localiza con dos números, sus <strong>coordenadas</strong> (x, y): el primero dice cuánto te mueves en horizontal desde el origen y el segundo, cuánto en vertical.</p>
         <div class="grid-example" id="ejemplo-coordenadas"></div>
         <div class="tip-box">
-          <strong>Ejemplo:</strong> el punto P(3, 5) está 3 unidades a la derecha del origen y 5 unidades hacia arriba.
+          <strong>Ejemplo:</strong> P(3, 5) está 3 cuadros a la derecha del origen y 5 hacia arriba. Q(5, 3) tiene los mismos números, pero es otro punto.
+        </div>
+        <div class="rule-box aguda">
+          <h4>Primero se anda y después se sube</h4>
+          <p>El orden importa: primero va siempre la <strong>x</strong> (horizontal) y después la <strong>y</strong> (vertical). Cambiar el orden es el error más frecuente.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Puntos sobre los ejes:</strong> si un punto está sobre el eje X, su y es 0, como (4, 0). Si está sobre el eje Y, su x es 0, como (0, 2).
+        </div>
+
+        <div class="grade-section">
+          <span class="grade-badge">Contenido de 6º</span>
+          <h2>Los cuatro cuadrantes</h2>
+          <p>Si los ejes se alargan hacia la izquierda y hacia abajo, aparecen los <strong>números negativos</strong>, como en el termómetro. Los ejes dividen el plano en cuatro partes, los <strong>cuadrantes</strong>.</p>
+          <div class="grid-example" id="ejemplo-cuadrantes"></div>
+          <div class="po-tabla-wrap">
+            <table class="rules-table">
+              <tr><th>Cuadrante</th><th>x</th><th>y</th><th>Ejemplo</th></tr>
+              <tr><td>1.º (arriba a la derecha)</td><td>+</td><td>+</td><td>A(3, 2)</td></tr>
+              <tr><td>2.º (arriba a la izquierda)</td><td>−</td><td>+</td><td>B(−4, 1)</td></tr>
+              <tr><td>3.º (abajo a la izquierda)</td><td>−</td><td>−</td><td>C(−2, −3)</td></tr>
+              <tr><td>4.º (abajo a la derecha)</td><td>+</td><td>−</td><td>D(2, −4)</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <h2>Los movimientos en el plano</h2>
+        <p>Una figura se puede <strong>trasladar</strong>, <strong>reflejar</strong> (simetría) o <strong>girar</strong>. En los tres movimientos la figura <strong>no cambia de forma ni de tamaño</strong>: solo cambia de sitio o de orientación.</p>
+
+        <h2>La traslación</h2>
+        <p>Trasladar una figura es <strong>deslizarla</strong> en línea recta, sin girarla. Todos sus puntos se mueven lo mismo: los mismos cuadros en horizontal y los mismos en vertical.</p>
+        <div class="grid-example" id="ejemplo-traslacion"></div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> la figura se ha trasladado 4 cuadros a la derecha y 2 hacia arriba: el vértice A(1, 1) llega a A'(5, 3). Fíjate en un solo vértice y cuenta.
+        </div>
+        <div class="grade-section">
+          <span class="grade-badge">Contenido de 6º</span>
+          <p>La traslación se escribe con un <strong>vector</strong>: (+4, +2) quiere decir 4 a la derecha y 2 hacia arriba; (−3, −1), 3 a la izquierda y 1 hacia abajo. Para saber dónde llega un punto, se suma el vector: A(−3, −2) con el vector (+4, +1) llega a A'(1, −1).</p>
         </div>
 
         <h2>La simetría</h2>
-        <p>Un punto es <strong>simétrico</strong> de otro respecto a un <strong>eje de simetría</strong> cuando está a la misma distancia del eje, pero al otro lado, como un reflejo en un espejo.</p>
+        <p>La figura simétrica es el <strong>reflejo</strong> de la figura en un espejo, que es el <strong>eje de simetría</strong>. Cada punto y su simétrico están a la <strong>misma distancia</strong> del eje, uno a cada lado.</p>
         <div class="grid-example" id="ejemplo-simetria"></div>
         <div class="tip-box">
-          <strong>Ejemplo:</strong> A(4, 3) reflejado respecto al eje Y (vertical) es B(−4, 3): la coordenada x cambia de signo y la y se mantiene.
+          <strong>Ejemplo:</strong> A(1, 2) está 3 cuadros a la izquierda de la recta morada, que pasa por el 4. Su simétrico está 3 cuadros a la derecha: A'(7, 2). Fíjate en que la figura queda «dada la vuelta».
         </div>
-
-        <h2>La traslación</h2>
-        <p>Trasladar una figura es moverla en línea recta, sin girarla, según un <strong>vector</strong> que indica cuánto se mueve en horizontal y en vertical.</p>
-        <div class="grid-example" id="ejemplo-traslacion"></div>
-        <div class="tip-box">
-          <strong>Ejemplo:</strong> A(−3, −2) trasladado según el vector (+4, +1) es B(1, −1): se suma el vector a las coordenadas de A.
+        <div class="grade-section">
+          <span class="grade-badge">Contenido de 6º</span>
+          <h2>Simetría respecto a los ejes</h2>
+          <div class="grid-example" id="ejemplo-simetria-ejes"></div>
+          <div class="rule-box llana">
+            <h4>Cambia de signo una coordenada</h4>
+            <p>Respecto al <strong>eje Y</strong> cambia de signo la x: A(4, 3) → A'(−4, 3). Respecto al <strong>eje X</strong> cambia de signo la y: A(4, 3) → A''(4, −3).</p>
+          </div>
         </div>
 
         <h2>El giro</h2>
-        <p>Girar una figura es rotarla alrededor de un <strong>centro de giro</strong> un cierto ángulo (90°, 180° o 270°).</p>
+        <p>Girar una figura es rotarla alrededor de un punto fijo, el <strong>centro de giro</strong>. Hay que saber cuánto se gira, el <strong>ángulo</strong> (un cuarto de vuelta son 90° y media vuelta, 180°), y hacia dónde, el <strong>sentido</strong>: el de las agujas del reloj o el contrario.</p>
         <div class="grid-example" id="ejemplo-giro"></div>
         <div class="tip-box">
-          <strong>Ejemplo:</strong> A(3, 2) girado 90° respecto al origen es B(−2, 3).
+          <strong>Ejemplo:</strong> desde el centro C, A está 3 a la derecha y 1 hacia arriba. Al girar un cuarto de vuelta en sentido contrario a las agujas, los 3 a la derecha pasan a ser 3 hacia arriba y el 1 hacia arriba pasa a ser 1 a la izquierda: A' está 1 a la izquierda y 3 hacia arriba de C.
+        </div>
+        <div class="po-tabla-wrap">
+          <table class="rules-table">
+            <tr><th>Giro</th><th>Cada dirección pasa a ser…</th></tr>
+            <tr><td>Un cuarto de vuelta en sentido contrario a las agujas</td><td>derecha → arriba → izquierda → abajo → derecha</td></tr>
+            <tr><td>Un cuarto de vuelta en el sentido de las agujas</td><td>derecha → abajo → izquierda → arriba → derecha</td></tr>
+            <tr><td>Media vuelta</td><td>la contraria: derecha ↔ izquierda, arriba ↔ abajo</td></tr>
+          </table>
+        </div>
+        <div class="tip-box">
+          <strong>Truco:</strong> imagina un palo que va del centro al punto y gíralo como la aguja de un reloj. También puedes calcar la figura en papel y girar el papel con la punta del lápiz en el centro.
+        </div>
+        <div class="grade-section">
+          <span class="grade-badge">Contenido de 6º</span>
+          <p>Con <strong>media vuelta (180°) alrededor del origen</strong> cambian de signo las dos coordenadas: A(3, 2) → A'(−3, −2).</p>
         </div>
 
-        <table class="rules-table">
-          <tr><th>Giro respecto al origen</th><th>Fórmula</th></tr>
-          <tr><td>90°</td><td>(x, y) → (−y, x)</td></tr>
-          <tr><td>180°</td><td>(x, y) → (−x, −y)</td></tr>
-          <tr><td>270°</td><td>(x, y) → (y, −x)</td></tr>
-        </table>
+        <div class="rule-box esdrujula">
+          <h4>¿Qué movimiento es?</h4>
+          <p>Si la figura mira hacia el mismo sitio, es una <strong>traslación</strong>. Si está «dada la vuelta», como en un espejo, es una <strong>simetría</strong>. Si está girada pero no dada la vuelta, es un <strong>giro</strong>.</p>
+        </div>
 
         <div class="grade-section">
           <span class="grade-badge">Contenido de 6º</span>
           <h2>Figuras semejantes y escala</h2>
           <div class="rule-box aguda">
             <h4>¿Qué es la semejanza?</h4>
-            <p>Dos figuras son <strong>semejantes</strong> cuando tienen la misma forma, aunque distinto tamaño: todos sus lados están multiplicados (o divididos) por el mismo número, llamado <strong>escala</strong>.</p>
+            <p>Dos figuras son <strong>semejantes</strong> cuando tienen la misma forma, aunque distinto tamaño: todos sus lados están multiplicados (o divididos) por el mismo número, la <strong>escala</strong>.</p>
           </div>
           <div class="grid-example" id="ejemplo-semejanza"></div>
           <div class="tip-box">
-            <strong>Ejemplo:</strong> un rectángulo de 2×3 ampliado a escala ×2 se convierte en un rectángulo de 4×6: cada lado se multiplica por 2.
+            <strong>Ejemplo:</strong> un rectángulo de 2 × 3 ampliado a escala ×2 se convierte en uno de 4 × 6: cada lado se multiplica por 2.
+          </div>
+          <div class="tip-box">
+            <strong>Ojo:</strong> sumar lo mismo a los lados no da una figura semejante. De 2 × 3 a 4 × 5 se ha sumado 2 a cada lado, pero 2 × 2 = 4 y 3 × 2 = 6, no 5: la forma ha cambiado.
           </div>
           <div class="rule-box llana">
             <h4>Ampliar o reducir</h4>
-            <p>Si la escala es <strong>mayor que 1</strong> (×2, ×3...), la figura se amplía. Si es <strong>menor que 1</strong> (÷2, ÷3, o ×0,5...), la figura se reduce.</p>
+            <p>Si los lados se multiplican (×2, ×3…), la figura se <strong>amplía</strong>. Si se dividen (÷2, ÷3…), se <strong>reduce</strong>.</p>
           </div>
           <div class="tip-box">
-            <strong>¿Dónde se usa?</strong> En los mapas y planos: una escala 1:100 significa que 1 cm del dibujo equivale a 100 cm (1 metro) en la realidad.
+            <strong>¿Dónde se usa?</strong> En los mapas y planos: una escala 1:100 significa que 1 cm del dibujo son 100 cm (1 metro) en la realidad.
           </div>
         </div>
 
@@ -123,6 +179,94 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="choice-row" id="co-plano-ex">
+          <button type="button" class="btn btn-secondary active" data-co-plano="1">Solo positivos <span class="status-pill status-available" style="margin-left:6px;">5º</span></button>
+          <button type="button" class="btn btn-secondary" data-co-plano="4">Los cuatro cuadrantes <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+        </div>
+
+        <div class="md-explore-card" id="co-punto">
+          <h2>1. Mueve el punto</h2>
+          <p class="md-explore-intro">Cambia la x y la y y mira dónde queda el punto.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">x</span>
+              <button type="button" class="btn btn-secondary" data-co-px="-1" aria-label="Un cuadro a la izquierda">−</button>
+              <output id="co-px"></output>
+              <button type="button" class="btn btn-secondary" data-co-px="1" aria-label="Un cuadro a la derecha">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">y</span>
+              <button type="button" class="btn btn-secondary" data-co-py="-1" aria-label="Un cuadro hacia abajo">−</button>
+              <output id="co-py"></output>
+              <button type="button" class="btn btn-secondary" data-co-py="1" aria-label="Un cuadro hacia arriba">+</button>
+            </div>
+          </div>
+          <div class="po-draw" id="co-punto-draw"></div>
+          <p class="md-msg ok" id="co-punto-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="co-mover">
+          <h2>2. Mueve la figura</h2>
+          <p class="md-explore-intro">Traslada, refleja o gira la figura verde. La gris se queda donde empezó.</p>
+          <p class="md-stepper-label">Traslación</p>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" data-co-mov="izq" aria-label="Un cuadro a la izquierda">←</button>
+            <button type="button" class="btn btn-secondary" data-co-mov="der" aria-label="Un cuadro a la derecha">→</button>
+            <button type="button" class="btn btn-secondary" data-co-mov="arr" aria-label="Un cuadro hacia arriba">↑</button>
+            <button type="button" class="btn btn-secondary" data-co-mov="aba" aria-label="Un cuadro hacia abajo">↓</button>
+          </div>
+          <p class="md-stepper-label">Simetría</p>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" data-co-mov="simV">Espejo vertical</button>
+            <button type="button" class="btn btn-secondary" data-co-mov="simH">Espejo horizontal</button>
+          </div>
+          <p class="md-stepper-label">Giro</p>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" data-co-mov="giroA" aria-label="Un cuarto de vuelta en sentido contrario a las agujas del reloj">¼ de vuelta ↺</button>
+            <button type="button" class="btn btn-secondary" data-co-mov="giroH" aria-label="Un cuarto de vuelta en el sentido de las agujas del reloj">¼ de vuelta ↻</button>
+            <button type="button" class="btn btn-secondary" data-co-mov="giro180">Media vuelta</button>
+          </div>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" data-co-mov="reset">Empezar de nuevo</button>
+          </div>
+          <div class="po-draw" id="co-figura-draw"></div>
+          <p class="md-msg ok" id="co-figura-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="co-escala">
+          <h2>3. Amplía o reduce <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></h2>
+          <p class="md-explore-intro">Elige el rectángulo y la escala y compara los lados y el área.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Base</span>
+              <button type="button" class="btn btn-secondary" data-co-ew="-1" aria-label="Base más corta">−</button>
+              <output id="co-ew"></output>
+              <button type="button" class="btn btn-secondary" data-co-ew="1" aria-label="Base más larga">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Altura</span>
+              <button type="button" class="btn btn-secondary" data-co-eh="-1" aria-label="Altura más corta">−</button>
+              <output id="co-eh"></output>
+              <button type="button" class="btn btn-secondary" data-co-eh="1" aria-label="Altura más larga">+</button>
+            </div>
+          </div>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" data-co-k="/2">÷2</button>
+            <button type="button" class="btn btn-secondary" data-co-k="2">×2</button>
+            <button type="button" class="btn btn-secondary" data-co-k="3">×3</button>
+          </div>
+          <div class="po-draw" id="co-escala-draw"></div>
+          <p class="md-msg ok" id="co-escala-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -134,20 +278,34 @@
             <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
           </div>
 
+          <div class="game-step-label">Elige el plano</div>
+          <div class="choice-row" id="plano-picker">
+            <button class="btn btn-secondary active" data-plano="1">Solo positivos <span class="status-pill status-available" style="margin-left:6px;">5º</span></button>
+            <button class="btn btn-secondary" data-plano="4">Los cuatro cuadrantes <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+          </div>
+
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="coordenadas">Coordenadas</button>
-            <button class="btn btn-secondary" data-mode="simetria">Simetría</button>
+            <button class="btn btn-secondary active" data-mode="leer">Leer coordenadas</button>
+            <button class="btn btn-secondary" data-mode="situar">Situar puntos</button>
             <button class="btn btn-secondary" data-mode="traslacion">Traslación</button>
+            <button class="btn btn-secondary" data-mode="simetria">Simetría</button>
             <button class="btn btn-secondary" data-mode="giro">Giro</button>
-            <button class="btn btn-secondary" data-mode="semejanza">Semejanza <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+            <button class="btn btn-secondary" data-mode="movimiento">¿Qué movimiento es?</button>
+            <button class="btn btn-secondary" data-mode="semejanza">Semejanza y escala <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
           <p class="instructions" id="instructions"></p>
-          <div class="grid-example" id="game-grid"></div>
+          <div class="po-draw" id="game-visual" style="display:none;"></div>
+          <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
