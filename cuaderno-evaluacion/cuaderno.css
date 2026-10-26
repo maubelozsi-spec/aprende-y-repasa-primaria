@@ -474,3 +474,8 @@ textarea.campo { width: 100%; resize: vertical; }
 .ley-ok::before { background: #0ca30c; border-radius: 3px; }
 .acciones-mini { margin-top: 8px; }
 .acciones-mini .btn { font-size: .82rem; padding: 6px 10px; }
+.acciones-etq { font-size: .82rem; font-weight: 600; color: var(--texto-2); }
+.btn-todo-0 { background: var(--bien-bg); color: var(--bien-tx); border-color: transparent; }
+.btn-todo-1 { background: var(--suf-bg); color: var(--suf-tx); border-color: transparent; }
+.btn-todo-2 { background: var(--insuf-bg); color: var(--insuf-tx); border-color: transparent; }
+.btn-todo-2 + .btn { margin-left: 12px; }

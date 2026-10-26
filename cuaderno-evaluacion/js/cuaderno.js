@@ -634,18 +634,23 @@ import {
         tabla.appendChild(tb);
         cuerpo.appendChild(h("div", { class: "tabla-scroll" }, [tabla]));
         cuerpo.appendChild(h("div", { class: "acciones acciones-mini" }, [
-          h("button", { type: "button", class: "btn", text: "Marcar todo «Lo controla»", title: "Después cambia solo lo que falla o está en proceso", onclick: function () {
+          h("span", { class: "acciones-etq", text: "Marcar todo:" }),
+        ].concat(ESTADOS.map(function (es) {
+          return h("button", { type: "button", class: "btn btn-todo btn-todo-" + es.v, text: es.corto, title: "Pone «" + es.label + "» en todos los contenidos de esta SdA; después cambia solo los que no sean así", onclick: function () {
             var rr = reg(n, area, pn);
             rr.items = rr.items || {};
-            items.forEach(function (it) { if (estadoItem(rr, it.id) === null) rr.items[it.id] = 0; });
+            var distintos = items.filter(function (it) { var e = estadoItem(rr, it.id); return e !== null && e !== es.v; }).length;
+            if (distintos && !confirm("Hay " + distintos + " contenido(s) ya marcados de otra forma. ¿Poner todos en «" + es.label + "»?")) return;
+            items.forEach(function (it) { rr.items[it.id] = es.v; });
             guardar(n); vaciar(cuerpo); construirCuerpo(); refrescar();
-          } }),
+          } });
+        })).concat([
           h("button", { type: "button", class: "btn", text: "Quitar marcas", onclick: function () {
             if (!confirm("¿Quitar todas las marcas de contenidos de esta SdA?")) return;
             reg(n, area, pn).items = {};
             guardar(n); vaciar(cuerpo); construirCuerpo(); refrescar();
           } }),
-        ]));
+        ])));
       }
 
       var idn = "n-" + area + pn;
