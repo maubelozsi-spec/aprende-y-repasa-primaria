@@ -3157,84 +3157,295 @@ function genMedidasAltas() {
   };
 }
 
-function areasRectangulo(curso) {
-  const base = randomInt(4, curso === "6" ? 25 : 15);
-  const altura = randomInt(3, curso === "6" ? 20 : 12);
-  const area = base * altura;
-  const perimetro = 2 * (base + altura);
+// ---------- Áreas y perímetros ----------
+// 5º (Tema 7): perímetro y área del cuadrado, el rectángulo y el
+// triángulo, áreas por cuadrículas. 6º (SdA 8): además romboide, rombo,
+// polígonos regulares y figuras irregulares.
+function arFmt(n) {
+  const r = Math.round(n * 100) / 100;
+  const [ent, dec] = String(r).split(".");
+  return `${ent.length > 3 ? ent.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ent}${dec ? `,${dec}` : ""}`;
+}
+
+const AR_NIVELES = {
+  "5": { max: 15 },
+  "6": { max: 25 },
+  disc5: { max: 6, facil: true },
+  disc6: { max: 8, facil: true },
+};
+
+// (desplazamiento, altura, lado inclinado)
+const AR_TERNAS = [[3, 4, 5], [4, 3, 5], [6, 8, 10], [8, 6, 10], [5, 12, 13], [9, 12, 15], [12, 9, 15], [12, 5, 13]];
+
+function arDos(max) {
+  const b = randomInt(3, max);
+  let h;
+  do h = randomInt(2, Math.max(3, max - 2));
+  while (h === b);
+  // El largo siempre mayor que el ancho.
+  return b > h ? [b, h] : [h, b];
+}
+
+function arRectangulo(nivel) {
+  const [b, h] = arDos(nivel.max);
+  const que = pick(["Un huerto", "Un patio", "Una habitación", "Un terreno"]);
   return {
-    enunciado: `Un terreno rectangular mide ${base} m de largo y ${altura} m de ancho. ¿Cuál es su área y su perímetro?`,
-    datos: [`Largo: ${base} m`, `Ancho: ${altura} m`],
-    operacion: `Área: ${base} × ${altura} = ${area}. Perímetro: 2 × (${base} + ${altura}) = ${perimetro}`,
-    solucion: `Área = ${area} m², Perímetro = ${perimetro} m.`,
+    enunciado: `${que} rectangular mide ${b} m de largo y ${h} m de ancho. ¿Cuál es su área? ¿Y su perímetro?`,
+    datos: [`Largo: ${b} m`, `Ancho: ${h} m`],
+    operacion: `Área: ${b} × ${h} = ${arFmt(b * h)} m² · Perímetro: ${b} + ${h} + ${b} + ${h} = ${2 * (b + h)} m`,
+    solucion: `Área: ${arFmt(b * h)} m². Perímetro: ${2 * (b + h)} m.`,
   };
 }
 
-function areasCuadrado(curso) {
-  const lado = randomInt(3, curso === "6" ? 30 : 15);
-  const area = lado * lado;
-  const perimetro = 4 * lado;
+function arCuadrado(nivel) {
+  const l = randomInt(3, nivel.max);
+  const nombre = pick(NOMBRES);
   return {
-    enunciado: `Una parcela cuadrada tiene ${lado} m de lado. ¿Cuál es su área y su perímetro?`,
-    datos: [`Lado: ${lado} m`],
-    operacion: `Área: ${lado} × ${lado} = ${area}. Perímetro: 4 × ${lado} = ${perimetro}`,
-    solucion: `Área = ${area} m², Perímetro = ${perimetro} m.`,
+    enunciado: `${nombre} dice que un cuadrado de ${l} cm de lado tiene un área de ${2 * l} cm², porque ${l} × 2 = ${2 * l}. ¿Tiene razón? Calcula el área y el perímetro.`,
+    datos: [`Lado: ${l} cm`],
+    operacion: `Área: ${l} × ${l} = ${arFmt(l * l)} cm² · Perímetro: 4 × ${l} = ${4 * l} cm`,
+    solucion: `No: el área es lado × lado = ${arFmt(l * l)} cm². El perímetro es ${4 * l} cm.`,
   };
 }
 
-function areasTriangulo(curso) {
-  const base = randomInt(4, curso === "6" ? 25 : 15);
-  const altura = randomInt(3, curso === "6" ? 20 : 12);
-  const area = (base * altura) / 2;
+function arTriangulo(nivel) {
+  const ternas = nivel.facil ? AR_TERNAS.slice(0, 2) : AR_TERNAS;
+  const [o, h, lado] = pick(ternas);
+  const [o2, , otro] = pick(ternas.filter((t) => t[1] === h));
+  const b = o + o2;
   return {
-    enunciado: `Un terreno triangular tiene una base de ${base} m y una altura de ${altura} m. ¿Cuál es su área?`,
-    datos: [`Base: ${base} m`, `Altura: ${altura} m`],
-    operacion: `(${base} × ${altura}) ÷ 2 = ${fmtAuto(area)}`,
-    solucion: `${fmtAuto(area)} m². El área del terreno es ${fmtAuto(area)} m².`,
+    enunciado: `Un triángulo tiene ${b} cm de base y ${h} cm de altura. Sus otros dos lados miden ${lado} cm y ${otro} cm. Calcula su área y su perímetro. ¿Qué medidas usas para cada cosa?`,
+    datos: [`Base: ${b} cm`, `Altura: ${h} cm`, `Lados: ${b}, ${lado} y ${otro} cm`],
+    operacion: `Área: (${b} × ${h}) ÷ 2 = ${b * h} ÷ 2 = ${arFmt((b * h) / 2)} cm² · Perímetro: ${b} + ${lado} + ${otro} = ${b + lado + otro} cm`,
+    solucion: `Área: ${arFmt((b * h) / 2)} cm² (con la base y la altura). Perímetro: ${b + lado + otro} cm (con los tres lados).`,
+  };
+}
+
+function arCuadricula(nivel) {
+  let b;
+  let h;
+  do [b, h] = arDos(Math.min(nivel.max, 10));
+  while ((b * h) % 2);
+  return {
+    enunciado: `Dibuja en papel cuadriculado un rectángulo de ${b} cuadraditos de base y ${h} de altura. ¿Cuántos cuadraditos tiene dentro? Pártelo por una diagonal: ¿cuántos cuadraditos ocupa cada triángulo?`,
+    datos: [`Base: ${b} cuadraditos`, `Altura: ${h} cuadraditos`],
+    operacion: `${h} filas de ${b}: ${b} × ${h} = ${b * h} · Cada triángulo es la mitad: ${b * h} ÷ 2 = ${(b * h) / 2}`,
+    solucion: `El rectángulo tiene ${b * h} cuadraditos y cada triángulo, ${(b * h) / 2}.`,
+  };
+}
+
+const AR_CASOS = [
+  ["vallar un huerto", "perímetro"],
+  ["plantar césped en un jardín", "área"],
+  ["poner un marco a un cuadro", "perímetro"],
+  ["pintar una pared", "área"],
+  ["embaldosar el suelo de la cocina", "área"],
+  ["poner rodapié en una habitación", "perímetro"],
+  ["forrar la tapa de un libro", "área"],
+  ["poner luces alrededor de una ventana", "perímetro"],
+  ["comprar tela para un mantel", "área"],
+  ["poner una cinta alrededor del mural", "perímetro"],
+];
+
+function arAreaOPerimetro() {
+  const tres = AR_CASOS.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+  return {
+    enunciado: `¿Qué hay que calcular, el área o el perímetro? a) ${tres[0][0]}   b) ${tres[1][0]}   c) ${tres[2][0]}`,
+    datos: ["Perímetro: el borde (cm, m). Área: la superficie (cm², m²)."],
+    operacion: tres.map(([c, r], i) => `${"abc"[i]}) ${r === "área" ? "se cubre toda la superficie" : "se recorre el borde"}`).join(" · "),
+    solucion: tres.map(([, r], i) => `${"abc"[i]}) ${r}`).join("; ") + ".",
+  };
+}
+
+function arPintura(nivel) {
+  const cubre = pick([2, 3, 4, 5]);
+  let b;
+  let h;
+  do {
+    b = randomInt(2, nivel.facil ? 6 : 10);
+    h = randomInt(2, nivel.facil ? 3 : 4);
+  } while ((b * h) % cubre);
+  return {
+    enunciado: `Una pared mide ${b} m de largo y ${h} m de alto. Con un bote de pintura se pintan ${cubre} m². ¿Cuántos botes hacen falta?`,
+    datos: [`Pared: ${b} m × ${h} m`, `Un bote: ${cubre} m²`],
+    operacion: `Área: ${b} × ${h} = ${b * h} m² · Botes: ${b * h} ÷ ${cubre} = ${(b * h) / cubre}`,
+    solucion: `${(b * h) / cubre} ${(b * h) / cubre === 1 ? "bote" : "botes"}.`,
+  };
+}
+
+function arValla(nivel) {
+  const [b, h] = arDos(nivel.max);
+  const puerta = nivel.facil ? 0 : randomInt(1, 3);
+  const precio = nivel.facil ? 0 : pick([2, 3, 5, 10]);
+  const metros = 2 * (b + h) - puerta;
+  return {
+    enunciado: `Un huerto rectangular mide ${b} m de largo y ${h} m de ancho. ${puerta ? `Se quiere vallar dejando una puerta de ${puerta} m. ¿Cuántos metros de valla hacen falta? Si cada metro cuesta ${precio} €, ¿cuánto cuesta la valla?` : "¿Cuántos metros de valla hacen falta para rodearlo?"}`,
+    datos: [`Huerto: ${b} m × ${h} m`, ...(puerta ? [`Puerta: ${puerta} m`, `Precio: ${precio} € el metro`] : [])],
+    operacion: `Perímetro: ${b} + ${h} + ${b} + ${h} = ${2 * (b + h)} m${puerta ? ` · Sin la puerta: ${2 * (b + h)} − ${puerta} = ${metros} m · Coste: ${metros} × ${precio} = ${arFmt(metros * precio)} €` : ""}`,
+    solucion: puerta ? `${metros} m de valla, que cuestan ${arFmt(metros * precio)} €.` : `${metros} m de valla.`,
+  };
+}
+
+function arInversa(nivel) {
+  if (Math.random() < 0.5) {
+    const [b, h] = arDos(nivel.max);
+    return {
+      enunciado: `Un rectángulo tiene un área de ${arFmt(b * h)} cm² y su base mide ${b} cm. ¿Cuánto mide su altura? ¿Y su perímetro?`,
+      datos: [`Área: ${arFmt(b * h)} cm²`, `Base: ${b} cm`],
+      operacion: `Altura: ${arFmt(b * h)} ÷ ${b} = ${h} cm · Perímetro: ${b} + ${h} + ${b} + ${h} = ${2 * (b + h)} cm`,
+      solucion: `La altura mide ${h} cm y el perímetro es ${2 * (b + h)} cm.`,
+    };
+  }
+  const l = randomInt(3, nivel.max);
+  return {
+    enunciado: `Un cuadrado tiene ${4 * l} cm de perímetro. ¿Cuánto mide su lado? ¿Cuál es su área?`,
+    datos: [`Perímetro: ${4 * l} cm`],
+    operacion: `Lado: ${4 * l} ÷ 4 = ${l} cm · Área: ${l} × ${l} = ${arFmt(l * l)} cm²`,
+    solucion: `El lado mide ${l} cm y el área es ${arFmt(l * l)} cm².`,
+  };
+}
+
+// Reto de la UDI de 5º: el mural de la campaña.
+function arMural(nivel) {
+  const b = randomInt(2, nivel.facil ? 4 : 6);
+  const h = randomInt(1, Math.min(3, b - 1));
+  const precio = pick([2, 3, 4]);
+  return {
+    enunciado: `Para la campaña vamos a hacer un mural de ${b} m de largo y ${h} m de alto. Cada cartulina cubre 1 m² y cuesta ${precio} €. Además, le pondremos una cinta por todo el borde. ¿Cuántas cartulinas hacen falta y cuánto cuestan? ¿Cuántos metros de cinta necesitamos?`,
+    datos: [`Mural: ${b} m × ${h} m`, `Cartulina: 1 m², ${precio} €`],
+    operacion: `Área: ${b} × ${h} = ${b * h} m² → ${b * h} cartulinas · Coste: ${b * h} × ${precio} = ${b * h * precio} € · Cinta (perímetro): ${b} + ${h} + ${b} + ${h} = ${2 * (b + h)} m`,
+    solucion: `${b * h} cartulinas, que cuestan ${b * h * precio} €, y ${2 * (b + h)} m de cinta.`,
+  };
+}
+
+function arRomboide(nivel) {
+  const [o, h, lado] = pick(AR_TERNAS.filter(([d, alt]) => d <= 8 && alt <= (nivel.facil ? 4 : 12)));
+  const b = randomInt(Math.max(3, o), Math.max(o + 2, nivel.max));
+  return {
+    enunciado: `Un romboide tiene ${b} cm de base y ${h} cm de altura, y su lado inclinado mide ${lado} cm. Calcula su área y su perímetro.`,
+    datos: [`Base: ${b} cm`, `Altura: ${h} cm`, `Lado inclinado: ${lado} cm`],
+    operacion: `Área: ${b} × ${h} = ${arFmt(b * h)} cm² · Perímetro: ${b} + ${lado} + ${b} + ${lado} = ${2 * (b + lado)} cm`,
+    solucion: `Área: ${arFmt(b * h)} cm² (la altura, no el lado inclinado). Perímetro: ${2 * (b + lado)} cm.`,
+  };
+}
+
+function arRombo(nivel) {
+  let D;
+  let d;
+  do {
+    D = 2 * randomInt(2, Math.floor(nivel.max / 2) + 1);
+    d = 2 * randomInt(1, Math.floor(nivel.max / 2));
+  } while (d >= D || 2 * d < D);
+  const que = pick(["Una cometa con forma de rombo", "Una baldosa con forma de rombo", "Un cartel con forma de rombo"]);
+  return {
+    enunciado: `${que} tiene unas diagonales de ${D} cm y ${d} cm. ¿Cuál es su área?`,
+    datos: [`Diagonal mayor: ${D} cm`, `Diagonal menor: ${d} cm`],
+    operacion: `(${D} × ${d}) ÷ 2 = ${D * d} ÷ 2 = ${arFmt((D * d) / 2)}`,
+    solucion: `${arFmt((D * d) / 2)} cm².`,
+  };
+}
+
+function arPoligono(nivel) {
+  const n = pick([5, 6, 8]);
+  const nombre = { 5: "pentágono", 6: "hexágono", 8: "octógono" }[n];
+  const l = randomInt(2, nivel.facil ? 6 : 12);
+  const ap = Math.round((l / (2 * Math.tan(Math.PI / n))) * 10) / 10;
+  const P = n * l;
+  return {
+    enunciado: `Un ${nombre} regular tiene ${l} cm de lado y ${arFmt(ap)} cm de apotema. Calcula su perímetro y su área.`,
+    datos: [`${n} lados de ${l} cm`, `Apotema: ${arFmt(ap)} cm`],
+    operacion: `Perímetro: ${n} × ${l} = ${P} cm · Área: (${P} × ${arFmt(ap)}) ÷ 2 = ${arFmt(P * ap)} ÷ 2 = ${arFmt((P * ap) / 2)} cm²`,
+    solucion: `Perímetro: ${P} cm. Área: ${arFmt((P * ap) / 2)} cm².`,
+  };
+}
+
+function arIrregularL(nivel) {
+  const m = nivel.facil ? 8 : 16;
+  const W = randomInt(5, m);
+  const H = randomInt(5, m);
+  const w = randomInt(2, W - 2);
+  const h = randomInt(2, H - 2);
+  return {
+    enunciado: `Un patio tiene forma de L: es un rectángulo de ${W} m × ${H} m al que le falta una esquina rectangular de ${w} m × ${h} m. Dibújalo, pártelo en dos rectángulos y calcula su área. ¿Cuál es su perímetro?`,
+    datos: [`Rectángulo: ${W} m × ${H} m`, `Esquina que falta: ${w} m × ${h} m`],
+    operacion: `Partido: ${W} × ${H - h} + ${W - w} × ${h} = ${W * (H - h)} + ${(W - w) * h} = ${W * H - w * h} m² · Restando: ${W * H} − ${w * h} = ${W * H - w * h} m² · Perímetro: ${W} + ${H - h} + ${w} + ${h} + ${W - w} + ${H} = ${2 * (W + H)} m`,
+    solucion: `Área: ${arFmt(W * H - w * h)} m². Perímetro: ${2 * (W + H)} m (igual que el rectángulo entero).`,
+  };
+}
+
+// Reto de la UDI de 6º: el punto limpio.
+function arPuntoLimpio(nivel) {
+  const W = randomInt(8, nivel.facil ? 10 : 20);
+  const H = randomInt(5, nivel.facil ? 8 : 12);
+  const n = randomInt(2, 5);
+  const cw = 2;
+  const ch = pick([1, 2]);
+  const ocupado = n * cw * ch;
+  return {
+    enunciado: `El punto limpio del colegio es un rectángulo de ${W} m × ${H} m. Se colocan ${n} contenedores; cada uno ocupa ${cw} m × ${ch} m. ¿Cuántos m² quedan libres para moverse?`,
+    datos: [`Punto limpio: ${W} m × ${H} m`, `${n} contenedores de ${cw} m × ${ch} m`],
+    operacion: `Total: ${W} × ${H} = ${W * H} m² · Contenedores: ${n} × (${cw} × ${ch}) = ${ocupado} m² · Libre: ${W * H} − ${ocupado} = ${W * H - ocupado} m²`,
+    solucion: `Quedan ${arFmt(W * H - ocupado)} m² libres.`,
   };
 }
 
 function genAreas(curso) {
-  const variantes = curso === "6" ? [areasRectangulo, areasCuadrado, areasTriangulo] : [areasRectangulo, areasCuadrado];
-  return pick(variantes)(curso);
+  const n = AR_NIVELES[curso === "6" ? "6" : "5"];
+  if (curso === "6")
+    return siguienteDeBaraja("ar6", [arRectangulo, arTriangulo, arRomboide, arRombo, arPoligono, arIrregularL, arPuntoLimpio, arValla, arInversa])(n);
+  return siguienteDeBaraja("ar5", [arRectangulo, arCuadrado, arTriangulo, arCuadricula, arAreaOPerimetro, arPintura, arValla, arInversa, arMural])(n);
+}
+
+// Discalculia: los contenidos del curso con medidas pequeñas.
+function genAreasDiscalculia(curso) {
+  const n = AR_NIVELES[curso === "6" ? "disc6" : "disc5"];
+  if (curso === "6") return siguienteDeBaraja("arDisc6", [arRectangulo, arTriangulo, arRomboide, arRombo, arIrregularL, arValla, arAreaOPerimetro])(n);
+  return siguienteDeBaraja("arDisc5", [arRectangulo, arCuadrado, arTriangulo, arCuadricula, arAreaOPerimetro, arPintura, arMural])(n);
+}
+
+function arAcsCuadraditos() {
+  const b = randomInt(2, 5);
+  let h;
+  do h = randomInt(2, 4);
+  while (h === b);
+  return {
+    enunciado: `Dibuja en la cuadrícula un rectángulo de ${b} cuadraditos de largo y ${h} de alto. Cuenta los cuadraditos de dentro (el área) y los lados del borde (el perímetro).`,
+    datos: [`Largo: ${b}`, `Alto: ${h}`],
+    operacion: `Dentro: ${h} filas de ${b} → ${b} × ${h} = ${b * h} · Borde: ${b} + ${h} + ${b} + ${h} = ${2 * (b + h)}`,
+    solucion: `Área: ${b * h} cuadraditos. Perímetro: ${2 * (b + h)} lados de cuadradito.`,
+  };
 }
 
 function genAreasACS() {
-  if (Math.random() < 0.5) {
-    const lado = randomInt(3, 6);
-    const area = lado * lado;
-    return {
-      enunciado: `Una parcela cuadrada tiene ${lado} m de lado. ¿Cuál es su área?`,
-      datos: [`Lado: ${lado} m`],
-      operacion: `${lado} × ${lado} = ${area}`,
-      solucion: `${area} m². El área es ${area} m².`,
-    };
-  }
-  const base = randomInt(4, 7);
-  const altura = randomInt(2, 4);
-  const area = base * altura;
+  const n = { max: 5, facil: true };
+  return siguienteDeBaraja("arAcs", [arAcsCuadraditos, () => arRectangulo(n), arAreaOPerimetro, arAcsCuadraditos, () => arValla(n)])();
+}
+
+// Altas: mismo perímetro con distinta área, ampliaciones y figuras compuestas.
+function arMismoPerimetro() {
+  const s = randomInt(8, 14);
   return {
-    enunciado: `Un terreno rectangular mide ${base} m de largo y ${altura} m de ancho. ¿Cuál es su área?`,
-    datos: [`Largo: ${base} m`, `Ancho: ${altura} m`],
-    operacion: `${base} × ${altura} = ${area}`,
-    solucion: `${area} m². El área es ${area} m².`,
+    enunciado: `Con ${2 * s} m de valla se quiere cercar un huerto rectangular. Escribe tres rectángulos posibles (con lados de metros enteros) y calcula su área. ¿Cuál tiene más área de todos los posibles?`,
+    datos: [`Perímetro: ${2 * s} m → base + altura = ${s} m`],
+    operacion: `Por ejemplo: 1 × ${s - 1} = ${s - 1} · 2 × ${s - 2} = ${2 * (s - 2)} · 3 × ${s - 3} = ${3 * (s - 3)} … El más parecido a un cuadrado: ${Math.floor(s / 2)} × ${Math.ceil(s / 2)} = ${Math.floor(s / 2) * Math.ceil(s / 2)}`,
+    solucion: `El de más área es el de ${Math.floor(s / 2)} m × ${Math.ceil(s / 2)} m: ${Math.floor(s / 2) * Math.ceil(s / 2)} m². Con el mismo perímetro, cuanto más se parece a un cuadrado, más área.`,
+  };
+}
+
+function arDoble() {
+  const [b, h] = arDos(9);
+  const k = pick([2, 3]);
+  return {
+    enunciado: `Un rectángulo mide ${b} cm × ${h} cm. Si sus dos lados se multiplican por ${k}, ¿cuántas veces mayor es su perímetro? ¿Y su área? Compruébalo calculando.`,
+    datos: [`Rectángulo: ${b} cm × ${h} cm`, `Lados × ${k}`],
+    operacion: `Antes: P = ${2 * (b + h)} cm, A = ${b * h} cm² · Después (${b * k} × ${h * k}): P = ${2 * (b + h) * k} cm, A = ${arFmt(b * h * k * k)} cm²`,
+    solucion: `El perímetro es ${k} veces mayor y el área, ${k * k} veces mayor (${k} × ${k}).`,
   };
 }
 
 function genAreasAltas() {
-  const baseGrande = randomInt(15, 30);
-  const alturaGrande = randomInt(10, 20);
-  const baseChica = randomInt(3, Math.floor(baseGrande / 2));
-  const alturaChica = randomInt(3, Math.floor(alturaGrande / 2));
-  const areaGrande = baseGrande * alturaGrande;
-  const areaChica = baseChica * alturaChica;
-  const areaTotal = areaGrande - areaChica;
-  return {
-    enunciado: `Un terreno rectangular mide ${baseGrande} m de largo y ${alturaGrande} m de ancho, pero le falta una esquina rectangular de ${baseChica} m por ${alturaChica} m (no forma parte del terreno). ¿Cuál es el área real del terreno?`,
-    datos: [`Rectángulo grande: ${baseGrande} × ${alturaGrande}`, `Esquina que falta: ${baseChica} × ${alturaChica}`],
-    operacion: `${baseGrande} × ${alturaGrande} = ${areaGrande}. ${baseChica} × ${alturaChica} = ${areaChica}. ${areaGrande} − ${areaChica} = ${areaTotal}`,
-    solucion: `${areaTotal} m². El área real del terreno es ${areaTotal} m².`,
-  };
+  const n = AR_NIVELES["6"];
+  return siguienteDeBaraja("arAltas", [arMismoPerimetro, arDoble, () => arIrregularL(n), () => arPoligono(n), () => arPuntoLimpio(n), () => arTriangulo(n)])();
 }
 
 function circunferenciaLongitud(curso) {
@@ -4692,7 +4903,7 @@ const TOPICS = [
   { id: "porcentajes", label: "Porcentajes", category: "Fracciones y decimales", generate: genPorcentajes, generateACS: genPorcentajesACS, generateDiscalculia: genPorcentajesDiscalculia, generateAltas: genPorcentajesAltas, resumen: "Un porcentaje indica una parte de cada 100: 25% = 25/100 = 0,25. Para calcular el X% de una cantidad, se multiplica por X y se divide entre 100. En un descuento se resta y en un impuesto se suma. De cabeza: 50% = la mitad, 25% = la cuarta parte, 10% = dividir entre 10.", resumen6: "Un porcentaje indica una parte de cada 100: 3/5 = 60/100 = 0,6 = 60%. Para calcular el X% de una cantidad, se multiplica por X y se divide entre 100; para saber qué porcentaje es una parte, se divide la parte entre el total y se multiplica por 100. En un descuento se resta y en un impuesto se suma." },
   { id: "problemas-mixtos", label: "Problemas mixtos (varios pasos)", category: "Problemas mixtos", generate: genProblemasMixtos, resumen: "Algunos problemas necesitan encadenar varias operaciones seguidas para llegar a la solución final." },
   { id: "medidas", label: "Medidas y conversiones", category: "Geometría y medidas", generate: genMedidas, generateACS: genMedidasACS, generateAltas: genMedidasAltas, resumen: "Para cambiar de una unidad de medida a otra, se multiplica o se divide según la equivalencia entre ellas." },
-  { id: "areas", label: "Áreas y perímetros", category: "Geometría y medidas", generate: genAreas, generateACS: genAreasACS, generateAltas: genAreasAltas, resumen: "El área mide la superficie de una figura: en un rectángulo es base × altura, y en un triángulo es (base × altura) ÷ 2." },
+  { id: "areas", label: "Áreas y perímetros", category: "Geometría y medidas", generate: genAreas, generateACS: genAreasACS, generateDiscalculia: genAreasDiscalculia, generateAltas: genAreasAltas, resumen: "El perímetro es el borde: la suma de los lados (cm, m). El área es la superficie: los cuadraditos que caben dentro (cm², m²). Cuadrado: lado × lado. Rectángulo: base × altura. Triángulo: (base × altura) ÷ 2, con la altura, no con el lado inclinado.", resumen6: "Perímetro: suma de los lados. Áreas: rectángulo y romboide, base × altura; triángulo, (base × altura) ÷ 2; rombo, (D × d) ÷ 2; polígono regular, (perímetro × apotema) ÷ 2. Las figuras irregulares se descomponen en figuras conocidas y se suman (o se resta lo que sobra)." },
   { id: "circunferencia", label: "Circunferencia y círculo", category: "Geometría y medidas", generate: genCircunferencia, generateACS: genCircunferenciaACS, generateAltas: genCircunferenciaAltas, resumen: "La circunferencia es el contorno de un círculo. Su longitud es 2 × π × radio, y el área del círculo es π × radio²." },
   { id: "proporcionalidad", label: "Proporcionalidad (regla de tres)", category: "Geometría y medidas", generate: genProporcionalidad, generateACS: genProporcionalidadACS, generateAltas: genProporcionalidadAltas, resumen: "En una relación de proporcionalidad, si conocemos el precio de una unidad podemos calcular el de cualquier cantidad." },
   { id: "estadistica", label: "Estadística (media y mediana)", category: "Geometría y medidas", generate: genEstadistica, generateACS: genEstadisticaACS, generateAltas: genEstadisticaAltas, resumen: "La media es la suma de todos los valores dividida entre el número de valores. La mediana es el valor central al ordenarlos." },

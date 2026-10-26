@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Área de figuras planas y polígonos</h1>
-        <p class="content-subtitle">Fórmulas de área del cuadrado, rectángulo, triángulo, romboide y rombo.</p>
+        <p class="content-subtitle">Distingue área y perímetro, cuenta cuadraditos y calcula áreas de figuras dibujadas con sus medidas, con la explicación de cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -56,114 +56,143 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
       <!-- ================= TEORÍA ================= -->
       <section id="tab-teoria" class="tab-panel active theory">
 
-        <h2>Área del cuadrado</h2>
-        <div class="pv-tiles">
-          <svg viewBox="0 0 120 120" width="120" height="120">
-            <rect x="20" y="20" width="80" height="80" fill="none" stroke="var(--text)" stroke-width="3"/>
-            <text x="60" y="14" text-anchor="middle" font-size="13">lado</text>
-            <text x="4" y="64" font-size="13">lado</text>
-          </svg>
-        </div>
+        <h2>Área y perímetro: no es lo mismo</h2>
         <div class="rule-box aguda">
-          <h4>Fórmula</h4>
-          <p>Área = lado × lado</p>
-        </div>
-        <div class="tip-box"><strong>Ejemplo:</strong> lado 5 cm → 5 × 5 = 25 cm²</div>
-
-        <h2>Área del rectángulo</h2>
-        <div class="pv-tiles">
-          <svg viewBox="0 0 140 100" width="140" height="100">
-            <rect x="20" y="20" width="100" height="60" fill="none" stroke="var(--text)" stroke-width="3"/>
-            <text x="70" y="14" text-anchor="middle" font-size="13">base</text>
-            <text x="2" y="54" font-size="13">altura</text>
-          </svg>
+          <h4>El perímetro es el borde</h4>
+          <p>Es lo que mide el contorno de la figura: la suma de todos sus lados. Se mide en unidades de longitud: <strong>cm, m</strong>…</p>
         </div>
         <div class="rule-box llana">
-          <h4>Fórmula</h4>
-          <p>Área = base × altura</p>
+          <h4>El área es la superficie</h4>
+          <p>Es lo que ocupa la figura por dentro: cuántos cuadraditos caben. Se mide en unidades de superficie: <strong>cm², m²</strong>… Un cm² es un cuadradito de 1 cm de lado.</p>
         </div>
-        <div class="tip-box"><strong>Ejemplo:</strong> base 6 cm, altura 4 cm → 6 × 4 = 24 cm²</div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> un rectángulo de 4 cm × 3 cm tiene un perímetro de 4 + 3 + 4 + 3 = <strong>14 cm</strong> y un área de 4 × 3 = <strong>12 cm²</strong>. Una valla se calcula con el perímetro; el césped, con el área.
+        </div>
+
+        <h2>Áreas por cuadrículas</h2>
+        <p>Para medir un área se cuentan los cuadraditos que caben dentro. En un rectángulo no hace falta contarlos uno a uno: hay <strong>filas × cuadraditos en cada fila</strong>. Si una figura tiene medios cuadraditos, dos mitades hacen uno entero.</p>
+
+        <h2>Área del cuadrado y del rectángulo</h2>
+        <div class="pv-tiles" style="gap: 22px;">
+          <svg viewBox="0 0 130 120" width="130" height="120" role="img" aria-label="Cuadrado">
+            <rect x="40" y="20" width="80" height="80" fill="var(--color-indigo-tint)" stroke="var(--color-indigo)" stroke-width="3"/>
+            <text x="80" y="14" text-anchor="middle" font-size="13" fill="var(--text)">lado</text>
+            <text x="35" y="64" text-anchor="end" font-size="13" fill="var(--text)">lado</text>
+          </svg>
+          <svg viewBox="0 0 160 100" width="160" height="100" role="img" aria-label="Rectángulo">
+            <rect x="52" y="20" width="100" height="60" fill="var(--color-indigo-tint)" stroke="var(--color-indigo)" stroke-width="3"/>
+            <text x="102" y="96" text-anchor="middle" font-size="13" fill="var(--text)">base</text>
+            <text x="47" y="54" text-anchor="end" font-size="13" fill="var(--text)">altura</text>
+          </svg>
+        </div>
+        <div class="po-tabla-wrap">
+          <table class="rules-table">
+            <tr><th>Figura</th><th>Área</th><th>Ejemplo</th></tr>
+            <tr><td>Cuadrado</td><td>lado × lado</td><td>lado 5 cm → 5 × 5 = 25 cm²</td></tr>
+            <tr><td>Rectángulo</td><td>base × altura</td><td>6 cm y 4 cm → 6 × 4 = 24 cm²</td></tr>
+          </table>
+        </div>
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> el área del cuadrado es lado × lado, no lado × 2. Un cuadrado de 5 cm tiene 25 cm², no 10.
+        </div>
 
         <h2>Área del triángulo</h2>
         <div class="pv-tiles">
-          <svg viewBox="0 0 140 100" width="140" height="100">
-            <polygon points="20,80 120,80 70,20" fill="none" stroke="var(--text)" stroke-width="3"/>
-            <line x1="70" y1="80" x2="70" y2="20" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
-            <text x="70" y="96" text-anchor="middle" font-size="13">base</text>
-            <text x="78" y="52" font-size="13">altura</text>
+          <svg viewBox="0 0 160 110" width="160" height="110" role="img" aria-label="Triángulo dentro de un rectángulo">
+            <rect x="20" y="20" width="120" height="70" fill="none" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="5 4"/>
+            <polygon points="20,90 140,90 90,20" fill="var(--color-indigo-tint)" stroke="var(--color-indigo)" stroke-width="3"/>
+            <line x1="90" y1="90" x2="90" y2="20" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
+            <text x="80" y="106" text-anchor="middle" font-size="13" fill="var(--text)">base</text>
+            <text x="96" y="66" font-size="13" font-weight="700" fill="var(--color-plum)" stroke="var(--surface)" stroke-width="3" paint-order="stroke">altura</text>
           </svg>
         </div>
         <div class="rule-box esdrujula">
-          <h4>Fórmula</h4>
-          <p>Área = (base × altura) ÷ 2</p>
+          <h4>Área = (base × altura) ÷ 2</h4>
+          <p>El triángulo ocupa justo la <strong>mitad</strong> del rectángulo que lo rodea. Ejemplo: base 8 cm y altura 5 cm → (8 × 5) ÷ 2 = 20 cm².</p>
         </div>
-        <div class="tip-box"><strong>Ejemplo:</strong> base 8 cm, altura 5 cm → (8 × 5) ÷ 2 = 20 cm²</div>
+        <div class="tip-box">
+          <strong>Ojo:</strong> la altura es la línea que baja desde el vértice de arriba hasta la base formando un ángulo recto. No es el lado inclinado.
+        </div>
 
-        <h2>Área del romboide (paralelogramo)</h2>
-        <div class="pv-tiles">
-          <svg viewBox="0 0 160 100" width="160" height="100">
-            <polygon points="30,80 110,80 140,20 60,20" fill="none" stroke="var(--text)" stroke-width="3"/>
-            <line x1="60" y1="20" x2="60" y2="80" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
-            <text x="70" y="96" text-anchor="middle" font-size="13">base</text>
-            <text x="38" y="52" font-size="13">altura</text>
-          </svg>
+        <h2>El perímetro</h2>
+        <p>El perímetro es la suma de todos los lados. Atajos:</p>
+        <div class="po-tabla-wrap">
+          <table class="rules-table">
+            <tr><th>Figura</th><th>Perímetro</th><th>Ejemplo</th></tr>
+            <tr><td>Cuadrado</td><td>4 × lado</td><td>lado 5 cm → 20 cm</td></tr>
+            <tr><td>Rectángulo</td><td>base + altura + base + altura</td><td>6 y 4 → 6 + 4 + 6 + 4 = 20 cm</td></tr>
+            <tr><td>Polígono regular</td><td>n.º de lados × lado</td><td>hexágono de 3 cm → 6 × 3 = 18 cm</td></tr>
+          </table>
         </div>
-        <div class="rule-box sobresdrujula">
-          <h4>Fórmula</h4>
-          <p>Área = base × altura</p>
-        </div>
-        <div class="tip-box"><strong>Ejemplo:</strong> base 7 cm, altura 4 cm → 7 × 4 = 28 cm²</div>
-
-        <h2>Área del rombo</h2>
-        <div class="pv-tiles">
-          <svg viewBox="0 0 140 140" width="140" height="140">
-            <polygon points="70,10 130,70 70,130 10,70" fill="none" stroke="var(--text)" stroke-width="3"/>
-            <line x1="70" y1="10" x2="70" y2="130" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
-            <line x1="10" y1="70" x2="130" y2="70" stroke="var(--color-teal)" stroke-width="2" stroke-dasharray="4 3"/>
-            <text x="76" y="45" font-size="13">D</text>
-            <text x="45" y="64" font-size="13">d</text>
-          </svg>
-        </div>
-        <div class="rule-box diptongo">
-          <h4>Fórmula</h4>
-          <p>Área = (diagonal mayor × diagonal menor) ÷ 2</p>
-        </div>
-        <div class="tip-box"><strong>Ejemplo:</strong> diagonales 10 cm y 6 cm → (10 × 6) ÷ 2 = 30 cm²</div>
 
         <div class="grade-section">
           <span class="grade-badge">Contenido de 6º</span>
-          <h2>El perímetro</h2>
-          <div class="rule-box aguda">
-            <h4>¿Qué es?</h4>
-            <p>El <strong>perímetro</strong> es la suma de las longitudes de todos los lados de una figura: la distancia total que hay que recorrer para rodearla por fuera.</p>
-            <p class="examples"><strong>Ejemplo:</strong> un rectángulo de 6 cm de base y 4 cm de altura tiene perímetro 6 + 4 + 6 + 4 = <strong>20 cm</strong>.</p>
+          <h2>Área del romboide y del rombo</h2>
+          <div class="pv-tiles" style="gap: 22px;">
+            <svg viewBox="0 0 160 110" width="160" height="110" role="img" aria-label="Romboide">
+              <polygon points="30,80 110,80 140,20 60,20" fill="var(--color-indigo-tint)" stroke="var(--color-indigo)" stroke-width="3"/>
+              <line x1="60" y1="20" x2="60" y2="80" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
+              <text x="70" y="98" text-anchor="middle" font-size="13" fill="var(--text)">base</text>
+              <text x="64" y="56" font-size="13" font-weight="700" fill="var(--color-plum)" stroke="var(--surface)" stroke-width="3" paint-order="stroke">altura</text>
+            </svg>
+            <svg viewBox="0 0 140 140" width="140" height="140" role="img" aria-label="Rombo con sus diagonales">
+              <polygon points="70,10 130,70 70,130 10,70" fill="var(--color-indigo-tint)" stroke="var(--color-indigo)" stroke-width="3"/>
+              <line x1="70" y1="10" x2="70" y2="130" stroke="var(--color-teal)" stroke-width="2" stroke-dasharray="4 3"/>
+              <line x1="10" y1="70" x2="130" y2="70" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
+              <text x="100" y="64" font-size="13" fill="var(--color-plum)">D</text>
+              <text x="76" y="105" font-size="13" fill="var(--color-teal)">d</text>
+            </svg>
+          </div>
+          <div class="po-tabla-wrap">
+            <table class="rules-table">
+              <tr><th>Figura</th><th>Área</th><th>Ejemplo</th></tr>
+              <tr><td>Romboide</td><td>base × altura</td><td>7 cm y 4 cm → 28 cm²</td></tr>
+              <tr><td>Rombo</td><td>(D × d) ÷ 2</td><td>10 cm y 6 cm → 30 cm²</td></tr>
+            </table>
+          </div>
+          <div class="tip-box">
+            <strong>¿Por qué?</strong> Si al romboide le cortas un triángulo de un lado y lo pegas en el otro, sale un rectángulo de la misma base y la misma altura (pruébalo en Explora). El rombo es la mitad del rectángulo que forman sus diagonales.
+          </div>
+
+          <h2>Área de los polígonos regulares</h2>
+          <div class="pv-tiles">
+            <svg viewBox="0 0 140 130" width="140" height="130" role="img" aria-label="Hexágono regular con su apotema">
+              <polygon points="40,113 100,113 130,61 100,9 40,9 10,61" fill="var(--color-indigo-tint)" stroke="var(--color-indigo)" stroke-width="3"/>
+              <line x1="70" y1="61" x2="70" y2="113" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
+              <circle cx="70" cy="61" r="3" fill="var(--color-plum)"/>
+              <text x="75" y="92" font-size="13" fill="var(--color-plum)">apotema</text>
+              <text x="70" y="128" text-anchor="middle" font-size="13" fill="var(--text)">lado</text>
+            </svg>
+          </div>
+          <div class="rule-box llana">
+            <h4>Área = (perímetro × apotema) ÷ 2</h4>
+            <p>La <strong>apotema</strong> va del centro al punto medio de un lado. Ejemplo: hexágono de 4 cm de lado y 3,5 cm de apotema → perímetro 6 × 4 = 24 cm → (24 × 3,5) ÷ 2 = 42 cm².</p>
           </div>
 
           <h2>Área de figuras irregulares</h2>
-          <div class="rule-box llana">
-            <h4>Descomponer en figuras conocidas</h4>
-            <p>Para calcular el área de una figura irregular, se <strong>descompone</strong> en varias figuras sencillas (rectángulos, cuadrados, triángulos...), se calcula el área de cada una y se <strong>suman</strong> los resultados.</p>
+          <div class="rule-box sobresdrujula">
+            <h4>Descomponer o restar</h4>
+            <p>Se <strong>descompone</strong> la figura en figuras conocidas, se calcula el área de cada una y se <strong>suman</strong>. A veces es más fácil calcular un rectángulo grande y <strong>restar</strong> lo que sobra.</p>
           </div>
-
-          <svg viewBox="0 0 220 160" style="max-width:220px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="20,20 140,20 140,80 200,80 200,140 20,140" fill="none" stroke="var(--text)" stroke-width="3"/>
+          <svg viewBox="0 0 220 160" style="max-width:220px; margin:16px auto; display:block;" role="img" aria-label="Figura en forma de L dividida en dos rectángulos">
+            <polygon points="20,20 140,20 140,80 200,80 200,140 20,140" fill="var(--color-indigo-tint)" stroke="var(--color-indigo)" stroke-width="3"/>
             <line x1="20" y1="80" x2="140" y2="80" stroke="var(--color-plum)" stroke-width="2" stroke-dasharray="4 3"/>
-            <text x="75" y="14" text-anchor="middle" font-size="12">6 cm</text>
-            <text x="6" y="55" font-size="12">6 cm</text>
-            <text x="80" y="55" font-size="12" fill="var(--color-indigo)">A</text>
-            <text x="165" y="115" font-size="12" fill="var(--color-teal)">B</text>
-            <text x="170" y="74" text-anchor="middle" font-size="12">3 cm</text>
-            <text x="6" y="115" font-size="12">6 cm</text>
+            <text x="80" y="14" text-anchor="middle" font-size="12" fill="var(--text)">6 cm</text>
+            <text x="16" y="55" text-anchor="end" font-size="12" fill="var(--text)">3 cm</text>
+            <text x="80" y="55" font-size="13" font-weight="800" fill="var(--color-indigo)">A</text>
+            <text x="110" y="115" font-size="13" font-weight="800" fill="var(--color-indigo)">B</text>
+            <text x="110" y="156" text-anchor="middle" font-size="12" fill="var(--text)">9 cm</text>
+            <text x="16" y="115" text-anchor="end" font-size="12" fill="var(--text)">3 cm</text>
           </svg>
-
           <div class="tip-box">
-            <strong>Ejemplo:</strong> esta figura en forma de L se divide en el rectángulo A (6×6 = 36 cm²) y el rectángulo B (3×6 = 18 cm²). Área total = 36 + 18 = <strong>54 cm²</strong>.
+            <strong>Ejemplo:</strong> la L se parte en el rectángulo A (6 × 3 = 18 cm²) y el rectángulo B (9 × 3 = 27 cm²). Área total = 18 + 27 = <strong>45 cm²</strong>. Restando: 9 × 6 − 3 × 3 = 54 − 9 = 45 cm².
           </div>
         </div>
 
@@ -172,6 +201,83 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="ar-rect">
+          <h2>1. Cuadraditos de un rectángulo</h2>
+          <p class="md-explore-intro">Cambia la base y la altura. Después pártelo por la diagonal.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Base</span>
+              <button type="button" class="btn btn-secondary" data-ar-b="-1" aria-label="Base más corta">−</button>
+              <output id="ar-b"></output>
+              <button type="button" class="btn btn-secondary" data-ar-b="1" aria-label="Base más larga">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Altura</span>
+              <button type="button" class="btn btn-secondary" data-ar-h="-1" aria-label="Altura más corta">−</button>
+              <output id="ar-h"></output>
+              <button type="button" class="btn btn-secondary" data-ar-h="1" aria-label="Altura más larga">+</button>
+            </div>
+          </div>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" id="ar-tri"></button>
+          </div>
+          <div class="po-draw" id="ar-rect-draw"></div>
+          <p class="md-msg ok" id="ar-rect-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="ar-romb">
+          <h2>2. Del romboide al rectángulo <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></h2>
+          <p class="md-explore-intro">Corta el triángulo naranja y pégalo al otro lado.</p>
+          <div class="md-controls ar-controles">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Base</span>
+              <button type="button" class="btn btn-secondary" data-ar-rb="-1" aria-label="Base más corta">−</button>
+              <output id="ar-rb"></output>
+              <button type="button" class="btn btn-secondary" data-ar-rb="1" aria-label="Base más larga">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Altura</span>
+              <button type="button" class="btn btn-secondary" data-ar-rh="-1" aria-label="Altura más corta">−</button>
+              <output id="ar-rh"></output>
+              <button type="button" class="btn btn-secondary" data-ar-rh="1" aria-label="Altura más larga">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Inclinación</span>
+              <button type="button" class="btn btn-secondary" data-ar-ro="-1" aria-label="Menos inclinado">−</button>
+              <output id="ar-ro"></output>
+              <button type="button" class="btn btn-secondary" data-ar-ro="1" aria-label="Más inclinado">+</button>
+            </div>
+          </div>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" id="ar-pegar"></button>
+          </div>
+          <div class="po-draw" id="ar-romb-draw"></div>
+          <p class="md-msg ok" id="ar-romb-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="ar-per">
+          <h2>3. Mismo perímetro, distinta área</h2>
+          <p class="md-explore-intro">Todos estos rectángulos tienen un perímetro de 24. ¿Cuál tiene más área?</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Rectángulo</span>
+              <button type="button" class="btn btn-secondary" data-ar-pb="-1" aria-label="Rectángulo anterior">−</button>
+              <output id="ar-pb"></output>
+              <button type="button" class="btn btn-secondary" data-ar-pb="1" aria-label="Rectángulo siguiente">+</button>
+            </div>
+          </div>
+          <div class="po-draw" id="ar-per-draw"></div>
+          <p class="md-msg ok" id="ar-per-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -185,18 +291,25 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="calcular">Calcular el área</button>
-            <button class="btn btn-secondary" data-mode="formula">Elegir la fórmula</button>
+            <button class="btn btn-secondary active" data-mode="cuadricula">Contar cuadraditos</button>
+            <button class="btn btn-secondary" data-mode="calcular">Cuadrado, rectángulo y triángulo</button>
+            <button class="btn btn-secondary" data-mode="perimetro">Perímetro</button>
             <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
-            <button class="btn btn-secondary" data-mode="perimetro">Perímetro <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
-            <button class="btn btn-secondary" data-mode="irregular">Figuras irregulares <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+            <button class="btn btn-secondary" data-mode="mas6">Romboide, rombo y polígonos <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+            <button class="btn btn-secondary" data-mode="irregular">Figuras irregulares <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
           </div>
 
           <p class="instructions" id="instructions"></p>
+          <div class="po-draw" id="game-visual" style="display:none;"></div>
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
