@@ -3065,96 +3065,271 @@ function genProblemasMixtos(curso) {
   return pick([problemasMixtosCompraGrupo, problemasMixtosDineroRestante, problemasMixtosProduccion])(curso);
 }
 
-const ESCENARIOS_MEDIDAS = [
-  { from: "km", to: "m", factor: 1000, frase: (c) => `Un ciclista recorre ${c} km en una etapa. ¿Cuántos m son?` },
-  { from: "kg", to: "g", factor: 1000, frase: (c) => `Un camión transporta ${c} kg de mercancía. ¿Cuántos g son?` },
-  { from: "L", to: "mL", factor: 1000, frase: (c) => `Un depósito contiene ${c} L de agua. ¿Cuántos mL son?` },
-  { from: "m", to: "cm", factor: 100, frase: (c) => `Un rollo de tela mide ${c} m de largo. ¿Cuántos cm son?` },
-];
+// ---------- Medidas ----------
+// 5º (Tema 6): longitud, capacidad, masa y superficie. 6º (SdA 6):
+// además tonelada, quintal, medidas agrarias y problemas.
+// Números exactos como N / 10^D para no arrastrar errores de coma flotante.
+function meDec(N, D = 0) {
+  while (D > 0 && N % 10 === 0) {
+    N /= 10;
+    D--;
+  }
+  return { N, D };
+}
+function mePor10(x, k) {
+  if (k >= 0) return k <= x.D ? meDec(x.N, x.D - k) : meDec(x.N * 10 ** (k - x.D), 0);
+  return meDec(x.N, x.D - k);
+}
+function meFmt(x) {
+  const s = String(x.N).padStart(x.D + 1, "0");
+  const ent = x.D ? s.slice(0, -x.D) : s;
+  const fr = x.D ? s.slice(-x.D) : "";
+  return `${ent.length > 3 ? ent.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ent}${fr ? `,${fr}` : ""}`;
+}
+const meVeces = (k) => meFmt(meDec(10 ** k));
 
-function medidasConversion(curso) {
-  const conv = pick(ESCENARIOS_MEDIDAS);
-  const cantidad = curso === "6" ? roundMoney(randomInt(105, 4995) / 100) : randomInt(2, 12);
-  const resultado = roundMoney(cantidad * conv.factor);
-  const fmt = (n) => fmtAuto(n);
+const ME_MAG = {
+  longitud: { u: ["km", "hm", "dam", "m", "dm", "cm", "mm"], s: 1 },
+  capacidad: { u: ["kl", "hl", "dal", "l", "dl", "cl", "ml"], s: 1 },
+  masa: { u: ["kg", "hg", "dag", "g", "dg", "cg", "mg"], s: 1 },
+  superficie: { u: ["km²", "hm²", "dam²", "m²", "dm²", "cm²", "mm²"], s: 2 },
+};
+const ME_PARES = {
+  longitud: [["km", "m"], ["m", "cm"], ["m", "mm"], ["cm", "mm"], ["hm", "m"], ["dam", "dm"]],
+  capacidad: [["l", "ml"], ["l", "cl"], ["hl", "l"], ["dl", "ml"], ["kl", "l"]],
+  masa: [["kg", "g"], ["g", "mg"], ["hg", "g"], ["kg", "dag"]],
+  superficie: [["m²", "dm²"], ["m²", "cm²"], ["dm²", "cm²"], ["hm²", "m²"], ["km²", "hm²"]],
+};
+const ME_NIVELES = {
+  "5": { dec: 0.4, sup: ["m²", "dm²", "cm²"] },
+  "6": { dec: 0.6, sup: null },
+  disc: { dec: 0, sup: ["m²", "dm²", "cm²"], enteros: true },
+};
+
+function meConversion(nivel, mag, a, b) {
+  const u = ME_MAG[mag].u;
+  const k = (u.indexOf(b) - u.indexOf(a)) * ME_MAG[mag].s;
+  let x;
+  if (k > 0) x = !nivel.enteros && Math.random() < nivel.dec ? meDec(randomInt(11, 999), 2) : meDec(randomInt(2, 40), 0);
+  else x = nivel.enteros ? meDec(randomInt(2, 9) * 10 ** -k, 0) : meDec(randomInt(2, 9999), 0);
+  return { x, r: mePor10(x, k), k };
+}
+
+function meConvertir(nivel) {
+  const filas = [];
+  const usadas = new Set();
+  for (const mag of ["longitud", "capacidad", "masa", "superficie"]) {
+    let par;
+    do par = pick(ME_PARES[mag]);
+    while (mag === "superficie" && nivel.sup && !(nivel.sup.includes(par[0]) && nivel.sup.includes(par[1])));
+    const [a, b] = Math.random() < 0.5 ? par : [par[1], par[0]];
+    const { x, r, k } = meConversion(nivel, mag, a, b);
+    if (usadas.has(a + b)) continue;
+    usadas.add(a + b);
+    filas.push({ txt: `${meFmt(x)} ${a} = ___ ${b}`, sol: `${meFmt(x)} ${a} = ${meFmt(r)} ${b}`, op: `${meFmt(x)} ${k > 0 ? "×" : ":"} ${meVeces(Math.abs(k))} = ${meFmt(r)}` });
+  }
   return {
-    enunciado: conv.frase(fmt(cantidad)),
-    datos: [`Cantidad: ${fmt(cantidad)} ${conv.from}`, `1 ${conv.from} = ${conv.factor} ${conv.to}`],
-    operacion: `${fmt(cantidad)} × ${conv.factor} = ${fmt(resultado)}`,
-    solucion: `${fmt(resultado)} ${conv.to}. Son ${fmt(resultado)} ${conv.to}.`,
+    enunciado: `Completa las equivalencias: ${filas.map((f, i) => `${"abcd"[i]}) ${f.txt}`).join("   ")}`,
+    datos: ["Bajar en la escalera: multiplicar. Subir: dividir. En superficie, cada escalón vale 100."],
+    operacion: filas.map((f, i) => `${"abcd"[i]}) ${f.op}`).join(" · "),
+    solucion: filas.map((f, i) => `${"abcd"[i]}) ${f.sol}`).join("; ") + ".",
   };
 }
 
-const ESCENARIOS_MEDIDAS_MIXTA = [
-  { mayor: "km", menor: "m", factor: 1000, frase: (pM, pm) => `Un ciclista recorre ${pM} km y ${pm} m en una etapa. ¿Cuántos m recorre en total?` },
-  { mayor: "kg", menor: "g", factor: 1000, frase: (pM, pm) => `Un paquete pesa ${pM} kg y ${pm} g. ¿Cuántos g pesa en total?` },
-  { mayor: "L", menor: "mL", factor: 1000, frase: (pM, pm) => `Una garrafa contiene ${pM} L y ${pm} mL. ¿Cuántos mL contiene en total?` },
-  { mayor: "m", menor: "cm", factor: 100, frase: (pM, pm) => `Una cuerda mide ${pM} m y ${pm} cm. ¿Cuántos cm mide en total?` },
-];
-
-function medidasSumaMixta(curso) {
-  const esc = pick(ESCENARIOS_MEDIDAS_MIXTA);
-  const partesMayor = curso === "6" ? randomInt(2, 20) : randomInt(1, 8);
-  const partesMenor = randomInt(1, esc.factor - 1);
-  const totalMayorEnMenor = partesMayor * esc.factor;
-  const totalEnMenor = totalMayorEnMenor + partesMenor;
+function meCompleja(nivel) {
+  const casos = [["m", "cm", 2], ["km", "m", 3], ["kg", "g", 3], ["l", "ml", 3]];
+  const [mayor, menor, k] = pick(casos);
+  const p = randomInt(2, nivel.enteros ? 5 : 12);
+  const q = randomInt(1, 9);
+  const total = p * 10 ** k + q;
+  const nombre = pick(NOMBRES);
   return {
-    enunciado: esc.frase(partesMayor, partesMenor),
-    datos: [`${partesMayor} ${esc.mayor}`, `${partesMenor} ${esc.menor}`, `1 ${esc.mayor} = ${esc.factor} ${esc.menor}`],
-    operacion: `${partesMayor} × ${esc.factor} = ${totalMayorEnMenor}. ${totalMayorEnMenor} + ${partesMenor} = ${totalEnMenor}`,
-    solucion: `${totalEnMenor} ${esc.menor}. En total son ${totalEnMenor} ${esc.menor}.`,
+    enunciado: `${nombre} dice que ${p} ${mayor} ${q} ${menor} son ${p}${q} ${menor}. ¿Tiene razón? ¿Cuántos ${menor} son?`,
+    datos: [`${p} ${mayor} y ${q} ${menor}`, `1 ${mayor} = ${meFmt(meDec(10 ** k))} ${menor}`],
+    operacion: `${p} × ${meFmt(meDec(10 ** k))} = ${meFmt(meDec(p * 10 ** k))} · ${meFmt(meDec(p * 10 ** k))} + ${q} = ${meFmt(meDec(total))}`,
+    solucion: `No: son ${meFmt(meDec(total))} ${menor}. No se pueden «pegar» los números.`,
   };
 }
 
-const ESCENARIOS_MEDIDAS_COMPARAR = [
-  { unidadA: "km", unidadB: "m", factor: 1000 },
-  { unidadA: "kg", unidadB: "g", factor: 1000 },
-  { unidadA: "L", unidadB: "mL", factor: 1000 },
-  { unidadA: "m", unidadB: "cm", factor: 100 },
-];
-
-function medidasComparar(curso) {
-  const esc = pick(ESCENARIOS_MEDIDAS_COMPARAR);
-  const cantidadA = curso === "6" ? randomInt(1, 8) : randomInt(1, 4);
-  const cantidadBEnMenor = cantidadA * esc.factor;
-  const rangeMax = Math.max(cantidadBEnMenor * 2, 20);
-  let cantidadB = randomInt(1, rangeMax);
-  while (cantidadB === cantidadBEnMenor) cantidadB = randomInt(1, rangeMax);
-  const aEsMayor = cantidadBEnMenor > cantidadB;
-  const mayorTexto = aEsMayor ? `${cantidadA} ${esc.unidadA}` : `${cantidadB} ${esc.unidadB}`;
+function meOrdenar(nivel) {
+  const base = randomInt(2, nivel.enteros ? 5 : 9);
+  const m = [
+    { t: `${base} m`, v: base * 100 },
+    { t: `${base * 100 + randomInt(10, 90)} cm`, v: 0 },
+    { t: `${meFmt(meDec(base * 10 - randomInt(1, 9), 1))} m`, v: 0 },
+    // Termina en 5 mm: nunca coincide con los centímetros enteros de arriba.
+    { t: `${meFmt(meDec(base * 1000 + randomInt(1, 9) * 100 + 5))} mm`, v: 0 },
+  ];
+  m[1].v = Number(m[1].t.split(" ")[0]);
+  m[2].v = Number(m[2].t.split(" ")[0].replace(",", ".")) * 100;
+  m[3].v = Number(m[3].t.split(" ")[0].replace(/\./g, "")) / 10;
+  const orden = m.slice().sort((x, y) => x.v - y.v);
+  const fmtCm = (v) => meFmt(meDec(Math.round(v * 10), 1));
   return {
-    enunciado: `¿Qué cantidad es mayor: ${cantidadA} ${esc.unidadA} o ${cantidadB} ${esc.unidadB}?`,
-    datos: [`${cantidadA} ${esc.unidadA} = ${cantidadBEnMenor} ${esc.unidadB}`, `${cantidadB} ${esc.unidadB}`],
-    operacion: `${cantidadA} ${esc.unidadA} = ${cantidadA} × ${esc.factor} = ${cantidadBEnMenor} ${esc.unidadB}. Comparamos ${cantidadBEnMenor} ${esc.unidadB} con ${cantidadB} ${esc.unidadB}.`,
-    solucion: `${mayorTexto}. ${mayorTexto} es mayor.`,
+    enunciado: `Ordena de menor a mayor estas longitudes: ${m.sort(() => Math.random() - 0.5).map((x) => x.t).join(", ")}.`,
+    datos: ["Para comparar, pásalas todas a la misma unidad."],
+    operacion: m.map((x) => `${x.t} = ${fmtCm(x.v)} cm`).join(" · "),
+    solucion: `${orden.map((x) => x.t).join(" < ")}.`,
+  };
+}
+
+function meProblemas(nivel) {
+  const tipo = pick(["botellas", "compra", "cinta"]);
+  if (tipo === "botellas") {
+    const n = randomInt(2, 6);
+    const ml = pick([250, 330, 500, 750]);
+    const total = n * ml;
+    return {
+      enunciado: `Para una excursión llevamos ${n} botellas de ${ml} ml. ¿Cuántos ${nivel.enteros ? "mililitros" : "litros"} de agua llevamos?`,
+      datos: [`${n} botellas de ${ml} ml`, "1 l = 1.000 ml"],
+      operacion: `${n} × ${ml} = ${meFmt(meDec(total))} ml${nivel.enteros ? "" : ` · ${meFmt(meDec(total))} : 1.000 = ${meFmt(meDec(total, 3))} l`}`,
+      solucion: nivel.enteros ? `${meFmt(meDec(total))} ml.` : `${meFmt(meDec(total, 3))} l.`,
+    };
+  }
+  if (tipo === "compra") {
+    const kg = randomInt(1, 4);
+    const g1 = pick([250, 500, 750]);
+    const g2 = pick([200, 300, 400]);
+    const total = kg * 1000 + g1 + g2;
+    return {
+      enunciado: `Compramos ${kg} kg de naranjas, ${g1} g de fresas y ${g2} g de queso. ¿Cuánto pesa la compra en ${nivel.enteros ? "gramos" : "kilos"}?`,
+      datos: [`${kg} kg`, `${g1} g`, `${g2} g`],
+      operacion: `${kg} kg = ${meFmt(meDec(kg * 1000))} g · ${meFmt(meDec(kg * 1000))} + ${g1} + ${g2} = ${meFmt(meDec(total))} g${nivel.enteros ? "" : ` = ${meFmt(meDec(total, 3))} kg`}`,
+      solucion: nivel.enteros ? `${meFmt(meDec(total))} g.` : `${meFmt(meDec(total, 3))} kg.`,
+    };
+  }
+  const m = randomInt(3, nivel.enteros ? 5 : 9);
+  const t = pick([25, 40, 50, 75]);
+  const n = randomInt(2, Math.floor((m * 100) / t) - 1);
+  return {
+    enunciado: `Una cuerda mide ${m} m. Cortamos ${n} trozos de ${t} cm. ¿Cuántos centímetros quedan?${nivel.enteros ? "" : " ¿Cuántos metros son?"}`,
+    datos: [`Cuerda: ${m} m`, `${n} trozos de ${t} cm`],
+    operacion: `${m} m = ${m * 100} cm · ${n} × ${t} = ${n * t} cm · ${m * 100} − ${n * t} = ${m * 100 - n * t} cm`,
+    solucion: nivel.enteros ? `Quedan ${m * 100 - n * t} cm.` : `Quedan ${m * 100 - n * t} cm, que son ${meFmt(meDec(m * 100 - n * t, 2))} m.`,
+  };
+}
+
+// Reto de la UDI de 5º: medir como científicos.
+function meCientificos(nivel = {}) {
+  const lapiz = [randomInt(14, 19), randomInt(1, 9)];
+  const goma = randomInt(35, 60);
+  const regla = pick([2, 3]);
+  const vals = [{ t: `el lápiz mide ${lapiz[0]} cm ${lapiz[1]} mm`, mm: lapiz[0] * 10 + lapiz[1], n: "lápiz" }, { t: `la goma, ${goma} mm`, mm: goma, n: "goma" }, { t: nivel.enteros ? `la regla, ${regla * 10} cm` : `la regla, ${meFmt(meDec(regla, 1))} m`, mm: regla * 100, n: "regla" }];
+  return {
+    enunciado: `En clase medimos tres objetos: ${vals.map((v) => v.t).join("; ")}. Pasa todas las medidas a milímetros y ordénalas de menor a mayor.`,
+    datos: vals.map((v) => v.t),
+    operacion: `Lápiz: ${lapiz[0]} × 10 + ${lapiz[1]} = ${vals[0].mm} mm · Goma: ${goma} mm · Regla: ${nivel.enteros ? `${regla * 10} × 10` : `${meFmt(meDec(regla, 1))} × 1.000`} = ${vals[2].mm} mm`,
+    solucion: `${vals.slice().sort((x, y) => x.mm - y.mm).map((v) => `${v.n} (${v.mm} mm)`).join(" < ")}.`,
+  };
+}
+
+function meUnidad() {
+  const casos = [["el largo de un lápiz", "cm"], ["la distancia entre Sevilla y Málaga", "km"], ["el grosor de una moneda", "mm"], ["una cucharada de jarabe", "ml"], ["una garrafa de agua", "l"], ["una carta", "g"], ["una persona", "kg"], ["una pastilla", "mg"], ["el suelo de la clase", "m²"], ["un sello", "cm²"]];
+  const cuatro = casos.slice().sort(() => Math.random() - 0.5).slice(0, 4);
+  return {
+    enunciado: `¿Qué unidad usarías para medir…? ${cuatro.map(([c], i) => `${"abcd"[i]}) ${c}`).join("   ")}`,
+    datos: ["Cosas pequeñas, unidades pequeñas; cosas grandes, unidades grandes."],
+    operacion: "Se elige la unidad con la que el número no sale ni enorme ni diminuto.",
+    solucion: cuatro.map(([, u], i) => `${"abcd"[i]}) ${u}`).join("; ") + ".",
+  };
+}
+
+// 6º: tonelada, quintal y medidas agrarias.
+function meToneladas(nivel) {
+  const t = nivel.enteros ? meDec(randomInt(2, 9), 0) : meDec(randomInt(15, 95), 1);
+  const q = randomInt(2, 15);
+  const kg = mePor10(t, 3).N * 10 ** -mePor10(t, 3).D + q * 100;
+  return {
+    enunciado: `Un camión lleva ${meFmt(t)} t de naranjas y ${q} q de limones. ¿Cuántos kilos lleva en total?`,
+    datos: [`${meFmt(t)} t`, `${q} q`, "1 t = 1.000 kg · 1 q = 100 kg"],
+    operacion: `${meFmt(t)} × 1.000 = ${meFmt(mePor10(t, 3))} kg · ${q} × 100 = ${meFmt(meDec(q * 100))} kg · ${meFmt(mePor10(t, 3))} + ${meFmt(meDec(q * 100))} = ${meFmt(meDec(kg))} kg`,
+    solucion: `${meFmt(meDec(kg))} kg.`,
+  };
+}
+
+// Reto de la UDI de 6º: el campo y la ciudad.
+function meFinca(nivel) {
+  const ha = nivel.enteros ? meDec(randomInt(2, 9), 0) : meDec(randomInt(12, 95), 1);
+  const m2 = mePor10(ha, 4);
+  const parque = randomInt(2, 9) * 1000;
+  return {
+    enunciado: `Una finca de olivos mide ${meFmt(ha)} ha y un parque de la ciudad, ${meFmt(meDec(parque))} m². ¿Cuántos m² mide la finca? ¿Cuántas veces cabe el parque en la finca, más o menos?`,
+    datos: [`Finca: ${meFmt(ha)} ha`, `Parque: ${meFmt(meDec(parque))} m²`, "1 ha = 10.000 m²"],
+    operacion: `${meFmt(ha)} × 10.000 = ${meFmt(m2)} m² · ${meFmt(m2)} : ${meFmt(meDec(parque))} ≈ ${Math.round((m2.N / 10 ** m2.D) / parque)}`,
+    solucion: `La finca mide ${meFmt(m2)} m²; el parque cabe unas ${Math.round((m2.N / 10 ** m2.D) / parque)} veces.`,
+  };
+}
+
+function meSuperficie(nivel) {
+  const pares = [["m²", "cm²"], ["km²", "m²"], ["ha", "m²"], ["dam²", "dm²"], ["a", "m²"], ["m²", "mm²"]];
+  const KM2 = { "km²": 6, "hm²": 4, ha: 4, "dam²": 2, a: 2, "m²": 0, ca: 0, "dm²": -2, "cm²": -4, "mm²": -6 };
+  const filas = pares.sort(() => Math.random() - 0.5).slice(0, 3).map(([a, b]) => {
+    const k = KM2[a] - KM2[b];
+    const x = nivel.enteros ? meDec(randomInt(2, 9), 0) : Math.random() < 0.5 ? meDec(randomInt(2, 30), 0) : meDec(randomInt(11, 99), 2);
+    return { txt: `${meFmt(x)} ${a} = ___ ${b}`, sol: `${meFmt(mePor10(x, k))} ${b}`, op: `${meFmt(x)} × ${meVeces(k)}` };
+  });
+  return {
+    enunciado: `Completa: ${filas.map((f, i) => `${"abc"[i]}) ${f.txt}`).join("   ")}`,
+    datos: ["Cada escalón de superficie vale 100. 1 ha = 1 hm²; 1 a = 1 dam²."],
+    operacion: filas.map((f, i) => `${"abc"[i]}) ${f.op}`).join(" · "),
+    solucion: filas.map((f, i) => `${"abc"[i]}) ${f.sol}`).join("; ") + ".",
   };
 }
 
 function genMedidas(curso) {
-  return pick([medidasConversion, medidasSumaMixta, medidasComparar])(curso);
+  if (curso === "6") return siguienteDeBaraja("me6", [meConvertir, meSuperficie, meToneladas, meFinca, meCompleja, meOrdenar, meProblemas])(ME_NIVELES["6"]);
+  return siguienteDeBaraja("me5", [meConvertir, meCompleja, meOrdenar, meProblemas, meCientificos, meUnidad])(ME_NIVELES["5"]);
+}
+
+function genMedidasDiscalculia(curso) {
+  if (curso === "6") return siguienteDeBaraja("meDisc6", [meConvertir, meSuperficie, meToneladas, meFinca, meCompleja, meProblemas])(ME_NIVELES.disc);
+  return siguienteDeBaraja("meDisc5", [meConvertir, meCompleja, meProblemas, meCientificos, meUnidad])(ME_NIVELES.disc);
+}
+
+function meAcsMetros() {
+  const m = randomInt(2, 9);
+  const kg = randomInt(2, 5);
+  return {
+    enunciado: `Completa: a) ${m} m = ___ cm   b) ${kg} kg = ___ g   c) 1 l = ___ ml`,
+    datos: ["1 m = 100 cm · 1 kg = 1.000 g · 1 l = 1.000 ml"],
+    operacion: `a) ${m} × 100 · b) ${kg} × 1.000`,
+    solucion: `a) ${m * 100} cm; b) ${meFmt(meDec(kg * 1000))} g; c) 1.000 ml.`,
+  };
 }
 
 function genMedidasACS() {
+  return siguienteDeBaraja("meAcs", [meAcsMetros, meUnidad, () => meCompleja(ME_NIVELES.disc), () => meProblemas(ME_NIVELES.disc)])();
+}
+
+// Altas: cadenas de conversiones y precio por unidad.
+function meCadena() {
   const km = randomInt(2, 9);
+  const m = randomInt(100, 900);
+  const total = km * 1000 + m;
   return {
-    enunciado: `Un coche recorre ${km} km. ¿Cuántos metros son?`,
-    datos: [`Distancia: ${km} km`],
-    operacion: `${km} × 1000 = ${km * 1000}`,
-    solucion: `${km * 1000} m. Son ${km * 1000} metros.`,
+    enunciado: `Un ciclista recorre ${km} km ${m} m. Expresa esa distancia en metros, en centímetros y en kilómetros.`,
+    datos: [`${km} km ${m} m`],
+    operacion: `${km} × 1.000 + ${m} = ${meFmt(meDec(total))} m · × 100 = ${meFmt(meDec(total * 100))} cm · : 1.000 = ${meFmt(meDec(total, 3))} km`,
+    solucion: `${meFmt(meDec(total))} m = ${meFmt(meDec(total * 100))} cm = ${meFmt(meDec(total, 3))} km.`,
+  };
+}
+
+function mePrecio() {
+  const precio = pick([2, 3, 4, 5]);
+  const g = pick([250, 500, 750]);
+  const n = randomInt(2, 4);
+  const kg = meDec(n * g, 3);
+  const euros = meDec(n * g * precio, 3);
+  return {
+    enunciado: `El queso cuesta ${precio} € el kilo. Compramos ${n} trozos de ${g} g. ¿Cuánto pagamos?`,
+    datos: [`${precio} €/kg`, `${n} trozos de ${g} g`],
+    operacion: `${n} × ${g} = ${meFmt(meDec(n * g))} g = ${meFmt(kg)} kg · ${meFmt(kg)} × ${precio} = ${meFmt(euros)} €`,
+    solucion: `${meFmt(euros)} €.`,
   };
 }
 
 function genMedidasAltas() {
-  const km = randomInt(1, 8);
-  const m = randomInt(1, 999);
-  const totalM = km * 1000 + m;
-  const totalCm = totalM * 100;
-  return {
-    enunciado: `Un ciclista recorre ${km} km y ${m} m en una etapa. ¿Cuántos cm ha recorrido en total?`,
-    datos: [`${km} km`, `${m} m`, `1 km = 1000 m`, `1 m = 100 cm`],
-    operacion: `${km} × 1000 = ${km * 1000} m. ${km * 1000} + ${m} = ${totalM} m. ${totalM} × 100 = ${totalCm} cm`,
-    solucion: `${totalCm} cm. Ha recorrido ${totalCm} cm en total.`,
-  };
+  return siguienteDeBaraja("meAltas", [meCadena, mePrecio, () => meSuperficie(ME_NIVELES["6"]), () => meFinca(ME_NIVELES["6"]), () => meToneladas(ME_NIVELES["6"])])();
 }
 
 // ---------- Áreas y perímetros ----------
@@ -5176,7 +5351,7 @@ const TOPICS = [
   { id: "decimales-md", label: "Multiplicación y división de decimales", category: "Fracciones y decimales", generate: genDecimalesMD, generateACS: genDecimalesMDACS, generateDiscalculia: genDecimalesMDDiscalculia, generateAltas: genDecimalesMDAltas, resumen: "Para multiplicar decimales, se multiplica sin comas y se separan tantas cifras decimales como tengan los dos factores juntos. Al multiplicar por 10, 100 o 1000 la coma se mueve a la derecha, y al dividir, a la izquierda. Al dividir un decimal entre un natural, la coma se pone en el cociente al bajar la primera cifra decimal.", resumen6: "Para multiplicar decimales, se multiplica sin comas y se separan tantas cifras decimales como tengan los dos factores. Para dividir entre un decimal, se mueve la coma a la derecha en el dividendo y en el divisor hasta que el divisor no tenga coma. Si la división no es exacta, se pone la coma y se sigue dividiendo con ceros." },
   { id: "porcentajes", label: "Porcentajes", category: "Fracciones y decimales", generate: genPorcentajes, generateACS: genPorcentajesACS, generateDiscalculia: genPorcentajesDiscalculia, generateAltas: genPorcentajesAltas, resumen: "Un porcentaje indica una parte de cada 100: 25% = 25/100 = 0,25. Para calcular el X% de una cantidad, se multiplica por X y se divide entre 100. En un descuento se resta y en un impuesto se suma. De cabeza: 50% = la mitad, 25% = la cuarta parte, 10% = dividir entre 10.", resumen6: "Un porcentaje indica una parte de cada 100: 3/5 = 60/100 = 0,6 = 60%. Para calcular el X% de una cantidad, se multiplica por X y se divide entre 100; para saber qué porcentaje es una parte, se divide la parte entre el total y se multiplica por 100. En un descuento se resta y en un impuesto se suma." },
   { id: "problemas-mixtos", label: "Problemas mixtos (varios pasos)", category: "Problemas mixtos", generate: genProblemasMixtos, resumen: "Algunos problemas necesitan encadenar varias operaciones seguidas para llegar a la solución final." },
-  { id: "medidas", label: "Medidas y conversiones", category: "Geometría y medidas", generate: genMedidas, generateACS: genMedidasACS, generateAltas: genMedidasAltas, resumen: "Para cambiar de una unidad de medida a otra, se multiplica o se divide según la equivalencia entre ellas." },
+  { id: "medidas", label: "Medidas y conversiones", category: "Geometría y medidas", generate: genMedidas, generateACS: genMedidasACS, generateDiscalculia: genMedidasDiscalculia, generateAltas: genMedidasAltas, resumen: "Longitud (m), capacidad (l) y masa (g) siguen la misma escalera: km, hm, dam, m, dm, cm, mm. Bajar un escalón es multiplicar por 10 y subir, dividir entre 10. En superficie (m²) cada escalón vale 100. 2 m 5 cm = 205 cm, no 25 cm.", resumen6: "Para cambiar de unidad: bajar en la escalera es multiplicar y subir es dividir (×10 en longitud, capacidad y masa; ×100 en superficie). 1 t = 1.000 kg y 1 q = 100 kg. Medidas agrarias: 1 ha = 1 hm² = 10.000 m², 1 a = 1 dam² = 100 m², 1 ca = 1 m²." },
   { id: "areas", label: "Áreas y perímetros", category: "Geometría y medidas", generate: genAreas, generateACS: genAreasACS, generateDiscalculia: genAreasDiscalculia, generateAltas: genAreasAltas, resumen: "El perímetro es el borde: la suma de los lados (cm, m). El área es la superficie: los cuadraditos que caben dentro (cm², m²). Cuadrado: lado × lado. Rectángulo: base × altura. Triángulo: (base × altura) ÷ 2, con la altura, no con el lado inclinado.", resumen6: "Perímetro: suma de los lados. Áreas: rectángulo y romboide, base × altura; triángulo, (base × altura) ÷ 2; rombo, (D × d) ÷ 2; polígono regular, (perímetro × apotema) ÷ 2. Las figuras irregulares se descomponen en figuras conocidas y se suman (o se resta lo que sobra)." },
   { id: "circunferencia", label: "Circunferencia y círculo", category: "Geometría y medidas", generate: genCircunferencia, generateACS: genCircunferenciaACS, generateDiscalculia: genCircunferenciaDiscalculia, generateAltas: genCircunferenciaAltas, resumen: "La circunferencia es la línea curva; el círculo, la superficie que encierra. Radio: del centro a la circunferencia. Diámetro: de lado a lado pasando por el centro; mide dos radios (d = 2 × r).", resumen6: "La circunferencia es la línea; el círculo, la superficie. El diámetro mide dos radios. La circunferencia mide un poco más de 3 diámetros: longitud = π × d = 2 × π × r, con π = 3,14." },
   { id: "proporcionalidad", label: "Proporcionalidad (regla de tres)", category: "Geometría y medidas", generate: genProporcionalidad, generateACS: genProporcionalidadACS, generateAltas: genProporcionalidadAltas, resumen: "En una relación de proporcionalidad, si conocemos el precio de una unidad podemos calcular el de cualquier cantidad." },
