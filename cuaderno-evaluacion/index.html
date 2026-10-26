@@ -33,22 +33,23 @@
 
 <div id="app" hidden>
   <header class="barra no-imprimir">
-    <h1>Cuaderno de evaluación <small>5.º C · 2026-2027</small></h1>
+    <h1>Cuaderno <small>5.º C · 2026-27</small></h1>
+    <nav class="pestanas no-imprimir" role="tablist" aria-label="Vistas">
+      <button type="button" role="tab" class="pestana" data-vista="individual">Alumno/a</button>
+      <button type="button" role="tab" class="pestana" data-vista="grupo">Grupo clase</button>
+      <button type="button" role="tab" class="pestana" data-vista="suspensos">Suspensos</button>
+      <button type="button" role="tab" class="pestana" data-vista="resumen">Resumen</button>
+      <button type="button" role="tab" class="pestana" data-vista="pruebas">Exámenes</button>
+      <button type="button" role="tab" class="pestana" data-vista="copia">Copia</button>
+    </nav>
     <div class="barra-der">
+      <span id="aviso-copia"></span>
       <span id="estado-guardado" class="estado-guardado" role="status" aria-live="polite">Guardado</span>
       <span id="usuario" class="usuario"></span>
       <button type="button" id="btn-salir" class="btn btn-fantasma">Salir</button>
     </div>
   </header>
 
-  <nav class="pestanas no-imprimir" role="tablist" aria-label="Vistas">
-    <button type="button" role="tab" class="pestana" data-vista="individual">Alumno/a</button>
-    <button type="button" role="tab" class="pestana" data-vista="grupo">Grupo clase</button>
-    <button type="button" role="tab" class="pestana" data-vista="suspensos">Suspensos</button>
-    <button type="button" role="tab" class="pestana" data-vista="resumen">Resumen</button>
-    <button type="button" role="tab" class="pestana" data-vista="pruebas">Exámenes</button>
-    <button type="button" role="tab" class="pestana" data-vista="copia">Copia de seguridad</button>
-  </nav>
 
   <div id="avisos" class="contenedor no-imprimir"></div>
   <main id="vista" class="contenedor"></main>

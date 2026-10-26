@@ -383,11 +383,11 @@ import {
   };
   try {
     var u = JSON.parse(localStorage.getItem(CLAVE + "_ui") || "null");
-    if (u) ["vista", "alumno", "area", "grupoArea", "grupoPrueba"].forEach(function (k) { if (u[k] !== undefined) UI[k] = u[k]; });
+    if (u) ["vista", "alumno", "area", "grupoArea", "grupoPrueba", "sda", "panelDer"].forEach(function (k) { if (u[k] !== undefined) UI[k] = u[k]; });
   } catch (e) { /* preferencias de vista: opcionales */ }
   function recordarUI() {
     try {
-      localStorage.setItem(CLAVE + "_ui", JSON.stringify({ vista: UI.vista, alumno: UI.alumno, area: UI.area, grupoArea: UI.grupoArea, grupoPrueba: UI.grupoPrueba }));
+      localStorage.setItem(CLAVE + "_ui", JSON.stringify({ vista: UI.vista, alumno: UI.alumno, area: UI.area, grupoArea: UI.grupoArea, grupoPrueba: UI.grupoPrueba, sda: UI.sda, panelDer: UI.panelDer }));
     } catch (e) { /* sin importancia */ }
   }
 
@@ -410,103 +410,177 @@ import {
   function pintar() {
     pintarAvisos();
     vaciar(main);
+    main.classList.remove("vista-fija");
     ({ individual: vistaIndividual, grupo: vistaGrupo, suspensos: vistaSuspensos, resumen: vistaResumen, pruebas: vistaPruebas, copia: vistaCopia })[UI.vista]();
     window.scrollTo(0, 0);
   }
 
   function pintarAvisos() {
     var caja = vaciar(document.getElementById("avisos"));
+    vaciar(document.getElementById("aviso-copia"));
     if (avisoAlmacen) caja.appendChild(h("p", { class: "aviso aviso-error", role: "alert", text: avisoAlmacen }));
     if (hayDatos()) {
       var dias = S.ultimaCopia ? (Date.now() - new Date(S.ultimaCopia).getTime()) / 864e5 : Infinity;
       if (dias > DIAS_AVISO_COPIA) {
-        caja.appendChild(h("p", { class: "aviso" }, [
-          S.ultimaCopia ? "Hace más de " + DIAS_AVISO_COPIA + " días que no descargas una copia de seguridad. " : "Todavía no has descargado ninguna copia de seguridad. ",
-          "Firebase gratuito no guarda copias por ti: conviene tener una tuya en la unidad del centro. ",
-          h("button", { type: "button", class: "btn-enlace", text: "Descargar copia ahora", onclick: exportar }),
-        ]));
+        // Recordatorio pequeño en la barra: no roba espacio a la ficha.
+        vaciar(document.getElementById("aviso-copia")).appendChild(h("button", {
+          type: "button", class: "btn-copia-aviso",
+          title: (S.ultimaCopia ? "Hace más de " + DIAS_AVISO_COPIA + " días que no descargas una copia de seguridad." : "Todavía no has descargado ninguna copia de seguridad.") + " Firebase gratuito no guarda copias por ti. Pulsa para descargarla.",
+          text: "⚠ Descargar copia", onclick: function () { exportar(); pintarAvisos(); },
+        }));
+        return;
       }
     }
   }
 
   // ---------------- Vista individual ----------------
+  //
+  // Todo en una pantalla (escritorio): tres columnas que no hacen
+  // crecer la página. Izquierda: alumno y perfil. Centro: la SdA
+  // elegida con sus contenidos. Derecha: avance, ejes, criterios y
+  // medidas, en pestañas. En pantallas estrechas se apilan.
+
+  var refrescosIndividual = [];
+  function refrescarIndividual() {
+    refrescosIndividual.forEach(function (f) { f(); });
+  }
 
   function vistaIndividual() {
     var n = UI.alumno;
     var al = alumno(n);
+    refrescosIndividual = [];
+    main.classList.add("vista-fija");
 
-    var rejilla = h("div", { class: "rejilla-alumnos", role: "group", "aria-label": "Elegir alumno" });
+    // ---- Columna izquierda: alumnado y perfil ----
+    var rejilla = h("div", { class: "rejilla-alumnos rejilla-compacta", role: "group", "aria-label": "Elegir alumno" });
     for (var i = 1; i <= N_ALUMNOS; i++) (function (k) {
       var a = alumno(k);
       var sus = ["lengua", "mates"].some(function (ar) {
         return pruebasDeTrimestre(0).some(function (pn) { var x = notaEfectiva(leerReg(k, ar, pn)); return x !== null && x < 5; });
       });
-      var b = h("button", {
+      rejilla.appendChild(h("button", {
         type: "button",
         class: "chip-alumno" + (k === n ? " activo" : "") + (a.activo === false ? " inactivo" : ""),
         "aria-pressed": k === n ? "true" : "false",
-        title: "Alumno/a n.º " + k + (sus ? " · tiene alguna prueba por debajo de 5" : ""),
+        title: "Alumno/a n.º " + k + (sus ? " · alguna SdA por debajo de 5" : ""),
         onclick: function () { UI.alumno = k; recordarUI(); pintar(); },
-      }, [String(k), sus ? h("span", { class: "punto-sus", "aria-hidden": "true" }) : null, (a.perfil.acs_lengua || a.perfil.acs_mates) ? h("span", { class: "mini-acs", text: "A" }) : null]);
-      rejilla.appendChild(b);
+      }, [String(k), sus ? h("span", { class: "punto-sus", "aria-hidden": "true" }) : null, (a.perfil.acs_lengua || a.perfil.acs_mates) ? h("span", { class: "mini-acs", text: "A" }) : null]));
     })(i);
 
-    main.appendChild(h("section", { class: "tarjeta" }, [
-      h("div", { class: "fila-titulo" }, [
-        h("h2", { text: "Alumno/a n.º " + n }),
-        h("div", { class: "acciones" }, [
-          h("button", { type: "button", class: "btn btn-primario", text: "📋 Preparar tutoría", title: "Resumen imprimible de este alumno/a (todo el curso, las dos áreas)", onclick: function () {
-            UI.resSel = {}; UI.resSel[n] = true; UI.resArea = "ambas"; UI.resPeriodo = 0; UI.resNotas = true; UI.resMedidas = true;
-            irA("resumen");
-          } }),
-          h("button", { type: "button", class: "btn", disabled: n <= 1, text: "← Anterior", onclick: function () { UI.alumno = n - 1; recordarUI(); pintar(); } }),
-          h("button", { type: "button", class: "btn", disabled: n >= N_ALUMNOS, text: "Siguiente →", onclick: function () { UI.alumno = n + 1; recordarUI(); pintar(); } }),
-        ]),
-      ]),
-      rejilla,
-      h("p", { class: "leyenda-mini" }, [h("span", { class: "punto-sus", "aria-hidden": "true" }), " alguna prueba por debajo de 5 · ", h("span", { class: "mini-acs", text: "A" }), " con ACS"]),
-    ]));
-
-    // Perfil
-    var perfil = h("div", { class: "perfil" });
+    var perfil = h("div", { class: "perfil perfil-compacto" });
     PERFIL.forEach(function (p) {
-      perfil.appendChild(h("label", { class: "check" }, [
+      perfil.appendChild(h("label", { class: "chip-perfil" + (al.perfil[p.id] ? " activo" : "") }, [
         h("input", { type: "checkbox", checked: !!al.perfil[p.id], onchange: function (e) { al.perfil[p.id] = e.target.checked; guardar(n); pintar(); } }),
         " " + p.label,
       ]));
     });
-    perfil.appendChild(h("label", { class: "check check-inactivo" }, [
+    perfil.appendChild(h("label", { class: "chip-perfil chip-inactivo" + (al.activo === false ? " activo" : ""), title: "No sale en grupo ni en resúmenes" }, [
       h("input", { type: "checkbox", checked: al.activo === false, onchange: function (e) { al.activo = !e.target.checked; guardar(n); pintar(); } }),
-      " Número sin alumno (no sale en grupo ni en resúmenes)",
+      " Número sin alumno",
     ]));
-    main.appendChild(h("section", { class: "tarjeta" }, [
-      h("h3", { text: "Perfil y medidas de atención a la diversidad" }),
+
+    var colA = h("section", { class: "col col-a" }, [
+      h("div", { class: "fila-titulo" }, [
+        h("h2", { text: "N.º " + n }),
+        h("div", { class: "nav-alumno" }, [
+          h("button", { type: "button", class: "btn btn-mini", disabled: n <= 1, title: "Anterior", "aria-label": "Alumno anterior", text: "←", onclick: function () { UI.alumno = n - 1; recordarUI(); pintar(); } }),
+          h("button", { type: "button", class: "btn btn-mini", disabled: n >= N_ALUMNOS, title: "Siguiente", "aria-label": "Alumno siguiente", text: "→", onclick: function () { UI.alumno = n + 1; recordarUI(); pintar(); } }),
+        ]),
+      ]),
+      rejilla,
+      h("p", { class: "leyenda-mini" }, [h("span", { class: "punto-sus", "aria-hidden": "true" }), " SdA < 5 · ", h("span", { class: "mini-acs", text: "A" }), " ACS"]),
+      h("h3", { class: "subtit", text: "Perfil" }),
       perfil,
-      h("p", { class: "nota-pie", text: "Con ACS marcada en un área, sus pruebas se registran con la versión adaptada. No escribas aquí ni en las anotaciones nombres ni diagnósticos." }),
-    ]));
+      h("p", { class: "nota-pie", text: "Sin nombres ni diagnósticos." }),
+      h("button", { type: "button", class: "btn btn-primario btn-bloque", text: "📋 Preparar tutoría", title: "Resumen imprimible de este alumno/a (todo el curso, las dos áreas)", onclick: function () {
+        UI.resSel = {}; UI.resSel[n] = true; UI.resArea = "ambas"; UI.resPeriodo = 0; UI.resNotas = true; UI.resMedidas = true;
+        irA("resumen");
+      } }),
+    ]);
 
-    // Gráfica
-    var cajaGrafica = h("section", { class: "tarjeta", id: "caja-grafica" });
-    main.appendChild(cajaGrafica);
-    pintarGrafica(cajaGrafica, n);
-
-    // Pruebas por área
-    var tabs = h("div", { class: "seg", role: "tablist", "aria-label": "Área" });
+    // ---- Columna central: SdA elegida ----
+    var area = UI.area;
+    var pnSel = UI.sda || 1;
+    var areaSeg = h("div", { class: "seg", role: "tablist", "aria-label": "Área" });
     CE_AREAS.forEach(function (a) {
-      tabs.appendChild(h("button", {
-        type: "button", role: "tab", class: "seg-btn" + (UI.area === a.id ? " activo" : ""), "aria-selected": UI.area === a.id ? "true" : "false",
+      areaSeg.appendChild(h("button", {
+        type: "button", role: "tab", class: "seg-btn" + (area === a.id ? " activo" : ""), "aria-selected": area === a.id ? "true" : "false",
         text: a.label, onclick: function () { UI.area = a.id; recordarUI(); pintar(); },
       }));
     });
-    var lista = h("div", { class: "lista-pruebas" });
-    CE_PRUEBAS[UI.area].forEach(function (p) { lista.appendChild(tarjetaPrueba(n, UI.area, p)); });
-    main.appendChild(h("section", { class: "tarjeta" }, [
-      h("div", { class: "fila-titulo" }, [h("h3", { text: "SdA: notas y contenidos" }), tabs]),
-      lista,
-    ]));
+    var chips = h("div", { class: "chips-sda", role: "tablist", "aria-label": "SdA" });
+    function pintarChips() {
+      vaciar(chips);
+      for (var t = 1; t <= 3; t++) {
+        var grupo = h("div", { class: "chips-trim", title: t + ".º trimestre" });
+        pruebasDeTrimestre(t).forEach(function (pn) {
+          var r = leerReg(n, area, pn);
+          var v = notaEfectiva(r);
+          var cm = cuentaMarcas(r);
+          grupo.appendChild(h("button", {
+            type: "button", role: "tab", "aria-selected": pn === pnSel ? "true" : "false",
+            class: "chip-sda" + (pn === pnSel ? " activo" : ""),
+            title: etqPn(pn) + " · " + metaPrueba(area, pn).titulo,
+            onclick: function () { UI.sda = pn; recordarUI(); pintar(); },
+          }, [
+            h("span", { class: "chip-sda-n", text: etqPn(pn) }),
+            h("span", { class: "chip-sda-nota " + nivelNota(v), text: r && r.np ? "NP" : v === null ? "–" : fmt(v) }),
+            cm.falla + cm.proceso ? h("span", { class: "chip-sda-dif", title: (cm.falla + cm.proceso) + " contenidos que falla o tiene en proceso", text: String(cm.falla + cm.proceso) }) : null,
+          ]));
+        });
+        chips.appendChild(grupo);
+      }
+    }
+    pintarChips();
+    refrescosIndividual.push(pintarChips);
 
-    // Medidas
-    main.appendChild(tarjetaMedidas(n));
+    var colB = h("section", { class: "col col-b" }, [
+      h("div", { class: "fila-titulo fila-sda" }, [areaSeg, chips]),
+      panelSdA(n, area, prueba(area, pnSel)),
+    ]);
+
+    // ---- Columna derecha: avance, ejes, criterios, medidas ----
+    var PANELES = [
+      { id: "avance", t: "Avance" },
+      { id: "ejes", t: "Ejes" },
+      { id: "criterios", t: "Criterios" },
+      { id: "medidas", t: "Medidas" + ((S.medidas[n] || []).length ? " (" + S.medidas[n].length + ")" : "") },
+    ];
+    var panelSel = UI.panelDer || "avance";
+    var tabsDer = h("div", { class: "seg seg-ancho", role: "tablist", "aria-label": "Información del alumno" });
+    PANELES.forEach(function (p) {
+      tabsDer.appendChild(h("button", {
+        type: "button", role: "tab", class: "seg-btn" + (panelSel === p.id ? " activo" : ""), "aria-selected": panelSel === p.id ? "true" : "false",
+        text: p.t, onclick: function () { UI.panelDer = p.id; recordarUI(); pintar(); },
+      }));
+    });
+    var cuerpoDer = h("div", { class: "col-scroll" });
+    function pintarDer() {
+      vaciar(cuerpoDer);
+      if (panelSel === "avance") {
+        cuerpoDer.appendChild(h("div", { class: "leyenda", "aria-hidden": "true" }, [
+          h("span", { class: "ley ley-lengua", text: "Lengua" }),
+          h("span", { class: "ley ley-mates", text: "Matemáticas" }),
+          h("span", { class: "ley ley-hueca", text: "ACS" }),
+        ]));
+        cuerpoDer.appendChild(graficaAvance(n));
+        cuerpoDer.appendChild(tablaNotas(n));
+      } else if (panelSel === "ejes") {
+        cuerpoDer.appendChild(h("p", { class: "nota-pie", text: nombreArea(area) + ": % de lo marcado que falla en cada SdA («en proceso» cuenta la mitad). Muestra si una destreza mejora o empeora." }));
+        cuerpoDer.appendChild(mapaEjes(n, area));
+      } else if (panelSel === "criterios") {
+        cuerpoDer.appendChild(h("p", { class: "nota-pie", text: nombreArea(area) + (alumno(n).perfil["acs_" + area] ? " · criterios de " + CE_CRITERIOS_ACS.nivel + " (ACS)" : " · criterios de 5.º") + ": % de lo marcado que controla. Evidencia para calificar, no la calificación." }));
+        cuerpoDer.appendChild(tablaCriterios(n, area));
+      } else {
+        cuerpoDer.appendChild(panelMedidas(n));
+      }
+    }
+    pintarDer();
+    if (panelSel !== "medidas") refrescosIndividual.push(pintarDer);
+
+    var colC = h("section", { class: "col col-c" }, [tabsDer, cuerpoDer]);
+
+    main.appendChild(h("div", { class: "ficha-3col" }, [colA, colB, colC]));
   }
 
   function resumenNotaPrueba(n, area, pn) {
@@ -524,28 +598,25 @@ import {
     return h("span", { class: "resumen-pills" }, hijos);
   }
 
-  function tarjetaPrueba(n, area, p) {
+  function panelSdA(n, area, p) {
     var pn = p.n;
     var meta = metaPrueba(area, pn);
     var pills = h("span", {}, [resumenNotaPrueba(n, area, pn)]);
-    function refrescar() {
-      vaciar(pills).appendChild(resumenNotaPrueba(n, area, pn));
-      var g = document.getElementById("caja-grafica");
-      if (g) pintarGrafica(g, n);
-    }
-    var cuerpo = h("div", { class: "prueba-cuerpo" });
-    var det = h("details", { class: "prueba", "data-pn": pn }, [
-      h("summary", {}, [
-        h("span", { class: "prueba-etq", text: etiquetaPrueba(p) }),
+    var cuerpo = h("div", { class: "prueba-cuerpo", "data-pn": pn });
+    var caja = h("div", { class: "panel-sda" }, [
+      h("div", { class: "sda-cab" }, [
+        h("strong", { class: "prueba-etq", text: etiquetaPrueba(p) }),
         h("span", { class: "prueba-tit" }, [meta.titulo, meta.fecha ? h("small", { text: " · " + fechaLarga(meta.fecha) }) : null]),
         pills,
       ]),
       cuerpo,
     ]);
-    // Se construye al abrir: 18 tarjetas con sus tablas de golpe sobran.
-    det.addEventListener("toggle", function () {
-      if (det.open && !cuerpo.firstChild) construirCuerpo();
-    });
+    function refrescar() {
+      vaciar(pills).appendChild(resumenNotaPrueba(n, area, pn));
+      refrescarIndividual();
+    }
+    construirCuerpo();
+    return caja;
 
     function construirCuerpo() {
       var r0 = leerReg(n, area, pn) || {};
@@ -555,7 +626,7 @@ import {
       function campoNota(clave, etiqueta, ayuda) {
         var id = "f-" + area + pn + clave;
         return h("div", { class: "campo-grupo" }, [
-          h("label", { for: id, text: etiqueta }),
+          h("label", { for: id, text: etiqueta, title: ayuda || null }),
           h("input", {
             id: id, type: "number", inputmode: "decimal", min: "0", max: "10", step: "0.05", class: "campo campo-nota",
             value: r0[clave] !== undefined && r0[clave] !== null ? r0[clave] : "", title: ayuda || null,
@@ -576,10 +647,10 @@ import {
       }), [{ v: "ordinaria", t: VERSIONES.ordinaria }, { v: "acs", t: VERSIONES.acs }], version);
 
       cuerpo.appendChild(h("div", { class: "campos" }, [
-        h("div", { class: "campo-grupo" }, [h("label", { for: "v-" + area + pn, text: "Versión" }), selVersion]),
-        campoNota("nota", "Nota del examen"),
+        campoNota("nota", "Nota"),
         campoNota("recuperacion", "Recuperación", "Si la hay. Cuenta la mayor de las dos."),
-        campoNota("reto", "Reto / producto final", "Opcional. No entra en la media del examen."),
+        campoNota("reto", "Reto", "Reto o producto final. Opcional: no entra en la media."),
+        h("div", { class: "campo-grupo" }, [h("label", { for: "v-" + area + pn, text: "Versión" }), selVersion]),
         h("label", { class: "check check-np" }, [
           h("input", { type: "checkbox", checked: !!r0.np, onchange: function (e) { reg(n, area, pn).np = e.target.checked; guardar(n); refrescar(); } }),
           " No presentado",
@@ -587,13 +658,13 @@ import {
       ]));
 
       if (meta.fuente === "provisional") {
-        cuerpo.appendChild(h("p", { class: "aviso aviso-suave", text: "Registro provisional, sacado de la programación: ajústalo en la pestaña «Exámenes» cuando tengas el examen." }));
+        cuerpo.appendChild(h("p", { class: "aviso aviso-suave aviso-mini", text: "Contenidos provisionales: ajústalos en «Exámenes» cuando tengas el examen." }));
       }
       if (!items.length) {
-        cuerpo.appendChild(h("p", { class: "aviso aviso-suave", text: "Esta versión aún no tiene registro de contenidos. Créalo en la pestaña «Exámenes» (o envía el examen para añadirlo)." }));
+        cuerpo.appendChild(h("p", { class: "aviso aviso-suave aviso-mini", text: "Esta versión aún no tiene contenidos. Créalos en «Exámenes» (o envía el examen)." }));
       } else {
         var tabla = h("table", { class: "tabla-items" }, [
-          h("thead", {}, [h("tr", {}, [h("th", { text: "Contenido" }), h("th", { class: "col-preg", text: "Preg." }), h("th", { class: "col-eje", text: "Eje" }), h("th", { text: "¿Lo controla?" })])]),
+          h("thead", {}, [h("tr", {}, [h("th", { text: "Contenido" }), h("th", { class: "col-preg", text: "Preg." }), h("th", { text: "¿Lo controla?" })])]),
         ]);
         var tb = h("tbody");
         items.forEach(function (it) {
@@ -625,14 +696,13 @@ import {
             }));
           });
           tb.appendChild(h("tr", {}, [
-            h("td", {}, [it.contenido, chipsCriterios(area, it.criterios, version)]),
+            h("td", { title: etiquetaEje(area, it.eje) }, [it.contenido, chipsCriterios(area, it.criterios, version)]),
             h("td", { class: "col-preg", text: it.pregunta || "·" }),
-            h("td", { class: "col-eje", text: etiquetaEje(area, it.eje) }),
-            h("td", {}, [grupo]),
+            h("td", { class: "col-tri" }, [grupo]),
           ]));
         });
         tabla.appendChild(tb);
-        cuerpo.appendChild(h("div", { class: "tabla-scroll" }, [tabla]));
+        cuerpo.appendChild(h("div", { class: "tabla-items-caja" }, [tabla]));
         cuerpo.appendChild(h("div", { class: "acciones acciones-mini" }, [
           h("span", { class: "acciones-etq", text: "Marcar todo:" }),
         ].concat(ESTADOS.map(function (es) {
@@ -654,48 +724,28 @@ import {
       }
 
       var idn = "n-" + area + pn;
-      cuerpo.appendChild(h("div", { class: "campo-grupo campo-ancho" }, [
+      cuerpo.appendChild(h("div", { class: "campo-grupo campo-ancho campo-notas" }, [
         h("label", { for: idn, text: "Anotaciones de esta SdA" }),
         h("textarea", {
-          id: idn, class: "campo", rows: "3", placeholder: "Qué has observado, qué medida vas a aplicar…",
+          id: idn, class: "campo", rows: "2", placeholder: "Qué has observado, qué medida vas a aplicar…",
           oninput: function (e) { reg(n, area, pn).notas = e.target.value; guardar(n); },
         }, [r0.notas || ""]),
       ]));
     }
-    return det;
   }
 
-  function tarjetaMedidas(n) {
+  function panelMedidas(n) {
     var lista = (S.medidas[n] = S.medidas[n] || []);
-    var caja = h("section", { class: "tarjeta" }, [
-      h("h3", { text: "Medidas aplicadas y su resultado" }),
-      h("p", { class: "nota-pie", text: "Refuerzo, cambio de sitio, material adaptado, tutoría con la familia… Anota si funcionó: es lo que te pedirán en el programa de refuerzo y en las reuniones del equipo docente." }),
+    var caja = h("div", { class: "medidas" }, [
+      h("p", { class: "nota-pie", text: "Refuerzo, material adaptado, tutoría con la familia… y si funcionó." }),
     ]);
-    var tabla = h("table", { class: "tabla-simple" }, [h("thead", {}, [h("tr", {}, ["Fecha", "Área", "Medida", "Resultado", ""].map(function (t) { return h("th", { text: t }); }))])]);
-    var tb = h("tbody");
-    lista.slice().sort(function (a, b) { return (b.fecha || "").localeCompare(a.fecha || ""); }).forEach(function (m) {
-      tb.appendChild(h("tr", {}, [
-        h("td", { text: fechaLarga(m.fecha) }),
-        h("td", { text: m.area === "ambas" ? "Ambas" : nombreArea(m.area) }),
-        h("td", { text: m.medida }),
-        h("td", { text: m.resultado || "—" }),
-        h("td", {}, [h("button", {
-          type: "button", class: "btn-enlace", text: "Borrar",
-          onclick: function () { if (confirm("¿Borrar esta medida?")) { lista.splice(lista.indexOf(m), 1); guardar(n); pintar(); } },
-        })]),
-      ]));
-    });
-    if (!lista.length) tb.appendChild(h("tr", {}, [h("td", { colspan: "5", class: "vacio", text: "Sin medidas registradas." })]));
-    tabla.appendChild(tb);
-    caja.appendChild(h("div", { class: "tabla-scroll" }, [tabla]));
-
     var fF = h("input", { type: "date", class: "campo", value: new Date().toISOString().slice(0, 10), "aria-label": "Fecha" });
     var fA = selectArea("ambas", null, true);
     fA.setAttribute("aria-label", "Área");
     var fM = h("input", { type: "text", class: "campo", placeholder: "Medida", "aria-label": "Medida", required: true });
-    var fR = h("input", { type: "text", class: "campo", placeholder: "Resultado (puedes dejarlo para después)", "aria-label": "Resultado" });
+    var fR = h("input", { type: "text", class: "campo", placeholder: "Resultado (opcional)", "aria-label": "Resultado" });
     caja.appendChild(h("form", {
-      class: "form-medida",
+      class: "form-medida form-medida-col",
       onsubmit: function (e) {
         e.preventDefault();
         if (!fM.value.trim()) return;
@@ -703,6 +753,19 @@ import {
         guardar(n); pintar();
       },
     }, [fF, fA, fM, fR, h("button", { type: "submit", class: "btn btn-primario", text: "Añadir" })]));
+    var ul = h("ul", { class: "lista-medidas-ficha" });
+    lista.slice().sort(function (a, b) { return (b.fecha || "").localeCompare(a.fecha || ""); }).forEach(function (m) {
+      ul.appendChild(h("li", {}, [
+        h("div", {}, [h("strong", { text: fechaLarga(m.fecha) + " · " + (m.area === "ambas" ? "Ambas" : nombreArea(m.area)) })]),
+        h("div", { text: m.medida + (m.resultado ? " → " + m.resultado : "") }),
+        h("button", {
+          type: "button", class: "btn-enlace", text: "Borrar",
+          onclick: function () { if (confirm("¿Borrar esta medida?")) { lista.splice(lista.indexOf(m), 1); guardar(n); pintar(); } },
+        }),
+      ]));
+    });
+    if (!lista.length) ul.appendChild(h("li", { class: "vacio", text: "Sin medidas registradas." }));
+    caja.appendChild(ul);
     return caja;
   }
 
@@ -716,78 +779,56 @@ import {
     return el;
   }
 
-  function pintarGrafica(caja, n) {
-    vaciar(caja);
-    caja.appendChild(h("div", { class: "fila-titulo" }, [
-      h("h3", { text: "Avance durante el curso" }),
-      h("div", { class: "leyenda", "aria-hidden": "true" }, [
-        h("span", { class: "ley ley-lengua", text: "Lengua" }),
-        h("span", { class: "ley ley-mates", text: "Matemáticas" }),
-        h("span", { class: "ley ley-hueca", text: "Prueba adaptada" }),
-      ]),
-    ]));
-
-    var W = 720, H = 250, mL = 34, mR = 92, mT = 14, mB = 40;
+  function graficaAvance(n) {
+    var W = 400, H = 210, mL = 24, mR = 14, mT = 10, mB = 36;
     var pw = W - mL - mR, ph = H - mT - mB;
-    function X(pn) { return mL + (pn - 1) * (pw / 8); }
+    function X(pn) { return mL + 8 + (pn - 1) * ((pw - 16) / 8); }
     function Y(v) { return mT + ph - (v / 10) * ph; }
 
-    var svg = s("svg", { viewBox: "0 0 " + W + " " + H, class: "grafica", role: "img", "aria-label": "Notas de Lengua y Matemáticas del alumno/a " + n + " en las 9 pruebas del curso" });
+    var svg = s("svg", { viewBox: "0 0 " + W + " " + H, class: "grafica", role: "img", "aria-label": "Notas de Lengua y Matemáticas del alumno/a " + n + " en las 9 SdA del curso" });
     [0, 2.5, 5, 7.5, 10].forEach(function (v) {
       svg.appendChild(s("line", { x1: mL, x2: mL + pw, y1: Y(v), y2: Y(v), class: v === 5 ? "g-aprobado" : "g-rejilla" }));
-      if (v % 5 === 0) svg.appendChild(s("text", { x: mL - 8, y: Y(v) + 4, class: "g-eje", "text-anchor": "end" }, [String(v)]));
+      if (v % 5 === 0) svg.appendChild(s("text", { x: mL - 5, y: Y(v) + 4, class: "g-eje", "text-anchor": "end" }, [String(v)]));
     });
-    svg.appendChild(s("text", { x: mL + pw + 6, y: Y(5) + 4, class: "g-eje" }, ["aprobado"]));
     for (var t = 1; t <= 3; t++) {
-      if (t > 1) svg.appendChild(s("line", { x1: X(3 * t - 2) - pw / 16, x2: X(3 * t - 2) - pw / 16, y1: mT, y2: mT + ph, class: "g-sep" }));
-      svg.appendChild(s("text", { x: X(3 * t - 1), y: H - 6, class: "g-eje g-trim", "text-anchor": "middle" }, [t + ".º trimestre"]));
+      if (t > 1) svg.appendChild(s("line", { x1: (X(3 * t - 3) + X(3 * t - 2)) / 2, x2: (X(3 * t - 3) + X(3 * t - 2)) / 2, y1: mT, y2: mT + ph, class: "g-sep" }));
+      svg.appendChild(s("text", { x: X(3 * t - 1), y: H - 4, class: "g-eje g-trim", "text-anchor": "middle" }, [t + ".º trim."]));
     }
-    for (var pn = 1; pn <= 9; pn++) svg.appendChild(s("text", { x: X(pn), y: mT + ph + 16, class: "g-eje", "text-anchor": "middle" }, [etqPn(pn)]));
+    for (var pn = 1; pn <= 9; pn++) svg.appendChild(s("text", { x: X(pn), y: mT + ph + 14, class: "g-eje", "text-anchor": "middle" }, [String(pn)]));
 
-    var datos = { lengua: [], mates: [] };
-    var hayAlgo = false;
     ["lengua", "mates"].forEach(function (area) {
       var puntos = [];
       for (var pn = 1; pn <= 9; pn++) {
         var v = notaEfectiva(leerReg(n, area, pn));
-        datos[area].push(v);
-        if (v !== null) { puntos.push({ pn: pn, v: v, acs: versionDe(n, area, pn) === "acs" }); hayAlgo = true; }
+        if (v !== null) puntos.push({ pn: pn, v: v, acs: versionDe(n, area, pn) === "acs" });
       }
       if (puntos.length > 1) {
         svg.appendChild(s("polyline", { points: puntos.map(function (p) { return X(p.pn) + "," + Y(p.v); }).join(" "), class: "g-linea g-" + area }));
       }
       puntos.forEach(function (p) {
         var g = s("g", { class: "g-punto", tabindex: "0" });
-        var tip = nombreArea(area) + " · " + etiquetaPrueba(prueba(area, p.pn)) + ": " + fmt(p.v) + (p.acs ? " (prueba adaptada)" : "");
-        g.appendChild(s("title", {}, [tip]));
-        g.appendChild(s("circle", { cx: X(p.pn), cy: Y(p.v), r: 14, class: "g-hit" }));
-        if (area === "lengua") g.appendChild(s("circle", { cx: X(p.pn), cy: Y(p.v), r: 5, class: "g-m g-" + area + (p.acs ? " g-hueco" : "") }));
-        else g.appendChild(s("rect", { x: X(p.pn) - 5, y: Y(p.v) - 5, width: 10, height: 10, rx: 1.5, class: "g-m g-" + area + (p.acs ? " g-hueco" : "") }));
+        g.appendChild(s("title", {}, [nombreArea(area) + " · " + etqPn(p.pn) + ": " + fmt(p.v) + (p.acs ? " (prueba adaptada)" : "")]));
+        g.appendChild(s("circle", { cx: X(p.pn), cy: Y(p.v), r: 12, class: "g-hit" }));
+        if (area === "lengua") g.appendChild(s("circle", { cx: X(p.pn), cy: Y(p.v), r: 4.5, class: "g-m g-" + area + (p.acs ? " g-hueco" : "") }));
+        else g.appendChild(s("rect", { x: X(p.pn) - 4.5, y: Y(p.v) - 4.5, width: 9, height: 9, rx: 1.5, class: "g-m g-" + area + (p.acs ? " g-hueco" : "") }));
         svg.appendChild(g);
       });
-      var ult = puntos[puntos.length - 1];
-      if (ult) svg.appendChild(s("text", { x: X(ult.pn) + 10, y: Y(ult.v) + (area === "lengua" ? -6 : 14), class: "g-etq" }, [nombreArea(area) + " " + fmt(ult.v)]));
     });
-    caja.appendChild(h("div", { class: "grafica-caja" }, [svg]));
-    if (!hayAlgo) caja.appendChild(h("p", { class: "vacio", text: "Aún no hay notas para dibujar." }));
+    return h("div", { class: "grafica-caja grafica-compacta" }, [svg]);
+  }
 
-    // Tabla equivalente (accesible y para comprobar los datos).
-    var tabla = h("table", { class: "tabla-simple tabla-centrada" }, [
-      h("thead", {}, [h("tr", {}, [h("th", { text: "" })].concat([1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (pn) { return h("th", { text: etqPn(pn) }); })))]),
+  // Las notas en tabla: el dato exacto de la gráfica, siempre visible.
+  function tablaNotas(n) {
+    return h("table", { class: "tabla-simple tabla-centrada tabla-notas" }, [
+      h("thead", {}, [h("tr", {}, [h("th", { text: "SdA" })].concat([1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (pn) { return h("th", { text: String(pn) }); })))]),
       h("tbody", {}, ["lengua", "mates"].map(function (area) {
-        return h("tr", {}, [h("th", { text: nombreArea(area) })].concat(datos[area].map(function (v) { return h("td", { class: nivelNota(v), text: v === null ? "—" : fmt(v) }); })));
+        return h("tr", {}, [h("th", { text: area === "lengua" ? "Len." : "Mat." })].concat([1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (pn) {
+          var r = leerReg(n, area, pn);
+          var v = notaEfectiva(r);
+          return h("td", { class: nivelNota(v), text: r && r.np ? "NP" : v === null ? "" : fmt(v) });
+        })));
       })),
     ]);
-    caja.appendChild(h("details", { class: "ver-datos" }, [h("summary", { text: "Ver los datos en tabla" }), h("div", { class: "tabla-scroll" }, [tabla])]));
-
-    // Dificultades por eje: lo comparable entre pruebas distintas.
-    caja.appendChild(h("h4", { text: "Contenidos que falla, por eje (" + nombreArea(UI.area) + ")" }));
-    caja.appendChild(h("p", { class: "nota-pie", text: "Porcentaje de los contenidos marcados de cada eje que falla en cada SdA («en proceso» cuenta la mitad; lo no marcado no cuenta). Las notas comparan exámenes de contenidos distintos; esto muestra si una destreza concreta, como la resolución de problemas, mejora o empeora. Cambia de área en «SdA: notas y contenidos»." }));
-    caja.appendChild(mapaEjes(n, UI.area));
-
-    caja.appendChild(h("h4", { text: "Logro por criterio de evaluación (" + nombreArea(UI.area) + (alumno(n).perfil["acs_" + UI.area] ? ", criterios de " + CE_CRITERIOS_ACS.nivel + " de su ACS" : ", criterios de 5.º") + ")" }));
-    caja.appendChild(h("p", { class: "nota-pie", text: "Porcentaje de los contenidos vinculados a cada criterio que controla («en proceso» cuenta la mitad). Es una evidencia más para calificar el criterio, no la calificación: los exámenes no cubren todos los criterios." }));
-    caja.appendChild(tablaCriterios(n, UI.area));
   }
 
   function chipsCriterios(area, lista, version) {
@@ -883,26 +924,26 @@ import {
   function vistaGrupo() {
     var area = UI.grupoArea;
     var lista = activos();
-    main.appendChild(h("section", { class: "tarjeta" }, [
+    main.classList.add("vista-fija");
+    var pn = UI.grupoPrueba;
+    var izq = h("section", { class: "col col-grupo" }, [
       h("div", { class: "fila-titulo" }, [
-        h("h2", { text: "Grupo clase · " + nombreArea(area) }),
+        h("h2", { text: "Grupo clase" }),
         selectArea(area, function (e) { UI.grupoArea = e.target.value; recordarUI(); pintar(); }),
       ]),
-      h("p", { class: "nota-pie", text: "Pulsa un número para abrir su ficha. A = prueba adaptada; (r) = cuenta la recuperación. La media del grupo no incluye las pruebas adaptadas." }),
-      h("div", { class: "tabla-scroll" }, [tablaGrupo(area, lista)]),
-    ]));
-
-    var pn = UI.grupoPrueba;
-    var caja = h("section", { class: "tarjeta" }, [
+      h("p", { class: "nota-pie", text: "Pulsa un número para abrir su ficha. A = prueba adaptada · (r) = cuenta la recuperación · • = falla algo. La media del grupo no incluye las ACS." }),
+      h("div", { class: "col-scroll" }, [tablaGrupo(area, lista)]),
+    ]);
+    var dcha = h("section", { class: "col col-barras" }, [
       h("div", { class: "fila-titulo" }, [
-        h("h3", { text: "Contenidos de la SdA en el grupo" }),
+        h("h3", { text: "Contenidos de la SdA" }),
         selectPrueba(area, pn, function (e) { UI.grupoPrueba = +e.target.value; recordarUI(); pintar(); }),
       ]),
-      h("p", { class: "nota-pie", text: "Qué contenidos controla el grupo y cuáles fallan, y quiénes: sirve para decidir qué repasar y formar grupos de refuerzo." }),
+      h("div", { class: "col-scroll" }, [barrasGrupo(area, pn, lista)]),
     ]);
-    caja.appendChild(barrasGrupo(area, pn, lista));
-    main.appendChild(caja);
+    main.appendChild(h("div", { class: "ficha-2col" }, [izq, dcha]));
   }
+
 
   function tablaGrupo(area, lista) {
     var cab1 = h("tr", {}, [h("th", { rowspan: "2", text: "N.º" })]);
