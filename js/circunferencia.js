@@ -186,7 +186,7 @@ function genRadioDiametro(L) {
       display: `${fmt(r)} cm`,
       visual: svgCirculo({ elemento: "radio", medida: `${fmt(r)} cm` }),
       soloVisual: true,
-      options: conUnidad(d, [r, r / 2, r + 2, r * 3, d + 1], "cm"),
+      options: conUnidad(d, [r, L.dec ? r / 2 : r + 1, r + 2, r * 3, d + 1], "cm"),
       correct: `${fmt(d)} cm`,
       hint: "El diámetro mide lo mismo que dos radios.",
       explain: `Diámetro = 2 × radio = 2 × ${fmt(r)} = ${fmt(d)} cm.`,
@@ -234,7 +234,7 @@ function genEstimar(L) {
     options: uniqueOptions(correct, [`Unos ${d} cm`, `Unos ${2 * d} cm`, `Unos ${6 * d} cm`, `Unos ${d + 3} cm`]),
     correct,
     hint: "La circunferencia mide un poco más de 3 veces el diámetro (π ≈ 3,14).",
-    explain: `Un poco más de 3 diámetros: 3 × ${d} = ${3 * d}. El valor exacto es 3,14 × ${d} = ${fmt(pi(d))} cm.`,
+    explain: `Un poco más de 3 diámetros: 3 × ${d} = ${3 * d}.${L === LEVELS.facil ? " En realidad, un poco más, porque π es 3,14…" : ` El valor exacto es 3,14 × ${d} = ${fmt(pi(d))} cm.`}`,
   };
 }
 
@@ -340,6 +340,80 @@ function genArea(L) {
   };
 }
 
+// Discalculia: sin decimales. La circunferencia mide «unas 3 veces»
+// el diámetro (π ≈ 3), y se dice siempre que es aproximado.
+const unos = (n, u) => `Unos ${fmt(n)} ${u}`;
+const opcionesUnos = (correct, valores, u) => uniqueOptions(unos(correct, u), valores.filter((v) => v > 0 && v !== correct).map((v) => unos(v, u)));
+
+function genLongitudAprox() {
+  const conDiametro = Math.random() < 0.5;
+  const r = randInt(1, 5);
+  const d = 2 * r;
+  const u = pick(["cm", "m"]);
+  const medida = conDiametro ? `${d} ${u}` : `${r} ${u}`;
+  return {
+    instruction: "¿Cuánto mide, más o menos, la circunferencia? (π ≈ 3)",
+    display: medida,
+    visual: svgCirculo({ elemento: conDiametro ? "diametro" : "radio", medida }),
+    soloVisual: true,
+    options: opcionesUnos(3 * d, [d, 3 * r, 6 * d, 2 * d, 3 * d + 3], u),
+    correct: unos(3 * d, u),
+    hint: conDiametro ? "La circunferencia mide unas 3 veces el diámetro: multiplica el diámetro por 3." : "Primero el diámetro (2 × radio). Después, unas 3 veces el diámetro.",
+    explain: `${conDiametro ? "" : `Diámetro: 2 × ${r} = ${d}. `}3 × ${d} = ${3 * d}: mide unos ${3 * d} ${u}. En realidad, un poco más, porque π es 3,14…${conDiametro ? "" : ` Si se olvida el 2 sale ${3 * r}, solo la mitad.`}`,
+  };
+}
+
+function genProblemasAprox() {
+  const tipo = pick(["rueda", "fuente", "contenedor"]);
+  const instruction = "Resuelve el problema, más o menos (π ≈ 3):";
+  if (tipo === "rueda") {
+    const d = pick([1, 2]);
+    const v = randInt(2, 5);
+    return {
+      instruction,
+      display: `La rueda de una bici mide ${d} m de diámetro. ¿Cuántos metros avanza, más o menos, cuando la rueda da ${v} vueltas?`,
+      options: opcionesUnos(3 * d * v, [d * v, 3 * d, 2 * d * v, 3 * d * v + 3], "m"),
+      correct: unos(3 * d * v, "m"),
+      hint: "En cada vuelta la bici avanza lo que mide la circunferencia de la rueda: unas 3 veces el diámetro.",
+      explain: `Una vuelta: 3 × ${d} = ${3 * d} m. ${v} vueltas: ${3 * d} × ${v} = ${3 * d * v} m. Unos ${3 * d * v} m (un poco más, porque π es 3,14…).`,
+    };
+  }
+  if (tipo === "fuente") {
+    const r = randInt(1, 5);
+    return {
+      instruction,
+      display: `Una fuente redonda tiene ${r} m de radio. ¿Cuántos metros de valla hacen falta, más o menos, para rodearla?`,
+      options: opcionesUnos(6 * r, [3 * r, 2 * r, 3 * r * r, 6 * r + 2], "m"),
+      correct: unos(6 * r, "m"),
+      hint: "¡Te dan el radio! Calcula el diámetro (2 × radio) y después unas 3 veces el diámetro.",
+      explain: `Diámetro: 2 × ${r} = ${2 * r} m. Valla: 3 × ${2 * r} = ${6 * r} m. Unos ${6 * r} m (un poco más).`,
+    };
+  }
+  const d = pick([1, 2]);
+  return {
+    instruction,
+    display: `Un contenedor cilíndrico del punto limpio mide ${d} m de diámetro. ¿Cuántos metros de cinta hacen falta, más o menos, para darle una vuelta?`,
+    options: opcionesUnos(3 * d, [d, 2 * d, 6 * d, 3 * d + 1], "m"),
+    correct: unos(3 * d, "m"),
+    hint: "La cinta da una vuelta: unas 3 veces el diámetro.",
+    explain: `3 × ${d} = ${3 * d} m. Unos ${3 * d} m (un poco más, porque π es 3,14…).`,
+  };
+}
+
+function genAreaAprox() {
+  const r = randInt(1, 5);
+  return {
+    instruction: "¿Cuál es, más o menos, el área del círculo? (π ≈ 3)",
+    display: `${r} cm`,
+    visual: svgCirculo({ elemento: "radio", medida: `${r} cm`, relleno: true }),
+    soloVisual: true,
+    options: opcionesUnos(3 * r * r, [6 * r, r * r, 3 * r, 12 * r * r], "cm²"),
+    correct: unos(3 * r * r, "cm²"),
+    hint: "Área = unos 3 × radio × radio.",
+    explain: `3 × ${r} × ${r} = 3 × ${r * r} = ${3 * r * r}. Unos ${3 * r * r} cm² (un poco más, porque π es 3,14…).`,
+  };
+}
+
 const MODE_GROUPS = {
   elementos: [genElementos, genElementos, genCircOCirculo],
   radiodiametro: [genRadioDiametro],
@@ -350,6 +424,13 @@ const MODE_GROUPS = {
 
 // El área del círculo es ampliación: no entra en la mezcla.
 const MEZCLA = ["elementos", "radiodiametro", "longitud", "problemas"];
+
+const MODE_GROUPS_DISCALCULIA = {
+  ...MODE_GROUPS,
+  longitud: [genLongitudAprox, genLongitudAprox, genEstimar],
+  problemas: [genProblemasAprox],
+  area: [genAreaAprox],
+};
 
 const ACS_GENERATORS = [genElementos, genCircOCirculo, genRadioDiametro, genEstimar];
 
@@ -374,9 +455,9 @@ const CIRCUNFERENCIA_DIFFICULTY_EXPLANATIONS = {
   },
   discalculia: {
     badge: "Discalculia",
-    title: "Todos los contenidos, con medidas pequeñas y la pista a la vista",
-    text: "Se trabajan todos los modos con radios de 1 a 5 y números enteros, para que la multiplicación por 3,14 sea corta, y con la pista abierta desde el principio. Sin «Mezcla». En Explora se ve que la circunferencia mide un poco más de 3 diámetros.",
-    example: "Diámetro 4 cm → 3,14 × 4 = 12,56 cm",
+    title: "Todos los contenidos, sin decimales y con la pista a la vista",
+    text: "Se trabajan todos los modos sin decimales: la circunferencia mide <strong>unas 3 veces el diámetro</strong> (π ≈ 3) y las respuestas son aproximadas («unos 12 cm»). Radios de 1 a 5 y la pista abierta desde el principio. Sin «Mezcla». En Explora se ve que la circunferencia mide un poco más de 3 diámetros.",
+    example: "Diámetro 4 cm → 3 × 4 = unos 12 cm",
   },
   altas: {
     badge: "Altas capacidades",
@@ -569,8 +650,9 @@ function initGame(diff, registerRestart) {
 
   function generatorsFor() {
     if (diff.is("acs")) return ACS_GENERATORS;
-    if (mode === "mezcla") return MODE_GROUPS[pick(MEZCLA)];
-    return MODE_GROUPS[mode];
+    const grupos = diff.is("discalculia") ? MODE_GROUPS_DISCALCULIA : MODE_GROUPS;
+    if (mode === "mezcla") return grupos[pick(MEZCLA)];
+    return grupos[mode];
   }
 
   function pickQuestion() {

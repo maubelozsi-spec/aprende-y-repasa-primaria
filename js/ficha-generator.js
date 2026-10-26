@@ -3554,6 +3554,54 @@ function ciEstimar(nivel) {
   };
 }
 
+// Discalculia: sin decimales, con π ≈ 3 y resultados aproximados.
+function ciLongitudAprox() {
+  const conRadio = Math.random() < 0.5;
+  const r = randomInt(1, 5);
+  const d = 2 * r;
+  const que = pick([["Una fuente redonda", "m"], ["Una mesa redonda", "dm"], ["Una plaza circular", "m"], ["Un reloj", "cm"]]);
+  return {
+    enunciado: `${que[0]} tiene ${conRadio ? `${r} ${que[1]} de radio` : `${d} ${que[1]} de diámetro`}. ¿Cuánto mide su contorno, más o menos? (π ≈ 3: unas 3 veces el diámetro)`,
+    datos: [conRadio ? `Radio: ${r} ${que[1]}` : `Diámetro: ${d} ${que[1]}`, "π ≈ 3"],
+    operacion: `${conRadio ? `Diámetro: 2 × ${r} = ${d} · ` : ""}3 × ${d} = ${3 * d}`,
+    solucion: `Unos ${3 * d} ${que[1]} (un poco más, porque π es 3,14…).`,
+  };
+}
+
+function ciRuedaAprox() {
+  const d = pick([1, 2]);
+  const v = randomInt(2, 5);
+  return {
+    enunciado: `La rueda de una bici mide ${d} m de diámetro. ¿Cuántos metros avanza, más o menos, si la rueda da ${v} vueltas? (π ≈ 3)`,
+    datos: [`Diámetro: ${d} m`, `Vueltas: ${v}`],
+    operacion: `Una vuelta: 3 × ${d} = ${3 * d} m · ${v} vueltas: ${3 * d} × ${v} = ${3 * d * v} m`,
+    solucion: `Unos ${3 * d * v} m (un poco más, porque π es 3,14…).`,
+  };
+}
+
+function ciContenedorAprox() {
+  const d = pick([1, 2]);
+  const n = randomInt(2, 4);
+  return {
+    enunciado: `En el punto limpio hay ${n} contenedores cilíndricos de ${d} m de diámetro. Queremos darle una vuelta de cinta a cada uno. ¿Cuántos metros de cinta necesitamos, más o menos? (π ≈ 3)`,
+    datos: [`${n} contenedores`, `Diámetro: ${d} m`],
+    operacion: `Una vuelta: 3 × ${d} = ${3 * d} m · ${n} contenedores: ${3 * d} × ${n} = ${3 * d * n} m`,
+    solucion: `Unos ${3 * d * n} m de cinta (un poco más, porque π es 3,14…).`,
+  };
+}
+
+function ciEstimarAprox() {
+  const d = randomInt(2, 10);
+  const nombre = pick(NOMBRES);
+  const mal = pick([d * 2, d, d * 6]);
+  return {
+    enunciado: `${nombre} dice que un plato de ${d} cm de diámetro tiene un contorno de ${mal} cm. ¿Puede ser? ¿Cuánto mide más o menos?`,
+    datos: [`Diámetro: ${d} cm`],
+    operacion: `La circunferencia mide unas 3 veces el diámetro: 3 × ${d} = ${3 * d}`,
+    solucion: `No puede ser: mide unos ${3 * d} cm (un poco más).`,
+  };
+}
+
 function genCircunferencia(curso) {
   // En 5º no está en las UDI: solo elementos y radio/diámetro, sin π.
   if (curso !== "6") return siguienteDeBaraja("ci5", [ciDibujar, ciRadioDiametro, ciObjetos])(CI_NIVELES.acs);
@@ -3562,7 +3610,7 @@ function genCircunferencia(curso) {
 
 function genCircunferenciaDiscalculia(curso) {
   if (curso !== "6") return genCircunferencia(curso);
-  return siguienteDeBaraja("ciDisc", [ciDibujar, ciRadioDiametro, ciObjetos, ciLongitud, ciRueda, ciContenedor, ciEstimar])(CI_NIVELES.disc);
+  return siguienteDeBaraja("ciDisc", [ciDibujar, ciRadioDiametro, ciObjetos, ciLongitudAprox, ciRuedaAprox, ciContenedorAprox, ciEstimarAprox])(CI_NIVELES.disc);
 }
 
 function genCircunferenciaACS() {
