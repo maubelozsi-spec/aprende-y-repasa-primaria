@@ -5,7 +5,7 @@ rules_version = '2';
 // "aprende-y-repasa-cc321", que aloja estas apps:
 //
 //   - App educativa "Aprende y Repasa" (colecciones "teachers",
-//     "classes", "students", "udiHistorial"), incluida La Ciudadela
+//     "classes", "students", "udiHistorial", "cuadernoEval"), incluida La Ciudadela
 //     ("ciudadelaAvisos" y la subcolección students/*/ciudadelaDiario).
 //   - App "Reunión de familias" (colecciones "reunionFamilias",
 //     "reunionFamiliasSecciones", "reunionFamiliasSecret",
@@ -43,6 +43,25 @@ service cloud.firestore {
 
     match /teachers/{teacherId} {
       allow read, write: if isOwnerTeacher(teacherId);
+    }
+
+    // Cuaderno de evaluación (cuaderno-evaluacion/): notas, dificultades
+    // y anotaciones del alumnado por número de lista. Solo el docente
+    // dueño puede leerlo o escribirlo; nunca una sesión anónima (las del
+    // alumnado), aunque el uid coincidiera.
+    function esDocenteDueno(teacherId) {
+      return isOwnerTeacher(teacherId)
+        && request.auth.token.firebase.sign_in_provider != "anonymous";
+    }
+
+    match /cuadernoEval/{teacherId} {
+      allow read, write: if esDocenteDueno(teacherId);
+
+      match /alumnos/{n} {
+        allow read, delete: if esDocenteDueno(teacherId);
+        allow create, update: if esDocenteDueno(teacherId)
+          && n.matches("^([1-9]|1[0-9]|2[0-5])$");
+      }
     }
 
     match /classes/{classId} {
