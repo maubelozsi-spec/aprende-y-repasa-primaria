@@ -686,3 +686,45 @@ body { font-size: 14px; }
 .tabla-grupo tbody th .mini-acs { font-size: .55rem; }
 .col-grupo .fila-titulo { margin-bottom: 2px; }
 @media (max-width: 1099px) { .chips-sda { flex-wrap: wrap; } .fila-sda { flex-wrap: wrap; } }
+
+/* ============================================================
+   Escala de notas: suspenso (0-4,75) en rojo intenso para que
+   destaque; bien, notable y sobresaliente en tonos suaves que van
+   del ámbar al verde (más verde = mejor nota).
+   ============================================================ */
+:root {
+  --sus-bg: #c62828; --sus-tx: #ffffff;
+  --b-bg: #fff1cf;   --b-tx: #7a4b00;
+  --n-bg: #dcf2de;   --n-tx: #1d5e22;
+  --sb-bg: #9edba6;  --sb-tx: #0d3a16;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sus-bg: #e05252; --sus-tx: #ffffff;
+    --b-bg: #45360f;   --b-tx: #ffe2a3;
+    --n-bg: #1d3b22;   --n-tx: #bfeac4;
+    --sb-bg: #2f6b37;  --sb-tx: #e8ffea;
+  }
+}
+:root[data-theme="dark"] {
+  --sus-bg: #e05252; --sus-tx: #ffffff;
+  --b-bg: #45360f;   --b-tx: #ffe2a3;
+  --n-bg: #1d3b22;   --n-tx: #bfeac4;
+  --sb-bg: #2f6b37;  --sb-tx: #e8ffea;
+}
+.nota-sus, .pill.nota-sus { background: var(--sus-bg); color: var(--sus-tx); font-weight: 800; border-color: transparent; }
+.nota-b, .pill.nota-b { background: var(--b-bg); color: var(--b-tx); border-color: transparent; }
+.nota-n, .pill.nota-n { background: var(--n-bg); color: var(--n-tx); border-color: transparent; }
+.nota-sb, .pill.nota-sb { background: var(--sb-bg); color: var(--sb-tx); font-weight: 800; border-color: transparent; }
+.nota-sus .marca-dif { color: #fff; }
+
+.leyenda-notas { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 4px; }
+.ley-nota { font-size: .72rem; font-weight: 700; border-radius: 6px; padding: 2px 8px; }
+
+.tabla-grupo .fila-sus th { box-shadow: inset 3px 0 0 var(--sus-bg); }
+.btn-num.num-sus { color: var(--sus-tx); background: var(--sus-bg); border-color: var(--sus-bg); }
+.fila-cuenta-sus th, .fila-cuenta-sus td { font-weight: 800; font-size: .75rem; }
+.cuenta-sus { color: var(--sus-bg); }
+@media print {
+  .nota-sus, .nota-b, .nota-n, .nota-sb, .btn-num.num-sus { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

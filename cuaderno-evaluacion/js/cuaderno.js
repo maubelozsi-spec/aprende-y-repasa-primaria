@@ -260,11 +260,26 @@ import {
     if (x === null || x === undefined) return "";
     return (Math.round(x * 100) / 100).toLocaleString("es-ES", { maximumFractionDigits: 2 });
   }
+  // Escala de notas del docente: suspenso (0-4,75), bien (5-6,75),
+  // notable (7-8,75) y sobresaliente (9-10). Las notas intermedias
+  // (p. ej. 4,8 o 6,9) caen en el tramo inferior.
+  var NIVELES = [
+    { clase: "nota-sus", label: "Suspenso", rango: "0 – 4,75" },
+    { clase: "nota-b", label: "Bien", rango: "5 – 6,75" },
+    { clase: "nota-n", label: "Notable", rango: "7 – 8,75" },
+    { clase: "nota-sb", label: "Sobresaliente", rango: "9 – 10" },
+  ];
+  function indiceNivel(x) {
+    return x < 5 ? 0 : x < 7 ? 1 : x < 9 ? 2 : 3;
+  }
   function nivelNota(x) {
-    if (x === null) return "";
-    if (x < 5) return "nota-insuf";
-    if (x < 7) return "nota-suf";
-    return "nota-bien";
+    if (x === null || x === undefined) return "";
+    return NIVELES[indiceNivel(x)].clase;
+  }
+  function leyendaNotas() {
+    return h("div", { class: "leyenda-notas" }, NIVELES.map(function (nv) {
+      return h("span", { class: "ley-nota " + nv.clase, text: nv.label + " " + nv.rango });
+    }));
   }
   function etiquetaPrueba(p) {
     return "SdA " + p.n;
@@ -929,9 +944,10 @@ import {
     var izq = h("section", { class: "col col-grupo" }, [
       h("div", { class: "fila-titulo" }, [
         h("h2", { text: "Grupo clase" }),
+        leyendaNotas(),
         selectArea(area, function (e) { UI.grupoArea = e.target.value; recordarUI(); pintar(); }),
       ]),
-      h("p", { class: "nota-pie", text: "Pulsa un número para abrir su ficha. A = prueba adaptada · (r) = cuenta la recuperación · • = falla algo. La media del grupo no incluye las ACS." }),
+      h("p", { class: "nota-pie", text: "Número en rojo = alguna SdA suspensa (pulsa para abrir su ficha) · A = ACS · (r) = recuperación · • = falla algún contenido · la media no incluye las ACS." }),
       h("div", { class: "col-scroll" }, [tablaGrupo(area, lista)]),
     ]);
     var dcha = h("section", { class: "col col-barras" }, [
@@ -956,9 +972,11 @@ import {
     ["T1", "T2", "T3", "Curso"].forEach(function (x) { cab2.appendChild(h("th", { text: x })); });
     var tb = h("tbody");
     var col = {}; // pn -> notas ordinarias
+    var sus = {}; // pn -> nº de suspensos (incluidas las ACS)
     lista.forEach(function (n) {
-      var fila = h("tr", { class: "fila-clic" }, [h("th", {}, [h("button", {
-        type: "button", class: "btn-num", text: String(n), title: "Abrir la ficha del n.º " + n,
+      var algunSus = [1, 2, 3, 4, 5, 6, 7, 8, 9].some(function (pn) { var x = notaEfectiva(leerReg(n, area, pn)); return x !== null && x < 5; });
+      var fila = h("tr", { class: "fila-clic" + (algunSus ? " fila-sus" : "") }, [h("th", {}, [h("button", {
+        type: "button", class: "btn-num" + (algunSus ? " num-sus" : ""), text: String(n), title: "Abrir la ficha del n.º " + n + (algunSus ? " · tiene alguna SdA suspensa" : ""),
         onclick: function () { UI.alumno = n; UI.area = area; irA("individual"); },
       })].concat(alumno(n).perfil["acs_" + area] ? [h("span", { class: "mini-acs", text: "A" })] : []))]);
       for (var pn = 1; pn <= 9; pn++) {
@@ -967,6 +985,7 @@ import {
         var acs = versionDe(n, area, pn) === "acs";
         var rec = r && num(r.recuperacion) !== null && (num(r.nota) === null || num(r.recuperacion) > num(r.nota));
         if (v !== null && !acs) (col[pn] = col[pn] || []).push(v);
+        if (v !== null && v < 5) sus[pn] = (sus[pn] || 0) + 1;
         var marc = itemsMarcados(r);
         fila.appendChild(h("td", {
           class: "celda-nota " + nivelNota(v),
@@ -986,7 +1005,12 @@ import {
       pie.appendChild(h("td", { class: "celda-nota " + nivelNota(m), text: fmt(m) }));
     }
     pie.appendChild(h("td", { colspan: "4" }));
-    return h("table", { class: "tabla-grupo" }, [h("thead", {}, [cab1, cab2]), tb, h("tfoot", {}, [pie])]);
+    var pieSus = h("tr", { class: "fila-cuenta-sus" }, [h("th", { text: "Suspensos" })]);
+    for (var pn3 = 1; pn3 <= 9; pn3++) {
+      pieSus.appendChild(h("td", { class: sus[pn3] ? "cuenta-sus" : "", text: sus[pn3] ? String(sus[pn3]) : (col[pn3] ? "0" : "") }));
+    }
+    pieSus.appendChild(h("td", { colspan: "4" }));
+    return h("table", { class: "tabla-grupo" }, [h("thead", {}, [cab1, cab2]), tb, h("tfoot", {}, [pie, pieSus])]);
   }
 
   function barrasGrupo(area, pn, lista) {
@@ -1079,7 +1103,7 @@ import {
       tb.appendChild(h("tr", {}, [
         h("th", {}, [h("button", { type: "button", class: "btn-num", text: String(f.n), onclick: function () { UI.alumno = f.n; UI.area = f.area; irA("individual"); } })].concat(badgesPerfil(f.n))),
         h("td", { text: nombreArea(f.area) }),
-        h("td", {}, f.pruebas.map(function (p) { return h("span", { class: "pill nota-insuf", text: etiquetaPrueba(prueba(f.area, p.pn)) + ": " + fmt(p.v) }); })),
+        h("td", {}, f.pruebas.map(function (p) { return h("span", { class: "pill nota-sus", text: etiquetaPrueba(prueba(f.area, p.pn)) + ": " + fmt(p.v) }); })),
         UI.susCriterio === "prueba" ? null : h("td", { class: "celda-nota " + nivelNota(f.media), text: fmt(f.media) }),
         h("td", { class: "td-difs", text: f.difs.length ? f.difs.join(" · ") : "Nada marcado" }),
       ]));
