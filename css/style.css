@@ -3689,3 +3689,6 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 /* Coordenadas */
 #co-mover .md-stepper-label { display: block; text-align: center; margin: 14px 0 0; }
 #co-mover .ro-teclas .btn { font-size: 0.95rem; }
+
+/* Áreas */
+.ar-controles { flex-wrap: wrap; justify-content: center; }
