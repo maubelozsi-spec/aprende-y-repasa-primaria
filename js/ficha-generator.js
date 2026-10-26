@@ -4326,59 +4326,189 @@ function genCoordenadasAltas() {
   return siguienteDeBaraja("coAltas", [coCompuesto, coGiroFigura, () => coGiro(n), () => coAmpliar(n), coSemejantes, () => coDescubrirVector(n)])();
 }
 
-const CUERPOS_POLIEDROS = [
-  { nombre: "cubo", caras: 6, aristas: 12, vertices: 8 },
-  { nombre: "prisma triangular", caras: 5, aristas: 9, vertices: 6 },
-  { nombre: "pirámide cuadrangular", caras: 5, aristas: 8, vertices: 5 },
+// ---------- Cuerpos geométricos ----------
+// 5º (Tema 8): cuerpos geométricos, su desarrollo plano y sus caras,
+// aristas y vértices. 6º (SdA 8): poliedros, prismas, pirámides y
+// cuerpos redondos; Euler y cuerpos de revolución.
+const CG_BASE = { 3: "triangular", 4: "cuadrangular", 5: "pentagonal", 6: "hexagonal", 7: "heptagonal", 8: "octogonal", 10: "decagonal", 12: "dodecagonal" };
+const CG_POLI = { 3: ["triángulo", "triángulos"], 4: ["cuadrado", "cuadrados"], 5: ["pentágono", "pentágonos"], 6: ["hexágono", "hexágonos"], 7: ["heptágono", "heptágonos"], 8: ["octógono", "octógonos"], 10: ["decágono", "decágonos"], 12: ["dodecágono", "dodecágonos"] };
+
+function cgCav(tipo, n) {
+  return tipo === "prisma" ? { C: n + 2, A: 3 * n, V: 2 * n } : { C: n + 1, A: 2 * n, V: n + 1 };
+}
+const cgNombre = (tipo, n) => `${tipo === "prisma" ? "prisma" : "pirámide"} ${CG_BASE[n]}`;
+
+const CG_NIVELES = {
+  "5": { n: [3, 4, 5, 6] },
+  "6": { n: [3, 4, 5, 6, 8] },
+  disc: { n: [3, 4] },
+};
+
+function cgContar(nivel) {
+  const tipo = pick(["prisma", "piramide"]);
+  const n = pick(nivel.n);
+  const k = cgCav(tipo, n);
+  const reglas = tipo === "prisma" ? `Caras: 2 bases + ${n} laterales = ${k.C} · Aristas: ${n} + ${n} + ${n} = ${k.A} · Vértices: ${n} + ${n} = ${k.V}` : `Caras: 1 base + ${n} laterales = ${k.C} · Aristas: ${n} de la base + ${n} que suben = ${k.A} · Vértices: ${n} + 1 = ${k.V}`;
+  return {
+    enunciado: `Dibuja ${tipo === "prisma" ? "un" : "una"} ${cgNombre(tipo, n)}. ¿Cuántas caras, aristas y vértices tiene? ¿Qué forma tienen sus caras?`,
+    datos: [`Base: ${CG_POLI[n][0]}`],
+    operacion: reglas,
+    solucion: `${k.C} caras, ${k.A} aristas y ${k.V} vértices. ${tipo === "prisma" ? `Dos bases que son ${CG_POLI[n][1]} y ${n} rectángulos.` : `Una base que es un ${CG_POLI[n][0]} y ${n} triángulos.`}`,
+  };
+}
+
+const CG_OBJETOS = [
+  ["un dado", "cubo"], ["una caja de zapatos", "prisma cuadrangular"], ["un tetrabrik", "prisma cuadrangular"], ["una tienda de campaña canadiense", "prisma triangular"],
+  ["un lápiz de seis caras", "prisma hexagonal"], ["una pirámide de Egipto", "pirámide cuadrangular"], ["una lata de refresco", "cilindro"], ["un rollo de papel", "cilindro"],
+  ["un cucurucho", "cono"], ["un cono de tráfico", "cono"], ["una pelota", "esfera"], ["una canica", "esfera"],
 ];
+const cgRedondo = (c) => ["cilindro", "cono", "esfera"].includes(c);
 
-const CUERPOS_OBJETOS = [
-  { desc: "un dado", nombre: "Cubo" },
-  { desc: "una pelota", nombre: "Esfera" },
-  { desc: "una lata de refresco", nombre: "Cilindro" },
-  { desc: "un cucurucho de helado", nombre: "Cono" },
-];
-
-function cuerposEuler() {
-  const cuerpo = pick(CUERPOS_POLIEDROS);
+function cgObjetos() {
+  const tres = CG_OBJETOS.slice().sort(() => Math.random() - 0.5).slice(0, 3);
   return {
-    enunciado: `Un poliedro (${cuerpo.nombre}) tiene ${cuerpo.caras} caras y ${cuerpo.aristas} aristas. Según la fórmula de Euler (Caras + Vértices = Aristas + 2), ¿cuántos vértices tiene?`,
-    datos: [`Caras: ${cuerpo.caras}`, `Aristas: ${cuerpo.aristas}`],
-    operacion: `${cuerpo.caras} + V = ${cuerpo.aristas} + 2 → V = ${cuerpo.aristas + 2 - cuerpo.caras}`,
-    solucion: `${cuerpo.vertices} vértices.`,
+    enunciado: `¿A qué cuerpo geométrico se parece cada objeto? ¿Es un poliedro o un cuerpo redondo? a) ${tres[0][0]}   b) ${tres[1][0]}   c) ${tres[2][0]}`,
+    datos: ["Poliedro: todas las caras planas. Cuerpo redondo: alguna superficie curva."],
+    operacion: tres.map(([o, c], i) => `${"abc"[i]}) ${cgRedondo(c) ? "tiene superficie curva" : "todas sus caras son planas"}`).join(" · "),
+    solucion: tres.map(([, c], i) => `${"abc"[i]}) ${c}, ${cgRedondo(c) ? "cuerpo redondo" : "poliedro"}`).join("; ") + ".",
   };
 }
 
-function cuerposIdentificar() {
-  const obj = pick(CUERPOS_OBJETOS);
+function cgDesarrollo(nivel) {
+  const tipo = pick(["prisma", "piramide", "cilindro", "cono"]);
+  const n = pick(nivel.n);
+  if (tipo === "cilindro" || tipo === "cono")
+    return {
+      enunciado: `Un desarrollo plano tiene ${tipo === "cilindro" ? "2 círculos iguales y un rectángulo" : "un círculo y un sector circular (como un abanico)"}. ¿Qué cuerpo se forma al doblarlo? Dibuja el desarrollo.`,
+      datos: [tipo === "cilindro" ? "2 círculos + 1 rectángulo" : "1 círculo + 1 sector circular"],
+      operacion: tipo === "cilindro" ? "Los círculos son las bases y el rectángulo, la superficie curva desenrollada." : "El círculo es la base y el sector, la superficie curva.",
+      solucion: `Un ${tipo}.`,
+    };
+  const piezas = tipo === "prisma" ? `2 ${CG_POLI[n][1]} y ${n} rectángulos` : `1 ${CG_POLI[n][0]} y ${n} triángulos`;
   return {
-    enunciado: `¿Qué cuerpo geométrico recuerda la forma de ${obj.desc}?`,
-    datos: [`Objeto: ${obj.desc}`],
-    operacion: `Comparamos su forma con los cuerpos geométricos conocidos.`,
-    solucion: `${obj.nombre}.`,
+    enunciado: `Un desarrollo plano tiene ${piezas}. ¿Qué cuerpo se forma al doblarlo? ¿Cuántas caras tiene?`,
+    datos: [`Piezas: ${piezas}`],
+    operacion: tipo === "prisma" ? `2 bases iguales (${CG_POLI[n][1]}) y caras laterales rectangulares → prisma · Caras: 2 + ${n} = ${n + 2}` : `1 base (${CG_POLI[n][0]}) y caras laterales triangulares → pirámide · Caras: 1 + ${n} = ${n + 1}`,
+    solucion: `${tipo === "prisma" ? "Un" : "Una"} ${cgNombre(tipo, n)}, con ${tipo === "prisma" ? n + 2 : n + 1} caras.`,
   };
 }
 
-function cuerposCaracteristicas() {
-  const cuerpo = pick(CUERPOS_POLIEDROS);
+function cgCubo() {
   return {
-    enunciado: `¿Cuántas caras, aristas y vértices tiene un ${cuerpo.nombre}?`,
-    datos: [`Cuerpo: ${cuerpo.nombre}`],
-    operacion: `Contamos sus caras planas, sus aristas y sus vértices.`,
-    solucion: `${cuerpo.caras} caras, ${cuerpo.aristas} aristas y ${cuerpo.vertices} vértices.`,
+    enunciado: "Dibuja en papel cuadriculado tres desarrollos distintos de 6 cuadrados que formen un cubo y uno que no lo forme. Recórtalos y compruébalo doblándolos.",
+    datos: ["6 cuadrados iguales"],
+    operacion: "Hay 11 desarrollos del cubo. Por ejemplo, la cruz: una tira de 4 cuadrados con uno arriba y otro abajo del segundo.",
+    solucion: "Valen, por ejemplo, la cruz, la «T» (tira de 4 con dos cuadrados arriba y abajo en el mismo extremo) y la escalera 2-2-2. No vale una tira de 6 ni un rectángulo de 2 × 3: dos cuadrados se montan en la misma cara.",
   };
 }
 
-function genCuerposGeometricos() {
-  return pick([cuerposEuler, cuerposIdentificar, cuerposCaracteristicas])();
+// Reto de la UDI de 5º: construir un objeto con cuerpos geométricos.
+function cgCohete(nivel) {
+  const n = pick(nivel.n);
+  return {
+    enunciado: `Vamos a construir un cohete de cartulina con un prisma ${CG_BASE[n]} como cuerpo y una pirámide ${CG_BASE[n]} como punta. ¿Qué piezas hay que recortar para cada cuerpo? ¿Cuántas caras tendrá el cohete por fuera, si la base de la pirámide se pega sobre la del prisma?`,
+    datos: [`Prisma ${CG_BASE[n]}`, `Pirámide ${CG_BASE[n]}`],
+    operacion: `Prisma: 2 ${CG_POLI[n][1]} y ${n} rectángulos · Pirámide: 1 ${CG_POLI[n][0]} y ${n} triángulos · Por fuera: 1 base del prisma + ${n} rectángulos + ${n} triángulos = ${2 * n + 1}`,
+    solucion: `Prisma: 2 ${CG_POLI[n][1]} y ${n} rectángulos. Pirámide: 1 ${CG_POLI[n][0]} y ${n} triángulos. Por fuera se ven ${2 * n + 1} caras (las dos bases pegadas quedan dentro).`,
+  };
+}
+
+// 6º: fórmula de Euler.
+function cgEuler(nivel) {
+  const tipo = pick(["prisma", "piramide"]);
+  const n = pick(nivel.n);
+  const k = cgCav(tipo, n);
+  return {
+    enunciado: `${tipo === "prisma" ? "Un" : "Una"} ${cgNombre(tipo, n)} tiene ${k.C} caras y ${k.V} vértices. ¿Cuántas aristas tiene? Usa la fórmula de Euler (C + V = A + 2) y compruébalo contando.`,
+    datos: [`Caras: ${k.C}`, `Vértices: ${k.V}`],
+    operacion: `A = C + V − 2 = ${k.C} + ${k.V} − 2 = ${k.A}`,
+    solucion: `${k.A} aristas.`,
+  };
+}
+
+function cgRevolucion() {
+  const casos = [["un rectángulo alrededor de uno de sus lados", "cilindro"], ["un triángulo rectángulo alrededor de un cateto", "cono"], ["un semicírculo alrededor de su diámetro", "esfera"]];
+  const orden = casos.slice().sort(() => Math.random() - 0.5);
+  return {
+    enunciado: `¿Qué cuerpo de revolución se forma al hacer girar…? a) ${orden[0][0]}   b) ${orden[1][0]}   c) ${orden[2][0]}`,
+    datos: ["Los cuerpos redondos se forman girando una figura plana."],
+    operacion: orden.map(([f, c], i) => `${"abc"[i]}) ${c}`).join(" · "),
+    solucion: orden.map(([, c], i) => `${"abc"[i]}) ${c}`).join("; ") + ".",
+  };
+}
+
+// Reto de la UDI de 6º: clasificar los envases que se reciclan.
+function cgEnvases() {
+  const lista = CG_OBJETOS.slice().sort(() => Math.random() - 0.5).slice(0, 4);
+  const pol = lista.filter(([, c]) => !cgRedondo(c)).map(([o]) => o);
+  const red = lista.filter(([, c]) => cgRedondo(c)).map(([o]) => o);
+  return {
+    enunciado: `En el punto limpio clasificamos envases y objetos por su forma: ${lista.map(([o]) => o).join(", ")}. ¿Cuáles son poliedros y cuáles cuerpos redondos? ¿Qué cuerpo es cada uno?`,
+    datos: lista.map(([o]) => o),
+    operacion: lista.map(([o, c]) => `${o}: ${c}`).join(" · "),
+    solucion: `Poliedros: ${pol.length ? pol.join(", ") : "ninguno"}. Cuerpos redondos: ${red.length ? red.join(", ") : "ninguno"}.`,
+  };
+}
+
+function genCuerposGeometricos(curso) {
+  if (curso === "6") return siguienteDeBaraja("cg6", [cgContar, cgDesarrollo, cgEuler, cgRevolucion, cgEnvases, cgObjetos])(CG_NIVELES["6"]);
+  return siguienteDeBaraja("cg5", [cgContar, cgObjetos, cgDesarrollo, cgCubo, cgCohete, cgContar])(CG_NIVELES["5"]);
+}
+
+function genCuerposGeometricosDiscalculia(curso) {
+  if (curso === "6") return siguienteDeBaraja("cgDisc6", [cgContar, cgDesarrollo, cgEuler, cgRevolucion, cgEnvases])(CG_NIVELES.disc);
+  return siguienteDeBaraja("cgDisc5", [cgContar, cgObjetos, cgDesarrollo, cgCubo, cgCohete])(CG_NIVELES.disc);
+}
+
+function cgAcsCubo() {
+  return {
+    enunciado: "Mira un dado. ¿Cuántas caras tiene? ¿Qué forma tienen? ¿Cuántas esquinas (vértices) tiene?",
+    datos: ["Un dado es un cubo."],
+    operacion: "Caras: arriba, abajo y 4 alrededor = 6 · Vértices: 4 abajo y 4 arriba = 8",
+    solucion: "6 caras cuadradas y 8 vértices.",
+  };
 }
 
 function genCuerposGeometricosACS() {
-  return cuerposIdentificar();
+  return siguienteDeBaraja("cgAcs", [cgObjetos, cgAcsCubo, () => cgDesarrollo({ n: [4] }), cgObjetos])();
+}
+
+// Altas: generalizar, Euler con bases grandes y poliedros regulares.
+function cgGeneral() {
+  const n = pick([10, 12]);
+  const tipo = pick(["prisma", "piramide"]);
+  const k = cgCav(tipo, n);
+  return {
+    enunciado: `Sin dibujarl${tipo === "prisma" ? "o" : "a"}: ¿cuántas caras, aristas y vértices tiene ${tipo === "prisma" ? "un" : "una"} ${cgNombre(tipo, n)} (base de ${n} lados)? Comprueba tu resultado con la fórmula de Euler.`,
+    datos: [`Base de ${n} lados`],
+    operacion: tipo === "prisma" ? `C = ${n} + 2 = ${k.C} · A = 3 × ${n} = ${k.A} · V = 2 × ${n} = ${k.V} · Euler: ${k.C} + ${k.V} = ${k.A} + 2` : `C = ${n} + 1 = ${k.C} · A = 2 × ${n} = ${k.A} · V = ${n} + 1 = ${k.V} · Euler: ${k.C} + ${k.V} = ${k.A} + 2`,
+    solucion: `${k.C} caras, ${k.A} aristas y ${k.V} vértices.`,
+  };
+}
+
+function cgInverso() {
+  const n = pick([5, 6, 7, 8, 10]);
+  const tipo = pick(["prisma", "piramide"]);
+  const k = cgCav(tipo, n);
+  return {
+    enunciado: `Un${tipo === "piramide" ? "a" : ""} ${tipo === "prisma" ? "prisma" : "pirámide"} tiene ${k.A} aristas. ¿Qué polígono tiene en la base? ¿Cómo se llama y cuántas caras y vértices tiene?`,
+    datos: [`Aristas: ${k.A}`],
+    operacion: tipo === "prisma" ? `Aristas = 3 × lados de la base → ${k.A} ÷ 3 = ${n}` : `Aristas = 2 × lados de la base → ${k.A} ÷ 2 = ${n}`,
+    solucion: `La base es un ${CG_POLI[n][0]}: es ${tipo === "prisma" ? "un" : "una"} ${cgNombre(tipo, n)}, con ${k.C} caras y ${k.V} vértices.`,
+  };
+}
+
+function cgRegulares() {
+  return {
+    enunciado: "Los poliedros regulares tienen todas sus caras iguales y regulares. Completa: tetraedro, cubo, octaedro, dodecaedro e icosaedro, ¿cuántas caras tiene cada uno y qué forma tienen?",
+    datos: ["Tetra = 4, hexa = 6, octa = 8, dodeca = 12, icosa = 20"],
+    operacion: "El nombre dice el número de caras.",
+    solucion: "Tetraedro: 4 triángulos. Cubo: 6 cuadrados. Octaedro: 8 triángulos. Dodecaedro: 12 pentágonos. Icosaedro: 20 triángulos.",
+  };
 }
 
 function genCuerposGeometricosAltas() {
-  return cuerposEuler();
+  return siguienteDeBaraja("cgAltas", [cgGeneral, cgInverso, cgRegulares, () => cgEuler({ n: [7, 8, 10, 12] }), cgRevolucion])();
 }
 
 // ---- Números grandes ----
@@ -5053,7 +5183,7 @@ const TOPICS = [
   { id: "estadistica", label: "Estadística (media y mediana)", category: "Geometría y medidas", generate: genEstadistica, generateACS: genEstadisticaACS, generateAltas: genEstadisticaAltas, resumen: "La media es la suma de todos los valores dividida entre el número de valores. La mediana es el valor central al ordenarlos." },
   { id: "angulos", label: "Ángulos", category: "Geometría y medidas", generate: genAngulos, generateACS: genAngulosACS, generateDiscalculia: genAngulosDiscalculia, generateAltas: genAngulosAltas, resumen: "Un ángulo se mide en grados (°) con el transportador: el centro en el vértice, un lado en el 0 y se lee en la escala que empieza en ese 0. Agudo: menos de 90°. Recto: 90°. Obtuso: entre 90° y 180°. Llano: 180°. Una vuelta entera son 360°.", resumen6: "Un ángulo se mide en grados con el transportador (cuidado con la escala). Agudo < 90° · recto = 90° · obtuso entre 90° y 180° · llano = 180° · completo = 360°. Dos ángulos son complementarios si suman 90° y suplementarios si suman 180°." },
   { id: "coordenadas", label: "Coordenadas", category: "Geometría y medidas", generate: genCoordenadas, generateACS: genCoordenadasACS, generateDiscalculia: genCoordenadasDiscalculia, generateAltas: genCoordenadasAltas, resumen: "Cada punto del plano tiene dos coordenadas (x, y): primero lo que se anda en horizontal y después lo que se sube. Trasladar es deslizar la figura sin girarla; en la simetría la figura se refleja como en un espejo; en un giro, la figura gira alrededor de un centro. En los tres movimientos no cambian ni la forma ni el tamaño.", resumen6: "En los cuatro cuadrantes, a la izquierda y por debajo del origen las coordenadas son negativas. Traslación: se suma el vector. Simetría respecto al eje Y: cambia de signo la x; respecto al eje X: cambia de signo la y. Media vuelta alrededor del origen: cambian de signo las dos. Dos figuras son semejantes si todos sus lados se multiplican por el mismo número (la escala)." },
-  { id: "cuerpos-geometricos", label: "Cuerpos geométricos", category: "Geometría y medidas", generate: genCuerposGeometricos, generateACS: genCuerposGeometricosACS, generateAltas: genCuerposGeometricosAltas, resumen: "Los cuerpos geométricos son figuras de tres dimensiones: los poliedros tienen caras planas y los cuerpos redondos tienen alguna superficie curva." },
+  { id: "cuerpos-geometricos", label: "Cuerpos geométricos", category: "Geometría y medidas", generate: genCuerposGeometricos, generateACS: genCuerposGeometricosACS, generateDiscalculia: genCuerposGeometricosDiscalculia, generateAltas: genCuerposGeometricosAltas, resumen: "Los poliedros tienen todas las caras planas; los cuerpos redondos, alguna superficie curva. Prisma: dos bases iguales y caras rectangulares. Pirámide: una base y caras triangulares que se juntan en un vértice. El desarrollo plano es el cuerpo abierto sobre la mesa.", resumen6: "Poliedros (prismas y pirámides) y cuerpos redondos (cilindro, cono, esfera). Prisma de base de n lados: n + 2 caras, 3n aristas, 2n vértices. Pirámide: n + 1 caras, 2n aristas, n + 1 vértices. Fórmula de Euler: caras + vértices = aristas + 2." },
   { id: "tiempo", label: "El tiempo", category: "Geometría y medidas", generate: genTiempo, generateACS: genTiempoACS, generateAltas: genTiempoAltas, resumen: "El tiempo se mide en horas, minutos y segundos: 1 día tiene 24 horas, 1 hora 60 minutos y 1 minuto 60 segundos." },
   { id: "probabilidad", label: "Probabilidad", category: "Geometría y medidas", generate: genProbabilidad, generateACS: genProbabilidadACS, generateAltas: genProbabilidadAltas, resumen: "La probabilidad de un suceso se calcula dividiendo los casos favorables entre los casos totales." },
 ];

@@ -3692,3 +3692,9 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 
 /* Áreas */
 .ar-controles { flex-wrap: wrap; justify-content: center; }
+
+/* Cuerpos geométricos */
+.cg-tiles { gap: 14px; }
+.cg-fig { max-width: 170px; }
+.cg-fig .pv-label { text-align: center; }
+.cg-fig svg { max-height: 150px; }

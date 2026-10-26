@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Cuerpos geométricos y su desarrollo</h1>
-        <p class="content-subtitle">Prismas, pirámides, cilindro, cono y esfera.</p>
+        <p class="content-subtitle">Reconoce prismas, pirámides y cuerpos redondos, cuenta sus caras, aristas y vértices y descubre qué desarrollos forman cada cuerpo, con la explicación de cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -38,7 +38,12 @@
           <span>Descárgala en Word, trabájala en papel y comprueba tus respuestas.</span>
         </div>
           <div class="ficha-download-group">
+            <span class="grade-tag">5º</span>
             <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="5">Descargar ficha y soluciones (Word)</button>
+          </div>
+          <div class="ficha-download-group">
+            <span class="grade-tag">6º</span>
+            <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="6">Descargar ficha y soluciones (Word)</button>
           </div>
       </div>
 
@@ -51,6 +56,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -58,78 +64,100 @@
       <section id="tab-teoria" class="tab-panel active theory">
 
         <h2>Poliedros y cuerpos redondos</h2>
-        <p>Los <strong>cuerpos geométricos</strong> son figuras de 3 dimensiones. Los <strong>poliedros</strong> (prismas, pirámides...) tienen todas sus caras planas. Los <strong>cuerpos redondos</strong> (cilindro, cono, esfera) tienen alguna superficie curva.</p>
-
-        <h2>El cubo y su desarrollo</h2>
-        <div class="pv-tiles">
-          <svg viewBox="0 0 140 120" width="140" height="120">
-            <polygon points="20,40 80,40 80,100 20,100" fill="none" stroke="var(--text)" stroke-width="2"/>
-            <polygon points="20,40 40,20 100,20 80,40" fill="none" stroke="var(--text)" stroke-width="2"/>
-            <polygon points="80,40 100,20 100,80 80,100" fill="none" stroke="var(--text)" stroke-width="2"/>
-          </svg>
-          <svg viewBox="0 0 160 160" width="160" height="160">
-            <g fill="none" stroke="var(--color-indigo)" stroke-width="2">
-              <rect x="40" y="10" width="30" height="30"/>
-              <rect x="10" y="40" width="30" height="30"/>
-              <rect x="40" y="40" width="30" height="30"/>
-              <rect x="70" y="40" width="30" height="30"/>
-              <rect x="100" y="40" width="30" height="30"/>
-              <rect x="40" y="70" width="30" height="30"/>
-            </g>
-          </svg>
+        <p>Los <strong>cuerpos geométricos</strong> ocupan un lugar en el espacio: tienen largo, ancho y alto.</p>
+        <div class="rule-box aguda">
+          <h4>Poliedros</h4>
+          <p>Todas sus caras son <strong>planas</strong> y son polígonos. No ruedan. Ejemplos: prismas y pirámides.</p>
         </div>
-        <p style="text-align:center;">El cubo (izquierda) y su <strong>desarrollo</strong>: lo que se ve si lo "desdoblamos" en el plano (derecha) — 6 cuadrados iguales.</p>
-
-        <h2>La pirámide cuadrangular y su desarrollo</h2>
-        <div class="pv-tiles">
-          <svg viewBox="0 0 140 120" width="140" height="120">
-            <polygon points="20,90 100,90 120,70 40,70" fill="none" stroke="var(--text)" stroke-width="2"/>
-            <line x1="20" y1="90" x2="65" y2="15" stroke="var(--text)" stroke-width="2"/>
-            <line x1="100" y1="90" x2="65" y2="15" stroke="var(--text)" stroke-width="2"/>
-            <line x1="120" y1="70" x2="65" y2="15" stroke="var(--text)" stroke-width="2"/>
-            <line x1="40" y1="70" x2="65" y2="15" stroke="var(--text)" stroke-width="2"/>
-          </svg>
-          <svg viewBox="0 0 160 160" width="160" height="160">
-            <g fill="none" stroke="var(--color-plum)" stroke-width="2">
-              <rect x="55" y="55" width="50" height="50"/>
-              <polygon points="55,55 105,55 80,15"/>
-              <polygon points="105,55 105,105 145,80"/>
-              <polygon points="105,105 55,105 80,145"/>
-              <polygon points="55,105 55,55 15,80"/>
-            </g>
-          </svg>
+        <div class="rule-box llana">
+          <h4>Cuerpos redondos</h4>
+          <p>Tienen alguna superficie <strong>curva</strong>, por eso pueden rodar. Ejemplos: cilindro, cono y esfera.</p>
         </div>
-        <p style="text-align:center;">Una base cuadrada y 4 caras triangulares que se juntan en el vértice superior.</p>
-
-        <h2>El cilindro y su desarrollo</h2>
-        <div class="pv-tiles">
-          <svg viewBox="0 0 120 140" width="120" height="140">
-            <ellipse cx="60" cy="30" rx="40" ry="14" fill="none" stroke="var(--text)" stroke-width="2"/>
-            <line x1="20" y1="30" x2="20" y2="110" stroke="var(--text)" stroke-width="2"/>
-            <line x1="100" y1="30" x2="100" y2="110" stroke="var(--text)" stroke-width="2"/>
-            <path d="M 20 110 A 40 14 0 0 0 100 110" fill="none" stroke="var(--text)" stroke-width="2"/>
-            <ellipse cx="60" cy="30" rx="40" ry="14" fill="none" stroke="var(--text)" stroke-width="2"/>
-          </svg>
-          <svg viewBox="0 0 200 100" width="200" height="100">
-            <circle cx="25" cy="25" r="20" fill="none" stroke="var(--color-teal)" stroke-width="2"/>
-            <rect x="55" y="5" width="90" height="40" fill="none" stroke="var(--color-teal)" stroke-width="2"/>
-            <circle cx="170" cy="25" r="20" fill="none" stroke="var(--color-teal)" stroke-width="2"/>
-          </svg>
-        </div>
-        <p style="text-align:center;">Dos círculos (las bases) y un rectángulo (la superficie lateral, que era curva y se "desenrolla").</p>
-
-        <h2>Resumen: caras, aristas, vértices y desarrollo</h2>
-        <table class="rules-table">
-          <tr><th>Cuerpo</th><th>Caras</th><th>Aristas</th><th>Vértices</th><th>Desarrollo</th></tr>
-          <tr><td>Cubo</td><td>6</td><td>12</td><td>8</td><td>6 cuadrados en forma de cruz</td></tr>
-          <tr><td>Prisma triangular</td><td>5</td><td>9</td><td>6</td><td>2 triángulos y 3 rectángulos</td></tr>
-          <tr><td>Pirámide cuadrangular</td><td>5</td><td>8</td><td>5</td><td>1 cuadrado y 4 triángulos</td></tr>
-          <tr><td>Cilindro</td><td>—</td><td>—</td><td>—</td><td>2 círculos y 1 rectángulo</td></tr>
-          <tr><td>Cono</td><td>—</td><td>—</td><td>—</td><td>1 círculo y 1 sector circular</td></tr>
-          <tr><td>Esfera</td><td>—</td><td>—</td><td>—</td><td>No tiene desarrollo plano</td></tr>
-        </table>
         <div class="tip-box">
-          <strong>Curiosidad:</strong> la esfera es el único cuerpo que no se puede "desdoblar" en un plano sin deformarla — por eso los mapamundis siempre tienen algo de distorsión.
+          <strong>Elementos de un poliedro:</strong> las <strong>caras</strong> son los polígonos que lo forman; las <strong>aristas</strong>, las líneas donde se juntan dos caras; los <strong>vértices</strong>, las esquinas donde se juntan las aristas. En los dibujos, las líneas discontinuas son las de atrás, que no se ven pero también cuentan.
+        </div>
+
+        <h2>Prismas</h2>
+        <p>Tienen <strong>dos bases iguales y paralelas</strong> y sus caras laterales son rectángulos. Se llaman según el polígono de la base.</p>
+        <div class="pv-tiles cg-tiles">
+          <div class="pv-col cg-fig"><div data-cg-dibujo="prisma:3"></div><span class="pv-label">Prisma triangular</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="prisma:4"></div><span class="pv-label">Prisma cuadrangular</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="prisma:5"></div><span class="pv-label">Prisma pentagonal</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="prisma:6"></div><span class="pv-label">Prisma hexagonal</span></div>
+        </div>
+
+        <h2>Pirámides</h2>
+        <p>Tienen <strong>una sola base</strong> y sus caras laterales son triángulos que se juntan en un vértice, la <strong>cúspide</strong>.</p>
+        <div class="pv-tiles cg-tiles">
+          <div class="pv-col cg-fig"><div data-cg-dibujo="piramide:3"></div><span class="pv-label">Pirámide triangular</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="piramide:4"></div><span class="pv-label">Pirámide cuadrangular</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="piramide:5"></div><span class="pv-label">Pirámide pentagonal</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="piramide:6"></div><span class="pv-label">Pirámide hexagonal</span></div>
+        </div>
+
+        <h2>Caras, aristas y vértices</h2>
+        <div class="po-tabla-wrap">
+          <table class="rules-table">
+            <tr><th>Cuerpo</th><th>Caras</th><th>Aristas</th><th>Vértices</th></tr>
+            <tr><td>Cubo</td><td>6</td><td>12</td><td>8</td></tr>
+            <tr><td>Prisma triangular</td><td>5</td><td>9</td><td>6</td></tr>
+            <tr><td>Prisma pentagonal</td><td>7</td><td>15</td><td>10</td></tr>
+            <tr><td>Pirámide cuadrangular</td><td>5</td><td>8</td><td>5</td></tr>
+            <tr><td>Pirámide hexagonal</td><td>7</td><td>12</td><td>7</td></tr>
+          </table>
+        </div>
+        <div class="tip-box">
+          <strong>Truco para contar</strong> (base de n lados) · <strong>Prisma:</strong> caras = n + 2 (las dos bases), aristas = 3 × n (arriba, abajo y de pie), vértices = 2 × n. · <strong>Pirámide:</strong> caras = n + 1, aristas = 2 × n (la base y las que suben), vértices = n + 1 (la cúspide).
+        </div>
+
+        <h2>Cuerpos redondos</h2>
+        <div class="pv-tiles cg-tiles">
+          <div class="pv-col cg-fig"><div data-cg-dibujo="cilindro:0"></div><span class="pv-label">Cilindro</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="cono:0"></div><span class="pv-label">Cono</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="esfera:0"></div><span class="pv-label">Esfera</span></div>
+        </div>
+        <div class="po-tabla-wrap">
+          <table class="rules-table">
+            <tr><th>Cuerpo</th><th>Cómo es</th></tr>
+            <tr><td>Cilindro</td><td>Dos bases que son círculos y una superficie lateral curva.</td></tr>
+            <tr><td>Cono</td><td>Una base que es un círculo, una superficie lateral curva y un vértice (la cúspide).</td></tr>
+            <tr><td>Esfera</td><td>Solo una superficie curva: todos sus puntos están a la misma distancia del centro.</td></tr>
+          </table>
+        </div>
+
+        <h2>El desarrollo plano</h2>
+        <p>Es lo que queda al «abrir» un cuerpo y extenderlo sobre la mesa. Al recortarlo y doblarlo, se vuelve a formar el cuerpo.</p>
+        <div class="pv-tiles cg-tiles">
+          <div class="pv-col cg-fig"><div data-cg-dibujo="cubo:4:red"></div><span class="pv-label">Cubo: 6 cuadrados</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="prisma:3:red"></div><span class="pv-label">Prisma triangular: 2 triángulos y 3 rectángulos</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="piramide:4:red"></div><span class="pv-label">Pirámide cuadrangular: 1 cuadrado y 4 triángulos</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="cilindro:0:red"></div><span class="pv-label">Cilindro: 2 círculos y 1 rectángulo</span></div>
+          <div class="pv-col cg-fig"><div data-cg-dibujo="cono:0:red"></div><span class="pv-label">Cono: 1 círculo y 1 sector circular</span></div>
+        </div>
+        <div class="tip-box">
+          <strong>Ojo:</strong> no vale cualquier grupo de 6 cuadrados para hacer un cubo. Hay 11 desarrollos que sí lo forman; con los demás, dos cuadrados se montan en la misma cara. Pruébalo en Explora. La esfera no tiene desarrollo plano: por eso los mapas del mundo siempre deforman algo.
+        </div>
+
+        <div class="grade-section">
+          <span class="grade-badge">Contenido de 6º</span>
+          <h2>La fórmula de Euler</h2>
+          <div class="rule-box esdrujula">
+            <h4>Caras + vértices = aristas + 2</h4>
+            <p>Se cumple en los prismas, las pirámides y muchos otros poliedros. Cubo: 6 + 8 = 14 = 12 + 2. Sirve para calcular un dato que falta.</p>
+          </div>
+          <h2>Cuerpos de revolución</h2>
+          <p>Los cuerpos redondos se forman al hacer <strong>girar</strong> una figura plana alrededor de un eje:</p>
+          <div class="po-tabla-wrap">
+            <table class="rules-table">
+              <tr><th>Figura que gira</th><th>Cuerpo</th></tr>
+              <tr><td>Un rectángulo, alrededor de un lado</td><td>Cilindro</td></tr>
+              <tr><td>Un triángulo rectángulo, alrededor de un cateto</td><td>Cono</td></tr>
+              <tr><td>Un semicírculo, alrededor de su diámetro</td><td>Esfera</td></tr>
+            </table>
+          </div>
+          <div class="tip-box">
+            <strong>Ampliación · poliedros regulares:</strong> todas sus caras son polígonos regulares iguales. Solo hay cinco: tetraedro (4 triángulos), cubo (6 cuadrados), octaedro (8 triángulos), dodecaedro (12 pentágonos) e icosaedro (20 triángulos).
+          </div>
         </div>
 
         <p style="text-align:center; margin-top:32px;">
@@ -137,6 +165,47 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="cg-construir">
+          <h2>1. Construye prismas y pirámides</h2>
+          <p class="md-explore-intro">Elige el cuerpo y cuántos lados tiene la base. Mira su desarrollo y cuenta.</p>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" data-cg-tipo="prisma">Prisma</button>
+            <button type="button" class="btn btn-secondary" data-cg-tipo="piramide">Pirámide</button>
+          </div>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Lados de la base</span>
+              <button type="button" class="btn btn-secondary" data-cg-n="-1" aria-label="Un lado menos">−</button>
+              <output id="cg-n"></output>
+              <button type="button" class="btn btn-secondary" data-cg-n="1" aria-label="Un lado más">+</button>
+            </div>
+          </div>
+          <div class="an-pareja">
+            <div id="cg-cuerpo"></div>
+            <div id="cg-red"></div>
+          </div>
+          <p class="md-msg ok" id="cg-construir-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="cg-cubo">
+          <h2>2. ¿Forma un cubo?</h2>
+          <p class="md-explore-intro">Piensa si este desarrollo de 6 cuadrados se puede doblar para hacer un cubo.</p>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" id="cg-doblar">Doblarlo</button>
+            <button type="button" class="btn btn-secondary" id="cg-otra">Otro desarrollo</button>
+          </div>
+          <div class="po-draw" id="cg-cubo-draw"></div>
+          <p class="md-msg ok" id="cg-cubo-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -150,16 +219,23 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="identificar">Identificar el cuerpo</button>
+            <button class="btn btn-secondary active" data-mode="identificar">Identificar</button>
             <button class="btn btn-secondary" data-mode="cav">Caras, aristas y vértices</button>
-            <button class="btn btn-secondary" data-mode="desarrollo">Su desarrollo</button>
+            <button class="btn btn-secondary" data-mode="desarrollo">Desarrollos</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+            <button class="btn btn-secondary" data-mode="mas6">Euler y cuerpos de revolución <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
           </div>
 
           <p class="instructions" id="instructions"></p>
+          <div class="po-draw" id="game-visual" style="display:none;"></div>
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
