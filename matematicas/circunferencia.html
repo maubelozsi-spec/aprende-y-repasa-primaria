@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas · 6º de Primaria</p>
         <h1>Circunferencia y círculo</h1>
-        <p class="content-subtitle">Radio, diámetro, longitud y área.</p>
+        <p class="content-subtitle">Reconoce los elementos de la circunferencia, descubre de dónde sale π y calcula longitudes, con la explicación de cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -51,6 +51,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -58,56 +59,74 @@
       <section id="tab-teoria" class="tab-panel active theory">
 
         <h2>Circunferencia y círculo: ¿es lo mismo?</h2>
-        <svg viewBox="0 0 220 130" style="max-width:220px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="60" cy="65" r="45" fill="none" stroke="var(--color-indigo)" stroke-width="3"/>
-          <text x="60" y="120" text-anchor="middle" font-size="13" fill="var(--color-indigo)">Circunferencia</text>
-          <circle cx="170" cy="65" r="45" fill="var(--color-teal-tint)" stroke="var(--color-teal)" stroke-width="3"/>
-          <text x="170" y="120" text-anchor="middle" font-size="13" fill="var(--color-teal)">Círculo</text>
+        <svg viewBox="0 0 220 130" style="max-width:220px; margin:16px auto; display:block;" role="img" aria-label="Una circunferencia y un círculo">
+          <circle cx="60" cy="60" r="45" fill="none" stroke="var(--color-indigo)" stroke-width="3"/>
+          <text x="60" y="124" text-anchor="middle" font-size="13" fill="var(--color-indigo)">Circunferencia</text>
+          <circle cx="165" cy="60" r="45" fill="var(--color-teal-tint)" stroke="var(--color-teal)" stroke-width="3"/>
+          <text x="165" y="124" text-anchor="middle" font-size="13" fill="var(--color-teal)">Círculo</text>
         </svg>
         <div class="rule-box aguda">
           <h4>Circunferencia</h4>
-          <p>Es la <strong>línea curva</strong> cerrada donde todos los puntos están a la misma distancia del centro. Es solo el "borde".</p>
+          <p>Es la <strong>línea curva</strong> cerrada cuyos puntos están todos a la misma distancia del centro. Es solo el borde, como un aro.</p>
         </div>
         <div class="rule-box llana">
           <h4>Círculo</h4>
-          <p>Es la <strong>superficie</strong> plana que queda dentro de la circunferencia. Incluye el borde y todo lo de dentro.</p>
+          <p>Es la <strong>superficie</strong> que queda dentro de la circunferencia, con el borde incluido, como una galleta.</p>
         </div>
 
-        <h2>Radio y diámetro</h2>
-        <svg viewBox="0 0 180 140" style="max-width:180px; margin:16px auto; display:block;" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="90" cy="70" r="55" fill="none" stroke="var(--text)" stroke-width="2"/>
-          <line x1="90" y1="70" x2="145" y2="70" stroke="var(--color-plum)" stroke-width="3"/>
-          <circle cx="90" cy="70" r="3" fill="var(--text)"/>
-          <text x="118" y="62" text-anchor="middle" font-size="13" fill="var(--color-plum)">r</text>
-          <line x1="35" y1="115" x2="145" y2="115" stroke="var(--color-teal)" stroke-width="3"/>
-          <text x="90" y="132" text-anchor="middle" font-size="13" fill="var(--color-teal)">d</text>
+        <h2>Elementos</h2>
+        <svg viewBox="0 0 260 200" style="max-width:300px; margin:16px auto; display:block;" role="img" aria-label="Centro, radio, diámetro, cuerda y arco">
+          <circle cx="110" cy="100" r="80" fill="none" stroke="var(--color-indigo)" stroke-width="3"/>
+          <line x1="30" y1="100" x2="190" y2="100" stroke="var(--color-teal)" stroke-width="3"/>
+          <line x1="110" y1="100" x2="166.6" y2="43.4" stroke="var(--color-plum)" stroke-width="3"/>
+          <line x1="54.4" y1="157.6" x2="165.6" y2="157.6" stroke="var(--color-amber)" stroke-width="3"/>
+          <path d="M 54.4 42.4 A 80 80 0 0 1 110 20" fill="none" stroke="var(--color-rose)" stroke-width="7" stroke-linecap="round"/>
+          <circle cx="110" cy="100" r="4" fill="var(--text)"/>
+          <text x="104" y="118" text-anchor="end" font-size="12" font-weight="700" fill="var(--text)">centro</text>
+          <text x="148" y="60" font-size="12" font-weight="700" fill="var(--color-plum)">radio</text>
+          <text x="196" y="104" font-size="12" font-weight="700" fill="var(--color-teal)">diámetro</text>
+          <text x="110" y="176" text-anchor="middle" font-size="12" font-weight="700" fill="var(--color-amber)">cuerda</text>
+          <text x="58" y="26" text-anchor="end" font-size="12" font-weight="700" fill="var(--color-rose)">arco</text>
         </svg>
-        <div class="rule-box esdrujula">
-          <h4>El radio (r)</h4>
-          <p>Es la distancia desde el <strong>centro</strong> hasta cualquier punto de la circunferencia.</p>
+        <div class="po-tabla-wrap">
+          <table class="rules-table">
+            <tr><th>Elemento</th><th>Qué es</th></tr>
+            <tr><td>Centro</td><td>El punto del medio.</td></tr>
+            <tr><td>Radio (r)</td><td>Va del centro a la circunferencia.</td></tr>
+            <tr><td>Diámetro (d)</td><td>Va de un lado a otro pasando por el centro. Mide dos radios: <strong>d = 2 × r</strong>.</td></tr>
+            <tr><td>Cuerda</td><td>Une dos puntos de la circunferencia sin pasar por el centro.</td></tr>
+            <tr><td>Arco</td><td>Un trozo de la circunferencia.</td></tr>
+            <tr><td>Sector circular</td><td>Un trozo del círculo entre dos radios, como una porción de pizza.</td></tr>
+            <tr><td>Semicírculo</td><td>Medio círculo, cortado por un diámetro.</td></tr>
+          </table>
         </div>
-        <div class="rule-box sobresdrujula">
-          <h4>El diámetro (d)</h4>
-          <p>Es la distancia entre dos puntos de la circunferencia pasando por el centro. Es el doble del radio: <strong>d = 2 × r</strong></p>
+        <div class="tip-box">
+          <strong>Rectas y circunferencia:</strong> una recta <strong>exterior</strong> no la toca; una <strong>tangente</strong> la toca en un solo punto; una <strong>secante</strong> la corta en dos puntos.
         </div>
 
-        <h2>Longitud de la circunferencia</h2>
+        <h2>El número π y la longitud de la circunferencia</h2>
+        <p>Si cortas una circunferencia y la estiras, mide <strong>un poco más de 3 diámetros</strong>. Ese número, 3,14…, se llama <strong>π</strong> (se lee «pi») y es el mismo para todas las circunferencias, grandes o pequeñas.</p>
         <div class="rule-box diptongo">
-          <h4>Fórmula</h4>
-          <p>La longitud (el "perímetro" de la circunferencia) se calcula multiplicando el diámetro por el número <strong>π (pi)</strong>, que vale aproximadamente <strong>3,14</strong>.</p>
-          <p class="examples">Longitud = π × d = 2 × π × r</p>
+          <h4>Longitud = π × d = 2 × π × r</h4>
+          <p>Con el diámetro: 3,14 × d. Con el radio: primero el diámetro (2 × r) y después × 3,14.</p>
         </div>
         <div class="tip-box">
-          <strong>Ejemplo:</strong> circunferencia de radio 5 cm → Longitud = 2 × 3,14 × 5 = <strong>31,4 cm</strong>
+          <strong>Ejemplo:</strong> radio 5 cm → diámetro 10 cm → longitud = 3,14 × 10 = <strong>31,4 cm</strong>. Para comprobar: unos 3 diámetros son 30 cm, y 31,4 es un poco más.
+        </div>
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> multiplicar 3,14 por el radio sin el 2. Sale justo la mitad de la longitud.
         </div>
 
-        <h2>Área del círculo</h2>
-        <div class="rule-box aguda">
-          <h4>Fórmula</h4>
-          <p>Área = π × radio × radio (π × r²)</p>
-        </div>
-        <div class="tip-box">
-          <strong>Ejemplo:</strong> círculo de radio 4 cm → Área = 3,14 × 4 × 4 = <strong>50,24 cm²</strong>
+        <div class="grade-section">
+          <span class="grade-badge">Ampliación</span>
+          <h2>Área del círculo</h2>
+          <div class="rule-box aguda">
+            <h4>Área = π × r × r</h4>
+            <p>El círculo ocupa unos 3,14 cuadrados que tienen de lado el radio (míralo en Explora). Ejemplo: radio 4 cm → 3,14 × 4 × 4 = 3,14 × 16 = <strong>50,24 cm²</strong>.</p>
+          </div>
+          <div class="tip-box">
+            <strong>Ojo:</strong> se usa el radio, no el diámetro. Con el diámetro sale cuatro veces más.
+          </div>
         </div>
 
         <p style="text-align:center; margin-top:32px;">
@@ -115,6 +134,59 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="ci-radio">
+          <h2>1. Radio y diámetro</h2>
+          <p class="md-explore-intro">Cambia el radio y mira el diámetro y la longitud.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Radio</span>
+              <button type="button" class="btn btn-secondary" data-ci-r="-1" aria-label="Radio más corto">−</button>
+              <output id="ci-r"></output>
+              <button type="button" class="btn btn-secondary" data-ci-r="1" aria-label="Radio más largo">+</button>
+            </div>
+          </div>
+          <div class="po-draw" id="ci-radio-draw"></div>
+          <p class="md-msg ok" id="ci-radio-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="ci-des">
+          <h2>2. Desenrolla la circunferencia</h2>
+          <p class="md-explore-intro">¿Cuántos diámetros caben en la circunferencia estirada?</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Diámetro</span>
+              <button type="button" class="btn btn-secondary" data-ci-d="-1" aria-label="Diámetro más corto">−</button>
+              <output id="ci-d"></output>
+              <button type="button" class="btn btn-secondary" data-ci-d="1" aria-label="Diámetro más largo">+</button>
+            </div>
+          </div>
+          <div class="po-draw" id="ci-des-draw"></div>
+          <p class="md-msg ok" id="ci-des-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="ci-area">
+          <h2>3. El área del círculo <span class="status-pill status-grade6" style="margin-left:6px;">Ampliación</span></h2>
+          <p class="md-explore-intro">Compara el círculo con los cuadrados que tienen de lado el radio.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Radio</span>
+              <button type="button" class="btn btn-secondary" data-ci-ra="-1" aria-label="Radio más corto">−</button>
+              <output id="ci-ra"></output>
+              <button type="button" class="btn btn-secondary" data-ci-ra="1" aria-label="Radio más largo">+</button>
+            </div>
+          </div>
+          <div class="po-draw" id="ci-area-draw"></div>
+          <p class="md-msg ok" id="ci-area-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -128,16 +200,24 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="radiodiametro">Radio y diámetro</button>
+            <button class="btn btn-secondary active" data-mode="elementos">Elementos</button>
+            <button class="btn btn-secondary" data-mode="radiodiametro">Radio y diámetro</button>
             <button class="btn btn-secondary" data-mode="longitud">Longitud</button>
-            <button class="btn btn-secondary" data-mode="area">Área</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+            <button class="btn btn-secondary" data-mode="area">Área del círculo <span class="status-pill status-grade6" style="margin-left:6px;">Ampliación</span></button>
           </div>
 
           <p class="instructions" id="instructions"></p>
+          <div class="po-draw" id="game-visual" style="display:none;"></div>
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 

@@ -3448,78 +3448,174 @@ function genAreasAltas() {
   return siguienteDeBaraja("arAltas", [arMismoPerimetro, arDoble, () => arIrregularL(n), () => arPoligono(n), () => arPuntoLimpio(n), () => arTriangulo(n)])();
 }
 
-function circunferenciaLongitud(curso) {
-  const radio = randomInt(2, curso === "6" ? 15 : 10);
-  const PI = 3.14;
-  const longitud = roundMoney(2 * PI * radio);
+// ---------- Circunferencia y círculo ----------
+// 6º (SdA 8): elementos, radio y diámetro y longitud de la
+// circunferencia con π = 3,14. El área del círculo, solo como
+// ampliación (altas capacidades).
+const ciPi = (x) => Math.round(314 * x) / 100;
+function ciFmt(n) {
+  const r = Math.round(n * 100) / 100;
+  const [ent, dec] = String(r).split(".");
+  return `${ent.length > 3 ? ent.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ent}${dec ? `,${dec}` : ""}`;
+}
+
+const CI_NIVELES = {
+  "6": { max: 15, dec: true },
+  disc: { max: 5, dec: false },
+  acs: { max: 6, dec: false },
+};
+
+function ciDibujar(nivel) {
+  const r = randomInt(2, Math.min(nivel.max, 6));
   return {
-    enunciado: `Una piscina circular tiene un radio de ${radio} m. ¿Cuál es la longitud de su circunferencia? (usa π ≈ 3,14)`,
-    datos: [`Radio: ${radio} m`, `π ≈ 3,14`],
-    operacion: `2 × π × ${radio} = 2 × 3,14 × ${radio} = ${fmtEs(longitud)}`,
-    solucion: `${fmtEs(longitud)} m. La circunferencia mide ${fmtEs(longitud)} m.`,
+    enunciado: `Dibuja con el compás una circunferencia de ${r} cm de radio. Marca el centro, un radio, un diámetro, una cuerda y un arco. ¿Cuánto mide el diámetro?`,
+    datos: [`Radio: ${r} cm`],
+    operacion: `Se abre el compás ${r} cm. Diámetro = 2 × ${r} = ${2 * r} cm`,
+    solucion: `El diámetro mide ${2 * r} cm. La cuerda no pasa por el centro y es más corta que el diámetro; el arco es un trozo de la curva.`,
   };
 }
 
-function circunferenciaArea(curso) {
-  const radio = randomInt(2, curso === "6" ? 15 : 10);
-  const PI = 3.14;
-  const area = roundMoney(PI * radio * radio);
+function ciRadioDiametro(nivel) {
+  const r = nivel.dec && Math.random() < 0.4 ? randomInt(1, 9) + 0.5 : randomInt(2, nivel.max);
+  const que = pick(["una rueda", "un reloj de pared", "una pizza", "un plato"]);
+  if (Math.random() < 0.5)
+    return {
+      enunciado: `El radio de ${que} mide ${ciFmt(r)} cm. ¿Cuánto mide su diámetro?`,
+      datos: [`Radio: ${ciFmt(r)} cm`],
+      operacion: `2 × ${ciFmt(r)} = ${ciFmt(2 * r)}`,
+      solucion: `El diámetro mide ${ciFmt(2 * r)} cm.`,
+    };
   return {
-    enunciado: `Una piscina circular tiene un radio de ${radio} m. ¿Cuál es su área? (usa π ≈ 3,14)`,
-    datos: [`Radio: ${radio} m`, `π ≈ 3,14`],
-    operacion: `π × ${radio}² = 3,14 × ${radio * radio} = ${fmtEs(area)}`,
-    solucion: `${fmtEs(area)} m². El área de la piscina es ${fmtEs(area)} m².`,
+    enunciado: `El diámetro de ${que} mide ${ciFmt(2 * r)} cm. ¿Cuánto mide su radio?`,
+    datos: [`Diámetro: ${ciFmt(2 * r)} cm`],
+    operacion: `${ciFmt(2 * r)} ÷ 2 = ${ciFmt(r)}`,
+    solucion: `El radio mide ${ciFmt(r)} cm.`,
   };
 }
 
-function circunferenciaDesdeDiametro(curso) {
-  const radio = randomInt(2, curso === "6" ? 15 : 10);
-  const diametro = radio * 2;
-  const PI = 3.14;
-  const longitud = roundMoney(PI * diametro);
+function ciObjetos() {
+  const casos = [["el borde de una moneda", "circunferencia"], ["un aro de gimnasia", "circunferencia"], ["una pizza", "círculo"], ["un posavasos", "círculo"], ["el contorno de un reloj", "circunferencia"], ["una galleta redonda", "círculo"], ["un anillo fino", "circunferencia"], ["la tapa de un bote", "círculo"]];
+  const tres = casos.slice().sort(() => Math.random() - 0.5).slice(0, 3);
   return {
-    enunciado: `Una noria circular tiene un diámetro de ${diametro} m. ¿Cuál es la longitud de su circunferencia? (usa π ≈ 3,14)`,
-    datos: [`Diámetro: ${diametro} m`, `π ≈ 3,14`],
-    operacion: `Radio = ${diametro} ÷ 2 = ${radio}. Longitud = 2 × π × ${radio} = ${fmtEs(longitud)}`,
-    solucion: `${fmtEs(longitud)} m. La circunferencia mide ${fmtEs(longitud)} m.`,
+    enunciado: `¿Se parece más a una circunferencia o a un círculo? a) ${tres[0][0]}   b) ${tres[1][0]}   c) ${tres[2][0]}`,
+    datos: ["Circunferencia: solo la línea. Círculo: la superficie."],
+    operacion: tres.map(([o, t], i) => `${"abc"[i]}) ${t === "circunferencia" ? "solo el borde" : "toda la superficie"}`).join(" · "),
+    solucion: tres.map(([, t], i) => `${"abc"[i]}) ${t}`).join("; ") + ".",
+  };
+}
+
+function ciLongitud(nivel) {
+  const conRadio = Math.random() < 0.5;
+  const r = nivel.dec && Math.random() < 0.25 ? randomInt(1, 9) + 0.5 : randomInt(1, nivel.max);
+  const d = 2 * r;
+  const que = pick([["Una fuente redonda", "m"], ["Una mesa redonda", "cm"], ["Una plaza circular", "m"], ["Un reloj", "cm"]]);
+  return {
+    enunciado: `${que[0]} tiene ${conRadio ? `${ciFmt(r)} ${que[1]} de radio` : `${ciFmt(d)} ${que[1]} de diámetro`}. ¿Cuánto mide su contorno? (π = 3,14)`,
+    datos: [conRadio ? `Radio: ${ciFmt(r)} ${que[1]}` : `Diámetro: ${ciFmt(d)} ${que[1]}`, "π = 3,14"],
+    operacion: `${conRadio ? `Diámetro: 2 × ${ciFmt(r)} = ${ciFmt(d)} · ` : ""}Longitud: 3,14 × ${ciFmt(d)} = ${ciFmt(ciPi(d))}`,
+    solucion: `${ciFmt(ciPi(d))} ${que[1]}.`,
+  };
+}
+
+function ciRueda(nivel) {
+  const d = pick(nivel.dec ? [0.5, 1, 1.5, 2] : [1, 2]);
+  const v = randomInt(2, nivel.dec ? 20 : 5);
+  const una = ciPi(d);
+  return {
+    enunciado: `La rueda de una bici mide ${ciFmt(d)} m de diámetro. ¿Cuántos metros avanza la bici si la rueda da ${v} vueltas? (π = 3,14)`,
+    datos: [`Diámetro: ${ciFmt(d)} m`, `Vueltas: ${v}`],
+    operacion: `Una vuelta: 3,14 × ${ciFmt(d)} = ${ciFmt(una)} m · ${v} vueltas: ${ciFmt(una)} × ${v} = ${ciFmt(Math.round(una * v * 100) / 100)} m`,
+    solucion: `${ciFmt(Math.round(una * v * 100) / 100)} m.`,
+  };
+}
+
+// Reto de la UDI de 6º: los contenedores del punto limpio.
+function ciContenedor(nivel) {
+  const d = pick(nivel.dec ? [0.5, 1, 1.5, 2] : [1, 2]);
+  const n = randomInt(2, nivel.dec ? 6 : 3);
+  const una = ciPi(d);
+  return {
+    enunciado: `En el punto limpio hay ${n} contenedores cilíndricos de ${ciFmt(d)} m de diámetro. Queremos darle una vuelta de cinta de colores a cada uno. ¿Cuántos metros de cinta necesitamos en total? (π = 3,14)`,
+    datos: [`${n} contenedores`, `Diámetro: ${ciFmt(d)} m`],
+    operacion: `Una vuelta: 3,14 × ${ciFmt(d)} = ${ciFmt(una)} m · ${n} contenedores: ${ciFmt(una)} × ${n} = ${ciFmt(Math.round(una * n * 100) / 100)} m`,
+    solucion: `${ciFmt(Math.round(una * n * 100) / 100)} m de cinta.`,
+  };
+}
+
+function ciEstimar(nivel) {
+  const d = randomInt(2, nivel.dec ? 40 : 10);
+  const nombre = pick(NOMBRES);
+  const mal = pick([d * 2, d, d * 6]);
+  return {
+    enunciado: `${nombre} dice que un plato de ${d} cm de diámetro tiene un contorno de ${mal} cm. Sin calcular exacto, ¿puede ser? ¿Cuánto mide más o menos? Después calcúlalo con π = 3,14.`,
+    datos: [`Diámetro: ${d} cm`],
+    operacion: `La circunferencia mide un poco más de 3 diámetros: 3 × ${d} = ${3 * d} · Exacto: 3,14 × ${d} = ${ciFmt(ciPi(d))}`,
+    solucion: `No puede ser: mide un poco más de ${3 * d} cm, exactamente ${ciFmt(ciPi(d))} cm.`,
   };
 }
 
 function genCircunferencia(curso) {
-  const variantes = curso === "6" ? [circunferenciaLongitud, circunferenciaArea, circunferenciaDesdeDiametro] : [circunferenciaLongitud, circunferenciaDesdeDiametro];
-  return pick(variantes)(curso);
+  // En 5º no está en las UDI: solo elementos y radio/diámetro, sin π.
+  if (curso !== "6") return siguienteDeBaraja("ci5", [ciDibujar, ciRadioDiametro, ciObjetos])(CI_NIVELES.acs);
+  return siguienteDeBaraja("ci6", [ciDibujar, ciRadioDiametro, ciLongitud, ciLongitud, ciRueda, ciContenedor, ciEstimar])(CI_NIVELES["6"]);
+}
+
+function genCircunferenciaDiscalculia(curso) {
+  if (curso !== "6") return genCircunferencia(curso);
+  return siguienteDeBaraja("ciDisc", [ciDibujar, ciRadioDiametro, ciObjetos, ciLongitud, ciRueda, ciContenedor, ciEstimar])(CI_NIVELES.disc);
 }
 
 function genCircunferenciaACS() {
-  const radio = randomInt(2, 10);
-  const diametro = radio * 2;
-  if (Math.random() < 0.5) {
-    return {
-      enunciado: `Una rueda circular tiene un radio de ${radio} cm. ¿Cuál es su diámetro?`,
-      datos: [`Radio: ${radio} cm`],
-      operacion: `${radio} × 2 = ${diametro}`,
-      solucion: `${diametro} cm. El diámetro mide ${diametro} cm.`,
-    };
-  }
+  return siguienteDeBaraja("ciAcs", [ciDibujar, ciRadioDiametro, ciObjetos, ciRadioDiametro])(CI_NIVELES.acs);
+}
+
+// Altas: problemas al revés y área del círculo (ampliación).
+function ciInversa() {
+  const d = randomInt(2, 30);
   return {
-    enunciado: `Una rueda circular tiene un diámetro de ${diametro} cm. ¿Cuál es su radio?`,
-    datos: [`Diámetro: ${diametro} cm`],
-    operacion: `${diametro} ÷ 2 = ${radio}`,
-    solucion: `${radio} cm. El radio mide ${radio} cm.`,
+    enunciado: `Una circunferencia mide ${ciFmt(ciPi(d))} cm. ¿Cuánto mide su diámetro? ¿Y su radio? (π = 3,14)`,
+    datos: [`Longitud: ${ciFmt(ciPi(d))} cm`],
+    operacion: `Diámetro: ${ciFmt(ciPi(d))} ÷ 3,14 = ${d} cm · Radio: ${d} ÷ 2 = ${ciFmt(d / 2)} cm`,
+    solucion: `Diámetro: ${d} cm. Radio: ${ciFmt(d / 2)} cm.`,
+  };
+}
+
+function ciVueltas() {
+  const d = pick([0.5, 1, 2]);
+  const v = randomInt(10, 100);
+  const dist = Math.round(ciPi(d) * v * 100) / 100;
+  return {
+    enunciado: `Una rueda de ${ciFmt(d)} m de diámetro ha recorrido ${ciFmt(dist)} m. ¿Cuántas vueltas ha dado? (π = 3,14)`,
+    datos: [`Diámetro: ${ciFmt(d)} m`, `Recorrido: ${ciFmt(dist)} m`],
+    operacion: `Una vuelta: 3,14 × ${ciFmt(d)} = ${ciFmt(ciPi(d))} m · ${ciFmt(dist)} ÷ ${ciFmt(ciPi(d))} = ${v}`,
+    solucion: `${v} vueltas.`,
+  };
+}
+
+function ciArea() {
+  const r = randomInt(2, 15);
+  const conD = Math.random() < 0.5;
+  return {
+    enunciado: `Ampliación: una alfombra redonda tiene ${conD ? `${2 * r} dm de diámetro` : `${r} dm de radio`}. ¿Cuál es su área? ¿Y la longitud de su borde? (π = 3,14)`,
+    datos: [conD ? `Diámetro: ${2 * r} dm` : `Radio: ${r} dm`, "π = 3,14"],
+    operacion: `${conD ? `Radio: ${2 * r} ÷ 2 = ${r} · ` : ""}Área: 3,14 × ${r} × ${r} = ${ciFmt(ciPi(r * r))} dm² · Borde: 3,14 × ${2 * r} = ${ciFmt(ciPi(2 * r))} dm`,
+    solucion: `Área: ${ciFmt(ciPi(r * r))} dm². Borde: ${ciFmt(ciPi(2 * r))} dm.`,
+  };
+}
+
+function ciCorona() {
+  const R = randomInt(4, 12);
+  const r = randomInt(1, R - 2);
+  return {
+    enunciado: `Ampliación: un camino rodea una fuente redonda. La fuente tiene ${r} m de radio y, con el camino, el círculo tiene ${R} m de radio. ¿Cuántos m² mide el camino? (π = 3,14)`,
+    datos: [`Radio grande: ${R} m`, `Radio de la fuente: ${r} m`],
+    operacion: `3,14 × ${R} × ${R} = ${ciFmt(ciPi(R * R))} · 3,14 × ${r} × ${r} = ${ciFmt(ciPi(r * r))} · ${ciFmt(ciPi(R * R))} − ${ciFmt(ciPi(r * r))} = ${ciFmt(ciPi(R * R - r * r))}`,
+    solucion: `El camino mide ${ciFmt(ciPi(R * R - r * r))} m².`,
   };
 }
 
 function genCircunferenciaAltas() {
-  const radio = randomInt(10, 30);
-  const PI = 3.14;
-  const longitud = roundMoney(2 * PI * radio);
-  const area = roundMoney(PI * radio * radio);
-  return {
-    enunciado: `Una piscina circular tiene un radio de ${radio} m. Calcula la longitud de su circunferencia y el área del círculo (usa π ≈ 3,14).`,
-    datos: [`Radio: ${radio} m`, `π ≈ 3,14`],
-    operacion: `Longitud: 2 × 3,14 × ${radio} = ${fmtEs(longitud)}. Área: 3,14 × ${radio}² = 3,14 × ${radio * radio} = ${fmtEs(area)}`,
-    solucion: `Longitud = ${fmtEs(longitud)} m, Área = ${fmtEs(area)} m².`,
-  };
+  return siguienteDeBaraja("ciAltas", [ciInversa, ciVueltas, ciArea, ciCorona, () => ciContenedor(CI_NIVELES["6"]), () => ciEstimar(CI_NIVELES["6"])])();
 }
 
 function proporcionalidadPrecio(curso) {
@@ -4904,7 +5000,7 @@ const TOPICS = [
   { id: "problemas-mixtos", label: "Problemas mixtos (varios pasos)", category: "Problemas mixtos", generate: genProblemasMixtos, resumen: "Algunos problemas necesitan encadenar varias operaciones seguidas para llegar a la solución final." },
   { id: "medidas", label: "Medidas y conversiones", category: "Geometría y medidas", generate: genMedidas, generateACS: genMedidasACS, generateAltas: genMedidasAltas, resumen: "Para cambiar de una unidad de medida a otra, se multiplica o se divide según la equivalencia entre ellas." },
   { id: "areas", label: "Áreas y perímetros", category: "Geometría y medidas", generate: genAreas, generateACS: genAreasACS, generateDiscalculia: genAreasDiscalculia, generateAltas: genAreasAltas, resumen: "El perímetro es el borde: la suma de los lados (cm, m). El área es la superficie: los cuadraditos que caben dentro (cm², m²). Cuadrado: lado × lado. Rectángulo: base × altura. Triángulo: (base × altura) ÷ 2, con la altura, no con el lado inclinado.", resumen6: "Perímetro: suma de los lados. Áreas: rectángulo y romboide, base × altura; triángulo, (base × altura) ÷ 2; rombo, (D × d) ÷ 2; polígono regular, (perímetro × apotema) ÷ 2. Las figuras irregulares se descomponen en figuras conocidas y se suman (o se resta lo que sobra)." },
-  { id: "circunferencia", label: "Circunferencia y círculo", category: "Geometría y medidas", generate: genCircunferencia, generateACS: genCircunferenciaACS, generateAltas: genCircunferenciaAltas, resumen: "La circunferencia es el contorno de un círculo. Su longitud es 2 × π × radio, y el área del círculo es π × radio²." },
+  { id: "circunferencia", label: "Circunferencia y círculo", category: "Geometría y medidas", generate: genCircunferencia, generateACS: genCircunferenciaACS, generateDiscalculia: genCircunferenciaDiscalculia, generateAltas: genCircunferenciaAltas, resumen: "La circunferencia es la línea curva; el círculo, la superficie que encierra. Radio: del centro a la circunferencia. Diámetro: de lado a lado pasando por el centro; mide dos radios (d = 2 × r).", resumen6: "La circunferencia es la línea; el círculo, la superficie. El diámetro mide dos radios. La circunferencia mide un poco más de 3 diámetros: longitud = π × d = 2 × π × r, con π = 3,14." },
   { id: "proporcionalidad", label: "Proporcionalidad (regla de tres)", category: "Geometría y medidas", generate: genProporcionalidad, generateACS: genProporcionalidadACS, generateAltas: genProporcionalidadAltas, resumen: "En una relación de proporcionalidad, si conocemos el precio de una unidad podemos calcular el de cualquier cantidad." },
   { id: "estadistica", label: "Estadística (media y mediana)", category: "Geometría y medidas", generate: genEstadistica, generateACS: genEstadisticaACS, generateAltas: genEstadisticaAltas, resumen: "La media es la suma de todos los valores dividida entre el número de valores. La mediana es el valor central al ordenarlos." },
   { id: "angulos", label: "Ángulos", category: "Geometría y medidas", generate: genAngulos, generateACS: genAngulosACS, generateDiscalculia: genAngulosDiscalculia, generateAltas: genAngulosAltas, resumen: "Un ángulo se mide en grados (°) con el transportador: el centro en el vértice, un lado en el 0 y se lee en la escala que empieza en ese 0. Agudo: menos de 90°. Recto: 90°. Obtuso: entre 90° y 180°. Llano: 180°. Una vuelta entera son 360°.", resumen6: "Un ángulo se mide en grados con el transportador (cuidado con la escala). Agudo < 90° · recto = 90° · obtuso entre 90° y 180° · llano = 180° · completo = 360°. Dos ángulos son complementarios si suman 90° y suplementarios si suman 180°." },
