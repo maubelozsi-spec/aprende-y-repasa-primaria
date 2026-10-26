@@ -470,3 +470,7 @@ textarea.campo { width: 100%; resize: vertical; }
 
 .tabla-editar td:nth-child(2) { width: 50%; }
 .tabla-editar td:nth-child(2) .campo { width: 100%; min-width: 240px; }
+.seg-ok { background: #0ca30c; }
+.ley-ok::before { background: #0ca30c; border-radius: 3px; }
+.acciones-mini { margin-top: 8px; }
+.acciones-mini .btn { font-size: .82rem; padding: 6px 10px; }
