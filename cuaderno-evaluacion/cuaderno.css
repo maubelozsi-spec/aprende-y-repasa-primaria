@@ -728,3 +728,10 @@ body { font-size: 14px; }
 @media print {
   .nota-sus, .nota-b, .nota-n, .nota-sb, .btn-num.num-sus { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* Acceso: enlaces de alta y recuperación; nombre del grupo editable. */
+.acceso-enlaces { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; font-size: .88rem; margin-top: 4px; }
+#registro-msg { color: var(--insuf-tx); min-height: 1.4em; }
+.grupo-nombre { font: inherit; font-size: .75rem; font-weight: 400; color: #fff; opacity: .85; background: transparent; border: 1px dashed transparent; border-radius: 6px; padding: 1px 6px; margin-left: 4px; cursor: pointer; }
+.grupo-nombre:hover, .grupo-nombre:focus-visible { border-color: rgba(255, 255, 255, .6); opacity: 1; }
+.grupo-nombre.sin-nombre { border-color: rgba(255, 255, 255, .6); font-style: italic; }

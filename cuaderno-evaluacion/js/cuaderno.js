@@ -1,5 +1,5 @@
 // ============================================================
-// Cuaderno de evaluación (5.º C): notas, dificultades por contenido
+// Cuaderno de evaluación: notas, dificultades por contenido
 // y anotaciones de cada prueba, por número de lista (1-25).
 //
 // Datos en Firestore, solo legibles por la cuenta de docente que los
@@ -31,9 +31,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import {
   onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
+  sendPasswordResetEmail,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+// Altas, entrada y salida de docentes: las mismas funciones (y la misma
+// clave del centro) que el panel docente, así la cuenta sirve para los dos.
+import "../../js/auth.js";
 
 (function () {
   "use strict";
@@ -60,12 +62,11 @@ import {
 
   // ---------------- Datos ----------------
 
+  // Cada cuenta empieza con su cuaderno vacío.
   function estadoInicial() {
-    var s = { version: 1, alumnos: {}, registros: {}, plantillas: {}, medidas: {}, ultimaCopia: null };
-    // Indicado por el docente: la alumna n.º 17 sigue una ACS en las dos áreas.
-    s.alumnos["17"] = { activo: true, perfil: { acs_lengua: true, acs_mates: true } };
-    return s;
+    return { version: 1, grupo: "", alumnos: {}, registros: {}, plantillas: {}, medidas: {}, ultimaCopia: null };
   }
+  var GRUPO_ORIGINAL = "5.º C · 2026-27";
 
   function completar(s) {
     s.alumnos = s.alumnos || {};
@@ -90,10 +91,11 @@ import {
     var b = base();
     var res = await Promise.all([getDoc(b), getDocs(collection(b, "alumnos"))]);
     var s = estadoInicial();
-    if (res[0].exists()) {
-      var m = res[0].data();
+    var m = res[0].exists() ? res[0].data() : null;
+    if (m) {
       s.plantillas = m.plantillas || {};
       s.ultimaCopia = m.ultimaCopia || null;
+      s.grupo = m.grupo || "";
     }
     res[1].forEach(function (d) {
       var x = d.data();
@@ -101,6 +103,15 @@ import {
       if (x.registros) s.registros[d.id] = x.registros;
       if (x.medidas) s.medidas[d.id] = x.medidas;
     });
+    // Cuadernos creados antes de que hubiera varias cuentas (5.º C): se
+    // conservan su nombre de grupo y la ACS de la alumna n.º 17, que hasta
+    // ahora eran valores fijos y no estaban guardados.
+    var conDatos = !!m || !res[1].empty;
+    if (conDatos && !s.grupo) { s.grupo = GRUPO_ORIGINAL; pendientes.meta = true; }
+    if (conDatos && !s.alumnos["17"]) {
+      s.alumnos["17"] = { activo: true, perfil: { acs_lengua: true, acs_mates: true } };
+      pendientes["17"] = true;
+    }
     return s;
   }
 
@@ -134,7 +145,7 @@ import {
     pendientes = {};
     var lote = writeBatch(db);
     claves.forEach(function (k) {
-      if (k === "meta") lote.set(base(), { plantillas: S.plantillas, ultimaCopia: S.ultimaCopia || null, actualizado: serverTimestamp() });
+      if (k === "meta") lote.set(base(), { grupo: S.grupo || "", plantillas: S.plantillas, ultimaCopia: S.ultimaCopia || null, actualizado: serverTimestamp() });
       else lote.set(doc(base(), "alumnos", k), docAlumno(k));
     });
     guardando = true;
@@ -1180,7 +1191,7 @@ import {
     salida.classList.toggle("una-por-pagina", UI.resPagina);
 
     salida.appendChild(h("header", { class: "res-cab" }, [
-      h("h2", { text: "Seguimiento del alumnado · 5.º C" }),
+      h("h2", { text: "Seguimiento del alumnado" + (S.grupo ? " · " + S.grupo : "") }),
       h("p", { text: periodo + " · " + areas.map(nombreArea).join(" y ") + " · " + sel.length + (sel.length === 1 ? " alumno/a" : " alumnos") + " · " + new Date().toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" }) }),
     ]));
 
@@ -1356,7 +1367,7 @@ import {
   function exportar() {
     S.ultimaCopia = new Date().toISOString();
     guardar("meta");
-    var copia = { version: S.version, exportado: S.ultimaCopia, alumnos: S.alumnos, registros: S.registros, plantillas: S.plantillas, medidas: S.medidas, ultimaCopia: S.ultimaCopia };
+    var copia = { version: S.version, exportado: S.ultimaCopia, grupo: S.grupo || "", alumnos: S.alumnos, registros: S.registros, plantillas: S.plantillas, medidas: S.medidas, ultimaCopia: S.ultimaCopia };
     var blob = new Blob([JSON.stringify(copia, null, 1)], { type: "application/json" });
     var a = h("a", { href: URL.createObjectURL(blob), download: "cuaderno-evaluacion-" + S.ultimaCopia.slice(0, 10) + ".json" });
     document.body.appendChild(a);
@@ -1441,23 +1452,88 @@ import {
     pApp.hidden = cual !== "app";
   }
 
+  var formRegistro = document.getElementById("form-registro");
+  var msgRegistro = document.getElementById("registro-msg");
+  function verForm(cual) {
+    formAcceso.hidden = cual !== "acceso";
+    formRegistro.hidden = cual !== "registro";
+    msgAcceso.textContent = "";
+    msgRegistro.textContent = "";
+    (cual === "acceso" ? formAcceso.correo : formRegistro.correo).focus();
+  }
+  document.getElementById("ir-registro").addEventListener("click", function () { verForm("registro"); });
+  document.getElementById("ir-acceso").addEventListener("click", function () { verForm("acceso"); });
+
+  function mensajeError(er) {
+    var c = (er && er.code) || "";
+    if (/invalid-credential|wrong-password|user-not-found/.test(c)) return "Correo o contraseña incorrectos.";
+    if (/invalid-email/.test(c)) return "Ese correo no es válido.";
+    if (/email-already-in-use/.test(c)) return "Ya existe una cuenta con ese correo. Entra con ella o recupera la contraseña.";
+    if (/weak-password/.test(c)) return "La contraseña es demasiado débil: usa al menos 6 caracteres.";
+    if (/too-many-requests/.test(c)) return "Demasiados intentos. Espera unos minutos.";
+    if (/network-request-failed/.test(c)) return "Sin conexión. Comprueba la red e inténtalo de nuevo.";
+    return (er && er.message) || "No se ha podido completar (" + c + ").";
+  }
+
   formAcceso.addEventListener("submit", async function (e) {
     e.preventDefault();
     msgAcceso.textContent = "Entrando…";
     try {
-      await signInWithEmailAndPassword(auth, formAcceso.correo.value.trim(), formAcceso.clave.value);
+      await window.Auth.loginTeacher(formAcceso.correo.value.trim(), formAcceso.clave.value);
       msgAcceso.textContent = "";
     } catch (er) {
-      var c = er.code || "";
-      msgAcceso.textContent = /invalid-credential|wrong-password|user-not-found|invalid-email/.test(c)
-        ? "Correo o contraseña incorrectos."
-        : /too-many-requests/.test(c) ? "Demasiados intentos. Espera unos minutos." : "No se ha podido entrar (" + c + ").";
+      msgAcceso.textContent = mensajeError(er);
+    }
+  });
+
+  formRegistro.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var correo = formRegistro.correo.value.trim();
+    if (formRegistro.clave.value !== formRegistro.clave2.value) {
+      msgRegistro.textContent = "Las dos contraseñas no coinciden.";
+      return;
+    }
+    msgRegistro.textContent = "Creando la cuenta…";
+    try {
+      await window.Auth.signUpTeacher(correo, formRegistro.clave.value, formRegistro.nombre.value.trim() || correo.split("@")[0], formRegistro.centro.value);
+      msgRegistro.textContent = "";
+      formRegistro.reset();
+    } catch (er) {
+      msgRegistro.textContent = mensajeError(er);
+    }
+  });
+
+  document.getElementById("olvido").addEventListener("click", async function () {
+    var correo = formAcceso.correo.value.trim();
+    if (!correo) {
+      msgAcceso.textContent = "Escribe tu correo arriba y vuelve a pulsar «He olvidado la contraseña».";
+      formAcceso.correo.focus();
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, correo);
+      msgAcceso.textContent = "Si existe una cuenta con ese correo, te llegará un enlace para cambiar la contraseña (mira también en spam).";
+    } catch (er) {
+      msgAcceso.textContent = mensajeError(er);
     }
   });
 
   document.getElementById("btn-salir").addEventListener("click", async function () {
     await guardarYa();
-    await signOut(auth);
+    await window.Auth.logoutTeacher();
+  });
+
+  function pintarGrupo() {
+    var b = document.getElementById("grupo-nombre");
+    b.textContent = S.grupo || "Ponle nombre al grupo";
+    b.classList.toggle("sin-nombre", !S.grupo);
+  }
+  document.getElementById("grupo-nombre").addEventListener("click", function () {
+    var t = prompt("Nombre del grupo y curso (por ejemplo «5.º C · 2026-27»):", S.grupo || "");
+    if (t === null) return;
+    S.grupo = t.trim().slice(0, 40);
+    guardar("meta");
+    pintarGrupo();
   });
 
   onAuthStateChanged(auth, async function (user) {
@@ -1466,6 +1542,7 @@ import {
       S = estadoInicial();
       document.getElementById("acceso-anonimo").hidden = !(user && user.isAnonymous);
       mostrar("acceso");
+      verForm("acceso");
       return;
     }
     UID = user.uid;
@@ -1478,6 +1555,8 @@ import {
       return;
     }
     mostrar("app");
+    pintarGrupo();
+    if (Object.keys(pendientes).length) guardar("meta");
     irA(UI.vista);
   });
 })();
