@@ -3482,61 +3482,144 @@ function genEstadisticaAltas() {
   };
 }
 
-function angulosComplementario() {
-  const a = randomInt(10, 80);
-  const b = 90 - a;
+// ---- Ángulos ----
+const anTipo = (g) => (g < 90 ? "agudo" : g === 90 ? "recto" : g < 180 ? "obtuso" : g === 180 ? "llano" : g < 360 ? "cóncavo" : "completo");
+const AN_NIVELES = {
+  "5": { paso: 5 },
+  "6": { paso: 1 },
+  disc: { paso: 10 },
+};
+
+function anVarios(nivel, n) {
+  const s = new Set([90, 180]);
+  while (s.size < n) s.add(nivel.paso * randomInt(Math.ceil(15 / nivel.paso), Math.floor(170 / nivel.paso)));
+  return [...s].sort(() => Math.random() - 0.5);
+}
+
+function anClasificar(nivel) {
+  const gs = anVarios(nivel, 6);
   return {
-    enunciado: `Dos ángulos son complementarios (suman 90°). Uno de ellos mide ${a}°. ¿Cuánto mide el otro?`,
-    datos: [`Ángulo 1: ${a}°`, `Suma total: 90°`],
-    operacion: `90 − ${a} = ${b}`,
-    solucion: `${b}°. El otro ángulo mide ${b}°.`,
+    enunciado: `Clasifica estos ángulos en agudos, rectos, obtusos o llanos: ${gs.map((g) => `${g}°`).join(", ")}.`,
+    datos: ["Agudo: menos de 90°. Recto: 90°. Obtuso: entre 90° y 180°. Llano: 180°."],
+    operacion: gs.map((g) => `${g}° → ${anTipo(g)}`).join(" · "),
+    solucion: ["agudo", "recto", "obtuso", "llano"].map((t) => `${t[0].toUpperCase()}${t.slice(1)}s: ${gs.filter((g) => anTipo(g) === t).map((g) => `${g}°`).join(", ") || "ninguno"}`).join(". ") + ".",
   };
 }
 
-function angulosSuplementario() {
-  const a = randomInt(20, 160);
-  const b = 180 - a;
+function anDibujar(nivel) {
+  let g;
+  do g = nivel.paso * randomInt(Math.ceil(20 / nivel.paso), Math.floor(170 / nivel.paso));
+  while (g === 90);
   return {
-    enunciado: `Dos ángulos son suplementarios (suman 180°). Uno de ellos mide ${a}°. ¿Cuánto mide el otro?`,
-    datos: [`Ángulo 1: ${a}°`, `Suma total: 180°`],
-    operacion: `180 − ${a} = ${b}`,
-    solucion: `${b}°. El otro ángulo mide ${b}°.`,
+    enunciado: `Dibuja con el transportador un ángulo de ${g}°. ¿De qué tipo es?`,
+    datos: [`Medida: ${g}°`],
+    operacion: `Vértice en el centro del transportador, un lado en el 0 y se marca el ${g} en la escala que empieza en ese 0.`,
+    solucion: `Es un ángulo ${anTipo(g)}. Cuidado: en la otra escala, la misma raya marca ${180 - g}°.`,
   };
 }
 
-function angulosClasificar() {
-  const angulo = pick([30, 45, 60, 90, 120, 135, 150, 180]);
-  let tipo;
-  if (angulo < 90) tipo = "Agudo";
-  else if (angulo === 90) tipo = "Recto";
-  else if (angulo < 180) tipo = "Obtuso";
-  else tipo = "Llano";
+function anErrorEscala(nivel) {
+  const g = nivel.paso * randomInt(Math.ceil(20 / nivel.paso), Math.floor(80 / nivel.paso));
+  const nombre = pick(NOMBRES);
   return {
-    enunciado: `Clasifica un ángulo que mide ${angulo}°: ¿es agudo, recto, obtuso o llano?`,
-    datos: [`Ángulo: ${angulo}°`],
-    operacion: `Comparamos ${angulo}° con 90° y 180°.`,
-    solucion: `${tipo}. Es un ángulo ${tipo.toLowerCase()}.`,
+    enunciado: `${nombre} mide un ángulo agudo con el transportador y dice que mide ${180 - g}°. ¿Puede ser? ¿Qué ha pasado y cuánto mide en realidad?`,
+    datos: [`Ángulo agudo (menos de 90°)`, `Lectura: ${180 - g}°`],
+    operacion: `Un ángulo agudo no puede medir más de 90°. Ha leído la otra escala: 180° − ${180 - g}° = ${g}°`,
+    solucion: `No puede ser: mide ${g}°. Ha leído la escala equivocada del transportador.`,
   };
 }
 
-function genAngulos() {
-  return pick([angulosComplementario, angulosSuplementario, angulosClasificar])();
+function anReloj(nivel) {
+  const s = new Set();
+  while (s.size < 2) s.add(randomInt(1, 6));
+  const [h1, h2] = [...s];
+  const ang = (h) => h * 30;
+  return {
+    enunciado: `¿Qué ángulo forman las agujas del reloj a las ${h1 === 1 ? "una" : h1} en punto? ¿Y a las ${h2 === 1 ? "una" : h2}? ¿De qué tipo es cada uno?`,
+    datos: ["Entre dos números seguidos del reloj hay 360° ÷ 12 = 30°."],
+    operacion: `${h1} × 30° = ${ang(h1)}° · ${h2} × 30° = ${ang(h2)}°`,
+    solucion: `A las ${h1 === 1 ? "una" : h1}: ${ang(h1)}° (${anTipo(ang(h1))}). A las ${h2 === 1 ? "una" : h2}: ${ang(h2)}° (${anTipo(ang(h2))}).`,
+  };
+}
+
+function anGiros() {
+  const giros = [["un cuarto de vuelta", 90], ["media vuelta", 180], ["tres cuartos de vuelta", 270], ["una vuelta entera", 360]];
+  const [a, b] = giros.slice().sort(() => Math.random() - 0.5);
+  const quien = pick(["Una patinadora", "Una noria", "El brazo de una grúa"]);
+  return {
+    enunciado: `${quien} gira primero ${a[0]} y después ${b[0]}. ¿Cuántos grados gira cada vez? ¿Y en total?`,
+    datos: ["Una vuelta entera son 360°."],
+    operacion: `${a[0]} = ${a[1]}° · ${b[0]} = ${b[1]}° · ${a[1]}° + ${b[1]}° = ${a[1] + b[1]}°`,
+    solucion: `${a[1]}° y ${b[1]}°: en total, ${a[1] + b[1]}°.`,
+  };
+}
+
+function anComplementario(nivel) {
+  const paso = nivel.paso === 10 ? 10 : 5;
+  const a = paso * randomInt(2, Math.floor(80 / paso));
+  const b = paso * randomInt(4, Math.floor(170 / paso));
+  return {
+    enunciado: `Calcula el complementario de ${a}° y el suplementario de ${b}°. ¿De qué tipo es cada resultado?`,
+    datos: ["Complementarios: suman 90°.", "Suplementarios: suman 180°."],
+    operacion: `90° − ${a}° = ${90 - a}° · 180° − ${b}° = ${180 - b}°`,
+    solucion: `Complementario: ${90 - a}° (${anTipo(90 - a)}). Suplementario: ${180 - b}° (${anTipo(180 - b)}).`,
+  };
+}
+
+function anVueltaCompleta(nivel) {
+  const a = nivel.paso * randomInt(Math.ceil(30 / nivel.paso), Math.floor(150 / nivel.paso));
+  const b = nivel.paso * randomInt(Math.ceil(30 / nivel.paso), Math.floor(150 / nivel.paso));
+  return {
+    enunciado: `Una pizza redonda se corta en tres trozos desde el centro. Los dos primeros forman ángulos de ${a}° y ${b}°. ¿Qué ángulo forma el tercero?`,
+    datos: [`Trozo 1: ${a}°`, `Trozo 2: ${b}°`, "Toda la pizza: 360°"],
+    operacion: `360° − (${a}° + ${b}°) = 360° − ${a + b}° = ${360 - a - b}°`,
+    solucion: `${360 - a - b}°.`,
+  };
+}
+
+// 5º (Tema 1): medir y clasificar. 6º: además complementarios, suplementarios y la vuelta completa.
+function genAngulos(curso) {
+  if (curso === "6") return siguienteDeBaraja("an6", [anClasificar, anDibujar, anErrorEscala, anReloj, anComplementario, anVueltaCompleta, anGiros])(AN_NIVELES["6"]);
+  return siguienteDeBaraja("an5", [anClasificar, anDibujar, anErrorEscala, anReloj, anGiros])(AN_NIVELES["5"]);
+}
+
+function anAcsObjetos() {
+  const obj = [["la esquina de un folio", "recto"], ["las agujas del reloj a las 3 en punto", "recto"], ["las agujas del reloj a la una en punto", "agudo"], ["las agujas del reloj a las 5 en punto", "obtuso"], ["las dos mitades de una regla puesta recta", "llano"], ["unas tijeras poco abiertas", "agudo"]];
+  const tres = obj.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+  return {
+    enunciado: `¿Qué tipo de ángulo forman? ${tres.map(([o], i) => `${"abc"[i]}) ${o}`).join("   ")}`,
+    datos: ["Agudo: más cerrado que la esquina de un folio. Recto: como la esquina. Obtuso: más abierto."],
+    operacion: tres.map(([o, t]) => `${o}: ${t}`).join(" · "),
+    solucion: tres.map(([, t], i) => `${"abc"[i]}) ${t}`).join("; ") + ".",
+  };
 }
 
 function genAngulosACS() {
-  return angulosClasificar();
+  return siguienteDeBaraja("anAcs", [anAcsObjetos, () => anClasificar({ paso: 15 }), anGiros, anAcsObjetos])();
+}
+
+// Discalculia: los contenidos del curso con medidas redondas (múltiplos de 10°).
+function genAngulosDiscalculia(curso) {
+  const lista = [anClasificar, anDibujar, anErrorEscala, anReloj, anGiros];
+  if (curso === "6") lista.push(anComplementario);
+  return siguienteDeBaraja(`anDisc${curso}`, lista)(AN_NIVELES.disc);
+}
+
+function anRelojMedia() {
+  const h = randomInt(1, 11);
+  const d = Math.abs(h * 30 + 15 - 180);
+  const g = Math.min(d, 360 - d);
+  return {
+    enunciado: `¿Qué ángulo forman las agujas del reloj a las ${h === 1 ? "una" : h} y media? Ten en cuenta que la aguja corta también se mueve.`,
+    datos: ["Cada hora son 30°; en media hora, la aguja corta avanza 15°."],
+    operacion: `Aguja larga en el 6 (180°). Aguja corta: ${h} × 30° + 15° = ${h * 30 + 15}°. Diferencia: ${d}°${d !== g ? ` → el menor: 360° − ${d}° = ${g}°` : ""}`,
+    solucion: `${g}° (ángulo ${anTipo(g)}).`,
+  };
 }
 
 function genAngulosAltas() {
-  const comp = randomInt(10, 70);
-  const otro = 90 - comp;
-  const tipo = otro < 90 ? "agudo" : otro === 90 ? "recto" : "obtuso";
-  return {
-    enunciado: `Un ángulo mide ${comp}°. Calcula su complementario y di qué tipo de ángulo es.`,
-    datos: [`Ángulo: ${comp}°`],
-    operacion: `90 − ${comp} = ${otro}. Comparamos ${otro}° con 90° y 180°.`,
-    solucion: `${otro}°, un ángulo ${tipo}.`,
-  };
+  const n = AN_NIVELES["6"];
+  return siguienteDeBaraja("anAltas", [anRelojMedia, () => anVueltaCompleta(n), () => anComplementario(n), () => anErrorEscala(n), () => anClasificar(n)])();
 }
 
 function coordenadasTraslacion() {
@@ -4340,7 +4423,7 @@ const TOPICS = [
   { id: "circunferencia", label: "Circunferencia y círculo", category: "Geometría y medidas", generate: genCircunferencia, generateACS: genCircunferenciaACS, generateAltas: genCircunferenciaAltas, resumen: "La circunferencia es el contorno de un círculo. Su longitud es 2 × π × radio, y el área del círculo es π × radio²." },
   { id: "proporcionalidad", label: "Proporcionalidad (regla de tres)", category: "Geometría y medidas", generate: genProporcionalidad, generateACS: genProporcionalidadACS, generateAltas: genProporcionalidadAltas, resumen: "En una relación de proporcionalidad, si conocemos el precio de una unidad podemos calcular el de cualquier cantidad." },
   { id: "estadistica", label: "Estadística (media y mediana)", category: "Geometría y medidas", generate: genEstadistica, generateACS: genEstadisticaACS, generateAltas: genEstadisticaAltas, resumen: "La media es la suma de todos los valores dividida entre el número de valores. La mediana es el valor central al ordenarlos." },
-  { id: "angulos", label: "Ángulos", category: "Geometría y medidas", generate: genAngulos, generateACS: genAngulosACS, generateAltas: genAngulosAltas, resumen: "Un ángulo es el espacio que forman dos semirrectas que salen de un mismo punto, y se mide en grados." },
+  { id: "angulos", label: "Ángulos", category: "Geometría y medidas", generate: genAngulos, generateACS: genAngulosACS, generateDiscalculia: genAngulosDiscalculia, generateAltas: genAngulosAltas, resumen: "Un ángulo se mide en grados (°) con el transportador: el centro en el vértice, un lado en el 0 y se lee en la escala que empieza en ese 0. Agudo: menos de 90°. Recto: 90°. Obtuso: entre 90° y 180°. Llano: 180°. Una vuelta entera son 360°.", resumen6: "Un ángulo se mide en grados con el transportador (cuidado con la escala). Agudo < 90° · recto = 90° · obtuso entre 90° y 180° · llano = 180° · completo = 360°. Dos ángulos son complementarios si suman 90° y suplementarios si suman 180°." },
   { id: "coordenadas", label: "Coordenadas", category: "Geometría y medidas", generate: genCoordenadas, generateACS: genCoordenadasACS, generateAltas: genCoordenadasAltas, resumen: "Cada punto del plano se localiza con dos coordenadas (x, y) que indican cuánto se mueve en horizontal y en vertical." },
   { id: "cuerpos-geometricos", label: "Cuerpos geométricos", category: "Geometría y medidas", generate: genCuerposGeometricos, generateACS: genCuerposGeometricosACS, generateAltas: genCuerposGeometricosAltas, resumen: "Los cuerpos geométricos son figuras de tres dimensiones: los poliedros tienen caras planas y los cuerpos redondos tienen alguna superficie curva." },
   { id: "tiempo", label: "El tiempo", category: "Geometría y medidas", generate: genTiempo, generateACS: genTiempoACS, generateAltas: genTiempoAltas, resumen: "El tiempo se mide en horas, minutos y segundos: 1 día tiene 24 horas, 1 hora 60 minutos y 1 minuto 60 segundos." },

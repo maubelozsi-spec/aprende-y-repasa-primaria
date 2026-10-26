@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Ángulos</h1>
-        <p class="content-subtitle">Los tipos de ángulos y cómo se miden.</p>
+        <p class="content-subtitle">Mide ángulos con el transportador, clasifícalos aunque estén girados y encuéntralos en el reloj y en los giros, con la explicación de cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -38,7 +38,12 @@
           <span>Descárgala en Word, trabájala en papel y comprueba tus respuestas.</span>
         </div>
           <div class="ficha-download-group">
+            <span class="grade-tag">5º</span>
             <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="5">Descargar ficha y soluciones (Word)</button>
+          </div>
+          <div class="ficha-download-group">
+            <span class="grade-tag">6º</span>
+            <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="6">Descargar ficha y soluciones (Word)</button>
           </div>
       </div>
 
@@ -51,6 +56,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -130,12 +136,103 @@
           <h4>Ángulo completo</h4>
           <p>Mide 360°: la semirrecta da una vuelta entera y vuelve a su posición inicial.</p>
         </div>
+        <div class="tip-box">
+          <strong>Ojo:</strong> el tipo de ángulo no depende de cómo esté girado ni de lo largos que sean sus lados, sino solo de lo abiertos que estén. Si un ángulo mide más de 180° y menos de 360°, se llama <strong>cóncavo</strong>.
+        </div>
+
+        <h2>Cómo se usa el transportador</h2>
+        <div class="rule-box aguda">
+          <h4>Tres pasos</h4>
+          <p>1. Pon el centro del transportador justo en el vértice. 2. Coloca un lado del ángulo sobre la línea del 0. 3. Lee el número por donde pasa el otro lado, <strong>en la escala que empieza en 0</strong> en ese lado.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> el transportador tiene dos escalas. Si un ángulo agudo te sale de más de 90°, has leído la escala equivocada: 40° y 140° están en la misma raya.
+        </div>
+
+        <h2>Ángulos a nuestro alrededor</h2>
+        <table class="rules-table">
+          <tr><th>Giro o reloj</th><th>Ángulo</th></tr>
+          <tr><td>Un cuarto de vuelta · las 3 en punto</td><td>90°</td></tr>
+          <tr><td>Media vuelta · las 6 en punto</td><td>180°</td></tr>
+          <tr><td>Vuelta entera</td><td>360°</td></tr>
+          <tr><td>Entre dos números seguidos del reloj</td><td>360° ÷ 12 = 30°</td></tr>
+        </table>
+
+        <div class="grade-section">
+          <span class="grade-badge">Contenido de 6º</span>
+          <h2>Ángulos complementarios y suplementarios</h2>
+          <div class="rule-box llana">
+            <h4>Complementarios: suman 90°</h4>
+            <p>Juntos forman un ángulo recto. El complementario de 35° es 90° − 35° = 55°.</p>
+          </div>
+          <div class="rule-box esdrujula">
+            <h4>Suplementarios: suman 180°</h4>
+            <p>Juntos forman un ángulo llano. El suplementario de 35° es 180° − 35° = 145°.</p>
+          </div>
+        </div>
 
         <p style="text-align:center; margin-top:32px;">
           <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="an-abrir">
+          <h2>1. Abre el ángulo</h2>
+          <p class="md-explore-intro">Cambia la abertura y léela en el transportador.</p>
+          <p class="po-big" id="an-abrir-g"></p>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" data-an-abrir="-45">−45°</button>
+            <button type="button" class="btn btn-secondary" data-an-abrir="-10">−10°</button>
+            <button type="button" class="btn btn-secondary" data-an-abrir="-1">−1°</button>
+            <button type="button" class="btn btn-secondary" data-an-abrir="1">+1°</button>
+            <button type="button" class="btn btn-secondary" data-an-abrir="10">+10°</button>
+            <button type="button" class="btn btn-secondary" data-an-abrir="45">+45°</button>
+          </div>
+          <div class="po-draw" id="an-abrir-draw"></div>
+          <p class="md-msg ok" id="an-abrir-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="an-reloj">
+          <h2>2. Los ángulos del reloj</h2>
+          <p class="md-explore-intro">Cambia la hora y mira qué ángulo forman las agujas.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Hora</span>
+              <button type="button" class="btn btn-secondary" data-an-reloj="-1" aria-label="Una hora menos">−</button>
+              <output id="an-reloj-h"></output>
+              <button type="button" class="btn btn-secondary" data-an-reloj="1" aria-label="Una hora más">+</button>
+            </div>
+          </div>
+          <div class="po-draw" id="an-reloj-draw"></div>
+          <p class="md-msg ok" id="an-reloj-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="an-rel">
+          <h2>3. Complementario y suplementario <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></h2>
+          <p class="md-explore-intro">Elige un ángulo y mira cuánto le falta para un recto y para un llano.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Ángulo</span>
+              <button type="button" class="btn btn-secondary" data-an-rel="-5" aria-label="Cinco grados menos">−</button>
+              <output id="an-rel-g"></output>
+              <button type="button" class="btn btn-secondary" data-an-rel="5" aria-label="Cinco grados más">+</button>
+            </div>
+          </div>
+          <div class="an-pareja">
+            <div id="an-rel-comp"></div>
+            <div id="an-rel-sup"></div>
+          </div>
+          <p class="md-msg ok" id="an-rel-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -147,10 +244,26 @@
             <div class="game-stat ko"><span class="game-stat-value" id="score-ko">0</span><span class="game-stat-label">Fallos</span></div>
           </div>
 
-          <p class="instructions" id="instructions">¿Qué tipo de ángulo es?</p>
-          <div class="pv-tiles" id="angle-display" style="min-height: 240px; align-items: center;"></div>
+          <div class="game-step-label">Elige qué quieres practicar</div>
+          <div class="choice-row" id="mode-picker">
+            <button class="btn btn-secondary active" data-mode="clasificar">Clasificar</button>
+            <button class="btn btn-secondary" data-mode="medir">Medir con el transportador</button>
+            <button class="btn btn-secondary" data-mode="estimar">Estimar</button>
+            <button class="btn btn-secondary" data-mode="reloj">Reloj y giros</button>
+            <button class="btn btn-secondary" data-mode="relaciones">Complementarios y suplementarios <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
+            <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
+          </div>
+
+          <p class="instructions" id="instructions"></p>
+          <div class="po-draw" id="game-visual" style="display:none;"></div>
+          <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
