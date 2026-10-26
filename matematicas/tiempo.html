@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>El tiempo</h1>
-        <p class="content-subtitle">Horas, minutos y segundos: lectura del reloj, conversiones y operaciones.</p>
+        <p class="content-subtitle">Lee el reloj y di la hora, cambia de unidades sin olvidar que el tiempo va de 60 en 60 y calcula cuánto dura algo, con la explicación de cada respuesta.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -51,45 +51,127 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
       <!-- ================= TEORÍA ================= -->
       <section id="tab-teoria" class="tab-panel active theory">
 
-        <h2>Unidades de tiempo</h2>
-        <table class="rules-table">
-          <tr><th>1 día</th><th>1 hora</th><th>1 minuto</th></tr>
-          <tr><td>24 horas</td><td>60 minutos</td><td>60 segundos</td></tr>
-        </table>
-
         <h2>Leer el reloj</h2>
         <div class="pv-tiles" id="ejemplo-reloj"></div>
         <div class="tip-box">
-          <strong>La aguja corta</strong> señala la hora; <strong>la aguja larga</strong> señala los minutos. En este ejemplo son las 3 y 15 minutos.
+          <strong>La aguja corta</strong> (azul) marca la hora: mira el último número que ha pasado. <strong>La larga</strong> (morada) marca los minutos: cada número del reloj son 5 minutos. En el ejemplo son las <strong>3:15</strong>, las tres y cuarto.
+        </div>
+        <div class="po-tabla-wrap">
+          <table class="rules-table">
+            <tr><th>Reloj digital</th><th>Se dice</th></tr>
+            <tr><td>4:00</td><td>las cuatro en punto</td></tr>
+            <tr><td>4:15</td><td>las cuatro y cuarto</td></tr>
+            <tr><td>4:30</td><td>las cuatro y media</td></tr>
+            <tr><td>4:45</td><td>las cinco menos cuarto</td></tr>
+            <tr><td>4:50</td><td>las cinco menos diez</td></tr>
+          </table>
+        </div>
+        <div class="tip-box">
+          <strong>Ojo:</strong> a partir de la media se dice «menos» con la hora <strong>que viene</strong>. 4:45 no son «las cuatro menos cuarto», son las cinco menos cuarto.
+        </div>
+
+        <h2>Formato de 24 horas</h2>
+        <p>En los horarios de trenes, cines o tiendas, las horas de la tarde y de la noche se escriben sumando 12: la 1 de la tarde son las <strong>13:00</strong>; las 8 y media de la tarde, las <strong>20:30</strong>. Al revés, a 17:40 se le restan 12: las 5 y 40 de la tarde (las seis menos veinte).</p>
+
+        <h2>Unidades de tiempo</h2>
+        <div class="po-tabla-wrap">
+          <table class="rules-table">
+            <tr><th>Unidad</th><th>Equivale a</th></tr>
+            <tr><td>1 minuto</td><td>60 segundos</td></tr>
+            <tr><td>1 hora</td><td>60 minutos = 3.600 segundos</td></tr>
+            <tr><td>1 día</td><td>24 horas</td></tr>
+            <tr><td>1 semana</td><td>7 días</td></tr>
+            <tr><td>1 año</td><td>12 meses · 365 días (366 si es bisiesto)</td></tr>
+            <tr><td>Trimestre · semestre</td><td>3 meses · 6 meses</td></tr>
+            <tr><td>Lustro · década · siglo · milenio</td><td>5 · 10 · 100 · 1.000 años</td></tr>
+          </table>
+        </div>
+        <div class="rule-box aguda">
+          <h4>El tiempo va de 60 en 60</h4>
+          <p>Para pasar de horas a minutos, o de minutos a segundos, se multiplica por <strong>60</strong>, no por 100. 2 h 15 min = 120 + 15 = <strong>135 min</strong>, no 215.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Error frecuente:</strong> 1,5 h no es 1 h 50 min. Es hora y media: <strong>1 h 30 min</strong>. Del mismo modo, 0,25 h es un cuarto de hora (15 min) y 0,75 h, tres cuartos (45 min).
         </div>
 
         <h2>Sumar y restar tiempo</h2>
-        <div class="rule-box aguda">
-          <h4>Cómo se suma</h4>
-          <p>Se suman las horas con las horas y los minutos con los minutos. Si los minutos superan 60, se restan 60 y se añade 1 hora más (una "llevada").</p>
-        </div>
-        <div class="tip-box">
-          <strong>Ejemplo:</strong> 2h 30min + 1h 45min → minutos: 30+45=75 → 75−60=15 min y 1 hora más → horas: 2+1+1=4 → resultado: 4h 15min
-        </div>
         <div class="rule-box llana">
-          <h4>Cómo se resta</h4>
-          <p>Se restan las horas con las horas y los minutos con los minutos. Si los minutos del primer tiempo son menos que los del segundo, se "pide prestada" 1 hora (=60 minutos) antes de restar.</p>
+          <h4>Sumar</h4>
+          <p>Horas con horas y minutos con minutos. Si los minutos pasan de 60, se cambian 60 min por 1 h.</p>
         </div>
         <div class="tip-box">
-          <strong>Ejemplo:</strong> 5h 15min − 2h 40min → 15 min no llega a 40, así que se presta 1 hora: 15+60=75 → 75−40=35 min; horas: 5−1−2=2 → resultado: 2h 35min
+          <strong>Ejemplo:</strong> 2 h 30 min + 1 h 45 min → 30 + 45 = 75 min = 1 h 15 min → 2 + 1 + 1 = <strong>4 h 15 min</strong>.
         </div>
+        <div class="rule-box esdrujula">
+          <h4>Restar</h4>
+          <p>Horas con horas y minutos con minutos. Si no hay bastantes minutos, se cambia 1 h por 60 min.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Ejemplo:</strong> 5 h 15 min − 2 h 40 min → 15 no llega a 40: 4 h 75 min − 2 h 40 min = <strong>2 h 35 min</strong>.
+        </div>
+
+        <h2>¿Cuánto tiempo pasa? Cuenta a saltos</h2>
+        <p>De 9:40 a 12:15: hasta las 10:00 hay <strong>20 min</strong>; de 10:00 a 12:00, <strong>2 h</strong>; y de 12:00 a 12:15, <strong>15 min</strong>. En total, 2 h 35 min. Si se restan como números normales (1215 − 940 = 275) sale «2 h 75 min», que no tiene sentido.</p>
 
         <p style="text-align:center; margin-top:32px;">
           <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="ti-reloj">
+          <h2>1. Mueve las agujas</h2>
+          <p class="md-explore-intro">Adelanta o atrasa el reloj y mira cómo se dice la hora y cómo se escribe en formato de 24 horas.</p>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" data-ti-t="-60">−1 h</button>
+            <button type="button" class="btn btn-secondary" data-ti-t="-5">−5 min</button>
+            <button type="button" class="btn btn-secondary" data-ti-t="-1">−1 min</button>
+            <button type="button" class="btn btn-secondary" data-ti-t="1">+1 min</button>
+            <button type="button" class="btn btn-secondary" data-ti-t="5">+5 min</button>
+            <button type="button" class="btn btn-secondary" data-ti-t="60">+1 h</button>
+          </div>
+          <div class="an-pareja ti-pareja">
+            <div id="ti-reloj-draw"></div>
+            <p class="po-big ti-digital" id="ti-digital"></p>
+          </div>
+          <p class="md-msg ok" id="ti-reloj-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="ti-saltos">
+          <h2>2. ¿Cuánto tiempo pasa?</h2>
+          <p class="md-explore-intro">Elige la hora de empezar y la de terminar y cuenta a saltos.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Empieza</span>
+              <button type="button" class="btn btn-secondary" data-ti-ini="-5" aria-label="Cinco minutos antes">−</button>
+              <output id="ti-ini"></output>
+              <button type="button" class="btn btn-secondary" data-ti-ini="5" aria-label="Cinco minutos después">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Termina</span>
+              <button type="button" class="btn btn-secondary" data-ti-fin="-5" aria-label="Cinco minutos antes">−</button>
+              <output id="ti-fin"></output>
+              <button type="button" class="btn btn-secondary" data-ti-fin="5" aria-label="Cinco minutos después">+</button>
+            </div>
+          </div>
+          <div class="po-draw" id="ti-saltos-draw"></div>
+          <p class="md-msg ok" id="ti-saltos-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -103,17 +185,23 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="leerreloj">Leer el reloj</button>
-            <button class="btn btn-secondary" data-mode="conversiones">Conversiones</button>
-            <button class="btn btn-secondary" data-mode="sumarrestar">Sumar y restar</button>
+            <button class="btn btn-secondary active" data-mode="reloj">El reloj</button>
+            <button class="btn btn-secondary" data-mode="conversiones">Cambio de unidades</button>
+            <button class="btn btn-secondary" data-mode="operar">Sumar y restar</button>
+            <button class="btn btn-secondary" data-mode="problemas">¿A qué hora? ¿Cuánto dura?</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
           <p class="instructions" id="instructions"></p>
-          <div class="pv-tiles" id="game-clock" style="display:none;"></div>
-          <div class="sentence-display" id="word-display" style="display:none;"></div>
+          <div class="po-draw" id="game-visual" style="display:none;"></div>
+          <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
