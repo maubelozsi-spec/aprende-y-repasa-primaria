@@ -735,3 +735,5 @@ body { font-size: 14px; }
 .grupo-nombre { font: inherit; font-size: .75rem; font-weight: 400; color: #fff; opacity: .85; background: transparent; border: 1px dashed transparent; border-radius: 6px; padding: 1px 6px; margin-left: 4px; cursor: pointer; }
 .grupo-nombre:hover, .grupo-nombre:focus-visible { border-color: rgba(255, 255, 255, .6); opacity: 1; }
 .grupo-nombre.sin-nombre { border-color: rgba(255, 255, 255, .6); font-style: italic; }
+.chip-alumno.chip-mas { border-style: dashed; color: var(--primario); font-size: 1.1rem; background: transparent; }
+.chip-alumno.chip-mas:hover { background: var(--primario-claro); }
