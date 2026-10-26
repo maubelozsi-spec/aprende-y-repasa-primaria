@@ -1,12 +1,13 @@
 // ============================================================
 // Cuaderno de evaluación: notas, dificultades por contenido
-// y anotaciones de cada prueba, por número de lista (1-25).
+// y anotaciones de cada prueba, por número de lista (25 de partida,
+// ampliable hasta MAX_ALUMNOS).
 //
 // Datos en Firestore, solo legibles por la cuenta de docente que los
 // crea (ver «Cuaderno de evaluación» en firestore.rules):
 //   cuadernoEval/{uid}                -> registro de pruebas editado y
 //                                         fecha de la última copia
-//   cuadernoEval/{uid}/alumnos/{1-25} -> perfil, notas, dificultades,
+//   cuadernoEval/{uid}/alumnos/{1-40} -> perfil, notas, dificultades,
 //                                         anotaciones y medidas
 //
 // Consumo (plan Spark): al abrir la página se leen como mucho 26
@@ -41,7 +42,14 @@ import "../../js/auth.js";
   "use strict";
 
   var CLAVE = "ar_cuaderno_evaluacion_v1";
-  var N_ALUMNOS = 25;
+  // Alumnos por cuaderno: 25 de partida; se pueden añadir hasta
+  // MAX_ALUMNOS (el mismo tope que comprueba firestore.rules).
+  var N_ALUMNOS_INICIAL = 25;
+  var MAX_ALUMNOS = 40;
+  function nAlumnos() {
+    var x = parseInt(S.numAlumnos, 10);
+    return x >= 1 && x <= MAX_ALUMNOS ? x : N_ALUMNOS_INICIAL;
+  }
   var DIAS_AVISO_COPIA = 30;
   var ESPERA_GUARDADO = 1500;
 
@@ -96,6 +104,7 @@ import "../../js/auth.js";
       s.plantillas = m.plantillas || {};
       s.ultimaCopia = m.ultimaCopia || null;
       s.grupo = m.grupo || "";
+      if (m.numAlumnos) s.numAlumnos = m.numAlumnos;
     }
     res[1].forEach(function (d) {
       var x = d.data();
@@ -124,7 +133,7 @@ import "../../js/auth.js";
   }
   function guardarTodo() {
     pendientes.meta = true;
-    for (var n = 1; n <= N_ALUMNOS; n++) pendientes[n] = true;
+    for (var n = 1; n <= nAlumnos(); n++) pendientes[n] = true;
     return guardarYa();
   }
   function docAlumno(k) {
@@ -145,7 +154,7 @@ import "../../js/auth.js";
     pendientes = {};
     var lote = writeBatch(db);
     claves.forEach(function (k) {
-      if (k === "meta") lote.set(base(), { grupo: S.grupo || "", plantillas: S.plantillas, ultimaCopia: S.ultimaCopia || null, actualizado: serverTimestamp() });
+      if (k === "meta") lote.set(base(), { grupo: S.grupo || "", numAlumnos: nAlumnos(), plantillas: S.plantillas, ultimaCopia: S.ultimaCopia || null, actualizado: serverTimestamp() });
       else lote.set(doc(base(), "alumnos", k), docAlumno(k));
     });
     guardando = true;
@@ -183,7 +192,7 @@ import "../../js/auth.js";
   }
   function activos() {
     var r = [];
-    for (var n = 1; n <= N_ALUMNOS; n++) if (alumno(n).activo !== false) r.push(n);
+    for (var n = 1; n <= nAlumnos(); n++) if (alumno(n).activo !== false) r.push(n);
     return r;
   }
   function leerReg(n, area, pn) {
@@ -472,6 +481,7 @@ import "../../js/auth.js";
   }
 
   function vistaIndividual() {
+    if (!(UI.alumno >= 1 && UI.alumno <= nAlumnos())) UI.alumno = 1;
     var n = UI.alumno;
     var al = alumno(n);
     refrescosIndividual = [];
@@ -479,7 +489,7 @@ import "../../js/auth.js";
 
     // ---- Columna izquierda: alumnado y perfil ----
     var rejilla = h("div", { class: "rejilla-alumnos rejilla-compacta", role: "group", "aria-label": "Elegir alumno" });
-    for (var i = 1; i <= N_ALUMNOS; i++) (function (k) {
+    for (var i = 1; i <= nAlumnos(); i++) (function (k) {
       var a = alumno(k);
       var sus = ["lengua", "mates"].some(function (ar) {
         return pruebasDeTrimestre(0).some(function (pn) { var x = notaEfectiva(leerReg(k, ar, pn)); return x !== null && x < 5; });
@@ -492,6 +502,19 @@ import "../../js/auth.js";
         onclick: function () { UI.alumno = k; recordarUI(); pintar(); },
       }, [String(k), sus ? h("span", { class: "punto-sus", "aria-hidden": "true" }) : null, (a.perfil.acs_lengua || a.perfil.acs_mates) ? h("span", { class: "mini-acs", text: "A" }) : null]));
     })(i);
+    if (nAlumnos() < MAX_ALUMNOS) {
+      rejilla.appendChild(h("button", {
+        type: "button", class: "chip-alumno chip-mas",
+        title: "Añadir un alumno (n.º " + (nAlumnos() + 1) + ")", "aria-label": "Añadir alumno",
+        text: "+", onclick: function () {
+          var nuevo = nAlumnos() + 1;
+          if (!confirm("¿Añadir el alumno n.º " + nuevo + " a la lista?")) return;
+          S.numAlumnos = nuevo;
+          guardar("meta");
+          UI.alumno = nuevo; recordarUI(); pintar();
+        },
+      }));
+    }
 
     var perfil = h("div", { class: "perfil perfil-compacto" });
     PERFIL.forEach(function (p) {
@@ -510,7 +533,7 @@ import "../../js/auth.js";
         h("h2", { text: "N.º " + n }),
         h("div", { class: "nav-alumno" }, [
           h("button", { type: "button", class: "btn btn-mini", disabled: n <= 1, title: "Anterior", "aria-label": "Alumno anterior", text: "←", onclick: function () { UI.alumno = n - 1; recordarUI(); pintar(); } }),
-          h("button", { type: "button", class: "btn btn-mini", disabled: n >= N_ALUMNOS, title: "Siguiente", "aria-label": "Alumno siguiente", text: "→", onclick: function () { UI.alumno = n + 1; recordarUI(); pintar(); } }),
+          h("button", { type: "button", class: "btn btn-mini", disabled: n >= nAlumnos(), title: "Siguiente", "aria-label": "Alumno siguiente", text: "→", onclick: function () { UI.alumno = n + 1; recordarUI(); pintar(); } }),
         ]),
       ]),
       rejilla,
@@ -518,6 +541,15 @@ import "../../js/auth.js";
       h("h3", { class: "subtit", text: "Perfil" }),
       perfil,
       h("p", { class: "nota-pie", text: "Sin nombres ni diagnósticos." }),
+      (n === nAlumnos() && n > N_ALUMNOS_INICIAL && !S.registros[n] && !(S.medidas[n] || []).length)
+        ? h("button", { type: "button", class: "btn-enlace", text: "Quitar el n.º " + n + " de la lista", title: "Solo mientras no tenga notas ni medidas", onclick: function () {
+            if (S.registros[n] || (S.medidas[n] || []).length) { alert("El n.º " + n + " ya tiene datos: márcalo como «Número sin alumno» en su lugar."); pintar(); return; }
+            S.numAlumnos = n - 1;
+            delete S.alumnos[n];
+            guardar("meta");
+            UI.alumno = n - 1; recordarUI(); pintar();
+          } })
+        : null,
       h("button", { type: "button", class: "btn btn-primario btn-bloque", text: "📋 Preparar tutoría", title: "Resumen imprimible de este alumno/a (todo el curso, las dos áreas)", onclick: function () {
         UI.resSel = {}; UI.resSel[n] = true; UI.resArea = "ambas"; UI.resPeriodo = 0; UI.resNotas = true; UI.resMedidas = true;
         irA("resumen");
@@ -1367,7 +1399,7 @@ import "../../js/auth.js";
   function exportar() {
     S.ultimaCopia = new Date().toISOString();
     guardar("meta");
-    var copia = { version: S.version, exportado: S.ultimaCopia, grupo: S.grupo || "", alumnos: S.alumnos, registros: S.registros, plantillas: S.plantillas, medidas: S.medidas, ultimaCopia: S.ultimaCopia };
+    var copia = { version: S.version, exportado: S.ultimaCopia, grupo: S.grupo || "", numAlumnos: nAlumnos(), alumnos: S.alumnos, registros: S.registros, plantillas: S.plantillas, medidas: S.medidas, ultimaCopia: S.ultimaCopia };
     var blob = new Blob([JSON.stringify(copia, null, 1)], { type: "application/json" });
     var a = h("a", { href: URL.createObjectURL(blob), download: "cuaderno-evaluacion-" + S.ultimaCopia.slice(0, 10) + ".json" });
     document.body.appendChild(a);
@@ -1378,7 +1410,7 @@ import "../../js/auth.js";
 
   async function borrarNube() {
     var lote = writeBatch(db);
-    for (var n = 1; n <= N_ALUMNOS; n++) lote.delete(doc(base(), "alumnos", String(n)));
+    for (var n = 1; n <= MAX_ALUMNOS; n++) lote.delete(doc(base(), "alumnos", String(n)));
     lote.delete(base());
     await lote.commit();
   }
