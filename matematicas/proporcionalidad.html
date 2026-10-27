@@ -51,6 +51,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -60,13 +61,14 @@
         <h2>Situaciones proporcionales y no proporcionales</h2>
         <div class="rule-box aguda">
           <h4>¿Cuándo son proporcionales?</h4>
-          <p>Dos magnitudes son <strong>proporcionales</strong> cuando, al multiplicar (o dividir) una por un número, la otra queda multiplicada (o dividida) por ese mismo número.</p>
-          <p class="examples"><strong>Ejemplo:</strong> el precio de las manzanas: si 2 kg cuestan 4€, 4 kg (el doble) cuestan 8€ (el doble). Es proporcional.</p>
+          <p>Dos magnitudes son <strong>proporcionales</strong> cuando, al multiplicar (o dividir) una por un número, la otra queda multiplicada (o dividida) por <strong>el mismo número</strong>: al doble le corresponde el doble, al triple el triple, a la mitad la mitad.</p>
+          <p class="examples"><strong>Ejemplo:</strong> si 2 kg de naranjas cuestan 4 €, 4 kg (el doble) cuestan 8 € (el doble) y 1 kg (la mitad) cuesta 2 €.</p>
         </div>
         <div class="rule-box llana">
           <h4>¿Cuándo NO lo son?</h4>
-          <p>Cuando esa relación no se cumple.</p>
-          <p class="examples"><strong>Ejemplo:</strong> la edad de una persona y su altura no son proporcionales: al doblar la edad no se dobla la altura.</p>
+          <p>Cuando al doble no le corresponde el doble. Cuidado: que las dos cantidades <em>crezcan a la vez</em> no basta.</p>
+          <p class="examples"><strong>El taxi:</strong> cobra 3 € al subir (la bajada de bandera) y 1 € por km. 2 km cuestan 5 €, pero 4 km cuestan 7 €, no 10 €. Hay una parte fija, así que <strong>no es proporcional</strong>.</p>
+          <p class="examples"><strong>Más ejemplos:</strong> la edad y la altura de una persona; el precio con una oferta «3 × 2»; la temperatura a lo largo del día.</p>
         </div>
 
         <h2>Tablas de proporcionalidad</h2>
@@ -78,29 +80,43 @@
           <tr><td>5</td><td>10 €</td></tr>
         </table>
         <div class="tip-box">
-          <strong>Fíjate:</strong> el precio siempre es el doble del número de kilos. Esa relación constante (aquí, ×2) es la <strong>razón de proporcionalidad</strong>.
-        </div>
-
-        <h2>Calcular magnitudes proporcionales: la regla de tres</h2>
-        <div class="rule-box esdrujula">
-          <h4>Cómo se usa</h4>
-          <p>Si conocemos 3 valores de una relación proporcional, podemos calcular el cuarto: se multiplican los valores en cruz y se divide entre el que queda.</p>
+          <strong>La constante de proporcionalidad:</strong> si divides cada precio entre sus kilos, siempre sale lo mismo: 2 : 1 = 4 : 2 = 6 : 3 = 10 : 5 = <strong>2</strong>. Ese número es la <strong>constante</strong> (aquí, el precio de 1 kg). Si alguna división da distinto, la tabla <strong>no</strong> es de proporcionalidad.
         </div>
         <div class="tip-box">
-          <strong>Ejemplo:</strong> si 3 lápices cuestan 6€, ¿cuánto cuestan 5 lápices?<br>
-          3 lápices → 6€<br>
+          <strong>Error frecuente:</strong> para completar la tabla no se <em>suma</em> lo mismo arriba y abajo, se <em>multiplica</em> por la constante. De 2 kg a 3 kg se añade 1 kg, pero el precio pasa de 4 € a 6 €, no a 5 €.
+        </div>
+
+        <h2>Resolver problemas: reducción a la unidad y regla de tres</h2>
+        <div class="rule-box esdrujula">
+          <h4>Reducción a la unidad</h4>
+          <p>Primero se calcula lo que corresponde a <strong>1</strong> (dividiendo) y después se multiplica por la cantidad que se pide.</p>
+          <p class="examples"><strong>Ejemplo:</strong> si 3 lápices cuestan 6 €, 1 lápiz cuesta 6 : 3 = 2 €, y 5 lápices cuestan 2 × 5 = <strong>10 €</strong>.</p>
+        </div>
+        <div class="tip-box">
+          <strong>Regla de tres:</strong> es lo mismo escrito de otra forma.<br>
+          3 lápices → 6 €<br>
           5 lápices → x<br>
-          x = (5 × 6) ÷ 3 = <strong>10€</strong>
+          x = 5 × 6 : 3 = <strong>10 €</strong><br>
+          Antes de usarla, comprueba que la situación <strong>es proporcional</strong>: con el taxi o con una oferta 3 × 2 da un resultado falso.
         </div>
 
         <h2>Escalas</h2>
         <div class="rule-box sobresdrujula">
           <h4>¿Qué es una escala?</h4>
-          <p>Una <strong>escala</strong> indica la proporción entre una medida en un plano o mapa y la medida real. Se escribe como 1:n, que significa que 1 unidad del dibujo equivale a n unidades reales.</p>
-          <p class="examples"><strong>Ejemplo:</strong> escala 1:100 → 1 cm en el plano = 100 cm (1 metro) en la realidad.</p>
+          <p>Una <strong>escala</strong> compara las medidas de un plano o un mapa con las medidas reales. Se escribe <strong>1:n</strong>: 1 cm del dibujo son <strong>n cm</strong> de la realidad. Las medidas del plano y las reales son proporcionales y la constante es n.</p>
+          <p class="examples"><strong>Ejemplo:</strong> a escala 1:100, 1 cm del plano son 100 cm = 1 m reales.</p>
+        </div>
+        <table class="rules-table">
+          <tr><th>Qué buscas</th><th>Qué haces</th><th>Ejemplo (escala 1:200)</th></tr>
+          <tr><td>La medida real</td><td>plano × n</td><td>3 cm × 200 = 600 cm = <strong>6 m</strong></td></tr>
+          <tr><td>La medida en el plano</td><td>real (en cm) : n</td><td>10 m = 1.000 cm; 1.000 : 200 = <strong>5 cm</strong></td></tr>
+          <tr><td>La escala</td><td>real (en cm) : plano</td><td>8 m = 800 cm en 4 cm: 800 : 4 = 200 → <strong>1:200</strong></td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Mapas:</strong> las escalas son mucho mayores, como 1:50.000. 4 cm en el mapa son 4 × 50.000 = 200.000 cm. Para pasar a km se divide entre 100.000: <strong>2 km</strong>.
         </div>
         <div class="tip-box">
-          <strong>Ejemplo:</strong> en un plano a escala 1:200, una habitación mide 3 cm. La habitación real mide 3 × 200 = <strong>600 cm = 6 metros</strong>.
+          <strong>Ampliación · proporcionalidad inversa:</strong> hay magnitudes en las que, al doble de una, le corresponde <em>la mitad</em> de la otra. Si 2 pintores tardan 6 días, 4 pintores (el doble) tardan 3 días (la mitad). Es otro tipo de relación: no se resuelve como las anteriores.
         </div>
 
         <p style="text-align:center; margin-top:32px;">
@@ -108,6 +124,58 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="pp-tabla">
+          <h2>1. La tabla y la gráfica</h2>
+          <p class="md-explore-intro">Cambia el precio de cada km y mira la tabla y la gráfica. Después añade la bajada de bandera de un taxi: ¿sigue siendo proporcional?</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Precio de 1 km</span>
+              <button type="button" class="btn btn-secondary" data-pp-k="-1" aria-label="Un euro menos">−</button>
+              <output id="pp-k"></output>
+              <button type="button" class="btn btn-secondary" data-pp-k="1" aria-label="Un euro más">+</button>
+            </div>
+            <button type="button" class="btn btn-secondary" id="pp-taxi"></button>
+          </div>
+          <div class="po-draw" id="pp-tabla-draw"></div>
+          <div class="po-draw" id="pp-graf-draw"></div>
+          <p class="md-msg ok" id="pp-tabla-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="pp-plano">
+          <h2>2. Dibuja una sala a escala</h2>
+          <p class="md-explore-intro">Elige las medidas reales de una sala y la escala, y mira cuánto mide en el plano.</p>
+          <div class="md-controls">
+            <div class="md-stepper">
+              <span class="md-stepper-label">Escala</span>
+              <button type="button" class="btn btn-secondary" data-pp-e="-1" aria-label="Escala anterior">−</button>
+              <output id="pp-e"></output>
+              <button type="button" class="btn btn-secondary" data-pp-e="1" aria-label="Escala siguiente">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Ancho real</span>
+              <button type="button" class="btn btn-secondary" data-pp-ancho="-1" aria-label="Un metro menos de ancho">−</button>
+              <output id="pp-ancho"></output>
+              <button type="button" class="btn btn-secondary" data-pp-ancho="1" aria-label="Un metro más de ancho">+</button>
+            </div>
+            <div class="md-stepper">
+              <span class="md-stepper-label">Largo real</span>
+              <button type="button" class="btn btn-secondary" data-pp-largo="-1" aria-label="Un metro menos de largo">−</button>
+              <output id="pp-largo"></output>
+              <button type="button" class="btn btn-secondary" data-pp-largo="1" aria-label="Un metro más de largo">+</button>
+            </div>
+          </div>
+          <div class="po-draw" id="pp-plano-draw"></div>
+          <p class="md-msg ok" id="pp-plano-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -122,15 +190,22 @@
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
             <button class="btn btn-secondary active" data-mode="esproporcional">¿Es proporcional?</button>
-            <button class="btn btn-secondary" data-mode="reglatres">Regla de tres</button>
+            <button class="btn btn-secondary" data-mode="tablas">Tablas</button>
+            <button class="btn btn-secondary" data-mode="problemas">Problemas</button>
             <button class="btn btn-secondary" data-mode="escalas">Escalas</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
           <p class="instructions" id="instructions"></p>
+          <div class="po-draw" id="game-visual" style="display:none;"></div>
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 

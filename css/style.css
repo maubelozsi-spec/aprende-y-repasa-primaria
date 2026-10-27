@@ -3712,3 +3712,9 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 /* El tiempo */
 .ti-pareja { align-items: center; }
 .ti-digital { font-variant-numeric: tabular-nums; font-size: 2.2rem; margin: 0; padding: 8px 18px; border-radius: 10px; background: var(--color-indigo-tint); }
+
+/* Proporcionalidad y escalas */
+.pp-tabla { width: auto; margin: 0 auto; }
+.pp-tabla th, .pp-tabla td { text-align: center; white-space: nowrap; padding: 8px 12px; min-width: 44px; }
+.pp-tabla th { text-align: left; }
+.pp-hueco { font-weight: 800; color: var(--color-plum); background: var(--color-indigo-tint); }

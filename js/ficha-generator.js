@@ -3841,78 +3841,265 @@ function genCircunferenciaAltas() {
   return siguienteDeBaraja("ciAltas", [ciInversa, ciVueltas, ciArea, ciCorona, () => ciContenedor(CI_NIVELES["6"]), () => ciEstimar(CI_NIVELES["6"])])();
 }
 
-function proporcionalidadPrecio(curso) {
-  const a = randomInt(2, 6);
-  const precioUnidad = curso === "6" ? roundMoney(randomInt(105, 995) / 100) : randomInt(2, 9);
-  const totalA = roundMoney(a * precioUnidad);
-  const b = randomInt(a + 2, a + (curso === "6" ? 15 : 8));
-  const totalB = roundMoney(b * precioUnidad);
-  const fmt = (n) => fmtAuto(n);
-  const objeto = pick(["cuadernos", "bolígrafos", "libretas"]);
+// ---------- Proporcionalidad y escalas ----------
+// 6º (SdA 9 «Arquitectos responsables»): situaciones proporcionales y no
+// proporcionales, tablas de proporcionalidad y escalas; reto: el plano
+// de nuestro edificio sostenible.
+function ppFmt(n) {
+  const r = Math.round(n * 100) / 100;
+  const [ent, dec] = String(r).split(".");
+  return `${ent.length > 3 ? ent.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ent}${dec ? `,${dec}` : ""}`;
+}
+const ppEuros = (n) => (Number.isInteger(Math.round(n * 100) / 100) ? `${ppFmt(n)} €` : `${ppFmt(n).replace(/,(\d)$/, ",$10")} €`);
+// cm → m o km
+function ppReal(cm) {
+  if (cm >= 100000) return `${ppFmt(cm / 100000)} km`;
+  if (cm >= 100) return `${ppFmt(cm / 100)} m`;
+  return `${ppFmt(cm)} cm`;
+}
+
+const PP_NIVELES = {
+  "6": { enteros: false, escalas: [50, 100, 200, 500] },
+  disc: { enteros: true, escalas: [10, 100] },
+};
+
+// Magnitud A, magnitud B, constantes (la primera entera) y frases.
+const PP_SITUACIONES = [
+  { a: "Kg de naranjas", b: "Precio", k: [2, 3, 1.5], fb: ppEuros, prob: (x1, y1, x2) => `Si ${x1} kg de naranjas cuestan ${ppEuros(y1)}, ¿cuánto cuestan ${x2} kg?`, sol: (y) => `Cuestan ${ppEuros(y)}.` },
+  { a: "Entradas", b: "Precio", k: [5, 6, 7], fb: ppEuros, prob: (x1, y1, x2) => `Si ${x1} entradas de teatro cuestan ${ppEuros(y1)}, ¿cuánto cuestan ${x2} entradas?`, sol: (y) => `Cuestan ${ppEuros(y)}.` },
+  { a: "Botes de pintura", b: "m² pintados", k: [8, 10, 12], fb: (v) => `${ppFmt(v)} m²`, prob: (x1, y1, x2) => `Con ${x1} botes de pintura se pintan ${y1} m² de pared. ¿Cuántos m² se pintan con ${x2} botes?`, sol: (y) => `Se pintan ${ppFmt(y)} m².` },
+  { a: "Personas", b: "Gramos de arroz", k: [80, 100, 120], fb: (v) => `${ppFmt(v)} g`, prob: (x1, y1, x2) => `Para ${x1} personas se usan ${y1} g de arroz. ¿Cuántos gramos hacen falta para ${x2} personas?`, sol: (y) => `Hacen falta ${ppFmt(y)} g.` },
+  { a: "Paneles solares", b: "kWh al día", k: [2, 3, 4], fb: (v) => `${ppFmt(v)} kWh`, prob: (x1, y1, x2) => `En el edificio, ${x1} paneles solares producen ${y1} kWh al día. ¿Cuántos kWh producirían ${x2} paneles iguales?`, sol: (y) => `Producirían ${ppFmt(y)} kWh al día.` },
+];
+function ppSituacion(nivel) {
+  const s = pick(PP_SITUACIONES);
+  return { ...s, k: nivel.enteros ? s.k[0] : pick(s.k) };
+}
+
+function ppEsProp(nivel) {
+  const s = ppSituacion(nivel);
+  const [x1, f] = [randomInt(2, 3), pick([2, 3])];
+  const fijo = pick([2, 3]);
+  const km = nivel.enteros ? 1 : pick([1, 2]);
+  const p = pick([1, 2]);
+  const casos = [
+    { t: `${s.a} y ${s.b.toLowerCase()}: ${x1} → ${s.fb(x1 * s.k)}; ${x1 * f} → ${s.fb(x1 * f * s.k)}`, si: true, por: `al multiplicar por ${f} una, la otra también se multiplica por ${f}` },
+    { t: `Un taxi cobra ${ppEuros(fijo)} al subir y ${ppEuros(km)} por km: 2 km cuestan ${ppEuros(fijo + 2 * km)} y 4 km cuestan ${ppEuros(fijo + 4 * km)}`, si: false, por: `el doble de km no cuesta el doble (${ppEuros(2 * (fijo + 2 * km))}), porque hay una parte fija` },
+    { t: `Con la oferta «3 × 2», 2 zumos cuestan ${ppEuros(2 * p)} y 3 zumos también cuestan ${ppEuros(2 * p)}`, si: false, por: "al comprar uno más no se paga más" },
+    { t: "Con 6 años Pablo medía 115 cm y con 12 años mide 150 cm", si: false, por: "al doble de edad no le corresponde el doble de altura" },
+  ];
+  const tres = [casos[0], ...shuffleFicha(casos.slice(1)).slice(0, 2)];
+  const orden = shuffleFicha(tres);
   return {
-    enunciado: `Si ${a} ${objeto} cuestan ${fmt(totalA)} €, ¿cuánto cuestan ${b} ${objeto}?`,
-    datos: [`${a} ${objeto} → ${fmt(totalA)} €`, `${b} ${objeto} → ?`],
-    operacion: `${fmt(totalA)} ÷ ${a} = ${fmt(precioUnidad)} (precio de 1). ${fmt(precioUnidad)} × ${b} = ${fmt(totalB)}`,
-    solucion: `${fmt(totalB)} €. Cuestan ${fmt(totalB)} €.`,
+    enunciado: `¿Son relaciones de proporcionalidad? Contesta sí o no y explica por qué. ${orden.map((c, i) => `${"abc"[i]}) ${c.t}.`).join(" ")}`,
+    datos: ["Proporcional: al doble le corresponde el doble, al triple el triple…"],
+    operacion: orden.map((c, i) => `${"abc"[i]}) ${c.por}`).join(" · "),
+    solucion: orden.map((c, i) => `${"abc"[i]}) ${c.si ? "Sí" : "No"}`).join("; ") + ".",
   };
 }
 
-function proporcionalidadEscala(curso) {
-  const escala = curso === "6" ? pick([50, 100, 200, 500, 1000]) : pick([10, 100]);
-  const medidaPlano = curso === "6" ? randomInt(2, 40) : randomInt(2, 20);
-  const medidaReal = medidaPlano * escala;
+function shuffleFicha(arr) {
+  const c = arr.slice();
+  for (let i = c.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [c[i], c[j]] = [c[j], c[i]];
+  }
+  return c;
+}
+
+function ppTabla(nivel) {
+  const s = ppSituacion(nivel);
+  const base = nivel.enteros ? 1 : randomInt(2, 3);
+  const xs = nivel.enteros ? [1, 2, 3, 5] : [base, ...shuffleFicha([4, 5, 6, 8, 10, 12].filter((x) => x !== base)).slice(0, 3).sort((a, b) => a - b)];
   return {
-    enunciado: `En un plano con escala 1:${escala}, una habitación mide ${medidaPlano} cm. ¿Cuánto mide en la realidad (en cm)?`,
-    datos: [`Escala: 1:${escala}`, `Medida en el plano: ${medidaPlano} cm`],
-    operacion: `${medidaPlano} × ${escala} = ${medidaReal}`,
-    solucion: `${medidaReal} cm. En la realidad mide ${medidaReal} cm.`,
+    enunciado: `Completa la tabla de proporcionalidad y escribe la constante. ${s.a}: ${xs.join(", ")}. ${s.b}: ${s.fb(xs[0] * s.k)}, ?, ?, ?`,
+    datos: [`${xs[0]} → ${s.fb(xs[0] * s.k)}`],
+    operacion: `Constante: ${ppFmt(xs[0] * s.k)} : ${xs[0]} = ${ppFmt(s.k)} · ${xs.slice(1).map((x) => `${x} × ${ppFmt(s.k)} = ${ppFmt(x * s.k)}`).join(" · ")}`,
+    solucion: `${xs.slice(1).map((x) => s.fb(x * s.k)).join(", ")}. La constante es ${ppFmt(s.k)}.`,
   };
 }
 
-function proporcionalidadVelocidad(curso) {
-  const velocidad = curso === "6" ? randomInt(40, 120) : randomInt(20, 60);
-  const horas = randomInt(2, curso === "6" ? 8 : 5);
-  const distancia = velocidad * horas;
+function ppProblema(nivel) {
+  const s = ppSituacion(nivel);
+  let x1;
+  let x2;
+  do {
+    x1 = randomInt(2, nivel.enteros ? 4 : 6);
+    x2 = randomInt(2, nivel.enteros ? 8 : 15);
+  } while (x1 === x2);
+  const y1 = x1 * s.k;
+  const y2 = x2 * s.k;
   return {
-    enunciado: `Un coche circula a una velocidad constante de ${velocidad} km/h. ¿Cuántos km recorrerá en ${horas} horas?`,
-    datos: [`Velocidad: ${velocidad} km/h`, `Tiempo: ${horas} horas`],
-    operacion: `${velocidad} × ${horas} = ${distancia}`,
-    solucion: `${distancia} km. Recorrerá ${distancia} km.`,
+    enunciado: s.prob(x1, y1, x2),
+    datos: [`${x1} → ${s.fb(y1)}`, `${x2} → ?`],
+    operacion: `Para 1: ${ppFmt(y1)} : ${x1} = ${ppFmt(s.k)} · Para ${x2}: ${ppFmt(s.k)} × ${x2} = ${ppFmt(y2)}`,
+    solucion: s.sol(y2),
   };
 }
 
-function genProporcionalidad(curso) {
-  return pick([proporcionalidadPrecio, proporcionalidadEscala, proporcionalidadVelocidad])(curso);
+function ppEscalaReal(nivel) {
+  const e = pick(nivel.escalas);
+  const p = nivel.enteros ? randomInt(2, 9) : pick([randomInt(3, 12), randomInt(2, 9) + 0.5]);
+  const cm = p * e;
+  const cosa = e <= 10 ? ["el dibujo de un mueble", "la mesa"] : e <= 100 ? ["el plano de un piso", "el salón"] : ["el plano del colegio", "el gimnasio"];
+  return {
+    enunciado: `En ${cosa[0]} a escala 1:${e}, ${cosa[1]} mide ${ppFmt(p)} cm de largo. ¿Cuánto mide en la realidad? Exprésalo en ${cm >= 100 ? "metros" : "centímetros"}.`,
+    datos: [`Escala 1:${e}: 1 cm son ${e} cm`, `En el plano: ${ppFmt(p)} cm`],
+    operacion: `${ppFmt(p)} × ${e} = ${ppFmt(cm)} cm${cm >= 100 ? ` = ${ppReal(cm)}` : ""}`,
+    solucion: `Mide ${ppReal(cm)}.`,
+  };
+}
+
+function ppEscalaPlano(nivel) {
+  const e = nivel.enteros ? 100 : pick(nivel.escalas);
+  const p = randomInt(2, nivel.enteros ? 9 : 16);
+  const m = (p * e) / 100;
+  return {
+    enunciado: `Queremos dibujar a escala 1:${e} un huerto escolar de ${ppFmt(m)} m de largo. ¿Cuántos centímetros medirá en el plano?`,
+    datos: [`Escala 1:${e}`, `Medida real: ${ppFmt(m)} m`],
+    operacion: `${ppFmt(m)} m = ${ppFmt(m * 100)} cm · ${ppFmt(m * 100)} : ${e} = ${p}`,
+    solucion: `Medirá ${p} cm en el plano.`,
+  };
+}
+
+function ppHallarEscala() {
+  const e = pick([50, 100, 200, 500]);
+  const p = randomInt(2, 10);
+  const m = (p * e) / 100;
+  return {
+    enunciado: `En un plano, un pasillo de ${ppFmt(m)} m de largo mide ${p} cm. ¿A qué escala está dibujado?`,
+    datos: [`Real: ${ppFmt(m)} m`, `Plano: ${p} cm`],
+    operacion: `${ppFmt(m)} m = ${ppFmt(m * 100)} cm · ${ppFmt(m * 100)} : ${p} = ${e}`,
+    solucion: `Está a escala 1:${e}.`,
+  };
+}
+
+function ppMapa() {
+  const e = pick([50000, 100000, 200000]);
+  const p = randomInt(2, 12);
+  const cm = p * e;
+  return {
+    enunciado: `En un mapa a escala 1:${ppFmt(e)}, dos pueblos están a ${p} cm. ¿Qué distancia real hay entre ellos en kilómetros?`,
+    datos: [`Escala 1:${ppFmt(e)}`, `En el mapa: ${p} cm`, "1 km = 100.000 cm"],
+    operacion: `${p} × ${ppFmt(e)} = ${ppFmt(cm)} cm · ${ppFmt(cm)} : 100.000 = ${ppFmt(cm / 100000)}`,
+    solucion: `Hay ${ppReal(cm)}.`,
+  };
+}
+
+// Reto de la SdA: dibujar el aula en el plano del edificio.
+function ppReto(nivel) {
+  const e = nivel.enteros ? 100 : pick([50, 100]);
+  const ancho = randomInt(5, 9);
+  let largo;
+  do largo = randomInt(4, 8);
+  while (largo === ancho);
+  const pa = (ancho * 100) / e;
+  const pl = (largo * 100) / e;
+  return {
+    enunciado: `Reto · El plano de nuestro edificio sostenible: el aula mide ${ancho} m × ${largo} m. Dibújala a escala 1:${e} en papel cuadriculado. ¿Cuánto mide cada lado en el plano? ¿Qué área tiene el aula de verdad?`,
+    datos: [`Escala 1:${e}`, `Aula: ${ancho} m × ${largo} m`],
+    operacion: `${ancho * 100} : ${e} = ${ppFmt(pa)} · ${largo * 100} : ${e} = ${ppFmt(pl)} · Área: ${ancho} × ${largo} = ${ancho * largo}`,
+    solucion: `Un rectángulo de ${ppFmt(pa)} cm × ${ppFmt(pl)} cm. El aula tiene ${ancho * largo} m².`,
+  };
+}
+
+function genProporcionalidad() {
+  return siguienteDeBaraja("pp6", [ppEsProp, ppTabla, ppProblema, ppProblema, ppEscalaReal, ppEscalaPlano, ppHallarEscala, ppMapa, ppReto])(PP_NIVELES["6"]);
+}
+
+function genProporcionalidadDiscalculia() {
+  return siguienteDeBaraja("ppDisc", [ppEsProp, ppTabla, ppProblema, ppEscalaReal, ppEscalaPlano, ppReto])(PP_NIVELES.disc);
+}
+
+// ACS: el doble y el triple, «si 1 vale…» y escala 1:10.
+function ppAcsDoble() {
+  const k = randomInt(2, 5);
+  const objeto = pick(["cuadernos", "lápices", "zumos"]);
+  return {
+    enunciado: `1 de estos ${objeto} cuesta ${k} €. ¿Cuánto cuestan 2? ¿Y 3?`,
+    datos: [`1 → ${k} €`],
+    operacion: `2 × ${k} = ${2 * k} · 3 × ${k} = ${3 * k}`,
+    solucion: `2 cuestan ${2 * k} € y 3 cuestan ${3 * k} €.`,
+  };
+}
+
+function ppAcsTabla() {
+  const k = randomInt(2, 5);
+  return {
+    enunciado: `Completa la tabla. Bolsas de canicas: 1, 2, 3, 4. Canicas: ${k}, ?, ?, ?`,
+    datos: [`1 bolsa → ${k} canicas`],
+    operacion: `2 × ${k} = ${2 * k} · 3 × ${k} = ${3 * k} · 4 × ${k} = ${4 * k}`,
+    solucion: `${2 * k}, ${3 * k}, ${4 * k}.`,
+  };
+}
+
+function ppAcsEscala() {
+  const p = randomInt(2, 9);
+  return {
+    enunciado: `En un dibujo a escala 1:10, cada centímetro son 10 cm de verdad. Una mesa mide ${p} cm en el dibujo. ¿Cuánto mide de verdad?`,
+    datos: ["1 cm → 10 cm", `${p} cm → ?`],
+    operacion: `${p} × 10 = ${p * 10}`,
+    solucion: `Mide ${p * 10} cm.`,
+  };
 }
 
 function genProporcionalidadACS() {
+  return siguienteDeBaraja("ppAcs", [ppAcsDoble, ppAcsTabla, ppAcsEscala, ppAcsDoble])();
+}
+
+// Altas: proporcionalidad inversa, recetas, mapas con varias etapas y la
+// escala de un mapa.
+function ppInversa() {
   const a = randomInt(2, 4);
-  const precioUnidad = randomInt(2, 5);
-  const totalA = a * precioUnidad;
-  const b = a * 2;
-  const totalB = b * precioUnidad;
-  const objeto = pick(["cuadernos", "bolígrafos", "libretas"]);
+  const b = a * pick([2, 3]);
+  const d = b * randomInt(2, 4);
   return {
-    enunciado: `Si ${a} ${objeto} cuestan ${totalA} €, ¿cuánto cuestan ${b} ${objeto} (el doble)?`,
-    datos: [`${a} ${objeto} → ${totalA} €`, `${b} ${objeto} → ?`],
-    operacion: `El doble de ${a} es ${b}, así que el precio también se duplica: ${totalA} × 2 = ${totalB}`,
-    solucion: `${totalB} €. Cuestan ${totalB} €.`,
+    enunciado: `${a} pintores tardan ${d} días en pintar un colegio. ¿Es una relación de proporcionalidad directa? ¿Cuántos días tardarían ${b} pintores trabajando al mismo ritmo?`,
+    datos: [`${a} pintores → ${d} días`, `${b} pintores → ?`],
+    operacion: `Más pintores, menos días: es proporcionalidad inversa. ${a} × ${d} = ${a * d} · ${a * d} : ${b} = ${(a * d) / b}`,
+    solucion: `No es directa, es inversa. Tardarían ${(a * d) / b} días.`,
+  };
+}
+
+function ppReceta() {
+  const ing = [["harina", pick([200, 300, 400])], ["azúcar", pick([100, 150, 200])], ["mantequilla", pick([80, 100, 120])]];
+  const [p1, p2] = pick([[4, 6], [4, 10], [6, 9], [8, 12]]);
+  const f = p2 / p1;
+  return {
+    enunciado: `Una receta de bizcocho para ${p1} personas lleva ${ing.map(([n, g]) => `${g} g de ${n}`).join(", ")}. ¿Cuánto hace falta de cada ingrediente para ${p2} personas?`,
+    datos: ing.map(([n, g]) => `${n}: ${g} g`),
+    operacion: `Para 1 persona se divide entre ${p1} y para ${p2} se multiplica por ${p2}: ${ing.map(([, g]) => `${g} : ${p1} × ${p2} = ${ppFmt((g / p1) * p2)}`).join(" · ")}`,
+    solucion: ing.map(([n, g]) => `${ppFmt((g / p1) * p2)} g de ${n}`).join(", ") + ".",
+  };
+}
+
+function ppRuta() {
+  const e = pick([50000, 100000, 200000]);
+  const t = [randomInt(2, 9), randomInt(2, 9), randomInt(2, 9)];
+  const suma = t[0] + t[1] + t[2];
+  const cm = suma * e;
+  return {
+    enunciado: `En un mapa a escala 1:${ppFmt(e)}, una ruta en bicicleta tiene tres etapas que miden ${t.join(" cm, ")} cm. ¿Cuántos km tiene la ruta? ¿Cuántos cm mediría la ruta en un mapa más detallado, a escala 1:${ppFmt(e / 2)}?`,
+    datos: [`Escala 1:${ppFmt(e)}`, `Etapas: ${t.join(" + ")} cm`],
+    operacion: `${t.join(" + ")} = ${suma} cm · ${suma} × ${ppFmt(e)} = ${ppFmt(cm)} cm = ${ppReal(cm)} · ${ppFmt(cm)} : ${ppFmt(e / 2)} = ${suma * 2}`,
+    solucion: `La ruta tiene ${ppReal(cm)}. En el mapa 1:${ppFmt(e / 2)} mediría ${suma * 2} cm (el doble).`,
+  };
+}
+
+function ppEscalaMapa() {
+  const e = pick([25000, 50000, 100000, 200000]);
+  const p = e === 25000 ? pick([4, 8, 12]) : randomInt(2, 10);
+  const km = (p * e) / 100000;
+  return {
+    enunciado: `Dos pueblos que están a ${ppFmt(km)} km aparecen a ${p} cm en un mapa. ¿Cuál es la escala del mapa?`,
+    datos: [`Real: ${ppFmt(km)} km`, `Mapa: ${p} cm`],
+    operacion: `${ppFmt(km)} km = ${ppFmt(km * 100000)} cm · ${ppFmt(km * 100000)} : ${p} = ${ppFmt(e)}`,
+    solucion: `La escala es 1:${ppFmt(e)}.`,
   };
 }
 
 function genProporcionalidadAltas() {
-  const obreros1 = randomInt(2, 6);
-  const obreros2 = randomInt(obreros1 + 2, obreros1 + 10);
-  const k = randomInt(2, 8);
-  const trabajoTotal = obreros1 * obreros2 * k;
-  const dias1 = trabajoTotal / obreros1;
-  const dias2 = trabajoTotal / obreros2;
-  return {
-    enunciado: `${obreros1} obreros tardan ${dias1} días en construir un muro. Si se contratan ${obreros2} obreros (trabajando todos al mismo ritmo), ¿cuántos días tardarán en construir un muro igual?`,
-    datos: [`${obreros1} obreros → ${dias1} días`, `${obreros2} obreros → ?`],
-    operacion: `Trabajo total: ${obreros1} × ${dias1} = ${trabajoTotal} (obreros × días). ${trabajoTotal} ÷ ${obreros2} = ${dias2}`,
-    solucion: `${dias2} días. Tardarán ${dias2} días.`,
-  };
+  return siguienteDeBaraja("ppAltas", [ppInversa, ppReceta, ppRuta, ppEscalaMapa, ppHallarEscala, () => ppReto(PP_NIVELES["6"])])();
 }
 
 const ESCENARIOS_ESTADISTICA = [
@@ -5459,7 +5646,7 @@ const TOPICS = [
   { id: "medidas", label: "Medidas y conversiones", category: "Geometría y medidas", generate: genMedidas, generateACS: genMedidasACS, generateDiscalculia: genMedidasDiscalculia, generateAltas: genMedidasAltas, resumen: "Longitud (m), capacidad (l) y masa (g) siguen la misma escalera: km, hm, dam, m, dm, cm, mm. Bajar un escalón es multiplicar por 10 y subir, dividir entre 10. En superficie (m²) cada escalón vale 100. 2 m 5 cm = 205 cm, no 25 cm.", resumen6: "Para cambiar de unidad: bajar en la escalera es multiplicar y subir es dividir (×10 en longitud, capacidad y masa; ×100 en superficie). 1 t = 1.000 kg y 1 q = 100 kg. Medidas agrarias: 1 ha = 1 hm² = 10.000 m², 1 a = 1 dam² = 100 m², 1 ca = 1 m²." },
   { id: "areas", label: "Áreas y perímetros", category: "Geometría y medidas", generate: genAreas, generateACS: genAreasACS, generateDiscalculia: genAreasDiscalculia, generateAltas: genAreasAltas, resumen: "El perímetro es el borde: la suma de los lados (cm, m). El área es la superficie: los cuadraditos que caben dentro (cm², m²). Cuadrado: lado × lado. Rectángulo: base × altura. Triángulo: (base × altura) ÷ 2, con la altura, no con el lado inclinado.", resumen6: "Perímetro: suma de los lados. Áreas: rectángulo y romboide, base × altura; triángulo, (base × altura) ÷ 2; rombo, (D × d) ÷ 2; polígono regular, (perímetro × apotema) ÷ 2. Las figuras irregulares se descomponen en figuras conocidas y se suman (o se resta lo que sobra)." },
   { id: "circunferencia", label: "Circunferencia y círculo", category: "Geometría y medidas", generate: genCircunferencia, generateACS: genCircunferenciaACS, generateDiscalculia: genCircunferenciaDiscalculia, generateAltas: genCircunferenciaAltas, resumen: "La circunferencia es la línea curva; el círculo, la superficie que encierra. Radio: del centro a la circunferencia. Diámetro: de lado a lado pasando por el centro; mide dos radios (d = 2 × r).", resumen6: "La circunferencia es la línea; el círculo, la superficie. El diámetro mide dos radios. La circunferencia mide un poco más de 3 diámetros: longitud = π × d = 2 × π × r, con π = 3,14." },
-  { id: "proporcionalidad", label: "Proporcionalidad (regla de tres)", category: "Geometría y medidas", generate: genProporcionalidad, generateACS: genProporcionalidadACS, generateAltas: genProporcionalidadAltas, resumen: "En una relación de proporcionalidad, si conocemos el precio de una unidad podemos calcular el de cualquier cantidad." },
+  { id: "proporcionalidad", label: "Proporcionalidad y escalas", category: "Geometría y medidas", generate: genProporcionalidad, generateACS: genProporcionalidadACS, generateDiscalculia: genProporcionalidadDiscalculia, generateAltas: genProporcionalidadAltas, resumen: "Dos magnitudes son proporcionales si al doble le corresponde el doble y al triple, el triple. En una tabla de proporcionalidad, al dividir cada valor entre su pareja sale siempre lo mismo: la constante. Para resolver un problema, se calcula lo que corresponde a 1 y se multiplica. Escala 1:100: 1 cm del plano son 100 cm (1 m) reales. Cuidado: un taxi con bajada de bandera o una oferta 3 × 2 no son proporcionales." },
   { id: "estadistica", label: "Estadística (media y mediana)", category: "Geometría y medidas", generate: genEstadistica, generateACS: genEstadisticaACS, generateAltas: genEstadisticaAltas, resumen: "La media es la suma de todos los valores dividida entre el número de valores. La mediana es el valor central al ordenarlos." },
   { id: "angulos", label: "Ángulos", category: "Geometría y medidas", generate: genAngulos, generateACS: genAngulosACS, generateDiscalculia: genAngulosDiscalculia, generateAltas: genAngulosAltas, resumen: "Un ángulo se mide en grados (°) con el transportador: el centro en el vértice, un lado en el 0 y se lee en la escala que empieza en ese 0. Agudo: menos de 90°. Recto: 90°. Obtuso: entre 90° y 180°. Llano: 180°. Una vuelta entera son 360°.", resumen6: "Un ángulo se mide en grados con el transportador (cuidado con la escala). Agudo < 90° · recto = 90° · obtuso entre 90° y 180° · llano = 180° · completo = 360°. Dos ángulos son complementarios si suman 90° y suplementarios si suman 180°." },
   { id: "coordenadas", label: "Coordenadas", category: "Geometría y medidas", generate: genCoordenadas, generateACS: genCoordenadasACS, generateDiscalculia: genCoordenadasDiscalculia, generateAltas: genCoordenadasAltas, resumen: "Cada punto del plano tiene dos coordenadas (x, y): primero lo que se anda en horizontal y después lo que se sube. Trasladar es deslizar la figura sin girarla; en la simetría la figura se refleja como en un espejo; en un giro, la figura gira alrededor de un centro. En los tres movimientos no cambian ni la forma ni el tamaño.", resumen6: "En los cuatro cuadrantes, a la izquierda y por debajo del origen las coordenadas son negativas. Traslación: se suma el vector. Simetría respecto al eje Y: cambia de signo la x; respecto al eje X: cambia de signo la y. Media vuelta alrededor del origen: cambian de signo las dos. Dos figuras son semejantes si todos sus lados se multiplican por el mismo número (la escala)." },
