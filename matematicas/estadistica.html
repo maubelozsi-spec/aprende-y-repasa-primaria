@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estadística: diagramas de barras, moda y media · Matemáticas</title>
+<title>Estadística · Matemáticas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Estadística: diagramas de barras, moda y media</h1>
-        <p class="content-subtitle">Leer gráficos y calcular la moda y la media de un conjunto de datos.</p>
+        <p class="content-subtitle">Leer gráficos, hacer tablas de frecuencias y calcular la moda, la media, la mediana y el rango.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -56,35 +56,55 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
       <!-- ================= TEORÍA ================= -->
       <section id="tab-teoria" class="tab-panel active theory">
 
-        <h2>Diagramas de barras</h2>
-        <p>Un <strong>diagrama de barras</strong> muestra datos mediante barras: cuanto más alta es la barra, mayor es el valor de esa categoría.</p>
-        <div class="grid-example" id="ejemplo-barras"></div>
+        <h2>Gráficos</h2>
+        <p>Un <strong>diagrama de barras</strong> compara cantidades: cuanto más alta es la barra, mayor es el dato. Para saber cuánto vale una barra, se lleva su parte de arriba hasta la <strong>escala</strong> de la izquierda.</p>
+        <div class="po-draw" id="ejemplo-barras"></div>
+        <div class="tip-box">
+          <strong>Mira primero la escala:</strong> no siempre va de 1 en 1. Si cada raya vale 5, una barra que llega a la cuarta raya vale 4 × 5 = 20, no 4.
+        </div>
+        <p>Un <strong>gráfico de líneas</strong> muestra cómo cambia un dato con el tiempo (la temperatura de cada mes, lo que crece una planta cada semana): los puntos se unen con una línea y se ve si sube o baja.</p>
+
+        <h2>Tabla de frecuencias</h2>
+        <div class="rule-box esdrujula">
+          <h4>¿Qué es?</h4>
+          <p>La <strong>frecuencia</strong> de un dato es el número de veces que se repite. La <strong>tabla de frecuencias</strong> recoge cada dato con su frecuencia. La suma de las frecuencias es el número total de datos.</p>
+        </div>
+        <table class="rules-table">
+          <tr><th>Hermanos</th><th>Frecuencia</th></tr>
+          <tr><td>0</td><td>2</td></tr>
+          <tr><td>1</td><td>5</td></tr>
+          <tr><td>2</td><td>3</td></tr>
+          <tr><td><strong>Total</strong></td><td><strong>10</strong></td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Truco para contar:</strong> ve tachando cada dato de la lista según lo cuentas, para no contarlo dos veces ni saltártelo. Al final, comprueba que el total coincide con el número de datos.
+        </div>
 
         <h2>La moda</h2>
         <div class="rule-box aguda">
           <h4>Definición</h4>
-          <p>La <strong>moda</strong> es el valor que más se repite en un conjunto de datos.</p>
+          <p>La <strong>moda</strong> es el dato que más se repite (el de mayor frecuencia). En un diagrama de barras, es la barra más alta.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 3, 5, 3, 7, 3, 8 → el 3 sale 3 veces. La moda es <strong>3</strong>.</p>
         </div>
         <div class="tip-box">
-          <strong>Ejemplo:</strong> en 3, 5, 3, 7, 3, 8 → el 3 se repite 3 veces, más que cualquier otro. La moda es 3.
+          <strong>Cuidado:</strong> la moda es el <em>dato</em>, no las veces que se repite. En 2, 6, 6, 6, 4, la moda es 6 (no 3). Si dos datos empatan, hay dos modas; si todos se repiten igual, no hay moda.
         </div>
 
-        <h2>La media (promedio)</h2>
+        <h2>La media</h2>
         <div class="rule-box llana">
           <h4>Cómo se calcula</h4>
           <p>Se suman todos los datos y se divide entre el número de datos.</p>
+          <p class="examples"><strong>Ejemplo:</strong> 4, 6, 8 → (4 + 6 + 8) : 3 = 18 : 3 = <strong>6</strong>.</p>
         </div>
         <div class="tip-box">
-          <strong>Ejemplo:</strong> 4, 6, 8 → (4+6+8) ÷ 3 = 18 ÷ 3 = 6. La media es 6.
-        </div>
-        <div class="tip-box">
-          <strong>Cuidado:</strong> la media no siempre da un número entero. Ejemplo: 10, 15, 20, 25 → (10+15+20+25) ÷ 4 = 70 ÷ 4 = 17,5.
+          <strong>La media es un reparto:</strong> si juntas todo y lo repartes a partes iguales, a cada uno le toca la media. Puede no ser un número de la lista y puede tener decimales: 10, 15, 20, 25 → 70 : 4 = 17,5.
         </div>
 
         <div class="grade-section">
@@ -92,35 +112,22 @@
           <h2>La mediana</h2>
           <div class="rule-box aguda">
             <h4>Cómo se calcula</h4>
-            <p>Se ordenan los datos de menor a mayor. La <strong>mediana</strong> es el valor que queda justo en el centro. Si hay un número par de datos, se hace la media de los dos centrales.</p>
+            <p>Primero se <strong>ordenan</strong> los datos de menor a mayor. La <strong>mediana</strong> es el dato que queda en el centro. Si hay un número par de datos, es la media de los dos del centro.</p>
           </div>
           <div class="tip-box">
-            <strong>Ejemplo:</strong> 3, 5, 7, 8, 9 (ya ordenados) → el central es <strong>7</strong>.<br>
-            <strong>Con número par:</strong> 2, 4, 6, 8 → los centrales son 4 y 6 → (4+6) ÷ 2 = <strong>5</strong>.
+            <strong>Ejemplo:</strong> 8, 3, 9, 5, 7 → ordenados: 3, 5, <strong>7</strong>, 8, 9 → la mediana es <strong>7</strong> (sin ordenar, el del centro sería el 9: ¡mal!).<br>
+            <strong>Con número par:</strong> 2, 4, 6, 8 → los del centro son 4 y 6 → (4 + 6) : 2 = <strong>5</strong>.
           </div>
 
           <h2>El rango</h2>
           <div class="rule-box llana">
             <h4>Cómo se calcula</h4>
-            <p>El <strong>rango</strong> es la diferencia entre el dato mayor y el dato menor. Indica cuánto se "extienden" los datos.</p>
-          </div>
-          <div class="tip-box">
-            <strong>Ejemplo:</strong> en 3, 5, 7, 8, 9 → rango = 9 − 3 = <strong>6</strong>.
+            <p>El <strong>rango</strong> es la diferencia entre el dato mayor y el menor: dice cuánto se separan los datos.</p>
+            <p class="examples"><strong>Ejemplo:</strong> 3, 5, 7, 8, 9 → 9 − 3 = <strong>6</strong>.</p>
           </div>
 
-          <h2>Tabla de frecuencias</h2>
-          <div class="rule-box esdrujula">
-            <h4>¿Qué es?</h4>
-            <p>Una <strong>tabla de frecuencias</strong> muestra cuántas veces (la <strong>frecuencia</strong>) se repite cada valor en un conjunto de datos.</p>
-          </div>
-          <table class="rules-table">
-            <tr><th>Valor</th><th>Frecuencia</th></tr>
-            <tr><td>3</td><td>3 veces</td></tr>
-            <tr><td>5</td><td>1 vez</td></tr>
-            <tr><td>7</td><td>2 veces</td></tr>
-          </table>
           <div class="tip-box">
-            <strong>Ejemplo:</strong> para los datos 3, 5, 3, 7, 3, 7, la tabla de frecuencias cuenta cuántas veces aparece cada número.
+            <strong>Ampliación · media o mediana:</strong> un dato muy distinto de los demás arrastra la media, pero casi no mueve la mediana. Con 2, 3, 4, 5, 6 la media y la mediana valen 4; si añadimos un 40, la media sube a 10 y la mediana solo a 4,5.
           </div>
         </div>
 
@@ -129,6 +136,43 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="es-barras">
+          <h2>1. Haz tu diagrama de barras</h2>
+          <p class="md-explore-intro">Cambia los votos de cada sabor de helado y mira cómo cambian el diagrama, la tabla de frecuencias y la moda.</p>
+          <div class="md-controls">
+            <div class="md-stepper"><span class="md-stepper-label">Fresa</span><button type="button" class="btn btn-secondary" data-es-i="0" data-es-d="-1" aria-label="Un voto menos a fresa">−</button><output id="es-v0"></output><button type="button" class="btn btn-secondary" data-es-i="0" data-es-d="1" aria-label="Un voto más a fresa">+</button></div>
+            <div class="md-stepper"><span class="md-stepper-label">Chocolate</span><button type="button" class="btn btn-secondary" data-es-i="1" data-es-d="-1" aria-label="Un voto menos a chocolate">−</button><output id="es-v1"></output><button type="button" class="btn btn-secondary" data-es-i="1" data-es-d="1" aria-label="Un voto más a chocolate">+</button></div>
+            <div class="md-stepper"><span class="md-stepper-label">Vainilla</span><button type="button" class="btn btn-secondary" data-es-i="2" data-es-d="-1" aria-label="Un voto menos a vainilla">−</button><output id="es-v2"></output><button type="button" class="btn btn-secondary" data-es-i="2" data-es-d="1" aria-label="Un voto más a vainilla">+</button></div>
+            <div class="md-stepper"><span class="md-stepper-label">Limón</span><button type="button" class="btn btn-secondary" data-es-i="3" data-es-d="-1" aria-label="Un voto menos a limón">−</button><output id="es-v3"></output><button type="button" class="btn btn-secondary" data-es-i="3" data-es-d="1" aria-label="Un voto más a limón">+</button></div>
+          </div>
+          <div class="po-draw" id="es-barras-draw"></div>
+          <div id="es-barras-tabla"></div>
+          <p class="md-msg ok" id="es-barras-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="es-media">
+          <h2>2. La media es un reparto</h2>
+          <p class="md-explore-intro">Cada torre tiene unos cubos. La línea marca la media: la altura que tendrían todas si repartiéramos los cubos a partes iguales.</p>
+          <div class="md-controls">
+            <div class="md-stepper"><span class="md-stepper-label">Torre 1</span><button type="button" class="btn btn-secondary" data-es-t="0" data-es-d="-1" aria-label="Un cubo menos en la torre 1">−</button><output id="es-t0"></output><button type="button" class="btn btn-secondary" data-es-t="0" data-es-d="1" aria-label="Un cubo más en la torre 1">+</button></div>
+            <div class="md-stepper"><span class="md-stepper-label">Torre 2</span><button type="button" class="btn btn-secondary" data-es-t="1" data-es-d="-1" aria-label="Un cubo menos en la torre 2">−</button><output id="es-t1"></output><button type="button" class="btn btn-secondary" data-es-t="1" data-es-d="1" aria-label="Un cubo más en la torre 2">+</button></div>
+            <div class="md-stepper"><span class="md-stepper-label">Torre 3</span><button type="button" class="btn btn-secondary" data-es-t="2" data-es-d="-1" aria-label="Un cubo menos en la torre 3">−</button><output id="es-t2"></output><button type="button" class="btn btn-secondary" data-es-t="2" data-es-d="1" aria-label="Un cubo más en la torre 3">+</button></div>
+            <div class="md-stepper"><span class="md-stepper-label">Torre 4</span><button type="button" class="btn btn-secondary" data-es-t="3" data-es-d="-1" aria-label="Un cubo menos en la torre 4">−</button><output id="es-t3"></output><button type="button" class="btn btn-secondary" data-es-t="3" data-es-d="1" aria-label="Un cubo más en la torre 4">+</button></div>
+            <div class="md-stepper"><span class="md-stepper-label">Torre 5</span><button type="button" class="btn btn-secondary" data-es-t="4" data-es-d="-1" aria-label="Un cubo menos en la torre 5">−</button><output id="es-t4"></output><button type="button" class="btn btn-secondary" data-es-t="4" data-es-d="1" aria-label="Un cubo más en la torre 5">+</button></div>
+            <button type="button" class="btn btn-secondary" id="es-atip"></button>
+          </div>
+          <div class="po-draw" id="es-media-draw"></div>
+          <p class="md-msg ok" id="es-media-msg" aria-live="polite"></p>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -142,20 +186,25 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="leerbarras">Leer el diagrama</button>
-            <button class="btn btn-secondary" data-mode="moda">Calcular la moda</button>
-            <button class="btn btn-secondary" data-mode="media">Calcular la media</button>
+            <button class="btn btn-secondary active" data-mode="graficos">Gráficos</button>
+            <button class="btn btn-secondary" data-mode="frecuencias">Frecuencias</button>
+            <button class="btn btn-secondary" data-mode="moda">Moda</button>
+            <button class="btn btn-secondary" data-mode="media">Media</button>
             <button class="btn btn-secondary" data-mode="mediana">Mediana <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="rango">Rango <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
-            <button class="btn btn-secondary" data-mode="frecuencias">Frecuencias <span class="status-pill status-grade6" style="margin-left:6px;">6º</span></button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
           <p class="instructions" id="instructions"></p>
-          <div class="grid-example" id="game-chart" style="display:none;"></div>
-          <div class="sentence-display" id="word-display" style="display:none;"></div>
+          <div class="po-draw" id="game-visual" style="display:none;"></div>
+          <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 

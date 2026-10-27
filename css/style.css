@@ -3718,3 +3718,8 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 .pp-tabla th, .pp-tabla td { text-align: center; white-space: nowrap; padding: 8px 12px; min-width: 44px; }
 .pp-tabla th { text-align: left; }
 .pp-hueco { font-weight: 800; color: var(--color-plum); background: var(--color-indigo-tint); }
+
+/* Estadística */
+.es-tit { text-align: center; font-weight: 800; margin: 0 0 4px; }
+.es-frec { width: auto; margin: 12px auto 0; }
+.es-frec th, .es-frec td { text-align: center; padding: 6px 14px; }

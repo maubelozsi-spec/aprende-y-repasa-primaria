@@ -4102,101 +4102,284 @@ function genProporcionalidadAltas() {
   return siguienteDeBaraja("ppAltas", [ppInversa, ppReceta, ppRuta, ppEscalaMapa, ppHallarEscala, () => ppReto(PP_NIVELES["6"])])();
 }
 
-const ESCENARIOS_ESTADISTICA = [
-  { contexto: "goles marcados en", marco: "partidos" },
-  { contexto: "libros leídos en", marco: "meses" },
-  { contexto: "puntos obtenidos en", marco: "partidos" },
+// ---------- Estadística ----------
+// 5º: tablas de frecuencias, gráficos, moda y media. 6º (SdA 9
+// «Arquitectos responsables»): además, mediana y rango; reto: el
+// consumo del edificio sostenible.
+const esSuma = (xs) => xs.reduce((a, b) => a + b, 0);
+const esOrden = (xs) => xs.slice().sort((a, b) => a - b);
+function esFmt(n) {
+  const r = Math.round(n * 100) / 100;
+  const [ent, dec] = String(r).split(".");
+  return `${ent.length > 3 ? ent.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : ent}${dec ? `,${dec}` : ""}`;
+}
+function esMediana(xs) {
+  const o = esOrden(xs);
+  const c = Math.floor(o.length / 2);
+  return o.length % 2 ? o[c] : (o[c - 1] + o[c]) / 2;
+}
+function esFrec(xs) {
+  const f = new Map();
+  esOrden(xs).forEach((x) => f.set(x, (f.get(x) || 0) + 1));
+  return f;
+}
+const esCap = (t) => `${t[0].toUpperCase()}${t.slice(1)}`;
+const esTablaTxt = (f) => [...f].map(([x, k]) => `${x} → ${k}`).join("; ");
+function esModaUnica(xs) {
+  const f = esFrec(xs);
+  const max = Math.max(...f.values());
+  const modas = [...f].filter(([, k]) => k === max).map(([x]) => x);
+  return modas.length === 1 ? modas[0] : null;
+}
+
+const ES_CONTEXTOS = [
+  { frase: (n) => `las notas de ${n} alumnos en un examen de Lengua`, min: 3, max: 10 },
+  { frase: (n) => `los hermanos que tienen ${n} compañeros de clase`, min: 0, max: 4 },
+  { frase: (n) => `los goles que ha marcado el equipo del colegio en ${n} partidos`, min: 0, max: 6 },
+  { frase: (n) => `los libros que han leído ${n} alumnos este trimestre`, min: 1, max: 9 },
+  { frase: (n) => `los puntos de ${n} jugadoras en un partido de baloncesto`, min: 2, max: 14, grande: true },
 ];
 
-function estadisticaMediaMediana(curso) {
-  const n = curso === "6" ? 6 : 5;
-  const valores = Array.from({ length: n }, () => randomInt(1, 10));
-  const suma = valores.reduce((acc, v) => acc + v, 0);
-  const media = fmtTrim(suma / n);
-  const ordenados = [...valores].sort((a, b) => a - b);
-  const mediana =
-    n % 2 === 0 ? fmtTrim((ordenados[n / 2 - 1] + ordenados[n / 2]) / 2) : String(ordenados[(n - 1) / 2]);
-  const escenario = pick(ESCENARIOS_ESTADISTICA);
-  if (curso === "6") {
-    return {
-      enunciado: `Estos son los ${escenario.contexto} ${n} ${escenario.marco}: ${valores.join(", ")}. Calcula la media y la mediana.`,
-      datos: [`Valores: ${valores.join(", ")}`],
-      operacion: `Media: (${valores.join(" + ")}) ÷ ${n} = ${suma} ÷ ${n} = ${media}. Mediana: ordenamos (${ordenados.join(", ")}) y tomamos el valor central.`,
-      solucion: `Media = ${media}, Mediana = ${mediana}.`,
-    };
+const ES_NIVELES = {
+  "5": { n: [6, 8], medio: false },
+  "6": { n: [7, 10], medio: true },
+  disc: { n: [4, 5], medio: false, facil: true },
+};
+
+function esContexto(nivel) {
+  return pick(ES_CONTEXTOS.filter((c) => !(nivel.facil && c.grande)));
+}
+
+// Datos con media exacta (entera, o acabada en ,5 si nivel.medio).
+function esDatosMedia(nivel, c, n) {
+  for (;;) {
+    const xs = Array.from({ length: n }, () => randomInt(c.min, c.max));
+    const div = nivel.medio && n % 2 === 0 && Math.random() < 0.4 ? n / 2 : n;
+    const falta = (div - (esSuma(xs) % div)) % div;
+    if (xs[n - 1] + falta <= c.max) {
+      xs[n - 1] += falta;
+      return xs;
+    }
   }
+}
+
+// Datos con una sola moda.
+function esDatosModa(c, n) {
+  for (;;) {
+    const xs = Array.from({ length: n }, () => randomInt(c.min, c.max));
+    if (esModaUnica(xs) !== null && Math.max(...esFrec(xs).values()) >= 2) return xs;
+  }
+}
+
+function esTabla(nivel) {
+  const c = esContexto(nivel);
+  const n = nivel.facil ? randomInt(8, 10) : randomInt(12, 16);
+  const base = randomInt(c.min, Math.max(c.min, c.max - 4));
+  let xs;
+  do xs = Array.from({ length: n }, () => base + randomInt(0, nivel.facil ? 2 : 4));
+  while (esModaUnica(xs) === null);
+  const f = esFrec(xs);
   return {
-    enunciado: `Estos son los ${escenario.contexto} ${n} ${escenario.marco}: ${valores.join(", ")}. Calcula la media.`,
-    datos: [`Valores: ${valores.join(", ")}`],
-    operacion: `(${valores.join(" + ")}) ÷ ${n} = ${suma} ÷ ${n} = ${media}`,
-    solucion: `${media}. La media es ${media}.`,
+    enunciado: `${esCap(c.frase(n))} son: ${xs.join(", ")}. Haz la tabla de frecuencias y dibuja el diagrama de barras. ¿Cuál es la moda?`,
+    datos: [`${n} datos`],
+    operacion: `Se cuenta cuántas veces sale cada dato (tachando): ${esTablaTxt(f)}. Total: ${[...f.values()].join(" + ")} = ${n}`,
+    solucion: `Tabla: ${esTablaTxt(f)} (total ${n}). La moda es ${esModaUnica(xs)}.`,
   };
 }
 
-function estadisticaRango(curso) {
-  const n = curso === "6" ? 7 : 5;
-  const valores = Array.from({ length: n }, () => randomInt(1, curso === "6" ? 50 : 20));
-  const maximo = Math.max(...valores);
-  const minimo = Math.min(...valores);
-  const rango = maximo - minimo;
-  const escenario = pick(ESCENARIOS_ESTADISTICA);
+function esModaMedia(nivel) {
+  const c = esContexto(nivel);
+  const n = randomInt(...nivel.n);
+  let xs;
+  do xs = esDatosMedia(nivel, c, n);
+  while (esModaUnica(xs) === null || Math.max(...esFrec(xs).values()) < 2);
+  const m = esSuma(xs) / n;
+  const mo = esModaUnica(xs);
   return {
-    enunciado: `Estos son ${escenario.contexto} ${n} ${escenario.marco}: ${valores.join(", ")}. Calcula el rango (diferencia entre el valor máximo y el mínimo).`,
-    datos: [`Valores: ${valores.join(", ")}`],
-    operacion: `Máximo: ${maximo}. Mínimo: ${minimo}. Rango: ${maximo} − ${minimo} = ${rango}`,
-    solucion: `${rango}. El rango es ${rango}.`,
+    enunciado: `${esCap(c.frase(n))} son: ${xs.join(", ")}. Calcula la moda y la media.`,
+    datos: [`${n} datos: ${xs.join(", ")}`],
+    operacion: `Moda: el ${mo} sale ${esFrec(xs).get(mo)} veces · Media: (${xs.join(" + ")}) : ${n} = ${esSuma(xs)} : ${n} = ${esFmt(m)}`,
+    solucion: `La moda es ${mo} y la media es ${esFmt(m)}.`,
   };
 }
 
-function estadisticaModa(curso) {
-  const n = curso === "6" ? 8 : 6;
-  const modaValor = randomInt(1, 6);
-  const otros = [1, 2, 3, 4, 5, 6].filter((v) => v !== modaValor);
-  const valores = [modaValor, modaValor, modaValor];
-  for (let i = 0; valores.length < n; i++) {
-    valores.push(otros[i % otros.length]);
-  }
-  for (let i = valores.length - 1; i > 0; i--) {
-    const j = randomInt(0, i);
-    [valores[i], valores[j]] = [valores[j], valores[i]];
-  }
-  const vecesModa = valores.filter((v) => v === modaValor).length;
+function esMedianaRango(nivel) {
+  const c = esContexto(nivel);
+  // En discalculia, un número impar de datos: la mediana sale entera.
+  const n = nivel.facil ? 5 : randomInt(...nivel.n);
+  const xs = Array.from({ length: n }, () => randomInt(c.min, c.max));
+  const o = esOrden(xs);
+  const me = esMediana(xs);
+  const k = Math.floor(n / 2);
   return {
-    enunciado: `Estos son los goles marcados por un equipo en ${n} partidos: ${valores.join(", ")}. Calcula la moda (el valor que más se repite).`,
-    datos: [`Valores: ${valores.join(", ")}`],
-    operacion: `Contamos cuántas veces se repite cada valor. El ${modaValor} aparece ${vecesModa} veces, más que los demás.`,
-    solucion: `${modaValor}. La moda es ${modaValor}.`,
+    enunciado: `${esCap(c.frase(n))} son: ${xs.join(", ")}. Calcula la mediana y el rango.`,
+    datos: [`${n} datos`],
+    operacion: `Ordenados: ${o.join(", ")} · Mediana: ${n % 2 ? `el del centro, ${me}` : `(${o[k - 1]} + ${o[k]}) : 2 = ${esFmt(me)}`} · Rango: ${o[n - 1]} − ${o[0]} = ${o[n - 1] - o[0]}`,
+    solucion: `La mediana es ${esFmt(me)} y el rango es ${o[n - 1] - o[0]}.`,
+  };
+}
+
+function esTodas(nivel) {
+  const c = esContexto(nivel);
+  const n = randomInt(...nivel.n);
+  let xs;
+  do xs = esDatosMedia(nivel, c, n);
+  while (esModaUnica(xs) === null || Math.max(...esFrec(xs).values()) < 2);
+  const o = esOrden(xs);
+  const k = Math.floor(n / 2);
+  const me = esMediana(xs);
+  return {
+    enunciado: `${esCap(c.frase(n))} son: ${xs.join(", ")}. Calcula la media, la moda, la mediana y el rango.`,
+    datos: [`${n} datos`],
+    operacion: `Media: ${esSuma(xs)} : ${n} = ${esFmt(esSuma(xs) / n)} · Moda: ${esModaUnica(xs)} · Ordenados: ${o.join(", ")} · Mediana: ${n % 2 ? me : `(${o[k - 1]} + ${o[k]}) : 2 = ${esFmt(me)}`} · Rango: ${o[n - 1]} − ${o[0]} = ${o[n - 1] - o[0]}`,
+    solucion: `Media ${esFmt(esSuma(xs) / n)}, moda ${esModaUnica(xs)}, mediana ${esFmt(me)} y rango ${o[n - 1] - o[0]}.`,
+  };
+}
+
+const ES_ENCUESTAS = [
+  { tit: "el deporte favorito", cats: ["fútbol", "baloncesto", "natación", "tenis", "atletismo"] },
+  { tit: "la fruta favorita", cats: ["fresa", "plátano", "manzana", "naranja", "uva"] },
+  { tit: "cómo vienen al colegio", cats: ["andando", "coche", "autobús", "bici"] },
+];
+
+function esLeer(nivel) {
+  const e = pick(ES_ENCUESTAS);
+  const k = nivel.facil ? 3 : Math.min(4, e.cats.length);
+  const cats = e.cats.slice(0, k);
+  const pool = [];
+  for (let v = 2; v <= (nivel.facil ? 9 : 15); v++) pool.push(v);
+  const vs = [];
+  while (vs.length < k) {
+    const v = pick(pool);
+    if (!vs.includes(v)) vs.push(v);
+  }
+  const iMax = vs.indexOf(Math.max(...vs));
+  const [a, b] = [0, 1].sort((x, y) => vs[y] - vs[x]);
+  return {
+    enunciado: `En una encuesta sobre ${e.tit}, estos son los votos: ${cats.map((c, i) => `${c}, ${vs[i]}`).join("; ")}. Dibuja el diagrama de barras. ¿Cuántos alumnos votaron? ¿Cuántos votos más tiene «${cats[a]}» que «${cats[b]}»? ¿Cuál es la moda?`,
+    datos: cats.map((c, i) => `${c}: ${vs[i]}`),
+    operacion: `Total: ${vs.join(" + ")} = ${esSuma(vs)} · ${vs[a]} − ${vs[b]} = ${vs[a] - vs[b]} · La barra más alta es ${cats[iMax]}`,
+    solucion: `Votaron ${esSuma(vs)} alumnos. «${esCap(cats[a])}» tiene ${vs[a] - vs[b]} ${vs[a] - vs[b] === 1 ? "voto" : "votos"} más. La moda es «${cats[iMax]}».`,
+  };
+}
+
+// Reto de la SdA 9: el consumo de energía del edificio.
+function esReto(nivel) {
+  const dias = ["lunes", "martes", "miércoles", "jueves", "viernes"];
+  let xs;
+  do xs = Array.from({ length: 5 }, () => (nivel.facil ? randomInt(3, 9) * 10 : randomInt(30, 70) * 5));
+  while (esSuma(xs) % 5 !== 0 || new Set(xs).size < 5);
+  const m = esSuma(xs) / 5;
+  const sobre = dias.filter((d, i) => xs[i] > m);
+  const iMax = xs.indexOf(Math.max(...xs));
+  return {
+    enunciado: `Reto · El edificio sostenible: estos son los kWh de electricidad que ha gastado el colegio cada día de la semana: ${dias.map((d, i) => `${d}, ${xs[i]} kWh`).join("; ")}. ¿Cuál es el consumo medio diario? ¿Qué días se gastó más que la media? ¿Cuál es el rango?`,
+    datos: dias.map((d, i) => `${d}: ${xs[i]} kWh`),
+    operacion: `Media: ${xs.join(" + ")} = ${esSuma(xs)} · ${esSuma(xs)} : 5 = ${esFmt(m)} · Rango: ${Math.max(...xs)} − ${Math.min(...xs)} = ${Math.max(...xs) - Math.min(...xs)}`,
+    solucion: `La media es ${esFmt(m)} kWh al día. Gastaron más que la media: ${sobre.join(", ")}. El rango es ${Math.max(...xs) - Math.min(...xs)} kWh (el día de más gasto fue el ${dias[iMax]}).`,
   };
 }
 
 function genEstadistica(curso) {
-  return pick([estadisticaMediaMediana, estadisticaRango, estadisticaModa])(curso);
+  if (curso === "6") return siguienteDeBaraja("es6", [esTabla, esLeer, esModaMedia, esMedianaRango, esTodas, esReto, esMedianaRango])(ES_NIVELES["6"]);
+  return siguienteDeBaraja("es5", [esTabla, esLeer, esModaMedia, esModaMedia, esTabla])(ES_NIVELES["5"]);
+}
+
+function genEstadisticaDiscalculia(curso) {
+  if (curso === "6") return siguienteDeBaraja("esDisc6", [esTabla, esLeer, esModaMedia, esMedianaRango, esReto])(ES_NIVELES.disc);
+  return siguienteDeBaraja("esDisc5", [esTabla, esLeer, esModaMedia])(ES_NIVELES.disc);
+}
+
+// ACS: contar, la barra más alta y la moda, con pocos datos.
+function esAcsContar() {
+  const v = randomInt(1, 5);
+  const xs = [v, v, v];
+  while (xs.length < 7) {
+    const x = randomInt(1, 5);
+    if (x !== v && xs.filter((y) => y === x).length < 2) xs.push(x);
+  }
+  for (let i = xs.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [xs[i], xs[j]] = [xs[j], xs[i]];
+  }
+  const w = pick(xs.filter((x) => x !== v));
+  return {
+    enunciado: `Estos son los goles de un equipo en 7 partidos: ${xs.join(", ")}. ¿Cuántas veces marcó ${w} goles? ¿Qué número se repite más (la moda)?`,
+    datos: [`Goles: ${xs.join(", ")}`],
+    operacion: `Tacha cada ${w}: sale ${xs.filter((x) => x === w).length} ${xs.filter((x) => x === w).length === 1 ? "vez" : "veces"} · El ${v} sale 3 veces`,
+    solucion: `Marcó ${w} goles ${xs.filter((x) => x === w).length} ${xs.filter((x) => x === w).length === 1 ? "vez" : "veces"}. La moda es ${v}.`,
+  };
 }
 
 function genEstadisticaACS() {
-  return estadisticaModa("5");
+  return siguienteDeBaraja("esAcs", [esAcsContar, () => esLeer(ES_NIVELES.disc), esAcsContar, () => esTabla(ES_NIVELES.disc)])();
+}
+
+// Altas: el dato que falta, un dato atípico, la media de una tabla de
+// frecuencias y la frecuencia relativa en porcentaje.
+function esFalta() {
+  const n = randomInt(4, 6);
+  const m = randomInt(6, 8);
+  let xs;
+  let x;
+  do {
+    xs = Array.from({ length: n - 1 }, () => randomInt(4, 10));
+    x = m * n - esSuma(xs);
+  } while (x < 1 || x > 10);
+  return {
+    enunciado: `Lucía ha sacado ${xs.join(", ")} en ${n - 1} exámenes. ¿Qué nota necesita en el siguiente para que su media sea ${m}?`,
+    datos: [`Notas: ${xs.join(", ")}`, `Media buscada: ${m} con ${n} exámenes`],
+    operacion: `Todas juntas deben sumar ${m} × ${n} = ${m * n} · Ya tiene ${esSuma(xs)} · ${m * n} − ${esSuma(xs)} = ${x}`,
+    solucion: `Necesita un ${x}.`,
+  };
+}
+
+function esAtipico() {
+  const ys = Array.from({ length: 6 }, () => 100 * randomInt(9, 14)).concat(6000);
+  while (esSuma(ys) % 700 !== 0) ys[6] += 100;
+  const m = esSuma(ys) / 7;
+  const me = esMediana(ys);
+  return {
+    enunciado: `Los sueldos de los 7 trabajadores de una tienda son: ${ys.map((y) => `${esFmt(y)} €`).join(", ")}. Calcula la media y la mediana. ¿Cuál representa mejor lo que cobra un trabajador normal? ¿Por qué?`,
+    datos: ["7 sueldos"],
+    operacion: `Media: ${esFmt(esSuma(ys))} : 7 = ${esFmt(m)} · Ordenados: ${esOrden(ys).map(esFmt).join(", ")} · Mediana: ${esFmt(me)}`,
+    solucion: `Media ${esFmt(m)} €, mediana ${esFmt(me)} €. Representa mejor la mediana: el sueldo de ${esFmt(ys[6])} € es muy distinto y arrastra la media hacia arriba.`,
+  };
+}
+
+function esMediaTabla() {
+  const vals = [0, 1, 2, 3, 4];
+  let fs;
+  do fs = vals.map(() => randomInt(1, 8));
+  while ((vals.reduce((a, v, i) => a + v * fs[i], 0) * 2) % esSuma(fs) !== 0);
+  const N = esSuma(fs);
+  const S = vals.reduce((a, v, i) => a + v * fs[i], 0);
+  return {
+    enunciado: `En una encuesta sobre el número de hermanos, la tabla de frecuencias es: ${vals.map((v, i) => `${v} ${v === 1 ? "hermano" : "hermanos"}, ${fs[i]} ${fs[i] === 1 ? "alumno" : "alumnos"}`).join("; ")}. ¿Cuántos alumnos hay? ¿Cuál es la media de hermanos?`,
+    datos: vals.map((v, i) => `${v} → ${fs[i]}`),
+    operacion: `Alumnos: ${fs.join(" + ")} = ${N} · Hermanos en total: ${vals.map((v, i) => `${v} × ${fs[i]}`).join(" + ")} = ${S} · Media: ${S} : ${N} = ${esFmt(S / N)}`,
+    solucion: `Hay ${N} alumnos y la media es ${esFmt(S / N)} hermanos.`,
+  };
+}
+
+function esPorcentaje() {
+  const N = pick([20, 25, 50]);
+  const cats = ["fútbol", "baloncesto", "natación", "tenis"];
+  let fs;
+  do {
+    fs = [randomInt(1, Math.floor(N / 2)), randomInt(1, Math.floor(N / 3)), randomInt(1, Math.floor(N / 4))];
+    fs.push(N - esSuma(fs));
+  } while (fs[3] < 1 || new Set(fs).size < 4);
+  return {
+    enunciado: `En una encuesta a ${N} alumnos sobre su deporte favorito: ${cats.map((c, i) => `${c}, ${fs[i]}`).join("; ")}. Escribe la frecuencia relativa de cada deporte como fracción y como porcentaje.`,
+    datos: cats.map((c, i) => `${c}: ${fs[i]}`),
+    operacion: cats.map((c, i) => `${fs[i]}/${N} = ${(fs[i] * 100) / N}/100`).join(" · "),
+    solucion: cats.map((c, i) => `${c}: ${fs[i]}/${N} = ${(fs[i] * 100) / N} %`).join("; ") + ". Suman el 100 %.",
+  };
 }
 
 function genEstadisticaAltas() {
-  const n = 7;
-  const valores = Array.from({ length: n }, () => randomInt(1, 12));
-  const suma = valores.reduce((acc, v) => acc + v, 0);
-  const media = fmtTrim(suma / n);
-  const ordenados = [...valores].sort((a, b) => a - b);
-  const mediana = String(ordenados[(n - 1) / 2]);
-  const maximo = Math.max(...valores);
-  const minimo = Math.min(...valores);
-  const rango = maximo - minimo;
-  const counts = {};
-  valores.forEach((v) => (counts[v] = (counts[v] || 0) + 1));
-  const moda = Object.keys(counts).reduce((a, b) => (counts[a] >= counts[b] ? a : b));
-  const escenario = pick(ESCENARIOS_ESTADISTICA);
-  return {
-    enunciado: `Estos son los ${escenario.contexto} ${n} ${escenario.marco}: ${valores.join(", ")}. Calcula la media, la mediana, la moda y el rango.`,
-    datos: [`Valores: ${valores.join(", ")}`],
-    operacion: `Media: (${valores.join(" + ")}) ÷ ${n} = ${media}. Mediana: ordenamos (${ordenados.join(", ")}) y tomamos el central. Moda: el valor que más se repite. Rango: ${maximo} − ${minimo} = ${rango}`,
-    solucion: `Media = ${media}, Mediana = ${mediana}, Moda = ${moda}, Rango = ${rango}.`,
-  };
+  return siguienteDeBaraja("esAltas", [esFalta, esAtipico, esMediaTabla, esPorcentaje, () => esTodas(ES_NIVELES["6"]), () => esReto(ES_NIVELES["6"])])();
 }
 
 // ---- Ángulos ----
@@ -5647,7 +5830,7 @@ const TOPICS = [
   { id: "areas", label: "Áreas y perímetros", category: "Geometría y medidas", generate: genAreas, generateACS: genAreasACS, generateDiscalculia: genAreasDiscalculia, generateAltas: genAreasAltas, resumen: "El perímetro es el borde: la suma de los lados (cm, m). El área es la superficie: los cuadraditos que caben dentro (cm², m²). Cuadrado: lado × lado. Rectángulo: base × altura. Triángulo: (base × altura) ÷ 2, con la altura, no con el lado inclinado.", resumen6: "Perímetro: suma de los lados. Áreas: rectángulo y romboide, base × altura; triángulo, (base × altura) ÷ 2; rombo, (D × d) ÷ 2; polígono regular, (perímetro × apotema) ÷ 2. Las figuras irregulares se descomponen en figuras conocidas y se suman (o se resta lo que sobra)." },
   { id: "circunferencia", label: "Circunferencia y círculo", category: "Geometría y medidas", generate: genCircunferencia, generateACS: genCircunferenciaACS, generateDiscalculia: genCircunferenciaDiscalculia, generateAltas: genCircunferenciaAltas, resumen: "La circunferencia es la línea curva; el círculo, la superficie que encierra. Radio: del centro a la circunferencia. Diámetro: de lado a lado pasando por el centro; mide dos radios (d = 2 × r).", resumen6: "La circunferencia es la línea; el círculo, la superficie. El diámetro mide dos radios. La circunferencia mide un poco más de 3 diámetros: longitud = π × d = 2 × π × r, con π = 3,14." },
   { id: "proporcionalidad", label: "Proporcionalidad y escalas", category: "Geometría y medidas", generate: genProporcionalidad, generateACS: genProporcionalidadACS, generateDiscalculia: genProporcionalidadDiscalculia, generateAltas: genProporcionalidadAltas, resumen: "Dos magnitudes son proporcionales si al doble le corresponde el doble y al triple, el triple. En una tabla de proporcionalidad, al dividir cada valor entre su pareja sale siempre lo mismo: la constante. Para resolver un problema, se calcula lo que corresponde a 1 y se multiplica. Escala 1:100: 1 cm del plano son 100 cm (1 m) reales. Cuidado: un taxi con bajada de bandera o una oferta 3 × 2 no son proporcionales." },
-  { id: "estadistica", label: "Estadística (media y mediana)", category: "Geometría y medidas", generate: genEstadistica, generateACS: genEstadisticaACS, generateAltas: genEstadisticaAltas, resumen: "La media es la suma de todos los valores dividida entre el número de valores. La mediana es el valor central al ordenarlos." },
+  { id: "estadistica", label: "Estadística", category: "Geometría y medidas", generate: genEstadistica, generateACS: genEstadisticaACS, generateDiscalculia: genEstadisticaDiscalculia, generateAltas: genEstadisticaAltas, resumen: "La frecuencia de un dato es las veces que se repite; la tabla de frecuencias recoge cada dato con su frecuencia. En un diagrama de barras, mira primero cuánto vale cada raya de la escala. La moda es el dato que más se repite (el dato, no las veces). La media: se suman todos los datos y se divide entre cuántos hay.", resumen6: "Frecuencia: las veces que se repite un dato. Moda: el dato que más se repite. Media: suma de los datos entre el número de datos. Mediana: se ordenan los datos y se toma el del centro (si son pares, la media de los dos del centro). Rango: dato mayor − dato menor. Un dato muy distinto mueve mucho la media y poco la mediana." },
   { id: "angulos", label: "Ángulos", category: "Geometría y medidas", generate: genAngulos, generateACS: genAngulosACS, generateDiscalculia: genAngulosDiscalculia, generateAltas: genAngulosAltas, resumen: "Un ángulo se mide en grados (°) con el transportador: el centro en el vértice, un lado en el 0 y se lee en la escala que empieza en ese 0. Agudo: menos de 90°. Recto: 90°. Obtuso: entre 90° y 180°. Llano: 180°. Una vuelta entera son 360°.", resumen6: "Un ángulo se mide en grados con el transportador (cuidado con la escala). Agudo < 90° · recto = 90° · obtuso entre 90° y 180° · llano = 180° · completo = 360°. Dos ángulos son complementarios si suman 90° y suplementarios si suman 180°." },
   { id: "coordenadas", label: "Coordenadas", category: "Geometría y medidas", generate: genCoordenadas, generateACS: genCoordenadasACS, generateDiscalculia: genCoordenadasDiscalculia, generateAltas: genCoordenadasAltas, resumen: "Cada punto del plano tiene dos coordenadas (x, y): primero lo que se anda en horizontal y después lo que se sube. Trasladar es deslizar la figura sin girarla; en la simetría la figura se refleja como en un espejo; en un giro, la figura gira alrededor de un centro. En los tres movimientos no cambian ni la forma ni el tamaño.", resumen6: "En los cuatro cuadrantes, a la izquierda y por debajo del origen las coordenadas son negativas. Traslación: se suma el vector. Simetría respecto al eje Y: cambia de signo la x; respecto al eje X: cambia de signo la y. Media vuelta alrededor del origen: cambian de signo las dos. Dos figuras son semejantes si todos sus lados se multiplican por el mismo número (la escala)." },
   { id: "cuerpos-geometricos", label: "Cuerpos geométricos", category: "Geometría y medidas", generate: genCuerposGeometricos, generateACS: genCuerposGeometricosACS, generateDiscalculia: genCuerposGeometricosDiscalculia, generateAltas: genCuerposGeometricosAltas, resumen: "Los poliedros tienen todas las caras planas; los cuerpos redondos, alguna superficie curva. Prisma: dos bases iguales y caras rectangulares. Pirámide: una base y caras triangulares que se juntan en un vértice. El desarrollo plano es el cuerpo abierto sobre la mesa.", resumen6: "Poliedros (prismas y pirámides) y cuerpos redondos (cilindro, cono, esfera). Prisma de base de n lados: n + 2 caras, 3n aristas, 2n vértices. Pirámide: n + 1 caras, 2n aristas, n + 1 vértices. Fórmula de Euler: caras + vértices = aristas + 2." },
