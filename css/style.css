@@ -3723,3 +3723,8 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 .es-tit { text-align: center; font-weight: 800; margin: 0 0 4px; }
 .es-frec { width: auto; margin: 12px auto 0; }
 .es-frec th, .es-frec td { text-align: center; padding: 6px 14px; }
+
+/* Probabilidad */
+.pb-pareja { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.pb-pareja svg { max-width: 48%; }
+.pb-lista { margin: 0 0 6px; padding-left: 20px; }

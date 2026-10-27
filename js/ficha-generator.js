@@ -5286,66 +5286,266 @@ function genNumerosGrandesAltas() {
   return siguienteDeBaraja("ngAltas", [() => ngLeerEscribir(a), () => ngNoticia(a), ngCuantosRedondean, () => ngDescomponer(a), () => ngRedondearDos(a)])();
 }
 
-function probabilidadCalcular() {
-  const rojas = randomInt(2, 6);
-  const azules = randomInt(2, 6);
-  const total = rojas + azules;
-  const g = gcd(rojas, total);
-  const numSimpl = rojas / g;
-  const denSimpl = total / g;
-  return {
-    enunciado: `Una bolsa tiene ${rojas} bolas rojas y ${azules} bolas azules. ¿Cuál es la probabilidad de sacar una bola roja?`,
-    datos: [`Bolas rojas: ${rojas}`, `Bolas azules: ${azules}`, `Total: ${total}`],
-    operacion: `Casos favorables ÷ casos totales = ${rojas}/${total}${g > 1 ? ` = ${numSimpl}/${denSimpl}` : ""}`,
-    solucion: g > 1 ? `${numSimpl}/${denSimpl}.` : `${rojas}/${total}.`,
-  };
+// ---------- Probabilidad ----------
+// 5º y 6º: sucesos seguros, posibles e imposibles, comparar
+// probabilidades (en proporción, no por número de bolas) y calcularlas
+// con la regla de Laplace.
+const PB_COLORES = [["roja", "rojas"], ["azul", "azules"], ["verde", "verdes"], ["blanca", "blancas"]];
+const pbBolas = (id, n) => `${n} ${n === 1 ? id : PB_COLORES.find((c) => c[0] === id)[1]}`;
+function pbTexto(bolsa) {
+  const p = bolsa.map(([id, n]) => pbBolas(id, n));
+  return p.length > 1 ? `${p.slice(0, -1).join(", ")} y ${p[p.length - 1]}` : p[0];
+}
+function pbFrac(f, t) {
+  if (f === 0) return "0/" + t + " = 0";
+  if (f === t) return `${f}/${t} = 1`;
+  const g = gcd(f, t);
+  return g > 1 ? `${f}/${t} = ${f / g}/${t / g}` : `${f}/${t}`;
+}
+function pbBolsaAzar(nivel, k) {
+  const ids = PB_COLORES.map((c) => c[0]);
+  for (let i = ids.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+  }
+  let ns;
+  do ns = ids.slice(0, k).map(() => randomInt(1, nivel.max));
+  while (new Set(ns).size < k);
+  return ids.slice(0, k).map((id, i) => [id, ns[i]]);
 }
 
-const PROBABILIDAD_SUCESOS = [
-  { texto: "Al lanzar un dado normal, sacar un número menor que 7", tipo: "Seguro" },
-  { texto: "Al lanzar un dado normal, sacar un 8", tipo: "Imposible" },
-  { texto: "Al lanzar una moneda, que salga cara", tipo: "Posible" },
-  { texto: "Al sacar una carta de la baraja, que sea una figura", tipo: "Posible" },
-  { texto: "Mañana el sol saldrá por el este", tipo: "Seguro" },
-  { texto: "Al lanzar un dado, sacar un número negativo", tipo: "Imposible" },
+const PB_NIVELES = {
+  "5": { max: 6, colores: 3, multiplos: true },
+  "6": { max: 8, colores: 3, baraja: true },
+  disc: { max: 4, colores: 2, mismoTotal: true, facil: true },
+};
+
+const PB_SUCESOS = [
+  ["Al lanzar un dado, sacar un número menor que 7", "seguro"],
+  ["Al lanzar un dado, sacar un 8", "imposible"],
+  ["Al lanzar un dado, sacar un número par", "posible"],
+  ["Al lanzar un dado, sacar un número mayor que 6", "imposible"],
+  ["Al lanzar una moneda, que salga cara", "posible"],
+  ["Al lanzar una moneda, que salga cara o cruz", "seguro"],
+  ["Al elegir un mes al azar, que tenga 32 días", "imposible"],
+  ["Al elegir un día de la semana al azar, que empiece por «m»", "posible"],
 ];
 
-function probabilidadClasificar() {
-  const s = pick(PROBABILIDAD_SUCESOS);
+function pbClasificar(nivel) {
+  const bolsa = pbBolsaAzar(nivel, 2);
+  const fuera = PB_COLORES.map((c) => c[0]).find((id) => !bolsa.some((b) => b[0] === id));
+  const deBolsa = [
+    [`En una bolsa con ${pbTexto(bolsa)}, sacar una bola ${fuera}`, "imposible"],
+    [`En una bolsa con ${pbTexto(bolsa)}, sacar una bola ${bolsa[0][0]}`, "posible"],
+    [`En una bolsa con ${pbTexto(bolsa)}, sacar una bola ${bolsa[0][0]} o ${bolsa[1][0]}`, "seguro"],
+  ];
+  const lista = [];
+  const pool = PB_SUCESOS.slice();
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  lista.push(pick(deBolsa));
+  // Al menos uno de cada tipo.
+  for (const tipo of ["seguro", "posible", "imposible"]) if (!lista.some((s) => s[1] === tipo)) lista.push(pool.find((s) => s[1] === tipo));
+  while (lista.length < 4) lista.push(pool.find((s) => !lista.includes(s)));
+  for (let i = lista.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [lista[i], lista[j]] = [lista[j], lista[i]];
+  }
   return {
-    enunciado: `Clasifica este suceso como seguro, posible o imposible: "${s.texto}".`,
-    datos: [`Suceso: ${s.texto}`],
-    operacion: `Pensamos si el suceso ocurre siempre, a veces o nunca.`,
-    solucion: `${s.tipo}.`,
+    enunciado: `¿Seguro, posible o imposible? ${lista.map(([t], i) => `${"abcd"[i]}) ${t}.`).join(" ")}`,
+    datos: ["Seguro: pasa siempre. Posible: puede pasar o no. Imposible: no pasa nunca."],
+    operacion: "Se piensa en todos los resultados que pueden salir.",
+    solucion: lista.map(([, tp], i) => `${"abcd"[i]}) ${tp}`).join("; ") + ".",
   };
 }
 
-function probabilidadComparar() {
-  const bolsaARojas = randomInt(3, 6);
-  const bolsaAAzules = randomInt(1, 3);
-  const bolsaBRojas = randomInt(1, 3);
-  const bolsaBAzules = randomInt(3, 6);
-  const totalA = bolsaARojas + bolsaAAzules;
-  const totalB = bolsaBRojas + bolsaBAzules;
-  const mayor = bolsaARojas / totalA > bolsaBRojas / totalB ? "A" : "B";
+function pbBolsa(nivel) {
+  const bolsa = pbBolsaAzar(nivel, nivel.facil ? 2 : 3);
+  const t = bolsa.reduce((s, b) => s + b[1], 0);
+  const ord = bolsa.slice().sort((a, b) => b[1] - a[1]);
   return {
-    enunciado: `Bolsa A: ${bolsaARojas} bolas rojas y ${bolsaAAzules} azules. Bolsa B: ${bolsaBRojas} bolas rojas y ${bolsaBAzules} azules. ¿En cuál bolsa es más probable sacar una bola roja?`,
-    datos: [`Bolsa A: ${bolsaARojas} rojas de ${totalA}`, `Bolsa B: ${bolsaBRojas} rojas de ${totalB}`],
-    operacion: `Bolsa A: ${bolsaARojas}/${totalA}. Bolsa B: ${bolsaBRojas}/${totalB}.`,
-    solucion: `Bolsa ${mayor}.`,
+    enunciado: `En una bolsa hay ${pbTexto(bolsa)}. Sacamos una bola sin mirar. ¿Qué color es más probable? ¿Y el menos probable? Calcula la probabilidad de sacar cada color.`,
+    datos: bolsa.map(([id, n]) => pbBolas(id, n)).concat(`Total: ${t} bolas`),
+    operacion: bolsa.map(([id, n]) => `${id}: ${pbFrac(n, t)}`).join(" · "),
+    solucion: `Más probable: ${ord[0][0]}. Menos probable: ${ord[ord.length - 1][0]}. ${bolsa.map(([id, n]) => `P(${id}) = ${n}/${t}`).join("; ")}.`,
   };
 }
 
-function genProbabilidad() {
-  return pick([probabilidadCalcular, probabilidadClasificar, probabilidadComparar])();
+function pbComparar(nivel) {
+  let a;
+  let ta;
+  let b;
+  let tb;
+  for (;;) {
+    ta = randomInt(3, nivel.facil ? 6 : nivel.multiplos ? 5 : 10);
+    tb = nivel.mismoTotal ? ta : nivel.multiplos ? ta * pick([2, 3]) : randomInt(3, 10);
+    if (tb > 12) continue;
+    if (nivel.multiplos && Math.random() < 0.5) [ta, tb] = [tb, ta];
+    a = randomInt(1, ta - 1);
+    b = randomInt(1, tb - 1);
+    if (nivel.mismoTotal ? a !== b : ta !== tb) break;
+  }
+  const res = a * tb === b * ta ? "Es igual de probable." : a * tb > b * ta ? "En la bolsa A." : "En la bolsa B.";
+  const den = (ta * tb) / gcd(ta, tb);
+  const eq = (x, t) => `${x}/${t}${t !== den ? ` = ${(x * den) / t}/${den}` : ""}`;
+  return {
+    enunciado: `Bolsa A: ${pbTexto([["roja", a], ["azul", ta - a]])}. Bolsa B: ${pbTexto([["roja", b], ["azul", tb - b]])}. ¿En qué bolsa es más probable sacar una bola roja?`,
+    datos: [`A: ${pbBolas("roja", a)} de ${ta}`, `B: ${pbBolas("roja", b)} de ${tb}`],
+    operacion: nivel.mismoTotal ? `Las dos tienen ${ta} bolas: se comparan las rojas, ${a} y ${b}` : `A: ${eq(a, ta)} · B: ${eq(b, tb)}`,
+    solucion: res,
+  };
+}
+
+function pbDado() {
+  const evs = [["sacar un número par", 3], ["sacar un número mayor que 4", 2], ["sacar un 7", 0], ["sacar un número menor que 7", 6], ["sacar un 3", 1], ["sacar un múltiplo de 3", 2]];
+  for (let i = evs.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [evs[i], evs[j]] = [evs[j], evs[i]];
+  }
+  const cuatro = evs.slice(0, 4);
+  return {
+    enunciado: `Lanzamos un dado. Calcula la probabilidad de: ${cuatro.map(([t], i) => `${"abcd"[i]}) ${t}`).join("; ")}.`,
+    datos: ["Casos posibles: 6 (1, 2, 3, 4, 5, 6)"],
+    operacion: cuatro.map(([, f], i) => `${"abcd"[i]}) ${pbFrac(f, 6)}`).join(" · "),
+    solucion: cuatro.map(([, f], i) => `${"abcd"[i]}) ${f}/6`).join("; ") + ".",
+  };
+}
+
+function pbRuleta(nivel) {
+  const bolsa = pbBolsaAzar({ max: nivel.facil ? 3 : 4 }, nivel.facil ? 2 : 3);
+  const t = bolsa.reduce((s, b) => s + b[1], 0);
+  const masc = { roja: "rojo", azul: "azul", verde: "verde", blanca: "blanco" };
+  const [id, n] = pick(bolsa);
+  return {
+    enunciado: `Una ruleta está dividida en ${t} partes iguales: ${bolsa.map(([c, k]) => `${k} de color ${masc[c]}`).join(", ")}. Dibújala y calcula la probabilidad de que salga ${masc[id]}.`,
+    datos: [`${t} partes`, `${n} de color ${masc[id]}`],
+    operacion: `Favorables: ${n}. Posibles: ${t}. ${pbFrac(n, t)}`,
+    solucion: `La probabilidad es ${n}/${t}.`,
+  };
+}
+
+function pbInventa(nivel) {
+  const t = nivel.facil ? 6 : pick([8, 10, 12]);
+  return {
+    enunciado: `Dibuja una bolsa con ${t} bolas rojas y azules en la que sea más probable sacar azul que roja, y en la que sacar una bola verde sea imposible. ¿Qué probabilidad tiene sacar roja en tu bolsa?`,
+    datos: [`${t} bolas`, "Más azules que rojas", "Ninguna verde"],
+    operacion: `Por ejemplo, ${t / 2 - 1} rojas y ${t / 2 + 1} azules`,
+    solucion: `Respuesta abierta: más azules que rojas (por ejemplo, ${t / 2 - 1} rojas y ${t / 2 + 1} azules, P(roja) = ${t / 2 - 1}/${t}) y ninguna verde.`,
+  };
+}
+
+function pbExperimento() {
+  const m = pick(["moneda", "dado"]);
+  const n = m === "moneda" ? pick([20, 30, 40]) : pick([30, 60]);
+  return {
+    enunciado: m === "moneda"
+      ? `Lanza una moneda ${n} veces y apunta los resultados en una tabla. ¿Cuántas caras esperabas, más o menos? ¿Te han salido exactamente esas?`
+      : `Lanza un dado ${n} veces y apunta cuántas veces sale cada número. ¿Cuántos seises esperabas, más o menos? ¿Te han salido exactamente esos?`,
+    datos: [`${n} lanzamientos`, m === "moneda" ? "P(cara) = 1/2" : "P(6) = 1/6"],
+    operacion: m === "moneda" ? `${n} : 2 = ${n / 2}` : `${n} : 6 = ${n / 6}`,
+    solucion: `Se esperan unas ${m === "moneda" ? `${n / 2} caras` : `${n / 6} veces el 6`}, pero lo normal es que salga un número parecido, no exactamente ese: la probabilidad no adivina cada lanzamiento.`,
+  };
+}
+
+function pbBaraja() {
+  const evs = [["una carta de oros", 10], ["un as", 4], ["una figura (sota, caballo o rey)", 12], ["el rey de espadas", 1], ["un 8", 0]];
+  for (let i = evs.length - 1; i > 0; i--) {
+    const j = randomInt(0, i);
+    [evs[i], evs[j]] = [evs[j], evs[i]];
+  }
+  const tres = evs.slice(0, 3);
+  return {
+    enunciado: `Sacamos una carta de una baraja española de 40 cartas (4 palos de 10 cartas: del 1 al 7, sota, caballo y rey). Calcula la probabilidad de sacar: ${tres.map(([t], i) => `${"abc"[i]}) ${t}`).join("; ")}.`,
+    datos: ["Casos posibles: 40"],
+    operacion: tres.map(([, f], i) => `${"abc"[i]}) ${pbFrac(f, 40)}`).join(" · "),
+    solucion: tres.map(([, f], i) => `${"abc"[i]}) ${f}/40`).join("; ") + ".",
+  };
+}
+
+function pbLetras() {
+  const w = pick(["PROBABILIDAD", "CARACOL", "BANANA", "ESTADISTICA", "CALCULADORA"]);
+  const letras = [...new Set(w)];
+  const l = pick(letras);
+  const f = w.split(l).length - 1;
+  return {
+    enunciado: `Escribimos cada letra de la palabra ${w} en una tarjeta y sacamos una sin mirar. ¿Qué probabilidad hay de sacar una «${l}»? ¿Qué letra es la más probable?`,
+    datos: [`${w.length} tarjetas`],
+    operacion: `Hay ${f} «${l}» de ${w.length} letras: ${pbFrac(f, w.length)}`,
+    solucion: `P(«${l}») = ${f}/${w.length}. La más probable: ${(() => {
+      const max = Math.max(...letras.map((x) => w.split(x).length - 1));
+      return letras.filter((x) => w.split(x).length - 1 === max).map((x) => `«${x}»`).join(", ");
+    })()}.`,
+  };
+}
+
+function genProbabilidad(curso) {
+  if (curso === "6") return siguienteDeBaraja("pb6", [pbClasificar, pbBolsa, pbComparar, pbDado, pbBaraja, pbLetras, pbInventa])(PB_NIVELES["6"]);
+  return siguienteDeBaraja("pb5", [pbClasificar, pbBolsa, pbComparar, pbDado, pbRuleta, pbInventa, pbExperimento])(PB_NIVELES["5"]);
+}
+
+function genProbabilidadDiscalculia() {
+  return siguienteDeBaraja("pbDisc", [pbClasificar, pbBolsa, pbComparar, pbRuleta, pbInventa, pbDado])(PB_NIVELES.disc);
+}
+
+// ACS: seguro, posible, imposible y qué color es más probable.
+function pbAcsMas() {
+  const bolsa = pbBolsaAzar({ max: 5 }, 2);
+  const ord = bolsa.slice().sort((a, b) => b[1] - a[1]);
+  return {
+    enunciado: `En una bolsa hay ${pbTexto(bolsa)}. Dibújala. Si sacas una bola sin mirar, ¿de qué color es más fácil que salga?`,
+    datos: bolsa.map(([id, n]) => pbBolas(id, n)),
+    operacion: `${ord[0][1]} es más que ${ord[1][1]}`,
+    solucion: `Es más probable que salga ${ord[0][0]}.`,
+  };
 }
 
 function genProbabilidadACS() {
-  return probabilidadClasificar();
+  return siguienteDeBaraja("pbAcs", [() => pbClasificar(PB_NIVELES.disc), pbAcsMas, pbAcsMas])();
+}
+
+// Altas: dos dados, juegos justos y cambiar la bolsa.
+function pbDosDados() {
+  const sumas = [7, 2, pick([5, 6, 8, 9]), 13];
+  const c = (s) => 6 - Math.abs(7 - s);
+  return {
+    enunciado: `Lanzamos dos dados y sumamos. Haz una tabla de 6 × 6 con todas las sumas. ¿Qué probabilidad hay de que la suma sea ${sumas[0]}? ¿Y ${sumas[1]}? ¿Y ${sumas[2]}? ¿Y ${sumas[3]}?`,
+    datos: ["Casos posibles: 6 × 6 = 36"],
+    operacion: sumas.map((s) => `suma ${s}: ${s > 12 ? 0 : c(s)} casos`).join(" · "),
+    solucion: sumas.map((s) => `P(${s}) = ${pbFrac(s > 12 ? 0 : c(s), 36)}`).join("; ") + ".",
+  };
+}
+
+function pbJusto() {
+  const juegos = [
+    ["Ana gana si sale un número par; Luis, si sale impar", 3, 3],
+    ["Ana gana si sale 1 o 2; Luis, si sale 3, 4, 5 o 6", 2, 4],
+    ["Ana gana si sale un número mayor que 3; Luis, si sale menor que 4", 3, 3],
+    ["Ana gana si sale un 6; Luis, si sale 1, 2 o 3", 1, 3],
+  ];
+  const [t, a, l] = pick(juegos);
+  return {
+    enunciado: `Con un dado: ${t}. ¿Es un juego justo? Si no lo es, cambia las reglas para que lo sea.`,
+    datos: ["Justo: los dos tienen la misma probabilidad de ganar"],
+    operacion: `P(Ana) = ${a}/6 · P(Luis) = ${l}/6`,
+    solucion: a === l ? "Es justo: los dos tienen 3/6." : `No es justo: Ana ${a}/6 y Luis ${l}/6. Por ejemplo, que Ana gane con par y Luis con impar.`,
+  };
+}
+
+function pbAnadir() {
+  const r = randomInt(1, 5);
+  const az = r + randomInt(2, 6);
+  return {
+    enunciado: `Una bolsa tiene ${pbBolas("roja", r)} y ${pbBolas("azul", az)}. ¿Cuántas rojas hay que añadir para que sacar roja sea igual de probable que sacar azul? ¿Y para que la probabilidad de sacar roja sea 2/3?`,
+    datos: [pbBolas("roja", r), pbBolas("azul", az)],
+    operacion: `Igual: ${az} rojas → ${az} − ${r} = ${az - r} · 2/3: rojas = el doble de azules = ${2 * az} → ${2 * az} − ${r} = ${2 * az - r}`,
+    solucion: `Hay que añadir ${az - r} rojas para que sea igual de probable, y ${2 * az - r} para que sea 2/3.`,
+  };
 }
 
 function genProbabilidadAltas() {
-  return probabilidadComparar();
+  return siguienteDeBaraja("pbAltas", [pbDosDados, pbJusto, pbAnadir, () => pbComparar({ max: 8 }), pbBaraja, pbLetras])();
 }
 
 // ---- Propiedades de las operaciones ----
@@ -5835,7 +6035,7 @@ const TOPICS = [
   { id: "coordenadas", label: "Coordenadas", category: "Geometría y medidas", generate: genCoordenadas, generateACS: genCoordenadasACS, generateDiscalculia: genCoordenadasDiscalculia, generateAltas: genCoordenadasAltas, resumen: "Cada punto del plano tiene dos coordenadas (x, y): primero lo que se anda en horizontal y después lo que se sube. Trasladar es deslizar la figura sin girarla; en la simetría la figura se refleja como en un espejo; en un giro, la figura gira alrededor de un centro. En los tres movimientos no cambian ni la forma ni el tamaño.", resumen6: "En los cuatro cuadrantes, a la izquierda y por debajo del origen las coordenadas son negativas. Traslación: se suma el vector. Simetría respecto al eje Y: cambia de signo la x; respecto al eje X: cambia de signo la y. Media vuelta alrededor del origen: cambian de signo las dos. Dos figuras son semejantes si todos sus lados se multiplican por el mismo número (la escala)." },
   { id: "cuerpos-geometricos", label: "Cuerpos geométricos", category: "Geometría y medidas", generate: genCuerposGeometricos, generateACS: genCuerposGeometricosACS, generateDiscalculia: genCuerposGeometricosDiscalculia, generateAltas: genCuerposGeometricosAltas, resumen: "Los poliedros tienen todas las caras planas; los cuerpos redondos, alguna superficie curva. Prisma: dos bases iguales y caras rectangulares. Pirámide: una base y caras triangulares que se juntan en un vértice. El desarrollo plano es el cuerpo abierto sobre la mesa.", resumen6: "Poliedros (prismas y pirámides) y cuerpos redondos (cilindro, cono, esfera). Prisma de base de n lados: n + 2 caras, 3n aristas, 2n vértices. Pirámide: n + 1 caras, 2n aristas, n + 1 vértices. Fórmula de Euler: caras + vértices = aristas + 2." },
   { id: "tiempo", label: "El tiempo", category: "Geometría y medidas", generate: genTiempo, generateACS: genTiempoACS, generateDiscalculia: genTiempoDiscalculia, generateAltas: genTiempoAltas, resumen: "1 día = 24 h, 1 h = 60 min, 1 min = 60 s: el tiempo va de 60 en 60, no de 100 en 100. 2 h 15 min = 135 min, y 1,5 h es hora y media (1 h 30 min). Para saber cuánto tiempo pasa, cuenta a saltos hasta la hora en punto." },
-  { id: "probabilidad", label: "Probabilidad", category: "Geometría y medidas", generate: genProbabilidad, generateACS: genProbabilidadACS, generateAltas: genProbabilidadAltas, resumen: "La probabilidad de un suceso se calcula dividiendo los casos favorables entre los casos totales." },
+  { id: "probabilidad", label: "Probabilidad", category: "Geometría y medidas", generate: genProbabilidad, generateACS: genProbabilidadACS, generateDiscalculia: genProbabilidadDiscalculia, generateAltas: genProbabilidadAltas, resumen: "Un suceso es seguro si pasa siempre, posible si puede pasar o no, e imposible si no pasa nunca. Probabilidad = casos favorables / casos posibles (regla de Laplace): sacar un número par con un dado es 3/6. Para comparar dos bolsas no basta con contar las bolas rojas: hay que compararlas con el total de cada bolsa.", resumen6: "Seguro, posible e imposible. Regla de Laplace: probabilidad = casos favorables / casos posibles, siempre entre 0 (imposible) y 1 (seguro). Para comparar probabilidades se comparan fracciones (3/4 = 6/8 > 4/8). En la baraja española hay 40 cartas: 4 palos de 10." },
 ];
 
 // ---------------- Construcción del documento ----------------
