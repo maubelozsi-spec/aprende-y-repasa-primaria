@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Cuaderno de evaluación</title>
+<meta name="description" content="Registro de notas, dificultades por contenido y criterio, y anotaciones de cada prueba del alumnado, por número de lista. Cada docente tiene su propio cuaderno.">
+<meta name="theme-color" content="#1f3a68">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="cuaderno.css">
+</head>
+<body>
+
+<div id="cargando" class="pantalla" role="status">Cargando el cuaderno…</div>
+
+<section id="acceso" class="pantalla" hidden>
+  <form id="form-acceso" class="caja-acceso">
+    <p class="icono-acceso" aria-hidden="true">📒</p>
+    <h1>Cuaderno de evaluación</h1>
+    <p>Solo para docentes. Cada cuenta tiene su propio cuaderno: nadie más puede verlo. Es la misma cuenta del panel docente de Aprende y Repasa.</p>
+    <p id="acceso-anonimo" class="aviso" hidden>En este navegador hay abierta una sesión de alumno. Al entrar como docente se cierra; usa el cuaderno en tu propio ordenador.</p>
+    <label for="correo">Correo</label>
+    <input id="correo" name="correo" type="email" autocomplete="username" required class="campo">
+    <label for="clave">Contraseña</label>
+    <input id="clave" name="clave" type="password" autocomplete="current-password" required class="campo">
+    <button type="submit" class="btn btn-primario">Entrar</button>
+    <p id="acceso-msg" role="alert"></p>
+    <div class="acceso-enlaces">
+      <button type="button" class="btn-enlace" id="ir-registro">Crear una cuenta nueva</button>
+      <button type="button" class="btn-enlace" id="olvido">He olvidado la contraseña</button>
+    </div>
+  </form>
+
+  <form id="form-registro" class="caja-acceso" hidden>
+    <p class="icono-acceso" aria-hidden="true">📒</p>
+    <h1>Crear cuenta de docente</h1>
+    <p>Tu cuaderno empezará vacío y será solo tuyo. Para registrarte necesitas la clave del centro (la misma del panel docente).</p>
+    <label for="reg-nombre">Nombre o apodo (opcional)</label>
+    <input id="reg-nombre" name="nombre" type="text" autocomplete="nickname" class="campo" maxlength="60">
+    <label for="reg-correo">Correo</label>
+    <input id="reg-correo" name="correo" type="email" autocomplete="email" required class="campo">
+    <label for="reg-clave">Contraseña (mínimo 6 caracteres)</label>
+    <input id="reg-clave" name="clave" type="password" autocomplete="new-password" minlength="6" required class="campo">
+    <label for="reg-clave2">Repite la contraseña</label>
+    <input id="reg-clave2" name="clave2" type="password" autocomplete="new-password" minlength="6" required class="campo">
+    <label for="reg-centro">Clave del centro</label>
+    <input id="reg-centro" name="centro" type="password" autocomplete="off" required class="campo">
+    <button type="submit" class="btn btn-primario">Crear cuenta y entrar</button>
+    <p id="registro-msg" role="alert"></p>
+    <div class="acceso-enlaces">
+      <button type="button" class="btn-enlace" id="ir-acceso">Ya tengo cuenta: entrar</button>
+    </div>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header class="barra no-imprimir">
+    <h1>Cuaderno <button type="button" id="grupo-nombre" class="grupo-nombre" title="Cambiar el nombre del grupo"></button></h1>
+    <nav class="pestanas no-imprimir" role="tablist" aria-label="Vistas">
+      <button type="button" role="tab" class="pestana" data-vista="individual">Alumno/a</button>
+      <button type="button" role="tab" class="pestana" data-vista="grupo">Grupo clase</button>
+      <button type="button" role="tab" class="pestana" data-vista="suspensos">Suspensos</button>
+      <button type="button" role="tab" class="pestana" data-vista="resumen">Resumen</button>
+      <button type="button" role="tab" class="pestana" data-vista="pruebas">Exámenes</button>
+      <button type="button" role="tab" class="pestana" data-vista="copia">Copia</button>
+    </nav>
+    <div class="barra-der">
+      <span id="aviso-copia"></span>
+      <span id="estado-guardado" class="estado-guardado" role="status" aria-live="polite">Guardado</span>
+      <span id="usuario" class="usuario"></span>
+      <button type="button" id="btn-salir" class="btn btn-fantasma">Salir</button>
+    </div>
+  </header>
+
+
+  <div id="avisos" class="contenedor no-imprimir"></div>
+  <main id="vista" class="contenedor"></main>
+</div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="js/pruebas.js"></script>
+<script type="module" src="js/cuaderno.js"></script>
+</body>
+</html>
