@@ -5238,96 +5238,201 @@ function genTablasAltas() {
   };
 }
 
-function fmtHM(hh, mm) {
-  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+// ---------- El tiempo ----------
+// 5º (Tema 9): unidades de tiempo, cambio de unidades y operaciones;
+// reto: los horarios del mercado medieval.
+const tiHora = (t) => `${Math.floor(t / 60) % 24}:${String(t % 60).padStart(2, "0")}`;
+function tiDur(min) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  if (!h) return `${m} min`;
+  if (!m) return `${h} h`;
+  return `${h} h ${m} min`;
+}
+const TI_HORAS = ["doce", "una", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce"];
+const TI_MIN = { 5: "cinco", 10: "diez", 15: "cuarto", 20: "veinte", 25: "veinticinco", 30: "media" };
+function tiPalabras(h, m) {
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  if (m === 0) return `${h12 === 1 ? "la" : "las"} ${TI_HORAS[h12]} en punto`;
+  if (m <= 30) return `${h12 === 1 ? "la" : "las"} ${TI_HORAS[h12]} y ${TI_MIN[m]}`;
+  const sig = (h12 % 12) + 1;
+  return `${sig === 1 ? "la" : "las"} ${TI_HORAS[sig]} menos ${TI_MIN[60 - m]}`;
 }
 
-function tiempoSumar() {
-  const h = randomInt(1, 20);
-  const m = randomInt(0, 59);
-  const durH = randomInt(0, 3);
-  const durM = randomInt(5, 59);
-  let totalM = m + durM;
-  let totalH = h + durH + Math.floor(totalM / 60);
-  totalM = totalM % 60;
-  totalH = totalH % 24;
+const TI_NIVELES = {
+  "5": { paso: 5, maxH: 3 },
+  disc: { paso: 15, maxH: 2, facil: true },
+};
+
+function tiReloj(nivel) {
+  const horas = [];
+  while (horas.length < 3) {
+    const h = randomInt(1, 12);
+    const m = nivel.paso * randomInt(0, 60 / nivel.paso - 1);
+    if (!horas.some(([a, b]) => a === h && b === m)) horas.push([h, m]);
+  }
   return {
-    enunciado: `Una película empieza a las ${fmtHM(h, m)} y dura ${durH}h ${durM}min. ¿A qué hora termina?`,
-    datos: [`Hora de inicio: ${fmtHM(h, m)}`, `Duración: ${durH}h ${durM}min`],
-    operacion: `${fmtHM(h, m)} + ${durH}h ${durM}min = ${fmtHM(totalH, totalM)}`,
-    solucion: `${fmtHM(totalH, totalM)}. Termina a las ${fmtHM(totalH, totalM)}.`,
+    enunciado: `Dibuja tres relojes de agujas que marquen: ${horas.map(([h, m], i) => `${"abc"[i]}) ${tiPalabras(h, m)}`).join("   ")}. Escribe debajo cada hora en formato digital.`,
+    datos: ["Aguja corta: la hora. Aguja larga: los minutos (cada número son 5 minutos)."],
+    operacion: horas.map(([h, m], i) => `${"abc"[i]}) aguja larga en el ${m === 0 ? 12 : m / 5}${m > 30 ? `; la corta, cerca del ${(h % 12) + 1}` : ""}`).join(" · "),
+    solucion: horas.map(([h, m], i) => `${"abc"[i]}) ${h}:${String(m).padStart(2, "0")}`).join("; ") + ".",
   };
 }
 
-function tiempoRestar() {
-  const h1 = randomInt(6, 12);
-  const m1 = randomInt(0, 59);
-  const durH = randomInt(1, 4);
-  const durM = randomInt(0, 59);
-  let totalM = m1 + durM;
-  let totalH = h1 + durH + Math.floor(totalM / 60);
-  totalM = totalM % 60;
+function ti24() {
+  const h = randomInt(13, 22);
+  const m = 5 * randomInt(0, 11);
+  const h2 = randomInt(1, 11);
+  const m2 = 5 * randomInt(0, 11);
   return {
-    enunciado: `Un tren sale a las ${fmtHM(h1, m1)} y llega a las ${fmtHM(totalH, totalM)}. ¿Cuánto dura el viaje?`,
-    datos: [`Salida: ${fmtHM(h1, m1)}`, `Llegada: ${fmtHM(totalH, totalM)}`],
-    operacion: `${fmtHM(totalH, totalM)} − ${fmtHM(h1, m1)} = ${durH}h ${durM}min`,
-    solucion: `${durH}h ${durM}min. El viaje dura ${durH} horas y ${durM} minutos.`,
+    enunciado: `El cine anuncia una sesión a las ${tiHora(h * 60 + m)}. ¿Qué hora es en el reloj de agujas y cómo se dice? Y si quedamos a ${tiPalabras(h2, m2)} de la tarde, ¿cómo se escribe en formato de 24 horas?`,
+    datos: [`${tiHora(h * 60 + m)}`, `${tiPalabras(h2, m2)} de la tarde`],
+    operacion: `Por la tarde se resta o se suma 12: ${h} − 12 = ${h - 12} · ${h2} + 12 = ${h2 + 12}`,
+    solucion: `${tiHora(h * 60 + m)} son ${tiPalabras(h - 12, m)} de la ${h >= 21 ? "noche" : "tarde"}. ${tiPalabras(h2, m2)[0].toUpperCase()}${tiPalabras(h2, m2).slice(1)} de la tarde se escribe ${tiHora((h2 + 12) * 60 + m2)}.`,
   };
 }
 
-function tiempoFaltan() {
-  const h = randomInt(1, 11);
-  const m = randomInt(1, 59);
-  const minutosFaltan = 60 - m;
+function tiConvertir(nivel) {
+  const h = randomInt(2, nivel.facil ? 4 : 6);
+  const hm = [randomInt(1, 3), nivel.facil ? pick([15, 30, 45]) : 5 * randomInt(1, 11)];
+  let min;
+  do min = nivel.facil ? pick([75, 90, 105, 135, 150]) : 5 * randomInt(13, 50);
+  while (min % 60 === 0);
+  const s = randomInt(2, 8);
   return {
-    enunciado: `Si son las ${h}:${String(m).padStart(2, "0")}, ¿cuántos minutos faltan para las ${h + 1}:00?`,
-    datos: [`Hora actual: ${h}:${String(m).padStart(2, "0")}`],
-    operacion: `60 − ${m} = ${minutosFaltan}`,
-    solucion: `${minutosFaltan} minutos.`,
+    enunciado: `Completa: a) ${h} h = ___ min   b) ${hm[0]} h ${hm[1]} min = ___ min   c) ${min} min = ___ h ___ min   d) ${s} min = ___ s`,
+    datos: ["1 h = 60 min · 1 min = 60 s"],
+    operacion: `a) ${h} × 60 · b) ${hm[0]} × 60 + ${hm[1]} · c) ${min} : 60 = ${Math.floor(min / 60)} y sobran ${min % 60} · d) ${s} × 60`,
+    solucion: `a) ${h * 60} min; b) ${hm[0] * 60 + hm[1]} min; c) ${Math.floor(min / 60)} h ${min % 60} min; d) ${s * 60} s.`,
+  };
+}
+
+// El error típico: 1,5 h ≠ 1 h 50 min.
+function tiDecimal() {
+  const h = randomInt(1, 4);
+  const [d, mm, txt] = pick([[5, 30, "media"], [25, 15, "un cuarto"], [75, 45, "tres cuartos"]]);
+  const nombre = pick(NOMBRES);
+  return {
+    enunciado: `${nombre} dice que ${h},${d} h son ${h} h ${d} min. ¿Tiene razón? ¿Cuántos minutos son en total?`,
+    datos: [`${h},${d} h`],
+    operacion: `0,${d} h es ${txt} de hora = ${mm} min · ${h} × 60 + ${mm} = ${h * 60 + mm} min`,
+    solucion: `No: son ${h} h ${mm} min, es decir, ${h * 60 + mm} min. El tiempo va de 60 en 60.`,
+  };
+}
+
+function tiOperar(nivel) {
+  const step = nivel.facil ? 15 : 5;
+  // Minutos elegidos para que haya llevada en la suma y préstamo en la resta.
+  const am = step * randomInt(1, 60 / step - 2);
+  const bm = step * randomInt(am / step + 1, 60 / step - 1);
+  const cm = step * randomInt(Math.ceil((60 - am) / step), 60 / step - 1);
+  const a = randomInt(2, nivel.maxH + 1) * 60 + am;
+  const b = randomInt(0, Math.floor(a / 60) - 1) * 60 + bm;
+  const c = randomInt(0, nivel.maxH) * 60 + cm;
+  return {
+    enunciado: `Calcula: a) ${tiDur(a)} + ${tiDur(c)}   b) ${tiDur(a)} − ${tiDur(b)}`,
+    datos: ["Si los minutos pasan de 60, se cambian por 1 h. Si no llegan, se cambia 1 h por 60 min."],
+    operacion: `a) ${a % 60} + ${c % 60} = ${(a % 60) + (c % 60)} min = ${tiDur((a % 60) + (c % 60))} · b) ${a % 60} + 60 − ${b % 60} = ${(a % 60) + 60 - (b % 60)} min`,
+    solucion: `a) ${tiDur(a + c)}; b) ${tiDur(a - b)}.`,
+  };
+}
+
+// Reto de la UDI: los horarios del mercado medieval.
+function tiMercado(nivel) {
+  const step = nivel.facil ? 15 : 5;
+  const abre = randomInt(9, 11) * 60 + step * randomInt(0, 60 / step - 1);
+  const cierra = randomInt(13, 14) * 60 + step * randomInt(0, 60 / step - 1);
+  const funcion = nivel.facil ? 30 : 5 * randomInt(5, 9);
+  const descanso = nivel.facil ? 15 : 5 * randomInt(1, 4);
+  const n = 3;
+  const fin = abre + n * funcion + (n - 1) * descanso;
+  return {
+    enunciado: `En el mercado medieval, el puesto de cerámica abre a las ${tiHora(abre)} y cierra a las ${tiHora(cierra)}. El teatro de títeres hace ${n} funciones seguidas de ${funcion} min con ${descanso} min de descanso entre una y otra, empezando cuando abre el mercado. ¿Cuánto tiempo está abierto el puesto? ¿A qué hora termina la última función?`,
+    datos: [`Puesto: de ${tiHora(abre)} a ${tiHora(cierra)}`, `${n} funciones de ${funcion} min`, `${n - 1} descansos de ${descanso} min`],
+    operacion: `Puesto: de ${tiHora(abre)} a ${tiHora(cierra)} = ${tiDur(cierra - abre)} · Títeres: ${n} × ${funcion} + ${n - 1} × ${descanso} = ${n * funcion + (n - 1) * descanso} min = ${tiDur(n * funcion + (n - 1) * descanso)} · ${tiHora(abre)} + ${tiDur(n * funcion + (n - 1) * descanso)} = ${tiHora(fin)}`,
+    solucion: `El puesto está abierto ${tiDur(cierra - abre)} y la última función termina a las ${tiHora(fin)}.`,
+  };
+}
+
+function tiDuracion(nivel) {
+  const step = nivel.facil ? 15 : 5;
+  const ini = randomInt(8, 17) * 60 + step * randomInt(1, 60 / step - 1);
+  const d = step * randomInt(nivel.facil ? 4 : 8, nivel.facil ? 12 : 40);
+  const fin = ini + d;
+  const hasta = Math.min((60 - (ini % 60)) % 60, d);
+  const horas = Math.floor((d - hasta) / 60);
+  const resto = d - hasta - horas * 60;
+  const que = pick([["Un tren", "sale", "llega"], ["La excursión", "sale", "vuelve"], ["El partido", "empieza", "termina"]]);
+  return {
+    enunciado: `${que[0]} ${que[1]} a las ${tiHora(ini)} y ${que[2]} a las ${tiHora(fin)}. ¿Cuánto tiempo pasa? Cuéntalo a saltos.`,
+    datos: [`De ${tiHora(ini)} a ${tiHora(fin)}`],
+    operacion: [hasta ? `hasta las ${tiHora(ini + hasta)}: ${hasta} min` : "", horas ? `${horas} h hasta las ${tiHora(ini + hasta + horas * 60)}` : "", resto ? `${resto} min hasta las ${tiHora(fin)}` : ""].filter(Boolean).join(" · "),
+    solucion: `${tiDur(d)}.`,
+  };
+}
+
+function tiMayores() {
+  const casos = [["3 semanas", "21 días"], ["2 años", "24 meses"], ["3 siglos", "300 años"], ["4 décadas", "40 años"], ["2 trimestres", "6 meses"], ["3 lustros", "15 años"], ["2 días", "48 horas"]];
+  const tres = casos.slice().sort(() => Math.random() - 0.5).slice(0, 3);
+  return {
+    enunciado: `Completa: ${tres.map(([a, b], i) => `${"abc"[i]}) ${a} = ___ ${b.split(" ")[1]}`).join("   ")}`,
+    datos: ["1 semana = 7 días · 1 año = 12 meses · trimestre = 3 meses · lustro = 5 años · década = 10 años · siglo = 100 años · 1 día = 24 h"],
+    operacion: "Se multiplica por lo que vale cada unidad.",
+    solucion: tres.map(([, b], i) => `${"abc"[i]}) ${b}`).join("; ") + ".",
   };
 }
 
 function genTiempo() {
-  return pick([tiempoSumar, tiempoRestar, tiempoFaltan])();
+  return siguienteDeBaraja("ti5", [tiReloj, tiConvertir, tiDecimal, tiOperar, tiMercado, tiDuracion, ti24, tiMayores])(TI_NIVELES["5"]);
+}
+
+function genTiempoDiscalculia() {
+  return siguienteDeBaraja("tiDisc", [tiReloj, tiConvertir, tiOperar, tiMercado, tiDuracion, tiMayores])(TI_NIVELES.disc);
+}
+
+function tiAcsHoras() {
+  const h = randomInt(1, 11);
+  const m = pick([0, 15, 30, 45]);
+  const dur = pick([1, 2, 3]);
+  return {
+    enunciado: `Dibuja un reloj que marque ${tiPalabras(h, m)}. Si la clase de música empieza a esa hora y dura ${dur} ${dur === 1 ? "hora" : "horas"}, ¿a qué hora termina?`,
+    datos: [`Empieza: ${tiPalabras(h, m)}`, `Dura: ${dur} h`],
+    operacion: `${h} + ${dur} = ${h + dur}`,
+    solucion: `Termina a ${tiPalabras(h + dur, m)} (${(h + dur) % 12 || 12}:${String(m).padStart(2, "0")}).`,
+  };
 }
 
 function genTiempoACS() {
-  const h = randomInt(1, 11);
-  if (Math.random() < 0.5) {
-    const siguiente = h + 1 > 12 ? h + 1 - 12 : h + 1;
-    return {
-      enunciado: `El reloj marca las ${h} y media. ¿Qué hora en punto es la más cercana que vendrá después?`,
-      datos: [`Hora: ${h}:30`],
-      operacion: `Después de las ${h} y media viene la hora en punto siguiente.`,
-      solucion: `Las ${siguiente}:00.`,
-    };
-  }
+  return siguienteDeBaraja("tiAcs", [tiAcsHoras, () => tiReloj({ paso: 15 }), tiMayores, tiAcsHoras])();
+}
+
+// Altas: segundos, cruce de medianoche y varias duraciones encadenadas.
+function tiCarrera() {
+  const v = [[randomInt(1, 3), randomInt(10, 59)], [randomInt(1, 3), randomInt(10, 59)], [randomInt(1, 3), randomInt(10, 59)]];
+  const total = v.reduce((t, [m, s]) => t + m * 60 + s, 0);
   return {
-    enunciado: `El reloj marca las ${h} en punto. ¿Cuántas horas faltan para las 12 en punto?`,
-    datos: [`Hora: ${h}:00`],
-    operacion: `12 − ${h} = ${12 - h}`,
-    solucion: `${12 - h} horas.`,
+    enunciado: `En una carrera de relevos, cada corredor tarda: ${v.map(([m, s]) => `${m} min ${s} s`).join(", ")}. ¿Cuánto tarda el equipo en total? Exprésalo en minutos y segundos y en segundos.`,
+    datos: v.map(([m, s]) => `${m} min ${s} s`),
+    operacion: `Segundos: ${v.map((x) => x[1]).join(" + ")} = ${v.reduce((t, x) => t + x[1], 0)} s · Minutos: ${v.map((x) => x[0]).join(" + ")} = ${v.reduce((t, x) => t + x[0], 0)} min · Total: ${Math.floor(total / 60)} min ${total % 60} s = ${total} s`,
+    solucion: `${Math.floor(total / 60)} min ${total % 60} s, que son ${total} s.`,
+  };
+}
+
+function tiMedianoche() {
+  const ini = randomInt(21, 23) * 60 + 5 * randomInt(0, 11);
+  // Siempre pasa de la medianoche.
+  const d = 1440 - ini + 5 * randomInt(6, 72);
+  const fin = (ini + d) % 1440;
+  return {
+    enunciado: `Un autobús nocturno sale a las ${tiHora(ini)} y el viaje dura ${tiDur(d)}. ¿A qué hora llega? ¿Llega el mismo día o el siguiente?`,
+    datos: [`Salida: ${tiHora(ini)}`, `Duración: ${tiDur(d)}`],
+    operacion: `${tiHora(ini)} + ${tiDur(d)}: hasta las 0:00 hay ${tiDur(1440 - ini)}; quedan ${tiDur(d - (1440 - ini))}`,
+    solucion: `Llega a las ${tiHora(fin)} del día siguiente.`,
   };
 }
 
 function genTiempoAltas() {
-  const h1 = randomInt(1, 5);
-  const m1 = randomInt(10, 50);
-  const durH = randomInt(1, 2);
-  const durM = randomInt(10, 50);
-  let sumM = m1 + durM;
-  let sumH = h1 + durH + Math.floor(sumM / 60);
-  sumM = sumM % 60;
-  const esperaM = randomInt(5, 40);
-  let finalM = sumM + esperaM;
-  let finalH = sumH + Math.floor(finalM / 60);
-  finalM = finalM % 60;
-  return {
-    enunciado: `Un autobús sale a las ${fmtHM(h1, m1)}. Primero tarda ${durH}h ${durM}min en llegar a una ciudad, y allí espera ${esperaM} minutos antes de continuar. ¿A qué hora sale de esa ciudad?`,
-    datos: [`Salida: ${fmtHM(h1, m1)}`, `Duración del viaje: ${durH}h ${durM}min`, `Espera: ${esperaM} min`],
-    operacion: `${fmtHM(h1, m1)} + ${durH}h ${durM}min = ${fmtHM(sumH, sumM)}. ${fmtHM(sumH, sumM)} + ${esperaM}min = ${fmtHM(finalH, finalM)}`,
-    solucion: `${fmtHM(finalH, finalM)}.`,
-  };
+  return siguienteDeBaraja("tiAltas", [tiCarrera, tiMedianoche, tiDecimal, () => tiMercado(TI_NIVELES["5"]), () => tiDuracion({ paso: 1 })])();
 }
 
 // ---------------- Registro de temas ----------------
@@ -5359,7 +5464,7 @@ const TOPICS = [
   { id: "angulos", label: "Ángulos", category: "Geometría y medidas", generate: genAngulos, generateACS: genAngulosACS, generateDiscalculia: genAngulosDiscalculia, generateAltas: genAngulosAltas, resumen: "Un ángulo se mide en grados (°) con el transportador: el centro en el vértice, un lado en el 0 y se lee en la escala que empieza en ese 0. Agudo: menos de 90°. Recto: 90°. Obtuso: entre 90° y 180°. Llano: 180°. Una vuelta entera son 360°.", resumen6: "Un ángulo se mide en grados con el transportador (cuidado con la escala). Agudo < 90° · recto = 90° · obtuso entre 90° y 180° · llano = 180° · completo = 360°. Dos ángulos son complementarios si suman 90° y suplementarios si suman 180°." },
   { id: "coordenadas", label: "Coordenadas", category: "Geometría y medidas", generate: genCoordenadas, generateACS: genCoordenadasACS, generateDiscalculia: genCoordenadasDiscalculia, generateAltas: genCoordenadasAltas, resumen: "Cada punto del plano tiene dos coordenadas (x, y): primero lo que se anda en horizontal y después lo que se sube. Trasladar es deslizar la figura sin girarla; en la simetría la figura se refleja como en un espejo; en un giro, la figura gira alrededor de un centro. En los tres movimientos no cambian ni la forma ni el tamaño.", resumen6: "En los cuatro cuadrantes, a la izquierda y por debajo del origen las coordenadas son negativas. Traslación: se suma el vector. Simetría respecto al eje Y: cambia de signo la x; respecto al eje X: cambia de signo la y. Media vuelta alrededor del origen: cambian de signo las dos. Dos figuras son semejantes si todos sus lados se multiplican por el mismo número (la escala)." },
   { id: "cuerpos-geometricos", label: "Cuerpos geométricos", category: "Geometría y medidas", generate: genCuerposGeometricos, generateACS: genCuerposGeometricosACS, generateDiscalculia: genCuerposGeometricosDiscalculia, generateAltas: genCuerposGeometricosAltas, resumen: "Los poliedros tienen todas las caras planas; los cuerpos redondos, alguna superficie curva. Prisma: dos bases iguales y caras rectangulares. Pirámide: una base y caras triangulares que se juntan en un vértice. El desarrollo plano es el cuerpo abierto sobre la mesa.", resumen6: "Poliedros (prismas y pirámides) y cuerpos redondos (cilindro, cono, esfera). Prisma de base de n lados: n + 2 caras, 3n aristas, 2n vértices. Pirámide: n + 1 caras, 2n aristas, n + 1 vértices. Fórmula de Euler: caras + vértices = aristas + 2." },
-  { id: "tiempo", label: "El tiempo", category: "Geometría y medidas", generate: genTiempo, generateACS: genTiempoACS, generateAltas: genTiempoAltas, resumen: "El tiempo se mide en horas, minutos y segundos: 1 día tiene 24 horas, 1 hora 60 minutos y 1 minuto 60 segundos." },
+  { id: "tiempo", label: "El tiempo", category: "Geometría y medidas", generate: genTiempo, generateACS: genTiempoACS, generateDiscalculia: genTiempoDiscalculia, generateAltas: genTiempoAltas, resumen: "1 día = 24 h, 1 h = 60 min, 1 min = 60 s: el tiempo va de 60 en 60, no de 100 en 100. 2 h 15 min = 135 min, y 1,5 h es hora y media (1 h 30 min). Para saber cuánto tiempo pasa, cuenta a saltos hasta la hora en punto." },
   { id: "probabilidad", label: "Probabilidad", category: "Geometría y medidas", generate: genProbabilidad, generateACS: genProbabilidadACS, generateAltas: genProbabilidadAltas, resumen: "La probabilidad de un suceso se calcula dividiendo los casos favorables entre los casos totales." },
 ];
 

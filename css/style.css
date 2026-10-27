@@ -3708,3 +3708,7 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 .me-tabla-tit { text-align: center; margin: 12px 0 0; font-size: 0.95rem; color: var(--text-muted); }
 .me-tabla { width: auto; margin: 8px auto 0; }
 .me-tabla th, .me-tabla td { padding: 8px 10px; min-width: 40px; }
+
+/* El tiempo */
+.ti-pareja { align-items: center; }
+.ti-digital { font-variant-numeric: tabular-nums; font-size: 2.2rem; margin: 0; padding: 8px 18px; border-radius: 10px; background: var(--color-indigo-tint); }
