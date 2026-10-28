@@ -3741,3 +3741,11 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 .or-chip { padding: 6px 12px; border-radius: 999px; background: var(--color-indigo-tint); font-size: 1.05rem; }
 .or-letra { color: var(--color-rose); font-size: 1.15em; }
 .or-sin { color: var(--color-rose); font-weight: 800; margin-right: 1px; }
+
+/* Tilde diacrítica */
+.td-parejas .btn { font-size: 0.95rem; padding: 6px 10px; min-width: 76px; }
+.td-detalle { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 12px 0; }
+.td-col { background: var(--color-indigo-tint); border-radius: 12px; padding: 10px 14px; }
+.td-col h4 { margin: 0 0 4px; font-size: 1.3rem; }
+.td-col h4 span { font-size: 0.85rem; font-weight: 600; color: var(--text-soft); }
+.td-col p { margin: 4px 0; }

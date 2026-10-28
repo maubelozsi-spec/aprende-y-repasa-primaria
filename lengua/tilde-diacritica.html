@@ -51,6 +51,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -63,7 +64,7 @@
           <p>Es una tilde que no sigue las reglas normales de acentuación, sino que sirve para <strong>distinguir dos palabras que se escriben igual</strong> pero tienen distinta función gramatical.</p>
         </div>
 
-        <table class="rules-table">
+        <div class="po-tabla-wrap"><table class="rules-table">
           <tr><th>Con tilde</th><th>Sin tilde</th></tr>
           <tr><td><strong>él</strong> (pronombre: "él llegó")</td><td>el (determinante: "el perro")</td></tr>
           <tr><td><strong>tú</strong> (pronombre: "tú vienes")</td><td>tu (determinante: "tu casa")</td></tr>
@@ -73,10 +74,15 @@
           <tr><td><strong>más</strong> (cantidad: "quiero más")</td><td>mas (equivale a "pero": "quiso, mas no pudo")</td></tr>
           <tr><td><strong>dé</strong> (del verbo dar: "que dé las gracias")</td><td>de (preposición: "de casa")</td></tr>
           <tr><td><strong>sé</strong> (del verbo saber o ser: "yo sé", "sé bueno")</td><td>se (pronombre: "se lava")</td></tr>
-        </table>
+          <tr><td><strong>aún</strong> (= todavía: "aún no ha llegado")</td><td>aun (= incluso: "aun así, seguimos")</td></tr>
+        </table></div>
 
         <div class="tip-box">
-          <strong>Truco:</strong> si la palabra hace de pronombre, verbo o tiene un significado "más fuerte" (como sí de afirmación), suele llevar tilde. Si es un determinante o una conjunción, normalmente no la lleva.
+          <strong>Trucos para no dudar:</strong> si puedes cambiarla por <em>ella</em>, es <strong>él</strong>. Si puedes cambiarla por <em>ti</em>, es <strong>mí</strong>. Si va delante de un nombre (<em>tu casa, mi libro, el perro</em>), no lleva tilde. Si es una respuesta («claro»), es <strong>sí</strong>; si pone una condición, es <em>si</em>. Si puedes cambiarla por <em>todavía</em>, es <strong>aún</strong>.
+        </div>
+        <div class="rule-box esdrujula">
+          <h4>Ya no llevan tilde</h4>
+          <p>Desde 2010, la RAE dice que <strong>solo</strong> (<em>solo quedan dos</em>), los demostrativos <strong>este, ese, aquel</strong> (<em>este es mi sitio</em>) y la <strong>o</strong> entre números (<em>3 o 4</em>) se escriben siempre sin tilde.</p>
         </div>
 
         <h2>Acentuación en exclamativas e interrogativas</h2>
@@ -84,13 +90,15 @@
           <h4>Qué, cuál, cómo, dónde, cuándo, cuánto, quién</h4>
           <p>Estas palabras llevan <strong>tilde</strong> cuando introducen una pregunta o una exclamación (directa o indirecta).</p>
         </div>
-        <table class="rules-table">
+        <div class="po-tabla-wrap"><table class="rules-table">
           <tr><th>Con tilde (interrogativo/exclamativo)</th><th>Sin tilde (relativo/conjunción)</th></tr>
           <tr><td>¿<strong>Qué</strong> quieres? / ¡<strong>Qué</strong> alegría!</td><td>Dijo <strong>que</strong> vendría.</td></tr>
           <tr><td>¿<strong>Dónde</strong> vives?</td><td>La casa <strong>donde</strong> vivo.</td></tr>
           <tr><td>No sé <strong>cómo</strong> lo hizo.</td><td>Lo hizo <strong>como</strong> quiso.</td></tr>
           <tr><td>¿<strong>Cuánto</strong> cuesta?</td><td>Come <strong>cuanto</strong> quiera.</td></tr>
-        </table>
+          <tr><td>¿<strong>Quién</strong> ha llamado?</td><td><strong>Quien</strong> llegue primero, gana.</td></tr>
+          <tr><td>¿<strong>Cuándo</strong> empieza?</td><td><strong>Cuando</strong> llegues, llámame.</td></tr>
+        </table></div>
         <div class="tip-box">
           <strong>Ejemplo de pregunta indirecta:</strong> "No sé <strong>qué</strong> hacer" también lleva tilde, aunque no haya signos de interrogación, porque sigue siendo una pregunta (indirecta).
         </div>
@@ -100,6 +108,20 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+        <div class="md-explore-card" id="td-explora">
+          <h2>Cada pareja, con su truco</h2>
+          <p class="md-explore-intro">Elige una pareja de palabras y mira cuándo lleva tilde y cuándo no, con ejemplos.</p>
+          <div class="choice-row td-parejas" id="td-parejas"></div>
+          <div class="td-detalle" id="td-detalle"></div>
+          <div class="md-msg ok" id="td-truco" aria-live="polite"></div>
+        </div>
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -113,7 +135,7 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="diacritica">Elegir la palabra correcta</button>
+            <button class="btn btn-secondary active" data-mode="diacritica">Él, tú, mí, sí…</button>
             <button class="btn btn-secondary" data-mode="exclamativa">Qué, cómo, dónde... ¿con tilde?</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
@@ -122,6 +144,11 @@
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
