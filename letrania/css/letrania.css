@@ -329,3 +329,30 @@ a.btn{display:inline-block;text-decoration:none}
 .barra-informe i{display:block;height:100%}
 @media (max-width:640px){.fila-informe{grid-template-columns:minmax(0,1fr) 48px}.fila-informe .barra-informe,.fila-informe .nick{display:none}}
 .picto-voz{width:150px;height:150px;font-size:70px;background:#fff;border-radius:16px;border:3px solid #cdb17c}
+
+/* ---------- Fase 3: equipos, cartas y poderes ---------- */
+.equipos{display:grid;gap:10px;margin-top:10px}
+.equipo-caja{background:#fffaf0;border:2px solid #cdb17c;border-radius:12px;padding:10px 12px}
+.equipo-caja h3{color:var(--terra);font-size:20px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#f3e4c2;border:1px solid #cdb17c;border-radius:20px;padding:3px 6px 3px 10px;font-size:14px}
+.chip-x{border:0;background:transparent;color:#7a2f13;font-size:14px;padding:0 4px}
+.mini[aria-pressed="true"]{background:var(--sea);color:#fff;border-color:var(--sea)}
+.team{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+.member{background:linear-gradient(#fffaf0,#efe0bb);border:2px solid #cdb17c;border-radius:14px;padding:10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+.member img,.member-vacio{height:170px;width:auto;max-width:100%;object-fit:contain}
+.member-vacio{width:110px;border-radius:12px;background:#e3cc98}
+.member small{color:var(--ink-soft)}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+.card{background:linear-gradient(160deg,#2b1d12,#4a2f1b);color:var(--parch);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;border:2px solid var(--gold);box-shadow:0 0 0 4px #2b1d12 inset,0 0 0 5px rgba(233,176,74,.4) inset}
+.card h3{color:var(--gold);font-size:19px}
+.card p{margin:0;font-size:15px}
+.card select{font-family:var(--body);font-size:15px;padding:5px;border-radius:8px}
+.card small{color:#c9b48a}
+.ayudas{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.ayuda{background:linear-gradient(160deg,#2b1d12,#4a2f1b);color:var(--gold-2);border:2px solid var(--gold);border-radius:10px;padding:5px 10px;font-size:14px}
+.ayuda[aria-pressed="true"]{background:var(--sea);color:#fff;border-color:var(--sea)}
+[data-ans].descartada{opacity:.25;text-decoration:line-through;filter:grayscale(1)}
+.tarjeta.lupa .qword,.tarjeta.lupa .ficha-palabra,.tarjeta.lupa .rama{transform:scale(1.25);transform-origin:left center}
+.tarjeta.lupa .cortar{font-size:44px}
+@media (max-width:860px){.team{grid-template-columns:repeat(2,minmax(0,1fr))}.cards{grid-template-columns:minmax(0,1fr)}}

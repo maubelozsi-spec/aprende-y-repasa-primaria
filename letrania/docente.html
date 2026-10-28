@@ -63,6 +63,16 @@
       <div id="informe"></div>
     </section>
 
+    <section class="parch" aria-labelledby="t-equipos">
+      <h2 id="t-equipos">Equipos</h2>
+      <p class="nota">Equipos de 3 o 4, mezclando sendas si se puede. Los compañeros solo ven el retrato, la senda y el nombre de héroe ya aprobado. Las gemas de los miembros son la esencia del equipo; con esencia suficiente y un sello de cada miembro (una ficha terminada en la región) se abre la puerta de la región y cada uno gana una carta. Las cartas que se regalan se entregan mientras este panel está abierto.</p>
+      <div id="listaEquipos" class="equipos"></div>
+      <h3 style="margin-top:16px;color:var(--terra)">Nuevo equipo</h3>
+      <div class="tools-row" style="margin-top:6px"><label>Nombre <input type="text" id="equipoNombre" maxlength="40" placeholder="Los Vigías del Faro"></label></div>
+      <div class="lista-alta" id="equipoLibres"></div>
+      <button class="btn sea" id="crearEquipo" type="button">Crear equipo</button>
+    </section>
+
     <section class="parch" aria-labelledby="t-alta">
       <h2 id="t-alta">Añadir alumnado a Letrania</h2>
       <p class="nota">Usa las claves que ya tienen en Aprende y Repasa. Letrania no guarda su nombre: solo retrato, nombre de héroe y puntos. El nombre que ves aquí lo lee este panel de tu clase y solo lo ves tú.</p>
@@ -82,6 +92,8 @@
         <label>Minutos por sesión <input type="number" id="ajMinutos" min="1" max="60"></label>
         <label>Fecha en que se abre el tesoro <input type="date" id="ajFecha"></label>
         <label>Gemas para llenar el cofre <input type="number" id="ajUmbral" min="10" max="5000"></label>
+        <label>Esencia por puerta de región <input type="number" id="ajPuerta" min="1" max="500"></label>
+        <label>Fichas opcionales (no cuentan para el guardián) <input type="text" id="ajOpcionales" placeholder="Ej.: 5, 11"></label>
       </div>
       <p class="nota">Los minutos se aplican al habilitar; a quien ya está jugando puedes darle 5 minutos más desde su fila.</p>
       <button class="btn" id="ajGuardar" type="button" style="margin-top:10px">Guardar ajustes</button>

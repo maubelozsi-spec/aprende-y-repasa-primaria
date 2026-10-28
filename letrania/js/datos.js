@@ -55,6 +55,33 @@
 
   const MINUTOS_POR_DEFECTO = 15;
 
+  // Cartas de poder (apartado 7): se ganan al terminar una ficha, al
+  // abrir una puerta de región y con la racha, y SOLO se pueden regalar
+  // a un compañero del equipo. Las que te regalan, esas sí las usas.
+  const CARTAS = {
+    pista: { nombre: "Pista", desc: "Muestra una ayuda antes de responder." },
+    segunda: { nombre: "Segunda oportunidad", desc: "El primer fallo de la ronda no cuenta: vuelves a intentarlo." },
+    lupa: { nombre: "Lupa", desc: "Agranda la pregunta y la lee en voz alta." },
+    hada: { nombre: "Tiempo de hada", desc: "Para el viento 10 segundos." },
+    doble: { nombre: "Doble gema", desc: "Duplica las gemas del premio de hoy." },
+    llave: { nombre: "Llave dorada", desc: "Abre un cofre pequeño: +10 XP." },
+  };
+  const TIPOS_CARTA = Object.keys(CARTAS);
+
+  // Poder propio de cada clase: una vez por región.
+  const PODERES = {
+    maga: { nombre: "Trazo mágico", desc: "Tu maestro duplicará las gemas de «buena letra» de la próxima ficha." },
+    explo: { nombre: "Brújula", desc: "Descarta una opción incorrecta en una pregunta." },
+    guard: { nombre: "Escudo", desc: "Si un día no juegas, tu racha no se rompe (se activa solo)." },
+    bardo: { nombre: "Eco", desc: "Una ronda con audio sin límite." },
+  };
+
+  const ESCUCHAS_POR_RONDA = 3; // Dragón y Grifo; el Unicornio, siempre sin límite
+  const XP_LLAVE = 10;
+  const XP_GUARDIAN = 15;
+  const RACHA_COFRE = 3; // cada 3 sesiones seguidas, un cofre (una carta)
+  const ESENCIA_PUERTA = 20; // por defecto; el maestro lo cambia en Ajustes
+
   function regionDe(ficha) {
     const f = Math.min(Math.max(ficha || 1, 1), TOTAL_FICHAS);
     return REGIONES.findIndex((r) => f >= r.desde && f <= r.hasta);
@@ -112,6 +139,14 @@
     TOTAL_FICHAS,
     CRITERIOS,
     MINUTOS_POR_DEFECTO,
+    CARTAS,
+    TIPOS_CARTA,
+    PODERES,
+    ESCUCHAS_POR_RONDA,
+    XP_LLAVE,
+    XP_GUARDIAN,
+    RACHA_COFRE,
+    ESENCIA_PUERTA,
     regionDe,
     contenidoDe,
     claseDe,

@@ -23,6 +23,7 @@
 // ============================================================
 
 import {
+  arrayUnion,
   addDoc,
   collection,
   increment,
@@ -53,6 +54,7 @@ const esDemo = !(sesion && sesion.code);
 
 let heroe = null; // datos de letHeroes/{clave}
 let ajustes = {}; // letConfig/{teacherId}
+let equipo = null; // letEquipos/{heroe.equipo}, si tiene
 let desfase = 0; // hora del servidor - hora de este ordenador (ms)
 let reloj = null;
 let cancelarEscucha = null;
@@ -309,6 +311,7 @@ function mostrar(v) {
   document.querySelectorAll(".view").forEach((s) => (s.hidden = s.id !== "v-" + v));
   if (v === "mapa") pintarMapa();
   else if (v === "prueba") abrirPrueba();
+  else if (v === "equipo") abrirEquipo();
   else pintarCreador();
 }
 document.querySelector("nav.tabs").addEventListener("click", (e) => {
@@ -342,7 +345,15 @@ function cargarScript(src) {
 
 // Solo se descarga el banco de su senda (y los pictogramas, si es la
 // Senda del Unicornio): menos peso para los portátiles del centro.
-async function abrirPrueba() {
+let preparandoJuego = null;
+function abrirPrueba() {
+  // Una sola vez aunque se llame dos veces seguidas (pestaña + «Combatir»):
+  // dos motores sobre la misma sección responderían a la vez.
+  if (!preparandoJuego) preparandoJuego = crearJuego().finally(() => (preparandoJuego = null));
+  return preparandoJuego.then(() => juego && juego.mostrar());
+}
+
+async function crearJuego() {
   const v = $("#v-prueba");
   if (!juego) {
     v.innerHTML = '<div class="parch"><p style="margin:0">Preparando la prueba…</p></div>';
@@ -364,17 +375,209 @@ async function abrirPrueba() {
       hablar: hablar,
       alTerminar: guardarResultado,
       alMapa: () => mostrar("mapa"),
+      cartas: () => heroe.recibidas || {},
+      usarCarta: usarCarta,
+      poder: poderActual,
+      usarPoder: usarPoder,
     });
     $("#atribucion").hidden = !uni();
   }
-  juego.mostrar();
 }
+
+// ---------- Cartas recibidas y poder de clase ----------
+
+async function usarCarta(tipo) {
+  const quedan = (heroe.recibidas || {})[tipo] || 0;
+  if (quedan <= 0) return false;
+  if (esDemo) {
+    heroe.recibidas[tipo] = quedan - 1;
+    return true;
+  }
+  try {
+    await updateDoc(refHeroe(), { ["recibidas." + tipo]: increment(-1) });
+    if (!heroe.recibidas) heroe.recibidas = {};
+    heroe.recibidas[tipo] = quedan - 1;
+    return true;
+  } catch (e) {
+    aviso("No se ha podido usar la carta.");
+    return false;
+  }
+}
+
+function poderActual() {
+  const clase = L.claseDe(heroe.retrato).id;
+  const region = Math.min(L.regionDe(heroe.ficha) + 1, L.REGIONES.length);
+  return { clase: clase, region: region, disponible: (heroe.poderes || []).indexOf(region) === -1, ...L.PODERES[clase] };
+}
+
+async function usarPoder(extra) {
+  const p = poderActual();
+  if (!p.disponible) return false;
+  if (esDemo) {
+    heroe.poderes = (heroe.poderes || []).concat([p.region]);
+    if (extra && extra.trazo) heroe.trazo = true;
+    return true;
+  }
+  try {
+    await updateDoc(refHeroe(), Object.assign({ poderes: arrayUnion(p.region) }, extra || {}));
+    heroe.poderes = (heroe.poderes || []).concat([p.region]);
+    return true;
+  } catch (e) {
+    aviso("No se ha podido usar el poder.");
+    return false;
+  }
+}
+
+// Combate contra el guardián de una región: si gana (70 % a la primera),
+// +15 XP una sola vez por región. Perder no quita nada.
+async function guardarGuardian(r) {
+  const gana = r.aciertos >= Math.ceil(r.total * 0.7);
+  const ya = (heroe.guardianes || []).indexOf(r.region) !== -1;
+  if (!gana || ya) return { guardian: true, gana: gana, ya: ya };
+  if (!esDemo) await updateDoc(refHeroe(), { guardianes: arrayUnion(r.region), xp: increment(L.XP_GUARDIAN) });
+  heroe.guardianes = (heroe.guardianes || []).concat([r.region]);
+  if (esDemo) heroe.xp += L.XP_GUARDIAN;
+  pintarChip();
+  return { guardian: true, gana: true, xp: L.XP_GUARDIAN };
+}
+
+// El guardián se puede retar al terminar las fichas esenciales de su
+// región (las que el maestro no ha marcado como opcionales) y si esa
+// región ya tiene banco de ítems.
+function guardianDisponible(region) {
+  const r = L.REGIONES[region - 1];
+  const opcionales = ajustes.opcionales || [];
+  const esenciales = [];
+  for (let f = r.desde; f <= r.hasta; f++) if (opcionales.indexOf(f) === -1) esenciales.push(f);
+  const ultima = esenciales.length ? esenciales[esenciales.length - 1] : r.desde - 1;
+  return (heroe.ficha || 1) > ultima;
+}
+
+// ---------- Mi equipo ----------
+
+async function cargarEquipo() {
+  if (esDemo || !heroe || !heroe.equipo) {
+    equipo = esDemo ? equipo : null;
+    return;
+  }
+  try {
+    const snap = await getDoc(doc(db, "letEquipos", heroe.equipo));
+    equipo = snap.exists() ? snap.data() : null;
+  } catch (e) {
+    // Sin conexión: se queda lo último que se leyó.
+  }
+}
+
+function companeros() {
+  if (!equipo) return [];
+  return Object.keys(equipo.miembros || {})
+    .filter((id) => id !== heroe.heroeId)
+    .map((id) => Object.assign({ id: id }, equipo.miembros[id]));
+}
+
+const nombrePublico = (m) => m.nombre || "Héroe en revisión";
+
+async function abrirEquipo() {
+  await cargarEquipo();
+  pintarEquipo();
+}
+
+function pintarEquipo() {
+  const v = $("#v-equipo");
+  const mios = heroe.cartas || [];
+  const recibidas = heroe.recibidas || {};
+  let cabecera;
+  if (!equipo) {
+    cabecera = `<div class="parch"><h2>Mi equipo</h2><p class="muted">Tu maestro todavía no te ha puesto en un equipo. Mientras, puedes guardar tus cartas: en cuanto tengas equipo, podrás regalarlas.</p></div>`;
+  } else {
+    const miembros = Object.keys(equipo.miembros || {}).map((id) => Object.assign({ id: id }, equipo.miembros[id]));
+    const umbral = ajustes.esenciaPuerta || L.ESENCIA_PUERTA;
+    const puertas = equipo.puertas || [];
+    const siguiente = [1, 2, 3, 4, 5, 6].find((r) => puertas.indexOf(r) === -1);
+    const necesita = umbral * (puertas.length + 1);
+    const sinSello = siguiente ? miembros.filter((m) => (m.ficha || 1) <= L.REGIONES[siguiente - 1].desde) : [];
+    cabecera = `<div class="parch"><span class="eyebrow">Mi equipo</span><h2>${esc(equipo.nombre)}</h2>
+      <p class="muted" style="margin:4px 0 0">Para abrir la puerta de una región, cada miembro tiene que aportar un sello (una ficha terminada en esa región) y el equipo tiene que reunir la esencia necesaria. Al abrirla, cada uno gana una carta.</p>
+      <div class="team">${miembros
+        .map((m) => `<div class="member">${m.retrato ? `<img src="${srcImg(m.retrato)}" alt="" loading="lazy">` : '<div class="member-vacio"></div>'}<b>${esc(nombrePublico(m))}${m.id === heroe.heroeId ? " (tú)" : ""}</b><span class="pill ${L.SENDAS[m.senda].cls}">${L.SENDAS[m.senda].nombre}</span><small>Estación ${Math.min(m.ficha || 1, L.TOTAL_FICHAS)} · ${m.gemas || 0} gemas</small></div>`)
+        .join("")}</div></div>
+      <div class="bars"><div class="bar"><svg width="54" height="54" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2h8l3 4-7 8-7-8z" fill="#5fd3c4" stroke="#bff0e8" stroke-width=".6"/></svg><div><b>Esencia del equipo</b> <small>· ${siguiente ? "puerta de " + esc(L.REGIONES[siguiente - 1].nombre) : "todas las puertas abiertas"}</small><div class="track"><i style="width:${Math.min(100, ((equipo.esencia || 0) / necesita) * 100)}%;background:linear-gradient(90deg,#2f9a92,#5fd3c4)"></i></div><small>${equipo.esencia || 0} de ${necesita}${sinSello.length ? " · falta el sello de: " + sinSello.map((m) => (m.id === heroe.heroeId ? "tu héroe" : esc(nombrePublico(m)))).join(", ") : ""}</small></div></div>
+      <div class="bar"><img src="${srcImg("cofre")}" alt=""><div><b>Puertas abiertas</b><div><small>${puertas.length ? puertas.map((r) => esc(L.REGIONES[r - 1].nombre)).join(" · ") : "Todavía ninguna"}</small></div></div></div></div>`;
+  }
+  const otros = companeros();
+  const pausado = !!heroe.regalosPausados;
+  const cartasRegalo = mios.length
+    ? mios
+        .map((c, i) => `<div class="card"><h3>${esc(L.CARTAS[c].nombre)}</h3><p>${esc(L.CARTAS[c].desc)}</p>
+          ${otros.length && !pausado
+            ? `<label style="font-size:14px">Regalar a <select id="regalo-${i}">${otros.map((o) => `<option value="${esc(o.id)}">${esc(nombrePublico(o))}</option>`).join("")}</select></label><button class="btn" type="button" data-regalar="${i}">Regalar</button>`
+            : `<small>${pausado ? "Los regalos de tu equipo están en pausa." : "Podrás regalarla cuando tengas equipo."}</small>`}</div>`)
+        .join("")
+    : '<p class="muted">No tienes cartas para regalar. Ganarás una al terminar tu próxima ficha.</p>';
+  const usables = L.TIPOS_CARTA.filter((t) => (recibidas[t] || 0) > 0);
+  const cartasUso = usables.length
+    ? usables
+        .map((t) => `<div class="card"><h3>${esc(L.CARTAS[t].nombre)} × ${recibidas[t]}</h3><p>${esc(L.CARTAS[t].desc)}</p>${t === "llave" ? '<button class="btn sea" type="button" id="usarLlave">Abrir el cofre</button>' : "<small>Se usa en la Prueba de hoy.</small>"}</div>`)
+        .join("")
+    : '<p class="muted">Todavía no te han regalado cartas.</p>';
+  const p = poderActual();
+  v.innerHTML = `${cabecera}
+    <div class="parch" style="margin-top:16px"><h2>Cartas para regalar</h2><p class="muted" style="margin:4px 0 0">Estas cartas no puedes usarlas tú: solo puedes regalarlas a un compañero de tu equipo. Le llegan en cuanto tu maestro tenga abierto su panel.</p><div class="cards">${cartasRegalo}</div>${(heroe.regalos || []).length ? `<p class="nota">Regalos de camino: ${heroe.regalos.length}.</p>` : ""}</div>
+    <div class="parch" style="margin-top:16px"><h2>Cartas que te han regalado</h2><div class="cards">${cartasUso}</div></div>
+    <div class="parch" style="margin-top:16px"><h2>Tu poder: ${esc(p.nombre)}</h2><p class="muted" style="margin:4px 0 0">${esc(p.desc)} Una vez por región.</p><p><b>${p.disponible ? "Disponible en esta región." : "Ya lo has usado en esta región."}</b></p>
+      ${p.clase === "maga" && p.disponible ? '<button class="btn" type="button" id="usarTrazo">Usar Trazo mágico en la próxima ficha</button>' : ""}
+      ${p.clase === "maga" && heroe.trazo ? '<p class="nota">Trazo mágico preparado: tu maestro lo aplicará al corregir tu buena letra.</p>' : ""}</div>`;
+}
+
+$("#v-equipo").addEventListener("click", async (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.regalar !== undefined) {
+    const i = +b.dataset.regalar;
+    const carta = (heroe.cartas || [])[i];
+    const para = $("#regalo-" + i).value;
+    const destino = companeros().find((o) => o.id === para);
+    if (!carta || !destino) return;
+    const cartas = heroe.cartas.slice();
+    cartas.splice(i, 1);
+    const regalos = (heroe.regalos || []).concat([{ carta: carta, para: para }]);
+    b.disabled = true;
+    try {
+      if (!esDemo) await updateDoc(refHeroe(), { cartas: cartas, regalos: regalos });
+      heroe.cartas = cartas;
+      heroe.regalos = regalos;
+      aviso("Has regalado «" + L.CARTAS[carta].nombre + "» a " + nombrePublico(destino) + ".");
+    } catch (err) {
+      aviso("No se ha podido regalar. ¿Se ha acabado el tiempo?");
+    }
+    pintarEquipo();
+  } else if (b.id === "usarLlave") {
+    b.disabled = true;
+    try {
+      if (!esDemo) await updateDoc(refHeroe(), { "recibidas.llave": increment(-1), xp: increment(L.XP_LLAVE) });
+      heroe.recibidas.llave--;
+      if (esDemo) heroe.xp += L.XP_LLAVE;
+      aviso("¡Cofre abierto! +" + L.XP_LLAVE + " XP");
+      pintarChip();
+    } catch (err) {
+      aviso("No se ha podido abrir el cofre.");
+    }
+    pintarEquipo();
+  } else if (b.id === "usarTrazo") {
+    if (await usarPoder({ trazo: true })) {
+      heroe.trazo = true;
+      aviso("Trazo mágico preparado para tu próxima ficha.");
+    }
+    pintarEquipo();
+  }
+});
 
 // Premio de la sesión: hasta 20 XP (mínimo 5 por jugar) y 1-2 gemas,
 // UNA vez por sesión (firestore.rules lo comprueba con «premio», que
 // queda igual a «inicio»). Las rondas siguientes son de entrenamiento.
 // «repaso» guarda lo fallado para el calentamiento de otro día.
 async function guardarResultado(r) {
+  if (r.modo === "guardian") return guardarGuardian(r);
   const yaPremiado = !!(heroe.premio && heroe.inicio && ms(heroe.premio) === ms(heroe.inicio));
   const fallados = new Set(r.fallados);
   const repaso = (heroe.repaso || [])
@@ -382,20 +585,31 @@ async function guardarResultado(r) {
     .concat(r.fallados)
     .slice(-30);
   const xp = Math.min(20, 5 + 2 * r.aciertos);
-  const gemas = r.aciertos >= Math.ceil(r.total * 0.7) ? 2 : 1;
+  const gemasBase = r.aciertos >= Math.ceil(r.total * 0.7) ? 2 : 1;
+  const doble = !!r.doble && ((heroe.recibidas || {}).doble || 0) > 0 && !yaPremiado;
+  const gemas = doble ? gemasBase * 2 : gemasBase;
+  // Racha: cada 3 sesiones seguidas con premio, un cofre (una carta más).
+  const racha = (heroe.racha || 0) + 1;
+  const cofre = racha % L.RACHA_COFRE === 0;
+  const carta = L.TIPOS_CARTA[Math.floor(Math.random() * L.TIPOS_CARTA.length)];
   if (esDemo) {
     heroe.repaso = repaso;
     if (heroe.premiadoDemo) return { yaPremiado: true };
     heroe.premiadoDemo = true;
     heroe.xp += xp;
     heroe.gemas += gemas;
+    heroe.racha = racha;
+    if (cofre) heroe.cartas = (heroe.cartas || []).concat([carta]);
     pintarChip();
-    return { xp: xp, gemas: gemas };
+    return { xp: xp, gemas: gemas, racha: racha, cofre: cofre ? carta : null, doble: doble };
   }
   let premio;
   if (!yaPremiado) {
-    await updateDoc(refHeroe(), { xp: increment(xp), gemas: increment(gemas), premio: heroe.inicio, repaso: repaso });
-    premio = { xp: xp, gemas: gemas };
+    const cambios = { xp: increment(xp), gemas: increment(gemas), premio: heroe.inicio, repaso: repaso, racha: increment(1) };
+    if (cofre) cambios.cartas = (heroe.cartas || []).concat([carta]);
+    if (doble) cambios["recibidas.doble"] = increment(-1);
+    await updateDoc(refHeroe(), cambios);
+    premio = { xp: xp, gemas: gemas, racha: racha, cofre: cofre ? carta : null, doble: doble };
   } else {
     if (repaso.join() !== (heroe.repaso || []).join()) await updateDoc(refHeroe(), { repaso: repaso });
     premio = { yaPremiado: true };
@@ -598,8 +812,22 @@ function pintarRegion() {
         return `<li class="${cls}">${esc(t)}${f === ficha ? " · estás aquí" : ""}</li>`;
       })
       .join("")}</ol>${uni() ? botonOir(leer) : ""}</div>
-    <div class="guard"><img src="${srcImg(r.gimg)}" alt="${esc(r.guardian)}" loading="lazy"><div><span class="eyebrow" style="color:#c9b48a">Guardián de la región</span><h3>${esc(r.guardian)}</h3><p style="margin:6px 0 0">${esc(r.gdesc)}</p><p style="margin:8px 0 0;font-size:14px;color:#c9b48a">Combate de repaso con las ${lista.length} estaciones de la región. Se abre al terminar las fichas esenciales.</p></div></div>`;
+    <div class="guard"><img src="${srcImg(r.gimg)}" alt="${esc(r.guardian)}" loading="lazy"><div><span class="eyebrow" style="color:#c9b48a">Guardián de la región</span><h3>${esc(r.guardian)}</h3><p style="margin:6px 0 0">${esc(r.gdesc)}</p>${pieGuardian(regionVista + 1, lista.length)}</div></div>`;
 }
+
+function pieGuardian(region, n) {
+  if ((heroe.guardianes || []).indexOf(region) !== -1) return '<p style="margin:8px 0 0;color:var(--gold-2)"><b>¡Derrotado!</b> Has vencido a este guardián.</p>';
+  if (guardianDisponible(region)) return `<p style="margin:8px 0 0;font-size:14px;color:#c9b48a">Combate de repaso con las ${n} estaciones de la región.</p><button class="btn" type="button" data-combatir="${region}" style="margin-top:8px">Combatir</button>`;
+  return `<p style="margin:8px 0 0;font-size:14px;color:#c9b48a">Combate de repaso con las ${n} estaciones de la región. Se abre al terminar las fichas esenciales.</p>`;
+}
+
+$("#regionInfo").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-combatir]");
+  if (!b) return;
+  mostrar("prueba");
+  await abrirPrueba();
+  if (juego) juego.combatir(+b.dataset.combatir);
+});
 
 $("#mapSvg").addEventListener("click", (e) => {
   const g = e.target.closest("[data-r]");
@@ -626,7 +854,10 @@ function pintarBarras() {
     const d = new Date(ajustes.fechaTesoro + "T12:00:00");
     if (!isNaN(d)) fecha = "el " + d.toLocaleDateString("es-ES", { day: "numeric", month: "long" });
   }
-  $("#bars").innerHTML = `<div class="bar"><img src="${srcImg("cofre")}" alt=""><div><b>Alianza de Letrania</b> <small>· el cofre del tesoro se abre ${esc(fecha)}</small><div class="track"><i style="width:${Math.min(100, (alianza / total) * 100)}%;background:linear-gradient(90deg,#e9b04a,#f8d98c)"></i></div><small>${alianza} de ${total} gemas entre todos los héroes</small></div></div>`;
+  const eq = equipo
+    ? `<div class="bar"><svg width="54" height="54" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2h8l3 4-7 8-7-8z" fill="#5fd3c4" stroke="#bff0e8" stroke-width=".6"/></svg><div><b>${esc(equipo.nombre)}</b> <small>· esencia del equipo</small><div class="track"><i style="width:${Math.min(100, ((equipo.esencia || 0) / ((ajustes.esenciaPuerta || L.ESENCIA_PUERTA) * ((equipo.puertas || []).length + 1))) * 100)}%;background:linear-gradient(90deg,#2f9a92,#5fd3c4)"></i></div><small>${equipo.esencia || 0} de ${(ajustes.esenciaPuerta || L.ESENCIA_PUERTA) * ((equipo.puertas || []).length + 1)} para la próxima puerta</small></div></div>`
+    : "";
+  $("#bars").innerHTML = eq + `<div class="bar"><img src="${srcImg("cofre")}" alt=""><div><b>Alianza de Letrania</b> <small>· el cofre del tesoro se abre ${esc(fecha)}</small><div class="track"><i style="width:${Math.min(100, (alianza / total) * 100)}%;background:linear-gradient(90deg,#e9b04a,#f8d98c)"></i></div><small>${alianza} de ${total} gemas entre todos los héroes</small></div></div>`;
 }
 
 // ---------- Arranque ----------
@@ -648,8 +879,18 @@ async function iniciar() {
     $("#demo").innerHTML = docente && docente.uid
       ? 'Vista de ejemplo para el docente: nada de esto se guarda. <a href="docente.html">Ir al panel de Letrania</a>'
       : "Vista de ejemplo: nada de esto se guarda.";
-    heroe = { senda: "dragon", ficha: 8, xp: 140, gemas: 5, retrato: "", estandarte: 0, nombrePropuesto: "", nombreEstado: "sin" };
-    ajustes = { alianza: 212, umbralAlianza: 600 };
+    heroe = { senda: "dragon", ficha: 8, xp: 140, gemas: 5, retrato: "", estandarte: 0, nombrePropuesto: "", nombreEstado: "sin", heroeId: "demo", cartas: ["pista", "lupa"], recibidas: { segunda: 1, lupa: 1, doble: 1, llave: 1 }, poderes: [], guardianes: [], racha: 2 };
+    ajustes = { alianza: 212, umbralAlianza: 600, esenciaPuerta: 20 };
+    equipo = {
+      nombre: "Equipo de ejemplo",
+      esencia: 14,
+      puertas: [],
+      miembros: {
+        demo: { retrato: "guard-1", nombre: "Tu héroe", senda: "dragon", ficha: 8, gemas: 5 },
+        d2: { retrato: "bardo-2", nombre: "Flor de Salina", senda: "unicornio", ficha: 7, gemas: 4 },
+        d3: { retrato: "maga-3", nombre: "", senda: "grifo", ficha: 6, gemas: 5 },
+      },
+    };
     pintarEstado();
     return;
   }
@@ -670,6 +911,7 @@ async function iniciar() {
       ajustes = {};
     }
   }
+  await cargarEquipo();
   if (heroe && heroe.inicio && estado() === "jugando") escuchar();
   vista = heroe && heroe.retrato ? "mapa" : "heroe";
   pintarEstado();

@@ -18,7 +18,7 @@ rules_version = '2';
 //   - "Novela Colectiva" (colecciones "novProyectos", "novFragmentos",
 //     "novFichas", "novNotas").
 //   - Juego "Letrania" (colecciones "letHeroes", "letMisiones",
-//     "letConfig", "letPartidas").
+//     "letConfig", "letPartidas", "letEquipos").
 //
 // ATENCIÓN: las reglas de Firestore son ÚNICAS por proyecto, no por
 // app. Este archivo es el ÚNICO que hay que pegar en la consola
@@ -418,6 +418,27 @@ service cloud.firestore {
     // de su héroe. Los puntos, la senda, la estación y el acceso solo
     // los escribe el docente. El héroe no guarda el nombre del alumno.
 
+    function cuenta(m, k) {
+      return m.get(k, 0);
+    }
+    function totalCartas(m) {
+      return cuenta(m, "pista") + cuenta(m, "segunda") + cuenta(m, "lupa")
+           + cuenta(m, "hada") + cuenta(m, "doble") + cuenta(m, "llave");
+    }
+    // Solo cambian estas claves del mapa de cartas recibidas.
+    function recibidasIguales(viejo, nuevo, salvo) {
+      return (salvo == "pista" || cuenta(nuevo, "pista") == cuenta(viejo, "pista"))
+          && (salvo == "segunda" || cuenta(nuevo, "segunda") == cuenta(viejo, "segunda"))
+          && (salvo == "lupa" || cuenta(nuevo, "lupa") == cuenta(viejo, "lupa"))
+          && (salvo == "hada" || cuenta(nuevo, "hada") == cuenta(viejo, "hada"))
+          && (salvo == "doble" || cuenta(nuevo, "doble") == cuenta(viejo, "doble"))
+          && (salvo == "llave" || cuenta(nuevo, "llave") == cuenta(viejo, "llave"));
+    }
+    function cartasValidas(lista) {
+      return lista is list && lista.size() <= 30
+          && lista.toSet().difference(["pista", "segunda", "lupa", "hada", "doble", "llave"].toSet()).size() == 0;
+    }
+
     function sesionLetraniaViva(h) {
       return h.habilitado == true
         && h.inicio is timestamp
@@ -462,23 +483,89 @@ service cloud.firestore {
         // El alumno cobra el premio del minijuego: UNA vez por sesión
         // («premio» pasa a valer lo mismo que «inicio»), de 5 a 20 XP y
         // de 0 a 2 gemas, y guarda lo que ha fallado («repaso»).
+        //   La racha sube 1; cada 3 sesiones seguidas, un cofre: una carta
+        //   más para regalar. Con la carta «Doble gema» (que se gasta en
+        //   esta misma escritura) el premio puede llegar a 4 gemas.
         || (esAlumno(clave)
           && sesionLetraniaViva(resource.data)
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["xp", "gemas", "premio", "repaso"])
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(["xp", "gemas", "premio", "repaso", "racha", "cartas", "recibidas"])
           && resource.data.get("premio", null) != resource.data.inicio
           && request.resource.data.premio == resource.data.inicio
           && request.resource.data.xp - resource.data.xp >= 5
           && request.resource.data.xp - resource.data.xp <= 20
-          && request.resource.data.gemas - resource.data.gemas >= 0
-          && request.resource.data.gemas - resource.data.gemas <= 2
           && request.resource.data.repaso is list
-          && request.resource.data.repaso.size() <= 30)
+          && request.resource.data.repaso.size() <= 30
+          && request.resource.data.get("racha", 0) == resource.data.get("racha", 0) + 1
+          && ((request.resource.data.get("racha", 0) % 3 == 0
+                && cartasValidas(request.resource.data.get("cartas", []))
+                && request.resource.data.get("cartas", []).size() == resource.data.get("cartas", []).size() + 1)
+              || request.resource.data.get("cartas", []) == resource.data.get("cartas", []))
+          && request.resource.data.gemas - resource.data.gemas >= 0
+          && ((request.resource.data.get("recibidas", {}) == resource.data.get("recibidas", {})
+                && request.resource.data.gemas - resource.data.gemas <= 2)
+              || (recibidasIguales(resource.data.get("recibidas", {}), request.resource.data.get("recibidas", {}), "doble")
+                && cuenta(request.resource.data.get("recibidas", {}), "doble") == cuenta(resource.data.get("recibidas", {}), "doble") - 1
+                && request.resource.data.gemas - resource.data.gemas <= 4)))
         // Rondas de entrenamiento después del premio: solo «repaso».
         || (esAlumno(clave)
           && sesionLetraniaViva(resource.data)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["repaso"])
           && request.resource.data.repaso is list
-          && request.resource.data.repaso.size() <= 30);
+          && request.resource.data.repaso.size() <= 30)
+        // Usar una carta recibida en el juego (pista, segunda, lupa, hada):
+        // se gasta exactamente una.
+        || (esAlumno(clave)
+          && sesionLetraniaViva(resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["recibidas"])
+          && totalCartas(request.resource.data.recibidas) == totalCartas(resource.data.get("recibidas", {})) - 1
+          && cuenta(request.resource.data.recibidas, "pista") >= 0
+          && cuenta(request.resource.data.recibidas, "segunda") >= 0
+          && cuenta(request.resource.data.recibidas, "lupa") >= 0
+          && cuenta(request.resource.data.recibidas, "hada") >= 0
+          && cuenta(request.resource.data.recibidas, "doble") == cuenta(resource.data.get("recibidas", {}), "doble")
+          && cuenta(request.resource.data.recibidas, "llave") == cuenta(resource.data.get("recibidas", {}), "llave"))
+        // Llave dorada: se gasta una y abre un cofre de 10 XP.
+        || (esAlumno(clave)
+          && sesionLetraniaViva(resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["recibidas", "xp"])
+          && recibidasIguales(resource.data.get("recibidas", {}), request.resource.data.recibidas, "llave")
+          && cuenta(request.resource.data.recibidas, "llave") == cuenta(resource.data.get("recibidas", {}), "llave") - 1
+          && cuenta(request.resource.data.recibidas, "llave") >= 0
+          && request.resource.data.xp == resource.data.xp + 10)
+        // Regalar una carta: sale de las suyas y queda en «regalos» (el
+        // buzón de salida) hasta que el panel del maestro la entrega al
+        // compañero. Nunca escribe en el héroe de otro alumno.
+        || (esAlumno(clave)
+          && sesionLetraniaViva(resource.data)
+          && !resource.data.get("regalosPausados", false)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["cartas", "regalos"])
+          && cartasValidas(request.resource.data.cartas)
+          && request.resource.data.cartas.size() == resource.data.get("cartas", []).size() - 1
+          && request.resource.data.regalos is list
+          && request.resource.data.regalos.size() == resource.data.get("regalos", []).size() + 1
+          && request.resource.data.regalos.size() <= 10
+          && resource.data.get("cartas", []).hasAny([request.resource.data.regalos[request.resource.data.regalos.size() - 1].carta]))
+        // Poder de su clase: una vez por región (1-6). El Trazo mágico
+        // (magos) queda pendiente para la próxima ficha que marque el maestro.
+        || (esAlumno(clave)
+          && sesionLetraniaViva(resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["poderes", "trazo"])
+          && request.resource.data.poderes is list
+          && request.resource.data.poderes.size() == resource.data.get("poderes", []).size() + 1
+          && request.resource.data.poderes.toSet().size() == request.resource.data.poderes.size()
+          && request.resource.data.poderes.toSet().difference([1, 2, 3, 4, 5, 6].toSet()).size() == 0
+          && (request.resource.data.get("trazo", false) == resource.data.get("trazo", false)
+              || (request.resource.data.trazo == true && resource.data.retrato.matches("^maga-[1-4]$"))))
+        // Vencer al guardián de una región: una vez por región, +15 XP.
+        || (esAlumno(clave)
+          && sesionLetraniaViva(resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["guardianes", "xp"])
+          && request.resource.data.guardianes is list
+          && request.resource.data.guardianes.size() == resource.data.get("guardianes", []).size() + 1
+          && request.resource.data.guardianes.toSet().size() == request.resource.data.guardianes.size()
+          && request.resource.data.guardianes.toSet().difference([1, 2, 3, 4, 5, 6].toSet()).size() == 0
+          && request.resource.data.xp == resource.data.xp + 15);
     }
 
     // Una ronda de minijuego (aciertos e ítems fallados) para el informe
@@ -498,6 +585,19 @@ service cloud.firestore {
                     && request.resource.data.palabras is list
                     && request.resource.data.palabras.size() <= 40;
       allow read: if signedIn() && resource.data.teacherId == request.auth.uid;
+      allow delete: if esDocenteDueno(resource.data.teacherId);
+    }
+
+    // Equipos de 3-4 que forma el docente. Solo llevan lo que pueden ver
+    // los compañeros: retrato, nombre de héroe YA APROBADO, senda,
+    // estación y gemas, bajo un id público (heroeId), nunca la clave de
+    // acceso. Los escribe solo el docente (lo mantiene su panel).
+    match /letEquipos/{equipoId} {
+      allow get: if signedIn();
+      allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
+      allow create: if esDocenteDueno(request.resource.data.teacherId);
+      allow update: if esDocenteDueno(resource.data.teacherId)
+                    && request.resource.data.teacherId == resource.data.teacherId;
       allow delete: if esDocenteDueno(resource.data.teacherId);
     }
 

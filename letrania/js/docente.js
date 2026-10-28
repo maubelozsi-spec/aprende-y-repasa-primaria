@@ -11,7 +11,11 @@
 //   para todo el grupo con un writeBatch: el héroe (XP, gemas,
 //   estación y casillas de la ficha en curso), un registro por ficha en
 //   letMisiones/{clave}_{ficha} y el total de la Alianza en
-//   letConfig/{docente}.
+//   letConfig/{docente}. Terminar una ficha da además una carta de poder.
+// - Equipos (letEquipos): los forma el docente. Este panel los mantiene
+//   al día mientras está abierto (ver sincronizar()): tarjetas públicas
+//   de los miembros, esencia, puertas de región y entrega de las cartas
+//   que se regalan. Así ningún alumno escribe nunca en el héroe de otro.
 //
 // - Informe: lee las rondas de minijuego (letPartidas) de las dos
 //   últimas semanas solo cuando se pulsa «Ver informe» (una lectura por
@@ -38,6 +42,7 @@ import {
   deleteDoc,
   setDoc,
   increment,
+  arrayRemove,
   serverTimestamp,
   Timestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
@@ -52,7 +57,9 @@ let uid = null;
 let clases = {}; // id -> nombre
 let alumnos = {}; // clave -> { nickname, classId }
 let heroes = {}; // clave -> datos de letHeroes
-let ajustes = { minutos: L.MINUTOS_POR_DEFECTO, umbralAlianza: 600, fechaTesoro: "" };
+let ajustes = { minutos: L.MINUTOS_POR_DEFECTO, umbralAlianza: 600, fechaTesoro: "", esenciaPuerta: L.ESENCIA_PUERTA, opcionales: [] };
+let equipos = {}; // id -> datos de letEquipos
+let cancelarEquipos = null;
 const marcas = {}; // clave -> Set de casillas marcadas sin guardar
 let cancelar = null;
 
@@ -65,6 +72,24 @@ function aviso(t) {
 }
 
 const ms = (t) => (t && t.toMillis ? t.toMillis() : 0);
+
+function cartaAlAzar() {
+  return L.TIPOS_CARTA[Math.floor(Math.random() * L.TIPOS_CARTA.length)];
+}
+
+// Id público del héroe para su equipo (la clave de acceso no se enseña
+// nunca a los compañeros).
+function nuevoHeroeId() {
+  const a = new Uint32Array(2);
+  crypto.getRandomValues(a);
+  return "h" + a[0].toString(36) + a[1].toString(36);
+}
+
+function inicioDeHoy() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
 
 function finDeHoy() {
   const d = new Date();
@@ -152,7 +177,7 @@ function pintarTabla() {
         <td style="min-width:150px"><button class="mini" type="button" data-ficha="${clave}:-1" aria-label="Estación anterior">−</button> <b style="font-variant-numeric:tabular-nums">${fin ? "Fin" : h.ficha}</b> <button class="mini" type="button" data-ficha="${clave}:1" aria-label="Estación siguiente">+</button><br><span class="nick">${esc(contenido)}</span></td>
         <td>${nombreCelda}</td>
         ${casillas}
-        <td class="c" style="font-variant-numeric:tabular-nums">${h.xp || 0} · ${h.gemas || 0}<br><span class="nick">nivel ${L.nivel(h.xp)}</span></td>
+        <td class="c" style="font-variant-numeric:tabular-nums">${h.xp || 0} · ${h.gemas || 0}<br><span class="nick">nivel ${L.nivel(h.xp)} · racha ${h.racha || 0}${h.trazo ? " · trazo" : ""}</span><br><span class="nick">${equipos[h.equipo] ? esc(equipos[h.equipo].nombre) : "sin equipo"}</span></td>
         <td><button class="mini no" type="button" data-quitar="${clave}" title="Quitar de Letrania">✕</button></td>
       </tr>`;
     })
@@ -204,7 +229,7 @@ $("#tBody").addEventListener("click", async (e) => {
         await updateDoc(doc(db, "letHeroes", clave), { habilitado: false });
         aviso("Acceso quitado.");
       } else {
-        await updateDoc(doc(db, "letHeroes", clave), habilitacion());
+        await updateDoc(doc(db, "letHeroes", clave), habilitacion(heroes[clave]));
         aviso("Habilitado para hoy: " + ajustes.minutos + " minutos desde que entre.");
       }
     } else if (b.dataset.mas5) {
@@ -235,15 +260,29 @@ $("#tBody").addEventListener("click", async (e) => {
   }
 });
 
-function habilitacion() {
-  return { habilitado: true, inicio: null, minutos: ajustes.minutos, habilitadoHasta: finDeHoy() };
+// Al abrir una sesión nueva se mira la anterior: si hubo (otro día) y el
+// alumno no llegó a cobrar su premio, la racha se rompe... salvo que sea
+// un Guardián del Punto con el Escudo sin usar en esta región, que se
+// gasta solo y la protege.
+function habilitacion(h) {
+  const cambios = { habilitado: true, inicio: null, minutos: ajustes.minutos, habilitadoHasta: finDeHoy() };
+  if (!h) return cambios;
+  const huboSesion = h.habilitadoHasta && ms(h.habilitadoHasta) < inicioDeHoy();
+  const cobro = h.premio && h.inicio && ms(h.premio) === ms(h.inicio);
+  if (huboSesion && !cobro && (h.racha || 0) > 0) {
+    const region = L.regionDe(h.ficha) + 1;
+    const poderes = h.poderes || [];
+    if (L.claseDe(h.retrato).id === "guard" && h.retrato && poderes.indexOf(region) === -1) cambios.poderes = poderes.concat([region]);
+    else cambios.racha = 0;
+  }
+  return cambios;
 }
 
 async function habilitarVarios(activar) {
   const claves = ordenadas();
   if (!claves.length) return;
   const batch = writeBatch(db);
-  claves.forEach((c) => batch.update(doc(db, "letHeroes", c), activar ? habilitacion() : { habilitado: false }));
+  claves.forEach((c) => batch.update(doc(db, "letHeroes", c), activar ? habilitacion(heroes[c]) : { habilitado: false }));
   try {
     await batch.commit();
     aviso(activar ? claves.length + " alumnos habilitados para hoy (" + ajustes.minutos + " min cada uno)." : "Acceso quitado a " + claves.length + " alumnos.");
@@ -277,13 +316,22 @@ $("#guardarMisiones").addEventListener("click", async () => {
         gm += L.CRITERIOS[k].gemas;
         casillas[k] = true;
       });
+      const cambios = {};
+      // Trazo mágico (magos): duplica la gema de «buena letra».
+      if (h.trazo && sumar.indexOf(2) !== -1) {
+        gm += L.CRITERIOS[2].gemas;
+        cambios.trazo = false;
+      }
       gemas += gm;
+      cambios.xp = increment(xp);
+      cambios.gemas = increment(gm);
       const completa = casillas[0];
-      const cambios = { xp: increment(xp), gemas: increment(gm) };
       if (completa) {
         const sig = Math.min(FICHA_FIN, h.ficha + 1);
         cambios.ficha = sig;
         cambios.mision = { ficha: sig, casillas: [false, false, false, false, false] };
+        // Cada ficha terminada da una carta de poder para regalar.
+        cambios.cartas = (h.cartas || []).concat([cartaAlAzar()]);
       } else {
         cambios.mision = { ficha: h.ficha, casillas: casillas };
       }
@@ -459,6 +507,14 @@ $("#altaBoton").addEventListener("click", async () => {
       nombre: "",
       nombreEstado: "sin",
       mision: { ficha: ficha, casillas: [false, false, false, false, false] },
+      heroeId: nuevoHeroeId(),
+      equipo: null,
+      racha: 0,
+      cartas: [],
+      regalos: [],
+      recibidas: {},
+      poderes: [],
+      guardianes: [],
       creadoEn: serverTimestamp(),
     });
   });
@@ -476,15 +532,19 @@ function pintarAjustes() {
   $("#ajMinutos").value = ajustes.minutos;
   $("#ajFecha").value = ajustes.fechaTesoro || "";
   $("#ajUmbral").value = ajustes.umbralAlianza;
+  $("#ajPuerta").value = ajustes.esenciaPuerta || L.ESENCIA_PUERTA;
+  $("#ajOpcionales").value = (ajustes.opcionales || []).join(", ");
 }
 
 $("#ajGuardar").addEventListener("click", async () => {
   const minutos = Math.min(60, Math.max(1, parseInt($("#ajMinutos").value, 10) || L.MINUTOS_POR_DEFECTO));
   const umbral = Math.min(5000, Math.max(10, parseInt($("#ajUmbral").value, 10) || 600));
   const fecha = $("#ajFecha").value || "";
+  const puerta = Math.min(500, Math.max(1, parseInt($("#ajPuerta").value, 10) || L.ESENCIA_PUERTA));
+  const opcionales = Array.from(new Set(($("#ajOpcionales").value.match(/\d+/g) || []).map(Number).filter((n) => n >= 1 && n <= L.TOTAL_FICHAS))).sort((a, b) => a - b);
   try {
-    await setDoc(doc(db, "letConfig", uid), { teacherId: uid, minutos: minutos, umbralAlianza: umbral, fechaTesoro: fecha }, { merge: true });
-    Object.assign(ajustes, { minutos: minutos, umbralAlianza: umbral, fechaTesoro: fecha });
+    await setDoc(doc(db, "letConfig", uid), { teacherId: uid, minutos: minutos, umbralAlianza: umbral, fechaTesoro: fecha, esenciaPuerta: puerta, opcionales: opcionales }, { merge: true });
+    Object.assign(ajustes, { minutos: minutos, umbralAlianza: umbral, fechaTesoro: fecha, esenciaPuerta: puerta, opcionales: opcionales });
     pintarAjustes();
     aviso("Ajustes guardados.");
   } catch (err) {
@@ -504,6 +564,204 @@ function sincronizarAlianza() {
   ajustes.alianza = total;
   setDoc(doc(db, "letConfig", uid), { teacherId: uid, alianza: total }, { merge: true }).catch(() => {});
 }
+
+// ---------- Equipos ----------
+
+function miembrosDe(id) {
+  return Object.keys(heroes).filter((c) => heroes[c].equipo === id);
+}
+
+// Sello de una región = haber terminado al menos una de sus fichas.
+function tieneSello(h, region) {
+  return (h.ficha || 1) > L.REGIONES[region - 1].desde;
+}
+
+// Lo que el equipo puede ver de cada miembro: nada de claves ni nombres
+// reales; el nombre de héroe, solo si ya está aprobado.
+function tarjetaPublica(h) {
+  return {
+    retrato: h.retrato || "",
+    nombre: h.nombreEstado === "aprobado" && h.nombre ? h.nombre : "",
+    senda: h.senda,
+    ficha: h.ficha || 1,
+    gemas: h.gemas || 0,
+  };
+}
+
+function igualesProfundo(a, b) {
+  return JSON.stringify(normalizar(a)) === JSON.stringify(normalizar(b));
+}
+function normalizar(x) {
+  if (Array.isArray(x)) return x.map(normalizar);
+  if (x && typeof x === "object") {
+    const o = {};
+    Object.keys(x).sort().forEach((k) => (o[k] = normalizar(x[k])));
+    return o;
+  }
+  return x;
+}
+
+let sincT = null;
+let sincronizando = false;
+function programarSincronizacion() {
+  clearTimeout(sincT);
+  sincT = setTimeout(sincronizar, 1200);
+}
+
+// Una pasada: entrega regalos, pone al día las tarjetas, la esencia y las
+// puertas de cada equipo, y abre las puertas que ya toca (cofre: una
+// carta para cada miembro). Solo escribe lo que ha cambiado, así que al
+// volver la escucha con los cambios no hace nada más.
+async function sincronizar() {
+  if (sincronizando || !uid) return;
+  sincronizando = true;
+  const batch = writeBatch(db);
+  let cambios = 0;
+  const extra = {}; // clave -> cambios del héroe
+  const anadir = (clave, campo, valor) => {
+    if (!extra[clave]) extra[clave] = {};
+    extra[clave][campo] = valor;
+  };
+  const cartasDe = (clave) => (extra[clave] && extra[clave].cartas) || (heroes[clave].cartas || []).slice();
+
+  // 1. Regalos
+  Object.keys(heroes).forEach((clave) => {
+    const h = heroes[clave];
+    const eq = equipos[h.equipo];
+    const pausado = !!(eq && eq.regalosPausados);
+    if (!!h.regalosPausados !== pausado) anadir(clave, "regalosPausados", pausado);
+    if (!(h.regalos || []).length || pausado) return;
+    h.regalos.forEach((r) => {
+      const destino = Object.keys(heroes).find((c) => c !== clave && heroes[c].heroeId === r.para && heroes[c].equipo === h.equipo);
+      if (destino && L.CARTAS[r.carta]) {
+        batch.update(doc(db, "letHeroes", destino), { ["recibidas." + r.carta]: increment(1) });
+        cambios++;
+      } else if (L.CARTAS[r.carta]) {
+        anadir(clave, "cartas", cartasDe(clave).concat([r.carta])); // se devuelve
+      }
+    });
+    // Solo se quitan los entregados: si llega otro mientras tanto, se queda.
+    anadir(clave, "regalos", arrayRemove(...h.regalos));
+  });
+
+  // 2. Equipos
+  Object.keys(equipos).forEach((id) => {
+    const eq = equipos[id];
+    const claves = miembrosDe(id);
+    const miembros = {};
+    claves.forEach((c) => {
+      if (!heroes[c].heroeId) anadir(c, "heroeId", nuevoHeroeId());
+      const hid = heroes[c].heroeId || (extra[c] && extra[c].heroeId);
+      miembros[hid] = tarjetaPublica(heroes[c]);
+    });
+    const esencia = claves.reduce((s, c) => s + (heroes[c].gemas || 0), 0);
+    const puertas = (eq.puertas || []).slice();
+    const umbral = ajustes.esenciaPuerta || L.ESENCIA_PUERTA;
+    if (claves.length) {
+      for (let r = 1; r <= L.REGIONES.length; r++) {
+        if (puertas.indexOf(r) !== -1) continue;
+        const sellos = claves.every((c) => tieneSello(heroes[c], r));
+        if (sellos && esencia >= umbral * (puertas.length + 1)) {
+          puertas.push(r);
+          claves.forEach((c) => anadir(c, "cartas", cartasDe(c).concat([cartaAlAzar()])));
+        }
+      }
+    }
+    const nuevo = { miembros: miembros, esencia: esencia, puertas: puertas };
+    if (!igualesProfundo({ miembros: eq.miembros || {}, esencia: eq.esencia || 0, puertas: eq.puertas || [] }, nuevo)) {
+      batch.update(doc(db, "letEquipos", id), nuevo);
+      cambios++;
+    }
+  });
+
+  Object.keys(extra).forEach((clave) => {
+    batch.update(doc(db, "letHeroes", clave), extra[clave]);
+    cambios++;
+  });
+  try {
+    if (cambios) await batch.commit();
+  } catch (err) {
+    // Sin conexión: se reintenta con el próximo cambio.
+  } finally {
+    sincronizando = false;
+  }
+}
+
+function pintarEquipos() {
+  const host = $("#listaEquipos");
+  if (!host) return;
+  const ids = Object.keys(equipos).sort((a, b) => (equipos[a].nombre || "").localeCompare(equipos[b].nombre || "", "es"));
+  const umbral = ajustes.esenciaPuerta || L.ESENCIA_PUERTA;
+  host.innerHTML = ids.length
+    ? ids
+        .map((id) => {
+          const eq = equipos[id];
+          const claves = miembrosDe(id);
+          const sendas = new Set(claves.map((c) => heroes[c].senda));
+          return `<div class="equipo-caja">
+            <div class="tbar"><h3>${esc(eq.nombre)}</h3>
+              <div class="tools-row">
+                <button class="mini" type="button" data-pausa="${id}" aria-pressed="${!!eq.regalosPausados}">${eq.regalosPausados ? "Reanudar regalos" : "Pausar regalos"}</button>
+                <button class="mini no" type="button" data-borrarEquipo="${id}">Deshacer equipo</button>
+              </div></div>
+            <p class="nota">Esencia ${eq.esencia || 0} · próxima puerta con ${umbral * ((eq.puertas || []).length + 1)} · puertas abiertas: ${(eq.puertas || []).length ? (eq.puertas || []).map((r) => L.REGIONES[r - 1].nombre).join(", ") : "ninguna"}${claves.length && claves.length < 3 ? " · <b>pocos miembros</b>" : ""}${sendas.size === 1 && claves.length > 1 ? " · todos de la misma senda" : ""}</p>
+            <div class="chips">${claves
+              .map((c) => `<span class="chip">${esc((alumnos[c] || {}).nickname || c)} <span class="pill ${L.SENDAS[heroes[c].senda].cls}">${L.SENDAS[heroes[c].senda].grupo}</span> <button type="button" class="chip-x" data-sacar="${c}" aria-label="Sacar del equipo">✕</button></span>`)
+              .join("")}</div>
+          </div>`;
+        })
+        .join("")
+    : '<p class="nota">Todavía no hay equipos.</p>';
+  const libres = Object.keys(heroes).filter((c) => !equipos[heroes[c].equipo] && claveVisible(c));
+  $("#equipoLibres").innerHTML = libres.length
+    ? libres
+        .sort((a, b) => ((alumnos[a] || {}).nickname || a).localeCompare((alumnos[b] || {}).nickname || b, "es"))
+        .map((c) => `<label><input type="checkbox" value="${c}"> ${esc((alumnos[c] || {}).nickname || c)} · ${L.SENDAS[heroes[c].senda].corto} (${L.SENDAS[heroes[c].senda].grupo})</label>`)
+        .join("")
+    : '<p class="nota">Todo el alumnado de Letrania (de esta clase) ya tiene equipo.</p>';
+}
+
+$("#crearEquipo").addEventListener("click", async () => {
+  const nombre = $("#equipoNombre").value.trim().slice(0, 40);
+  const elegidos = Array.from(document.querySelectorAll("#equipoLibres input:checked")).map((i) => i.value);
+  if (!nombre) return aviso("Ponle nombre al equipo.");
+  if (elegidos.length < 2) return aviso("Elige al menos dos miembros (mejor 3 o 4).");
+  if (elegidos.length > 5) return aviso("Como mucho 5 miembros (mejor 3 o 4).");
+  const ref = doc(collection(db, "letEquipos"));
+  const batch = writeBatch(db);
+  batch.set(ref, { teacherId: uid, nombre: nombre, miembros: {}, esencia: 0, puertas: [], regalosPausados: false, creadoEn: serverTimestamp() });
+  elegidos.forEach((c) => batch.update(doc(db, "letHeroes", c), { equipo: ref.id, heroeId: heroes[c].heroeId || nuevoHeroeId() }));
+  try {
+    await batch.commit();
+    $("#equipoNombre").value = "";
+    aviso("Equipo «" + nombre + "» creado.");
+  } catch (err) {
+    aviso("No se ha podido crear el equipo.");
+  }
+});
+
+$("#listaEquipos").addEventListener("click", async (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  try {
+    if (b.dataset.pausa) {
+      const eq = equipos[b.dataset.pausa];
+      await updateDoc(doc(db, "letEquipos", b.dataset.pausa), { regalosPausados: !eq.regalosPausados });
+      aviso(eq.regalosPausados ? "Regalos reanudados." : "Regalos en pausa para este equipo.");
+    } else if (b.dataset.sacar) {
+      await updateDoc(doc(db, "letHeroes", b.dataset.sacar), { equipo: null });
+    } else if (b.dataset.borrarequipo) {
+      const id = b.dataset.borrarequipo;
+      if (!window.confirm("¿Deshacer el equipo «" + equipos[id].nombre + "»? Sus miembros conservan héroe, puntos y cartas.")) return;
+      const batch = writeBatch(db);
+      miembrosDe(id).forEach((c) => batch.update(doc(db, "letHeroes", c), { equipo: null }));
+      batch.delete(doc(db, "letEquipos", id));
+      await batch.commit();
+    }
+  } catch (err) {
+    aviso("No se ha podido guardar el cambio.");
+  }
+});
 
 // ---------- Arranque ----------
 
@@ -550,16 +808,28 @@ async function iniciar() {
   pintarAjustes();
   pintarAlta();
 
+  // Los equipos (unos 6-8 documentos) también en directo: se ve al
+  // momento quién ha regalado qué y cuándo se abre una puerta.
+  cancelarEquipos = onSnapshot(query(collection(db, "letEquipos"), where("teacherId", "==", uid)), (snap) => {
+    equipos = {};
+    snap.forEach((d) => (equipos[d.id] = d.data()));
+    pintarEquipos();
+    pintarTabla();
+    programarSincronizacion();
+  });
+
   cancelar = onSnapshot(
     query(collection(db, "letHeroes"), where("teacherId", "==", uid)),
     (snap) => {
       heroes = {};
       snap.forEach((d) => (heroes[d.id] = d.data()));
       sincronizarAlianza();
+      programarSincronizacion();
       $("#cargando").hidden = true;
       $("#panel").hidden = false;
       pintarTabla();
       pintarAlta();
+      pintarEquipos();
     },
     () => {
       $("#cargando").hidden = false;
@@ -569,7 +839,9 @@ async function iniciar() {
 }
 window.addEventListener("pagehide", () => {
   if (cancelar) cancelar();
+  if (cancelarEquipos) cancelarEquipos();
   cancelar = null;
+  cancelarEquipos = null;
 });
 
 iniciar();

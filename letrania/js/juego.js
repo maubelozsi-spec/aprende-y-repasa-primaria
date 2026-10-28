@@ -10,6 +10,11 @@
 // espejo y eco. En la Senda del Unicornio todo va sin movimiento, sin
 // tiempo, con letra grande, pictograma y voz.
 //
+// Fase 3: cartas recibidas (pista, segunda oportunidad, lupa, tiempo de
+// hada, doble gema), poderes de clase (Brújula y Eco; el Trazo mágico y
+// el Escudo no se usan aquí), límite de escuchas por ronda (no en la
+// Senda del Unicornio) y combate contra el guardián de una región.
+//
 // No toca Firestore: al terminar llama a opciones.alTerminar(resultado)
 // y pinta lo que esa función devuelva (ver js/alumno.js).
 // ============================================================
@@ -102,11 +107,11 @@
     // ---------- Escena ----------
 
     function region() {
-      return L.REGIONES[L.regionDe(G ? G.ficha : H().ficha)];
+      return G && G.modo === "guardian" ? L.REGIONES[G.region - 1] : L.REGIONES[L.regionDe(G ? G.ficha : H().ficha)];
     }
 
     function escena() {
-      const ri = L.regionDe(G ? G.ficha : H().ficha);
+      const ri = G && G.modo === "guardian" ? G.region - 1 : L.regionDe(G ? G.ficha : H().ficha);
       const r = L.REGIONES[ri];
       const total = G ? G.total : 8;
       const hechos = G ? G.pasos : 0;
@@ -115,7 +120,7 @@
       for (let i = 0; i < total; i++) pasos += `<span class="paso ${tipo} ${i < hechos ? "on" : ""} ${G && G.nuevo && i === hechos - 1 ? "nuevo" : ""}"></span>`;
       const frac = G && G.fase === "fin" ? 1 : total ? hechos / total : 0;
       const izq = 6 + frac * 72;
-      const guardian = G && G.fase === "calentamiento"
+      const guardian = G && (G.fase === "calentamiento" || (G.modo === "guardian" && !(G.fase === "fin" && G.gana)))
         ? `<img class="esc-guardian ${efectos() ? "flota" : ""} ${G.golpe ? "golpe" : ""}" src="${srcImg(r.gimg)}" alt="${esc(r.guardian)}">`
         : "";
       return `<div class="escena" style="background-image:url('${srcImg("fondo-" + (ri + 1))}'),url('${srcImg("mapa")}')">
@@ -170,13 +175,40 @@
           ${repaso ? '<p class="nota">La prueba de tu estación todavía no está lista: hoy entrenas con la última que hay.</p>' : ""}
           <p style="margin:6px 0 10px">${esc(r.guardian)} vigila el camino. Primero, espántalo con lo que ya sabes. Después, la prueba: ${esc(DESCRIPCION[est.plantilla])}</p>
           <div class="tools" style="margin-bottom:12px">${uni ? '<span class="pill s-unicornio">SIN PRISA · CON VOZ</span>' : '<button class="small-btn" type="button" id="vientoTog" aria-pressed="false">Reto del viento (opcional)</button>'}</div>
+          ${ayudasDeInicio()}
           <button class="btn sea" type="button" id="empezar" style="font-size:20px">Empezar</button>
         </div><img src="${srcImg(r.gimg)}" alt="${esc(r.guardian)}"></div></div></div>`;
     }
 
-    function empezar(viento) {
+    // Lo que se decide antes de empezar: gastar «Segunda oportunidad» o
+    // «Doble gema», o el poder Eco de los bardos.
+    function ayudasDeInicio() {
+      const c = cartas();
+      const p = op.poder ? op.poder() : null;
+      const b = [];
+      if (c.segunda > 0) b.push(`<button class="ayuda" type="button" data-inicio="segunda" aria-pressed="false">Segunda oportunidad (${c.segunda})</button>`);
+      if (c.doble > 0) b.push(`<button class="ayuda" type="button" data-inicio="doble" aria-pressed="false">Doble gema en el premio (${c.doble})</button>`);
+      if (p && p.clase === "bardo" && p.disponible && !uni) b.push(`<button class="ayuda" type="button" data-inicio="eco" aria-pressed="false">Poder Eco: audio sin límite</button>`);
+      return b.length ? `<div class="ayudas" style="margin-bottom:12px"><span class="nota" style="margin:0">Usar en esta ronda:</span>${b.join("")}</div>` : "";
+    }
+
+    function cartas() {
+      return (op.cartas && op.cartas()) || {};
+    }
+
+    async function prepararAyudas(G) {
+      const pulsada = (k) => {
+        const b = raiz.querySelector(`[data-inicio="${k}"]`);
+        return b && b.getAttribute("aria-pressed") === "true";
+      };
+      if (pulsada("segunda") && (await op.usarCarta("segunda"))) G.segunda = true;
+      if (pulsada("doble")) G.doble = true; // se gasta al cobrar el premio
+      if (pulsada("eco") && (await op.usarPoder())) G.eco = true;
+    }
+
+    async function empezar(viento) {
       const p = preparar();
-      G = {
+      const nuevo = {
         fase: p.cal.length ? "calentamiento" : "prueba",
         ficha: p.ficha,
         est: p.est,
@@ -192,8 +224,47 @@
         viento: !!viento && !uni,
         vientoGanado: 0,
         respondido: false,
+        escuchas: L.ESCUCHAS_POR_RONDA,
       };
+      await prepararAyudas(nuevo);
+      G = nuevo;
       marcarVistos(p.main.map((it) => it.id));
+      pintarPregunta();
+    }
+
+    // Combate contra el guardián: ítems de todas las estaciones de la
+    // región que ya tienen banco, sin calentamiento. Gana con el 70 % a
+    // la primera.
+    function combatir(region) {
+      pararViento();
+      const r = L.REGIONES[region - 1];
+      const items = [];
+      for (let f = r.desde; f <= r.hasta; f++) if (op.banco[f]) op.banco[f].items.forEach((it) => items.push(porId[it.id]));
+      if (!items.length) {
+        raiz.innerHTML = `<div class="parch"><h2>${esc(r.guardian)}</h2><p>El combate de esta región todavía no está listo.</p><button class="btn ghost" type="button" id="alMapa">Ir al mapa</button></div>`;
+        return;
+      }
+      const main = barajar(items).slice(0, uni ? 8 : 10);
+      G = {
+        modo: "guardian",
+        region: region,
+        fase: "prueba",
+        ficha: r.desde,
+        est: { plantilla: "mixta", titulo: "Combate contra " + r.guardian },
+        cal: [],
+        main: main,
+        cola: main.slice(),
+        total: main.length,
+        pasos: 0,
+        aciertos: 0,
+        fallados: [],
+        acertadosRepaso: [],
+        intentados: new Set(),
+        viento: false,
+        vientoGanado: 0,
+        respondido: false,
+        escuchas: L.ESCUCHAS_POR_RONDA,
+      };
       pintarPregunta();
     }
 
@@ -204,6 +275,7 @@
     }
 
     function etiqueta() {
+      if (G.modo === "guardian") return "Combate contra " + region().guardian + " · golpe " + Math.min(G.pasos + 1, G.total) + " de " + G.total;
       if (G.fase === "calentamiento") return "Espanta a " + region().guardian + " · quedan " + G.cola.length;
       return (G.est.plantilla === "puente" ? "Tablón " : "Paso ") + Math.min(G.pasos + 1, G.total) + " de " + G.total;
     }
@@ -219,10 +291,11 @@
       raiz.innerHTML = `<div class="gamegrid">${fases(G.fase === "calentamiento" ? 0 : 1)}${escena()}
         <div class="parch tarjeta ${uni ? "uni" : ""}" data-item="${esc(it.id)}">
           <div class="qhead"><span class="eyebrow">${esc(etiqueta())}</span>
-            <span class="tools">${oculto ? "" : '<button class="small-btn" type="button" id="oir">🔊 Escuchar</button>'}${it.pista && !uni ? '<button class="small-btn" type="button" id="pista">Pista</button>' : ""}</span></div>
+            <span class="tools">${oculto ? "" : botonOir()}</span></div>
           <div class="qprompt">${esc(it.enunciado)}</div>
           ${cuerpo}
           ${G.viento && G.fase === "prueba" ? '<div class="wind" aria-hidden="true"><i id="vientoBar" style="width:100%"></i></div>' : ""}
+          ${ayudasDePregunta(it)}
           <div class="feedback" id="fb" aria-live="polite"></div>
           <div id="seguirHueco"></div>
         </div></div>`;
@@ -230,6 +303,61 @@
       if (uni) setTimeout(() => op.hablar(it.enunciado.toLowerCase() + " " + (it.audio || "")), 250);
       if (G.viento && G.fase === "prueba") arrancarViento(it.plantilla === "ordenar" || it.plantilla === "cortar" ? 250 : 120);
       if (it.plantilla === "cestas") prepararArrastre();
+    }
+
+    // Audio: sin límite en la Senda del Unicornio y con el poder Eco; si
+    // no, 3 escuchas por ronda.
+    function sinLimite() {
+      return uni || G.eco;
+    }
+    function botonOir() {
+      return `<button class="small-btn" type="button" id="oir" ${!sinLimite() && G.escuchas <= 0 ? "disabled" : ""}>🔊 Escuchar${sinLimite() ? "" : " (" + G.escuchas + ")"}</button>`;
+    }
+
+    // Cartas que le han regalado y la Brújula de los exploradores.
+    function ayudasDePregunta(it) {
+      const c = cartas();
+      const b = [];
+      const conOpciones = ["puente", "espejo", "eco", "cestas", "caza"].indexOf(it.plantilla) !== -1;
+      if (it.pista && !uni && c.pista > 0) b.push(`<button class="ayuda" type="button" data-ayuda="pista">Pista (${c.pista})</button>`);
+      if (c.lupa > 0) b.push(`<button class="ayuda" type="button" data-ayuda="lupa">Lupa (${c.lupa})</button>`);
+      if (G.viento && G.fase === "prueba" && c.hada > 0) b.push(`<button class="ayuda" type="button" data-ayuda="hada">Tiempo de hada (${c.hada})</button>`);
+      const p = op.poder ? op.poder() : null;
+      if (p && p.clase === "explo" && p.disponible && conOpciones && it.opciones.length > 2) b.push(`<button class="ayuda" type="button" data-ayuda="brujula">Brújula (poder)</button>`);
+      if (G.segunda) b.push('<span class="nota" style="margin:0">Segunda oportunidad activa</span>');
+      return b.length ? `<div class="ayudas">${b.join("")}</div>` : "";
+    }
+
+    async function usarAyuda(tipo, boton) {
+      if (G.respondido) return;
+      const it = actual();
+      boton.disabled = true;
+      const fb = raiz.querySelector("#fb");
+      if (tipo === "brujula") {
+        if (!(await op.usarPoder())) return;
+        const malas = it.opciones.map((o, k) => k).filter((k) => k !== it.correcta);
+        const k = malas[Math.floor(Math.random() * malas.length)];
+        const el = raiz.querySelector(`[data-ans="${k}"]`);
+        if (el) {
+          el.disabled = true;
+          el.classList.add("descartada");
+        }
+        boton.remove();
+        return;
+      }
+      if (!(await op.usarCarta(tipo))) return;
+      if (tipo === "pista") {
+        fb.className = "feedback ok";
+        fb.textContent = "Pista: " + it.pista;
+      } else if (tipo === "lupa") {
+        raiz.querySelector(".tarjeta").classList.add("lupa");
+        op.hablar(it.enunciado + " " + (it.plantilla === "ordenar" ? "" : it.audio || ""));
+      } else if (tipo === "hada") {
+        G.vientoPausaHasta = Date.now() + 10000;
+        fb.className = "feedback ok";
+        fb.textContent = "El hada para el viento 10 segundos.";
+      }
+      boton.remove();
     }
 
     // Pictograma de ARASAAC. Si no llega (sin conexión, API caída), un
@@ -307,6 +435,17 @@
       if (G.respondido) return;
       G.respondido = true;
       const it = actual();
+      if (!ok && G.segunda) {
+        // La carta «Segunda oportunidad»: este fallo no cuenta.
+        G.segunda = false;
+        pararViento();
+        const fb = raiz.querySelector("#fb");
+        fb.className = "feedback ok";
+        fb.textContent = "Segunda oportunidad: este fallo no cuenta. Vuelve a intentarlo.";
+        if (uni) op.hablar("Vuelve a intentarlo.");
+        setTimeout(pintarPregunta, 1600);
+        return;
+      }
       const ganaViento = ok && G.viento && G.fase === "prueba" && G.vientoVivo;
       pararViento();
       const primera = !G.intentados.has(it.id);
@@ -318,6 +457,7 @@
           if (primera) G.aciertos++;
           G.pasos = Math.min(G.total, G.pasos + 1);
           G.nuevo = true;
+          if (G.modo === "guardian") G.golpe = true;
         } else {
           G.golpe = true;
           if (primera) G.acertadosRepaso.push(it.id);
@@ -434,6 +574,7 @@
       let t = decimas;
       G.vientoVivo = true;
       vientoT = setInterval(() => {
+        if (G.vientoPausaHasta && Date.now() < G.vientoPausaHasta) return;
         t--;
         const b = raiz.querySelector("#vientoBar");
         if (b) b.style.width = (t / decimas) * 100 + "%";
@@ -466,6 +607,9 @@
         palabras: G.fallados.map((id) => porId[id] ? porId[id].solucion : id),
         acertadosRepaso: G.acertadosRepaso.slice(),
         viento: G.vientoGanado,
+        doble: !!G.doble,
+        modo: G.modo || "estacion",
+        region: G.region || null,
       };
       raiz.innerHTML = `<div class="gamegrid">${fases(2)}${escena()}<div class="parch"><p>Guardando…</p></div></div>`;
       let premio = null;
@@ -474,12 +618,21 @@
       } catch (e) {
         premio = { error: true };
       }
+      if (premio && premio.guardian) {
+        G.gana = premio.gana;
+        pintarFinGuardian(premio);
+        return;
+      }
       setTimeout(chispas, 400);
       const titulo = { puente: "¡Puente construido!", caza: "¡Caza completada!", cestas: "¡Cestas llenas!", ordenar: "¡El Escriba está contento!", cortar: "¡El Escriba está contento!", espejo: "¡Espejo resuelto!", eco: "¡MUY BIEN!" }[G.est.plantilla];
       let cajas = "";
       if (premio && premio.xp) {
         cajas = `<div class="rewards"><div class="rw"><span class="eyebrow">Experiencia</span><b>+${premio.xp}</b></div><div class="rw"><span class="eyebrow">Gemas</span><b>+${premio.gemas}</b></div>${G.viento ? `<div class="rw"><span class="eyebrow">Viento vencido</span><b>${G.vientoGanado}</b></div>` : ""}</div>`;
       }
+      const extras = [];
+      if (premio && premio.doble) extras.push("La Doble gema ha duplicado tus gemas.");
+      if (premio && premio.racha) extras.push("Racha: " + premio.racha + (premio.racha === 1 ? " sesión." : " sesiones seguidas."));
+      if (premio && premio.cofre) extras.push("¡Cofre de racha! Has ganado la carta «" + L.CARTAS[premio.cofre].nombre + "» para regalar.");
       const texto = premio && premio.error
         ? "No se ha podido guardar el premio. Avisa a tu maestro."
         : premio && premio.xp
@@ -489,10 +642,25 @@
         : "Has acertado a la primera " + G.aciertos + " de " + G.total + ".";
       raiz.innerHTML = `<div class="gamegrid">${fases(2)}${escena()}
         <div class="parch"><span class="eyebrow">Recompensas</span><h2>${titulo}</h2>
-          <p style="margin:6px 0 0">${esc(texto)}</p>${cajas}
+          <p style="margin:6px 0 0">${esc(texto)}</p>${cajas}${extras.length ? `<p class="nota">${esc(extras.join(" "))}</p>` : ""}
           <div class="tools"><button class="btn sea" type="button" id="otra">Otra ronda</button><button class="btn ghost" type="button" id="alMapa">Ir al mapa</button></div>
           <p class="muted" style="margin:12px 0 0;font-size:14px">La experiencia de la ficha en papel llega cuando tu maestro la marca.</p></div></div>`;
       if (uni) op.hablar("¡Muy bien!");
+    }
+
+    function pintarFinGuardian(premio) {
+      const r = L.REGIONES[G.region - 1];
+      const titulo = premio.gana ? "¡Has vencido a " + r.guardian + "!" : r.guardian + " resiste";
+      const texto = premio.gana
+        ? premio.ya
+          ? "Ya lo habías vencido antes: esta victoria es de entrenamiento."
+          : "Has acertado a la primera " + G.aciertos + " de " + G.total + ". Ganas " + premio.xp + " XP."
+        : "Has acertado a la primera " + G.aciertos + " de " + G.total + ". Te hacen falta " + Math.ceil(G.total * 0.7) + ". Repasa la región y vuelve a intentarlo: perder no quita nada.";
+      raiz.innerHTML = `<div class="gamegrid">${escena()}
+        <div class="parch"><span class="eyebrow">Combate</span><h2>${esc(titulo)}</h2><p>${esc(texto)}</p>
+          <div class="tools"><button class="btn sea" type="button" id="revancha" data-region="${G.region}">${premio.gana ? "Combatir otra vez" : "Intentarlo de nuevo"}</button><button class="btn ghost" type="button" id="alMapa">Ir al mapa</button></div></div></div>`;
+      if (premio.gana) setTimeout(chispas, 300);
+      if (uni) op.hablar(premio.gana ? "¡Has ganado!" : "Casi. Vuelve a intentarlo.");
     }
 
     // ---------- Eventos ----------
@@ -500,17 +668,23 @@
     raiz.addEventListener("click", (e) => {
       const b = e.target.closest("button");
       if (!b || b.disabled) return;
-      if (b.id === "vientoTog") b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true");
+      if (b.id === "vientoTog" || b.dataset.inicio) b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true");
+      else if (b.dataset.ayuda) usarAyuda(b.dataset.ayuda, b);
+      else if (b.id === "revancha") combatir(+b.dataset.region);
       else if (b.id === "empezar") {
         const v = raiz.querySelector("#vientoTog");
         empezar(v && v.getAttribute("aria-pressed") === "true");
       } else if (b.id === "seguir") seguir();
-      else if (b.id === "oir" || b.dataset.voz) op.hablar(actual().audio || "");
-      else if (b.id === "pista") {
-        const fb = raiz.querySelector("#fb");
-        fb.className = "feedback ok";
-        fb.textContent = "Pista: " + actual().pista;
-      } else if (b.id === "otra") inicio();
+      else if (b.id === "oir" || b.dataset.voz) {
+        if (!sinLimite()) {
+          if (G.escuchas <= 0) return;
+          G.escuchas--;
+          const o = raiz.querySelector("#oir");
+          if (o) o.outerHTML = botonOir();
+        }
+        op.hablar(actual().audio || "");
+      }
+ else if (b.id === "otra") inicio();
       else if (b.id === "alMapa") op.alMapa();
       else if (b.dataset.ans !== undefined && G && !G.respondido) elegido(+b.dataset.ans);
       else if (b.dataset.pieza !== undefined && !G.respondido) moverPieza(b);
@@ -522,6 +696,7 @@
     });
 
     return {
+      combatir: combatir,
       mostrar: () => {
         if (!G || G.fase === "fin") inicio();
       },
