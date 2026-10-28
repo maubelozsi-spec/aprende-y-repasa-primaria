@@ -51,6 +51,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -66,22 +67,25 @@
         <div class="rule-box llana">
           <h4>Le / les → Complemento indirecto (CI)</h4>
           <p>Sustituyen al <strong>complemento indirecto</strong>, sin distinguir género.</p>
-          <p class="examples"><strong>Ejemplo:</strong> Regalé flores a mi madre → <strong>Le</strong> regalé flores.</p>
+          <p class="examples"><strong>Ejemplo:</strong> Regalé flores a mi madre → <strong>Le</strong> regalé flores. · Escribí a mis primos → <strong>Les</strong> escribí.</p>
+        </div>
+        <div class="tip-box">
+          <strong>¿CD o CI?</strong> El complemento directo recibe directamente la acción: lo que se compra, se lee, se ve, o la persona a la que se ve, se llama, se saluda. El complemento indirecto es a quién o para quién se hace algo, y casi siempre hay además un complemento directo: <em>regalé <u>flores</u> (CD) <u>a mi madre</u> (CI)</em>.
         </div>
 
         <h2>Los errores: loísmo, laísmo y leísmo</h2>
-        <table class="rules-table">
+        <div class="po-tabla-wrap"><table class="rules-table">
           <tr><th>Error</th><th>En qué consiste</th><th>Ejemplo incorrecto</th><th>Correcto</th></tr>
           <tr><td>Loísmo</td><td>usar "lo/los" en lugar de "le/les" (CI)</td><td>Lo dije la verdad (a él)</td><td>Le dije la verdad</td></tr>
           <tr><td>Laísmo</td><td>usar "la/las" en lugar de "le/les" (CI)</td><td>La dije que viniera (a ella)</td><td>Le dije que viniera</td></tr>
-          <tr><td>Leísmo</td><td>usar "le/les" en lugar de "lo/la" (CD)</td><td>Le vi ayer (a él, como CD)</td><td>Lo vi ayer</td></tr>
-        </table>
+          <tr><td>Leísmo</td><td>usar "le/les" en lugar de "lo/la/los/las" (CD)</td><td>El pan le compré · A María le vi</td><td>Lo compré · La vi</td></tr>
+        </table></div>
 
         <div class="tip-box">
           <strong>Truco:</strong> pregúntate qué tipo de complemento sustituyes. Si es CD (¿qué? o ¿a quién? como objeto directo) → lo/la/los/las. Si es CI (¿a quién? ¿para quién?) → le/les.
         </div>
         <div class="tip-box">
-          <strong>Cuidado:</strong> el leísmo referido a personas masculinas ("le vi" por "a él") está muy extendido y aceptado en algunas zonas, pero la forma más recomendada sigue siendo "lo vi".
+          <strong>Un caso admitido:</strong> cuando el complemento directo es una persona masculina en singular, la RAE admite «le»: <em>A Juan le vi ayer</em>. Lo recomendado sigue siendo <em>lo vi</em>. Con cosas (<em>el pan</em>), con mujeres (<em>a María</em>) o en plural (<em>a mis amigos</em>), «le» o «les» son incorrectos.
         </div>
 
         <p style="text-align:center; margin-top:32px;">
@@ -89,6 +93,39 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+        <div class="md-explore-card" id="lo-maquina">
+          <h2>La máquina de pronombres</h2>
+          <p class="md-explore-intro">Elige cómo es el complemento y mira qué pronombre le corresponde y qué error sería usar otro.</p>
+          <div class="game-step-label">¿Qué complemento es?</div>
+          <div class="choice-row">
+            <button type="button" class="btn btn-secondary" data-lo="fn:CD">Directo (CD)</button>
+            <button type="button" class="btn btn-secondary" data-lo="fn:CI">Indirecto (CI)</button>
+          </div>
+          <div class="game-step-label">¿Masculino o femenino?</div>
+          <div class="choice-row">
+            <button type="button" class="btn btn-secondary" data-lo="g:m">Masculino</button>
+            <button type="button" class="btn btn-secondary" data-lo="g:f">Femenino</button>
+          </div>
+          <div class="game-step-label">¿Uno o varios?</div>
+          <div class="choice-row">
+            <button type="button" class="btn btn-secondary" data-lo="n:s">Singular</button>
+            <button type="button" class="btn btn-secondary" data-lo="n:p">Plural</button>
+          </div>
+          <div class="game-step-label">¿Persona o cosa?</div>
+          <div class="choice-row">
+            <button type="button" class="btn btn-secondary" data-lo="p:persona">Persona</button>
+            <button type="button" class="btn btn-secondary" data-lo="p:cosa">Cosa</button>
+          </div>
+          <p class="po-big" id="lo-pron"></p>
+          <div class="md-msg ok" id="lo-msg" aria-live="polite"></div>
+        </div>
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -102,8 +139,8 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="completar">Completar con lo/la/le</button>
-            <button class="btn btn-secondary" data-mode="identificarerror">Identificar el error</button>
+            <button class="btn btn-secondary active" data-mode="completar">Sustituir por lo, la o le</button>
+            <button class="btn btn-secondary" data-mode="identificarerror">¿Está bien usado?</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
@@ -111,6 +148,11 @@
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
