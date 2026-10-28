@@ -36,6 +36,26 @@ const COMPLETAR_ENTRIES_SIGNOS_PUNTUACION = [
   { display: "___¿Vienes? ___preguntó Juan. (diálogo: habla un personaje)", correct: "—", options: ["—", "« »", "( )", "..."], explica: "raya para marcar el diálogo" },
 ];
 
+// ¿Cuál está bien puntuada? Parejas con el error más frecuente de
+// cada signo (normas de la Ortografía de la RAE).
+const CORREGIR_ENTRIES = [
+  { bien: "Mi madre dijo: «Vuelve pronto a casa».", mal: "Mi madre dijo: «Vuelve pronto a casa.»", explica: "el punto va detrás de las comillas de cierre, no dentro" },
+  { bien: "No sé si ir o quedarme...", mal: "No sé si ir o quedarme....", explica: "los puntos suspensivos son siempre tres, ni más ni menos" },
+  { bien: "Compramos pan, leche, huevos...", mal: "Compramos pan, leche, huevos, etc...", explica: "los puntos suspensivos ya significan «etcétera»: no se ponen los dos juntos" },
+  { bien: "—¿Vienes al parque? —preguntó Ana.", mal: "—¿Vienes al parque?— preguntó Ana.", explica: "la raya que introduce las palabras del narrador va pegada a ellas («—preguntó»), separada por un espacio de lo que dice el personaje" },
+  { bien: "Quería ir al cine; sin embargo, se quedó estudiando.", mal: "Quería ir al cine, sin embargo se quedó estudiando.", explica: "delante de «sin embargo», uniendo dos oraciones, va punto y coma, y detrás, coma" },
+  { bien: "Cristóbal Colón (1451-1506) llegó a América.", mal: "Cristóbal Colón (1451-1506), llegó a América.", explica: "no se pone coma entre el sujeto (Cristóbal Colón) y el verbo (llegó), aunque haya un paréntesis" },
+  { bien: "Mi abuela —que tiene noventa años— monta en bici.", mal: "Mi abuela —que tiene noventa años monta en bici.", explica: "una aclaración entre rayas necesita la raya de apertura y la de cierre" },
+  { bien: "Leímos el poema «Romance sonámbulo».", mal: "Leímos el poema (Romance sonámbulo).", explica: "el título de un poema, cuento o canción va entre comillas, no entre paréntesis" },
+  { bien: "Tengo tres hermanos: Ana, Luis y Pedro.", mal: "Tengo tres hermanos; Ana, Luis y Pedro.", explica: "delante de una enumeración que se anuncia van los dos puntos" },
+  { bien: "¿Qué hora es?", mal: "Qué hora es?", explica: "en español las preguntas llevan signo de apertura (¿) y de cierre (?)" },
+  { bien: "Hoy hace frío; mañana, dicen, hará sol.", mal: "Hoy hace frío, mañana, dicen, hará sol.", explica: "para separar dos oraciones relacionadas cuando ya hay comas se usa punto y coma" },
+];
+
+// Pistas: para qué sirve cada signo.
+const PISTA_SIGNOS = "Piensa para qué sirve cada signo: unir oraciones relacionadas o separar partes con comas (;), dejar en suspense o sin terminar (...), añadir una aclaración (( ) o — —), citar palabras exactas o títulos (« ») y marcar el diálogo (—).";
+const PISTA_CORREGIR = "Fíjate en los detalles: ¿el punto va dentro o fuera de las comillas? ¿Cuántos puntos suspensivos hay? ¿Se cierra la raya? ¿Hay una coma entre el sujeto y el verbo?";
+
 const MODE_GROUPS_SIGNOS_PUNTUACION = {
   identificar: {
     pool: IDENTIFICAR_ENTRIES,
@@ -46,6 +66,11 @@ const MODE_GROUPS_SIGNOS_PUNTUACION = {
     pool: COMPLETAR_ENTRIES_SIGNOS_PUNTUACION,
     field: "correct",
     question: () => "¿Qué signo hay que usar aquí?",
+  },
+  corregir: {
+    pool: CORREGIR_ENTRIES.map((e) => ({ ...e, display: "", correct: e.bien, options: [e.bien, e.mal] })),
+    field: "correct",
+    question: () => "¿Cuál está bien puntuada?",
   },
 };
 
@@ -114,26 +139,72 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   renderDifficultyBox("difficulty-box", diff.get(), SIGNOSPUNTUACION_DIFFICULTY_EXPLANATIONS);
 
+  if (document.getElementById("sp-signos")) initExplore();
   if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
+
+// ============================================================
+// EXPLORA
+// ============================================================
+const SIGNOS_EXPLORA = [
+  // error: posición en CORREGIR_ENTRIES del error típico de ese signo.
+  { id: "Punto y coma", simbolo: ";", error: 4 },
+  { id: "Puntos suspensivos", simbolo: "...", error: 1 },
+  { id: "Paréntesis", simbolo: "( )", error: 5 },
+  { id: "Comillas", simbolo: "« »", error: 0 },
+  { id: "Raya", simbolo: "—", error: 3 },
+];
+
+function initExplore() {
+  let signo = "Punto y coma";
+  const cont = document.getElementById("sp-signos");
+  cont.innerHTML = SIGNOS_EXPLORA.map((x) => `<button type="button" class="btn btn-secondary" data-sp="${x.id}"><strong>${x.simbolo}</strong> ${x.id.toLowerCase()}</button>`).join("");
+  function renderSigno() {
+    cont.querySelectorAll("[data-sp]").forEach((b) => b.classList.toggle("active", b.dataset.sp === signo));
+    const usos = IDENTIFICAR_ENTRIES.filter((e) => e.correct === signo);
+    const errores = [CORREGIR_ENTRIES[SIGNOS_EXPLORA.find((x) => x.id === signo).error]];
+    document.getElementById("sp-usos").innerHTML = usos.map((e) => `<p><strong>Sirve para:</strong> ${e.explica}.<br><span class="examples">${e.display}</span></p>`).join("") +
+      (errores.length ? `<p><strong>Cuidado:</strong> ${errores[0].explica}.<br><span class="examples">Bien: ${errores[0].bien}<br>Mal: ${errores[0].mal}</span></p>` : "");
+  }
+  cont.querySelectorAll("[data-sp]").forEach((b) => b.addEventListener("click", () => { signo = b.dataset.sp; renderSigno(); }));
+  renderSigno();
+
+  // Una aclaración, tres maneras.
+  const FORMAS = {
+    comas: { txt: "Mi abuela, que tiene noventa años, todavía monta en bici.", exp: "Con <strong>comas</strong>, la aclaración se lee dentro de la oración, como una parte más." },
+    parentesis: { txt: "Mi abuela (que tiene noventa años) todavía monta en bici.", exp: "Con <strong>paréntesis</strong>, la aclaración queda más apartada: es un dato que se podría quitar sin que se note." },
+    rayas: { txt: "Mi abuela —que tiene noventa años— todavía monta en bici.", exp: "Con <strong>rayas</strong>, la aclaración se separa más que con comas y se destaca: llama la atención." },
+  };
+  let forma = "comas";
+  function renderForma() {
+    document.querySelectorAll("[data-sp-forma]").forEach((b) => b.classList.toggle("active", b.dataset.spForma === forma));
+    document.getElementById("sp-frase").textContent = FORMAS[forma].txt;
+    document.getElementById("sp-forma-msg").innerHTML = `${FORMAS[forma].exp} Si quitas la aclaración, la oración sigue teniendo sentido: «Mi abuela todavía monta en bici».`;
+  }
+  document.querySelectorAll("[data-sp-forma]").forEach((b) => b.addEventListener("click", () => { forma = b.dataset.spForma; renderForma(); }));
+  renderForma();
+}
 
 function initTabs() {
   const tabBtns = document.querySelectorAll(".tab-btn");
   const panels = {
     teoria: document.getElementById("tab-teoria"),
+    explora: document.getElementById("tab-explora"),
     practica: document.getElementById("tab-practica"),
   };
   if (tabBtns.length === 0) return;
 
   function activateTab(name) {
     tabBtns.forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
-    Object.entries(panels).forEach(([key, el]) => el.classList.toggle("active", key === name));
+    Object.entries(panels).forEach(([key, el]) => el && el.classList.toggle("active", key === name));
   }
 
   tabBtns.forEach((btn) => btn.addEventListener("click", () => activateTab(btn.dataset.tab)));
 
-  const goBtn = document.getElementById("go-to-practice");
-  if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
+  ["go-to-practice", "go-to-practice-2"].forEach((id) => {
+    const goBtn = document.getElementById(id);
+    if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
+  });
 }
 
 function initGame(diff, registerRestart) {
@@ -147,6 +218,8 @@ function initGame(diff, registerRestart) {
     nextBtn: document.getElementById("next-word"),
     scoreOk: document.getElementById("score-ok"),
     scoreKo: document.getElementById("score-ko"),
+    hintBtn: document.getElementById("hint-btn"),
+    hintBox: document.getElementById("hint-box"),
   };
 
   const modeKeys = Object.keys(MODE_GROUPS_SIGNOS_PUNTUACION);
@@ -188,8 +261,8 @@ function initGame(diff, registerRestart) {
     let entry;
     do {
       entry = group.pool[Math.floor(Math.random() * group.pool.length)];
-    } while (group.pool.length > 1 && entry.display === lastDisplay);
-    lastDisplay = entry.display;
+    } while (group.pool.length > 1 && (entry.display || entry.correct) === lastDisplay);
+    lastDisplay = entry.display || entry.correct;
     return { entry, group };
   }
 
@@ -199,6 +272,10 @@ function initGame(diff, registerRestart) {
 
     els.instructions.textContent = group.question(entry);
     els.wordDisplay.textContent = entry.display;
+    els.wordDisplay.style.display = entry.display ? "" : "none";
+    els.hintBox.classList.remove("show");
+    els.hintBox.innerHTML = "";
+    els.hintBtn.disabled = false;
 
     els.feedback.classList.remove("show", "ok", "ko");
     els.feedback.innerHTML = "";
@@ -208,6 +285,7 @@ function initGame(diff, registerRestart) {
     const options = shuffle(entry.options.slice());
 
     els.answerButtons.innerHTML = "";
+    els.answerButtons.classList.toggle("sp-frases", group === MODE_GROUPS_SIGNOS_PUNTUACION.corregir);
     options.forEach((opt) => {
       const btn = document.createElement("button");
       btn.className = "syllable-chip";
@@ -235,11 +313,12 @@ function initGame(diff, registerRestart) {
       else if (b === btn && !isCorrect) b.classList.add("incorrect");
     });
 
+    els.hintBtn.disabled = true;
     const titleText = isCorrect ? "Correcto" : "No era esa";
 
     els.feedback.classList.add("show", isCorrect ? "ok" : "ko");
     const regla = entry.explica ? ` La regla: ${entry.explica}.` : "";
-    els.feedback.innerHTML = `<p class="feedback-title">${titleText}</p><p>Respuesta correcta: <strong>${correct}</strong>.${regla}</p>`;
+    els.feedback.innerHTML = `<p class="feedback-title">${titleText}</p><p>Respuesta correcta: <strong>${correct}</strong>${/[.?!»]$/.test(correct) ? "" : "."}${regla}</p>`;
 
     els.nextBtn.style.display = "";
   }
@@ -254,6 +333,10 @@ function initGame(diff, registerRestart) {
   });
 
   els.nextBtn.addEventListener("click", startRound);
+  els.hintBtn.addEventListener("click", () => {
+    els.hintBox.innerHTML = `<strong>Pista:</strong> ${current.group === MODE_GROUPS_SIGNOS_PUNTUACION.corregir ? PISTA_CORREGIR : PISTA_SIGNOS}`;
+    els.hintBox.classList.add("show");
+  });
 
   applyDifficultyUI();
   startRound();
@@ -263,10 +346,18 @@ registerLenguaFicha("signos-puntuacion", {
   label: "Los signos de puntuación",
   resumen: "El punto y coma une oraciones relacionadas; los puntos suspensivos dejan la frase en suspense o sin terminar; los paréntesis y la raya encierran aclaraciones; las comillas citan palabras exactas o títulos de textos cortos.",
   easyMode: "identificar",
-  defaultMode: ["identificar", "completar"],
-  altasMode: "completar",
+  defaultMode: ["identificar", "completar", "corregir"],
+  altasMode: "corregir",
   pools: {
     identificar: { pool: signosParaFicha(IDENTIFICAR_ENTRIES), field: "correct", question: (e) => e.pregunta, displayField: "displayFicha", perEntryOptions: true, explainField: "explica" },
     completar: { pool: signosParaFicha(COMPLETAR_ENTRIES_SIGNOS_PUNTUACION), field: "correct", question: () => "¿Qué signo hay que usar aquí?", displayField: "displayFicha", perEntryOptions: true, explainField: "explica" },
+    corregir: {
+      pool: CORREGIR_ENTRIES.map((e) => ({ ...e, ab: Math.random() < 0.5 ? [e.bien, e.mal] : [e.mal, e.bien] })),
+      field: "bien",
+      question: (e) => `¿Cuál está bien puntuada? Rodéala y explica el error de la otra. a) ${e.ab[0]}   b) ${e.ab[1]}`,
+      selfContained: true,
+      answerFn: (e) => `${e.ab[0] === e.bien ? "a" : "b"}) ${e.bien} En la otra, ${e.explica}.`,
+      optionsFn: (e) => ["a", "b"],
+    },
   },
 });
