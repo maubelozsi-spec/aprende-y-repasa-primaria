@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script src="../js/acceso.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Letrania · Aprende y Repasa</title>
+<meta name="description" content="Letrania y el Tesoro de la Palabra Perdida: juego de refuerzo de Lengua para ATLC de 5º de Primaria.">
+<meta name="theme-color" content="#151833">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Uncial+Antiqua&display=swap">
+<link rel="stylesheet" href="css/letrania.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">
+      <svg width="48" height="48" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="22" fill="#20254a" stroke="#e9b04a" stroke-width="2"/><g stroke="#e9b04a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M11 19 A12 10 0 0 1 35 19"/><circle cx="23" cy="15" r="3.2" fill="#e9b04a"/><path d="M23 18 V31 M13 23 H33 M23 31 L17 38 M23 31 L29 38"/></g></svg>
+      <div><h1>Letrania</h1><small>y el Tesoro de la Palabra Perdida</small></div>
+    </div>
+    <span class="timer" id="tiempo" role="timer" hidden></span>
+    <a class="volver" href="../juegos/index.html">Salir</a>
+  </header>
+
+  <p class="nota" id="demo" style="color:#c9c3e6" hidden></p>
+
+  <div id="puerta" hidden></div>
+
+  <div id="juego" hidden>
+    <div class="tools-row" style="margin-bottom:6px">
+      <div class="herochip" id="heroChip"></div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Secciones">
+      <button role="tab" data-v="heroe" id="tab-heroe">Mi héroe</button>
+      <button role="tab" data-v="mapa" id="tab-mapa">Mapa</button>
+      <button class="fxtog" id="fxTog" type="button" aria-pressed="true" title="Activa o desactiva las animaciones">Efectos: sí</button>
+    </nav>
+
+    <section class="view" id="v-heroe" aria-labelledby="tab-heroe">
+      <div class="parch">
+        <div class="creator">
+          <div class="stage" id="stage">
+            <img id="heroBig" alt="">
+            <div class="plate"><div class="nm" id="heroNm"></div><div class="cl" id="heroCl"></div></div>
+          </div>
+          <div class="opts">
+            <div><h2>Elige tu héroe</h2><p class="muted" style="margin:4px 0 0">El nombre lo revisa tu maestro antes de que lo vea tu equipo. No uses tu nombre real.</p></div>
+            <div>
+              <label class="lbl" for="heroName">Nombre de héroe</label>
+              <input type="text" id="heroName" maxlength="22" autocomplete="off" placeholder="Ej.: Vigía del Faro">
+              <p class="nombre-estado" id="nombreEstado" aria-live="polite"></p>
+            </div>
+            <div><span class="lbl">Clase</span><div class="ctabs" id="clsTabs"></div><p class="cdesc" id="clsDesc"></p><div id="oirClase"></div></div>
+            <div class="portraits" id="portraits"></div>
+            <div><span class="lbl">Color de tu estandarte</span><div class="swatches" id="swBanner"></div></div>
+            <div><button class="btn" id="saveHero" type="button">Guardar héroe</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="v-mapa" aria-labelledby="tab-mapa" hidden>
+      <div class="maphead">
+        <div><h2 style="color:var(--gold);font-size:30px">El reino de Letrania</h2><div style="color:#bdb6dc">Toca una región para ver sus estaciones. Cada estación es una ficha.</div></div>
+        <div class="pill" id="sendaPill"></div>
+      </div>
+      <div class="mapframe"><div class="mapbox" id="mapSvg"></div></div>
+      <div class="parch regioninfo" id="regionInfo"></div>
+      <div class="bars" id="bars"></div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="js/datos.js"></script>
+<script type="module" src="js/alumno.js"></script>
+</body>
+</html>

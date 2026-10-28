@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script src="../js/acceso.js" data-solo-docente></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Letrania · Panel del maestro</title>
+<meta name="theme-color" content="#151833">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Uncial+Antiqua&display=swap">
+<link rel="stylesheet" href="css/letrania.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">
+      <svg width="48" height="48" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="22" fill="#20254a" stroke="#e9b04a" stroke-width="2"/><g stroke="#e9b04a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M11 19 A12 10 0 0 1 35 19"/><circle cx="23" cy="15" r="3.2" fill="#e9b04a"/><path d="M23 18 V31 M13 23 H33 M23 31 L17 38 M23 31 L29 38"/></g></svg>
+      <div><h1>Letrania</h1><small>Panel del maestro</small></div>
+    </div>
+    <a class="volver" href="index.html">Ver como alumno</a>
+    <a class="volver" href="../docente/dashboard.html">Panel docente</a>
+  </header>
+
+  <div id="cargando" class="parch"><p style="margin:0">Cargando…</p></div>
+
+  <div id="panel" class="panel-grid" hidden>
+    <section class="parch" aria-labelledby="t-acceso">
+      <div class="tbar">
+        <div><span class="eyebrow">Sesión de juego</span><h2 id="t-acceso">Acceso y misiones</h2></div>
+        <div class="tools-row">
+          <label>Clase <select id="filtroClase"><option value="">Todas</option></select></label>
+          <button class="btn sea" id="habTodos" type="button">Habilitar a todos</button>
+          <button class="btn ghost" id="quitarTodos" type="button">Quitar acceso a todos</button>
+        </div>
+      </div>
+      <p class="nota">
+        Habilitar da acceso <b>solo durante hoy</b>. Los minutos empiezan a contar cuando cada alumno pulsa «Entrar en Letrania»;
+        al acabarse pierde el acceso hasta que lo vuelvas a habilitar. La letra del grupo (A, B, C) solo la ves tú.
+      </p>
+      <div class="tablebox">
+        <table class="t">
+          <thead><tr>
+            <th>Acceso</th><th>Héroe</th><th>Senda</th><th>Estación</th><th>Nombre de héroe</th>
+            <th class="c">Completa<br>30 XP</th><th class="c">Dictado<br>15 XP</th><th class="c">Buena letra<br>15 XP</th><th class="c">Comprensión<br>10 XP</th><th class="c">Esfuerzo<br>10 XP</th>
+            <th class="c">XP · gemas</th><th></th>
+          </tr></thead>
+          <tbody id="tBody"></tbody>
+        </table>
+      </div>
+      <p class="nota" id="vacio" hidden>Todavía no hay alumnado en Letrania. Añádelo abajo.</p>
+      <div class="tools-row" style="margin-top:14px">
+        <button class="btn" id="guardarMisiones" type="button">Guardar misiones</button>
+        <button class="btn ghost" id="exportar" type="button">Exportar a hoja de cálculo</button>
+      </div>
+      <p class="nota">Las casillas en verde ya se puntuaron en esta ficha. «Ficha completa» hace avanzar al héroe a la siguiente estación.</p>
+    </section>
+
+    <section class="parch" aria-labelledby="t-alta">
+      <h2 id="t-alta">Añadir alumnado a Letrania</h2>
+      <p class="nota">Usa las claves que ya tienen en Aprende y Repasa. Letrania no guarda su nombre: solo retrato, nombre de héroe y puntos. El nombre que ves aquí lo lee este panel de tu clase y solo lo ves tú.</p>
+      <div class="tools-row" style="margin-top:10px">
+        <label>Clase <select id="altaClase"></select></label>
+        <label>Senda <select id="altaSenda"></select></label>
+        <label>Empiezan en la ficha <input type="number" id="altaFicha" min="1" max="34" value="1"></label>
+        <label><input type="checkbox" id="altaRegalo" checked> Regalar la experiencia de las fichas ya hechas (30 XP y 2 gemas por ficha)</label>
+      </div>
+      <div class="lista-alta" id="altaLista"></div>
+      <button class="btn sea" id="altaBoton" type="button">Añadir a Letrania</button>
+    </section>
+
+    <section class="parch" aria-labelledby="t-ajustes">
+      <h2 id="t-ajustes">Ajustes</h2>
+      <div class="ajustes">
+        <label>Minutos por sesión <input type="number" id="ajMinutos" min="1" max="60"></label>
+        <label>Fecha en que se abre el tesoro <input type="date" id="ajFecha"></label>
+        <label>Gemas para llenar el cofre <input type="number" id="ajUmbral" min="10" max="5000"></label>
+      </div>
+      <p class="nota">Los minutos se aplican al habilitar; a quien ya está jugando puedes darle 5 minutos más desde su fila.</p>
+      <button class="btn" id="ajGuardar" type="button" style="margin-top:10px">Guardar ajustes</button>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="js/datos.js"></script>
+<script type="module" src="js/docente.js"></script>
+</body>
+</html>

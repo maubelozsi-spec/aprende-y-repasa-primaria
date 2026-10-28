@@ -17,6 +17,8 @@ rules_version = '2';
 //     "cylJugadores", "cylRespuestas").
 //   - "Novela Colectiva" (colecciones "novProyectos", "novFragmentos",
 //     "novFichas", "novNotas").
+//   - Juego "Letrania" (colecciones "letHeroes", "letMisiones",
+//     "letConfig").
 //
 // ATENCIÓN: las reglas de Firestore son ÚNICAS por proyecto, no por
 // app. Este archivo es el ÚNICO que hay que pegar en la consola
@@ -404,6 +406,76 @@ service cloud.firestore {
                         && request.resource.data.diff(resource.data).affectedKeys()
                              .hasOnly(["leido", "resuelto"]));
       allow delete: if isOwnerTeacher(resource.data.teacherId);
+    }
+
+    // ================= Letrania =================
+    //
+    // Juego de refuerzo de ATLC. El alumno entra con su clave de
+    // Aprende y Repasa (esAlumno), pero solo si su docente le ha creado
+    // un héroe en letHeroes/{clave} y lo ha habilitado para hoy. Sus
+    // minutos de juego empiezan cuando él mismo escribe «inicio» (la
+    // hora del servidor); pasados esos minutos ya no puede cambiar nada
+    // de su héroe. Los puntos, la senda, la estación y el acceso solo
+    // los escribe el docente. El héroe no guarda el nombre del alumno.
+
+    function sesionLetraniaViva(h) {
+      return h.habilitado == true
+        && h.inicio is timestamp
+        && request.time < h.inicio + duration.value(h.minutos, 'm');
+    }
+
+    match /letHeroes/{clave} {
+      allow get: if esAlumno(clave)
+                 || (signedIn() && resource.data.teacherId == request.auth.uid);
+      allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
+      // Solo para alumnado de una clase propia del docente.
+      allow create: if esDocenteDueno(request.resource.data.teacherId)
+                    && get(/databases/$(database)/documents/students/$(clave)).data.teacherId == request.auth.uid;
+      allow delete: if esDocenteDueno(resource.data.teacherId);
+      allow update: if
+        // El docente: todo, sin cambiar de dueño.
+        (esDocenteDueno(resource.data.teacherId)
+          && request.resource.data.teacherId == resource.data.teacherId)
+        // El alumno pulsa «Entrar»: empieza a contar su tiempo. Solo una
+        // vez por habilitación y solo el día que se le habilitó.
+        || (esAlumno(clave)
+          && resource.data.habilitado == true
+          && resource.data.inicio == null
+          && request.time < resource.data.habilitadoHasta
+          && request.resource.data.inicio == request.time
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["inicio"]))
+        // El alumno cambia su héroe mientras le queda tiempo. El nombre
+        // nuevo siempre queda pendiente de que lo apruebe el docente.
+        || (esAlumno(clave)
+          && sesionLetraniaViva(resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(["retrato", "estandarte", "nombrePropuesto", "nombreEstado", "actualizadoEn"])
+          && request.resource.data.retrato.matches("^(maga|explo|guard|bardo)-[1-4]$")
+          && request.resource.data.estandarte is int
+          && request.resource.data.estandarte >= 0 && request.resource.data.estandarte <= 5
+          && request.resource.data.nombrePropuesto is string
+          && request.resource.data.nombrePropuesto.size() <= 22
+          && (request.resource.data.nombreEstado == resource.data.nombreEstado
+              || request.resource.data.nombreEstado in ["pendiente", "sin"])
+          && (request.resource.data.nombrePropuesto == resource.data.nombrePropuesto
+              || request.resource.data.nombreEstado in ["pendiente", "sin"]));
+    }
+
+    // Registro de las casillas de cada ficha (evaluación continua y
+    // exportación). Solo el docente.
+    match /letMisiones/{misionId} {
+      allow read: if signedIn() && resource.data.teacherId == request.auth.uid;
+      allow create, update: if esDocenteDueno(request.resource.data.teacherId);
+      allow delete: if esDocenteDueno(resource.data.teacherId);
+    }
+
+    // Ajustes del docente (minutos por sesión, fecha y tamaño del
+    // tesoro) y total de la Alianza. Los lee su alumnado; sin datos
+    // personales.
+    match /letConfig/{teacherId} {
+      allow get: if signedIn();
+      allow write: if esDocenteDueno(teacherId)
+                   && request.resource.data.teacherId == teacherId;
     }
 
   }
