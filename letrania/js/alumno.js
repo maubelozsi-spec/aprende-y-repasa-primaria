@@ -822,6 +822,7 @@ function pieGuardian(region, n) {
 }
 
 $("#regionInfo").addEventListener("click", async (e) => {
+  if (e.target.closest("#cerrarTesoro")) return pintarRegion();
   const b = e.target.closest("[data-combatir]");
   if (!b) return;
   mostrar("prueba");
@@ -857,8 +858,36 @@ function pintarBarras() {
   const eq = equipo
     ? `<div class="bar"><svg width="54" height="54" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2h8l3 4-7 8-7-8z" fill="#5fd3c4" stroke="#bff0e8" stroke-width=".6"/></svg><div><b>${esc(equipo.nombre)}</b> <small>· esencia del equipo</small><div class="track"><i style="width:${Math.min(100, ((equipo.esencia || 0) / ((ajustes.esenciaPuerta || L.ESENCIA_PUERTA) * ((equipo.puertas || []).length + 1))) * 100)}%;background:linear-gradient(90deg,#2f9a92,#5fd3c4)"></i></div><small>${equipo.esencia || 0} de ${(ajustes.esenciaPuerta || L.ESENCIA_PUERTA) * ((equipo.puertas || []).length + 1)} para la próxima puerta</small></div></div>`
     : "";
-  $("#bars").innerHTML = eq + `<div class="bar"><img src="${srcImg("cofre")}" alt=""><div><b>Alianza de Letrania</b> <small>· el cofre del tesoro se abre ${esc(fecha)}</small><div class="track"><i style="width:${Math.min(100, (alianza / total) * 100)}%;background:linear-gradient(90deg,#e9b04a,#f8d98c)"></i></div><small>${alianza} de ${total} gemas entre todos los héroes</small></div></div>`;
+  const abierto = L.tesoroAbierto(ajustes.fechaTesoro);
+  $("#bars").innerHTML = eq + `<div class="bar"><img src="${srcImg("cofre")}" alt=""><div><b>Alianza de Letrania</b> <small>· ${abierto ? "¡el cofre del tesoro está abierto!" : "el cofre del tesoro se abre " + esc(fecha)}</small><div class="track"><i style="width:${Math.min(100, (alianza / total) * 100)}%;background:linear-gradient(90deg,#e9b04a,#f8d98c)"></i></div><small>${alianza} de ${total} gemas entre todos los héroes</small>${abierto ? '<br><button class="btn" type="button" id="verTesoro" style="margin-top:8px">Entrar en la Cámara del Tesoro</button>' : ""}</div></div>`;
 }
+
+// Cámara del Tesoro: toda la clase unida vence a Borrón. Las piezas
+// dependen de las gemas de la Alianza (al menos una); lo que hay dentro
+// lo decide y lo entrega el maestro.
+function pintarTesoro() {
+  const r = L.REGIONES[5];
+  const piezas = L.piezasTesoro(ajustes.alianza, ajustes.umbralAlianza);
+  const huecos = Array.from({ length: L.PIEZAS_TESORO }, (x, i) =>
+    `<span class="pieza-tesoro ${i < piezas ? "ganada" : ""}" aria-hidden="true">${i < piezas ? L.gemaSVG : ""}</span>`
+  ).join("");
+  const texto = piezas === L.PIEZAS_TESORO
+    ? "¡La Alianza ha llenado el cofre! Habéis recuperado las " + L.PIEZAS_TESORO + " piezas del tesoro."
+    : "La Alianza ha recuperado " + piezas + (piezas === 1 ? " pieza" : " piezas") + " de " + L.PIEZAS_TESORO + " del tesoro.";
+  $("#regionInfo").innerHTML = `<div class="tesoro"><span class="eyebrow">Región 6 · ${esc(r.lugar)}</span><h2>La Cámara del Tesoro</h2>
+    <p>El hechicero Borrón ha sido vencido por toda la clase unida: las palabras vuelven a Letrania.</p>
+    <div class="cofre-abierto ${efectos() ? "brilla" : ""}"><img src="${srcImg("cofre")}" alt="El cofre del tesoro, abierto"></div>
+    <div class="piezas-tesoro" role="img" aria-label="${piezas} de ${L.PIEZAS_TESORO} piezas">${huecos}</div>
+    <p><b>${esc(texto)}</b> Tu maestro te contará qué había dentro.</p>
+    ${uni() ? botonOir(texto + " Tu maestro te contará qué había dentro.") : ""}
+    <button class="btn ghost" type="button" id="cerrarTesoro">Volver al mapa</button></div>`;
+  if (efectos()) setTimeout(() => document.querySelector(".cofre-abierto") && document.querySelector(".cofre-abierto").classList.add("abierto"), 50);
+  $("#regionInfo").scrollIntoView({ behavior: efectos() ? "smooth" : "auto", block: "start" });
+}
+
+$("#bars").addEventListener("click", (e) => {
+  if (e.target.closest("#verTesoro")) pintarTesoro();
+});
 
 // ---------- Arranque ----------
 

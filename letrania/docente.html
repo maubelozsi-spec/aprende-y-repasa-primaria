@@ -73,6 +73,16 @@
       <button class="btn sea" id="crearEquipo" type="button">Crear equipo</button>
     </section>
 
+    <section class="parch" aria-labelledby="t-tesoro">
+      <h2 id="t-tesoro">Tesoro, carnés y diplomas</h2>
+      <p class="nota" id="estadoTesoro"></p>
+      <p class="nota">Se imprime el alumnado del filtro de clase de arriba. Letrania no guarda nombres: en cada carné y diploma queda una línea en blanco para que lo escriba el alumno a mano.</p>
+      <div class="tools-row" style="margin-top:10px">
+        <button class="btn sea" id="imprimirCarnes" type="button">Imprimir carnés de héroe</button>
+        <button class="btn sea" id="imprimirDiplomas" type="button">Imprimir diplomas</button>
+      </div>
+    </section>
+
     <section class="parch" aria-labelledby="t-alta">
       <h2 id="t-alta">Añadir alumnado a Letrania</h2>
       <p class="nota">Usa las claves que ya tienen en Aprende y Repasa. Letrania no guarda su nombre: solo retrato, nombre de héroe y puntos. El nombre que ves aquí lo lee este panel de tu clase y solo lo ves tú.</p>
@@ -101,6 +111,7 @@
   </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="impresion" aria-hidden="true"></div>
 
 <script src="../js/firebase-config.js"></script>
 <script src="js/datos.js"></script>

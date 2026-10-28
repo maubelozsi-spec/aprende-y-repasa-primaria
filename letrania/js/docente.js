@@ -364,6 +364,7 @@ $("#guardarMisiones").addEventListener("click", async () => {
     await batch.commit();
     Object.keys(marcas).forEach((k) => delete marcas[k]);
     ajustes.alianza = alianza;
+    pintarEstadoTesoro();
     aviso(n + (n === 1 ? " misión guardada." : " misiones guardadas."));
   } catch (err) {
     aviso("No se han podido guardar las misiones. Comprueba la conexión.");
@@ -534,7 +535,71 @@ function pintarAjustes() {
   $("#ajUmbral").value = ajustes.umbralAlianza;
   $("#ajPuerta").value = ajustes.esenciaPuerta || L.ESENCIA_PUERTA;
   $("#ajOpcionales").value = (ajustes.opcionales || []).join(", ");
+  pintarEstadoTesoro();
 }
+
+// ---------- Tesoro, carnés y diplomas ----------
+
+function pintarEstadoTesoro() {
+  const piezas = L.piezasTesoro(ajustes.alianza, ajustes.umbralAlianza);
+  const fecha = ajustes.fechaTesoro ? new Date(ajustes.fechaTesoro + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" }) : "";
+  const cuando = !fecha ? "Aún no has puesto la fecha en Ajustes." : L.tesoroAbierto(ajustes.fechaTesoro) ? "El cofre está abierto desde el " + fecha + "." : "El cofre se abrirá el " + fecha + ".";
+  $("#estadoTesoro").textContent =
+    cuando + " La Alianza lleva " + (ajustes.alianza || 0) + " de " + ajustes.umbralAlianza + " gemas: " + piezas + " de " + L.PIEZAS_TESORO +
+    " piezas del tesoro (con menos gemas el cofre se abre igual, con menos piezas). Lo que hay dentro lo decides tú.";
+}
+
+function datosImpresion(h) {
+  const cl = L.claseDe(h.retrato);
+  const ficha = Math.min(h.ficha || 1, FICHA_FIN);
+  return {
+    retrato: srcImg(h.retrato || cl.id + "-1"),
+    nombre: h.nombreEstado === "aprobado" && h.nombre ? h.nombre : "Héroe sin nombre",
+    clase: cl.uno,
+    senda: (L.SENDAS[h.senda] || L.SENDAS.dragon).nombre,
+    nivel: L.nivel(h.xp),
+    xp: h.xp || 0,
+    gemas: h.gemas || 0,
+    guardianes: (h.guardianes || []).length,
+    estacion: ficha >= FICHA_FIN ? "recorrido terminado" : "estación " + ficha + " · " + L.contenidoDe(ficha, h.senda),
+    color: L.ESTANDARTES[h.estandarte] || L.ESTANDARTES[0],
+  };
+}
+
+function imprimir(tipo) {
+  const lista = ordenadas().map((k) => heroes[k]).filter((h) => h.retrato);
+  if (!lista.length) return aviso("No hay héroes con retrato en esta clase.");
+  const html =
+    tipo === "carnes"
+      ? `<div class="carnes">${lista
+          .map((h) => {
+            const d = datosImpresion(h);
+            return `<div class="carne" style="border-color:${esc(d.color)}"><img src="${esc(d.retrato)}" alt=""><div>
+              <h3>${esc(d.nombre)}</h3><p><b>${esc(d.clase)}</b></p><p>${esc(d.senda)}</p>
+              <p>Nivel ${d.nivel} · ${d.xp} XP · ${d.gemas} gemas</p><p>Guardianes vencidos: ${d.guardianes} de 6</p><p>${esc(d.estacion)}</p>
+              <div class="linea-nombre">Nombre:</div></div></div>`;
+          })
+          .join("")}</div>`
+      : lista
+          .map((h) => {
+            const d = datosImpresion(h);
+            return `<div class="diploma"><div><h1>Letrania</h1><p>y el Tesoro de la Palabra Perdida</p></div>
+              <img class="retrato" src="${esc(d.retrato)}" alt="">
+              <div><p>El reino de Letrania reconoce a</p><h2>${esc(d.nombre)}</h2><p><b>${esc(d.clase)}</b> de la ${esc(d.senda)}</p></div>
+              <p class="datos">por ayudar a recuperar las palabras robadas por Borrón.<br>Nivel ${d.nivel} · ${d.xp} XP · ${d.gemas} gemas · ${d.guardianes} guardianes vencidos</p>
+              <div class="linea-nombre">Nombre:</div>
+              <div class="firma"><span>Firma</span><span>Fecha</span></div></div>`;
+          })
+          .join("");
+  const zona = $("#impresion");
+  zona.innerHTML = html;
+  // Se espera a que carguen los retratos para que salgan en el papel.
+  const imgs = Array.from(zona.querySelectorAll("img"));
+  Promise.all(imgs.map((i) => (i.complete ? null : new Promise((ok) => ((i.onload = ok), (i.onerror = ok)))))).then(() => window.print());
+}
+
+$("#imprimirCarnes").addEventListener("click", () => imprimir("carnes"));
+$("#imprimirDiplomas").addEventListener("click", () => imprimir("diplomas"));
 
 $("#ajGuardar").addEventListener("click", async () => {
   const minutos = Math.min(60, Math.max(1, parseInt($("#ajMinutos").value, 10) || L.MINUTOS_POR_DEFECTO));
@@ -562,6 +627,7 @@ function sincronizarAlianza() {
   const total = Object.keys(heroes).reduce((s, c) => s + (heroes[c].gemas || 0), 0);
   if (total === (ajustes.alianza || 0)) return;
   ajustes.alianza = total;
+  pintarEstadoTesoro();
   setDoc(doc(db, "letConfig", uid), { teacherId: uid, alianza: total }, { merge: true }).catch(() => {});
 }
 

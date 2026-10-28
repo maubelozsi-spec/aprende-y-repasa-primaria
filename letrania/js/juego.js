@@ -41,7 +41,13 @@
     cortar: "El Escriba lo ha escrito todo junto: toca entre las letras para separar.",
     espejo: "El espejo enseña dos palabras: solo una está bien escrita.",
     eco: "Escucha bien y elige.",
+    mixta: "El gran repaso: un poco de cada estación del viaje.",
   };
+  // Mismas plantillas con otro contenido (fase 4).
+  const DESCRIPCION_FRASE = { caza: "Las palabras de la frase se esconden: caza la que te piden." };
+
+  // Textos largos (frases, ideas) en botones más pequeños.
+  const largo = (t) => String(t || "").length > 14;
 
   function crear(op) {
     const raiz = op.contenedor;
@@ -91,8 +97,8 @@
     function preparar() {
       const ficha = estacionJugable();
       const est = op.banco[ficha];
-      const largo = uni ? 8 : est.plantilla === "ordenar" || est.plantilla === "cortar" ? 8 : 10;
-      const main = elegir(est.items.map((it) => porId[it.id]), largo, new Set());
+      const cuantos = uni ? 8 : est.plantilla === "ordenar" || est.plantilla === "cortar" ? 8 : 10;
+      const main = elegir(est.items.map((it) => porId[it.id]), cuantos, new Set());
       const usados = new Set(main.map((it) => it.id));
       const nCal = uni ? 3 : 4;
       let cal = (H().repaso || []).map((id) => porId[id]).filter((it) => it && !usados.has(it.id));
@@ -173,7 +179,7 @@
           <span class="eyebrow">${repaso ? "Repaso de la estación " + ficha : "Estación " + ficha} · ${esc(r.nombre)}</span>
           <h2>${esc(est.titulo)}</h2>
           ${repaso ? '<p class="nota">La prueba de tu estación todavía no está lista: hoy entrenas con la última que hay.</p>' : ""}
-          <p style="margin:6px 0 10px">${esc(r.guardian)} vigila el camino. Primero, espántalo con lo que ya sabes. Después, la prueba: ${esc(DESCRIPCION[est.plantilla])}</p>
+          <p style="margin:6px 0 10px">${esc(r.guardian)} vigila el camino. Primero, espántalo con lo que ya sabes. Después, la prueba: ${esc((est.items[0] && est.items[0].etiqueta && DESCRIPCION_FRASE[est.plantilla]) || DESCRIPCION[est.plantilla])}</p>
           <div class="tools" style="margin-bottom:12px">${uni ? '<span class="pill s-unicornio">SIN PRISA · CON VOZ</span>' : '<button class="small-btn" type="button" id="vientoTog" aria-pressed="false">Reto del viento (opcional)</button>'}</div>
           ${ayudasDeInicio()}
           <button class="btn sea" type="button" id="empezar" style="font-size:20px">Empezar</button>
@@ -287,12 +293,14 @@
       G.nuevo = false;
       G.golpe = false;
       const cuerpo = CUERPO[it.plantilla](it);
-      const oculto = it.plantilla === "ordenar"; // oír la frase la resolvería
+      // Oír la frase resolvería el orden; en el Unicornio la voz es el apoyo.
+      const oculto = it.plantilla === "ordenar" && !uni;
       raiz.innerHTML = `<div class="gamegrid">${fases(G.fase === "calentamiento" ? 0 : 1)}${escena()}
         <div class="parch tarjeta ${uni ? "uni" : ""}" data-item="${esc(it.id)}">
           <div class="qhead"><span class="eyebrow">${esc(etiqueta())}</span>
             <span class="tools">${oculto ? "" : botonOir()}</span></div>
           <div class="qprompt">${esc(it.enunciado)}</div>
+          ${it.texto ? `<p class="texto-lectura">${esc(it.texto)}</p>` : ""}
           ${cuerpo}
           ${G.viento && G.fase === "prueba" ? '<div class="wind" aria-hidden="true"><i id="vientoBar" style="width:100%"></i></div>' : ""}
           ${ayudasDePregunta(it)}
@@ -351,7 +359,7 @@
         fb.textContent = "Pista: " + it.pista;
       } else if (tipo === "lupa") {
         raiz.querySelector(".tarjeta").classList.add("lupa");
-        op.hablar(it.enunciado + " " + (it.plantilla === "ordenar" ? "" : it.audio || ""));
+        op.hablar(it.enunciado + " " + (oidoOculto(it) ? "" : it.audio || ""));
       } else if (tipo === "hada") {
         G.vientoPausaHasta = Date.now() + 10000;
         fb.className = "feedback ok";
@@ -386,30 +394,33 @@
       return `${esc(a)}<span class="gap">?</span>${esc(b || "")}`;
     };
 
+    const oidoOculto = (it) => it.plantilla === "ordenar" && !uni;
+
     const botones = (it, extra) =>
-      `<div class="answers ${uni ? "big-ans" : ""} ${extra || ""}">${it.opciones
+      `<div class="answers ${uni ? "big-ans" : ""} ${it.opciones.some(largo) ? "largas" : ""} ${extra || ""}">${it.opciones
         .map((o, k) => `<button class="ans" type="button" data-ans="${k}">${esc(o)}</button>`)
         .join("")}</div>`;
 
     const CUERPO = {
-      puente: (it) => `<div class="qword">${palabraConHueco(it.palabra)}</div>${botones(it)}`,
-      espejo: (it) => `<div class="espejo">${it.opciones
+      puente: (it) => `${it.palabra ? `<div class="qword ${largo(it.palabra) ? "qlarga" : ""}">${palabraConHueco(it.palabra)}</div>` : ""}${botones(it)}`,
+      espejo: (it) => `<div class="espejo ${it.opciones.some(largo) ? "largas" : ""}">${it.opciones
         .map((o, k) => `<button class="rama" type="button" data-ans="${k}"><span>${esc(o)}</span></button>`)
         .join('<span class="espejo-eje" aria-hidden="true"></span>')}</div>`,
-      eco: (it) => `<div class="eco"><span class="picto"></span>${it.palabra ? `<div class="qword">${palabraConHueco(it.palabra)}</div>` : ""}</div>${botones(it, "eco-ops")}`,
+      eco: (it) => `<div class="eco"><span class="picto"></span>${it.palabra ? `<div class="qword ${largo(it.palabra) ? "qlarga" : ""}">${palabraConHueco(it.palabra)}</div>` : ""}</div>${botones(it, "eco-ops")}`,
       caza: (it) => {
-        const quieto = uni || !efectos();
+        // Las palabras de una frase se quedan en su orden para poder leerla.
+        const quieto = uni || !efectos() || !!it.etiqueta;
         return `<div class="cazadero ${quieto ? "quieto" : ""}">${it.opciones
           .map((o, k) => `<button class="burbuja" type="button" data-ans="${k}" style="--i:${k};--n:${it.opciones.length}">${esc(o)}</button>`)
-          .join("")}</div><p class="nota">Palabra: <b>${esc(it.palabra)}</b></p>`;
+          .join("")}</div><p class="nota">${esc(it.etiqueta || "Palabra")}: <b>${esc(it.palabra)}</b></p>`;
       },
-      cestas: (it) => `<div class="cestas-zona"><div class="ficha-palabra" id="arrastrable" tabindex="-1">${esc(it.palabra)}</div>
+      cestas: (it) => `<div class="cestas-zona"><div class="ficha-palabra ${largo(it.palabra) ? "qlarga" : ""}" id="arrastrable" tabindex="-1">${esc(it.palabra)}</div>
           <div class="cestas">${it.opciones
             .map((o, k) => `<button class="cesta" type="button" data-ans="${k}"><span class="cesta-icono" aria-hidden="true">🧺</span>${esc(o)}</button>`)
             .join("")}</div></div>`,
       ordenar: (it) => {
         if (!it._orden) it._orden = barajarDistinto(it.piezas);
-        return `<div class="linea" id="linea" aria-label="Tu oración"></div>
+        return `${it.picto ? '<div class="eco"><span class="picto"></span></div>' : ""}<div class="linea" id="linea" aria-label="Tu oración"></div>
           <div class="piezas" id="piezas">${it._orden.map((p, k) => `<button class="pieza" type="button" data-pieza="${k}">${esc(p)}</button>`).join("")}</div>
           <button class="small-btn" type="button" id="borrar">Empezar de nuevo</button>`;
       },
@@ -624,7 +635,7 @@
         return;
       }
       setTimeout(chispas, 400);
-      const titulo = { puente: "¡Puente construido!", caza: "¡Caza completada!", cestas: "¡Cestas llenas!", ordenar: "¡El Escriba está contento!", cortar: "¡El Escriba está contento!", espejo: "¡Espejo resuelto!", eco: "¡MUY BIEN!" }[G.est.plantilla];
+      const titulo = { puente: "¡Puente construido!", caza: "¡Caza completada!", cestas: "¡Cestas llenas!", ordenar: "¡El Escriba está contento!", cortar: "¡El Escriba está contento!", espejo: "¡Espejo resuelto!", eco: "¡MUY BIEN!", mixta: "¡Gran repaso superado!" }[G.est.plantilla];
       let cajas = "";
       if (premio && premio.xp) {
         cajas = `<div class="rewards"><div class="rw"><span class="eyebrow">Experiencia</span><b>+${premio.xp}</b></div><div class="rw"><span class="eyebrow">Gemas</span><b>+${premio.gemas}</b></div>${G.viento ? `<div class="rw"><span class="eyebrow">Viento vencido</span><b>${G.vientoGanado}</b></div>` : ""}</div>`;
@@ -683,8 +694,7 @@
           if (o) o.outerHTML = botonOir();
         }
         op.hablar(actual().audio || "");
-      }
- else if (b.id === "otra") inicio();
+      } else if (b.id === "otra") inicio();
       else if (b.id === "alMapa") op.alMapa();
       else if (b.dataset.ans !== undefined && G && !G.respondido) elegido(+b.dataset.ans);
       else if (b.dataset.pieza !== undefined && !G.respondido) moverPieza(b);

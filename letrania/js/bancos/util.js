@@ -295,9 +295,12 @@
 
   // Palabras "MA.MÁ": sílaba con la letra estudiada → «¿qué sílaba
   // falta?»; y «¿qué palabra es?» con la propia lista de distractores.
-  function ecoLetra(letra, lista, otrasLetras) {
+  // opciones (fase 4): { vocales: ["A","O","U"], relleno: ["CE"] } para
+  // letras que solo van con algunas vocales (CA CO CU, QUE QUI...).
+  function ecoLetra(letra, lista, otrasLetras, opciones) {
     const items = [];
-    const vocales = ["A", "E", "I", "O", "U"];
+    const op = opciones || {};
+    const vocales = op.vocales || ["A", "E", "I", "O", "U"];
     const palabras = lista.map((m) => {
       const sil = m.split(".");
       return { sil: sil, palabra: sil.join(""), picto: sil.join("").toLowerCase() };
@@ -308,8 +311,8 @@
       if (idx >= 0 && w.sil.length > 1) {
         const buena = base(w.sil[idx]);
         const vocal = buena.slice(letra.length, letra.length + 1);
-        const otras = vocales.filter((v) => v !== vocal);
-        const distract = [otras[n % 4], otras[(n + 2) % 4]].map((v) => letra + v);
+        const otras = vocales.filter((v) => v !== vocal).map((v) => letra + v).concat(op.relleno || []);
+        const distract = [otras[n % otras.length], otras[(n + 1) % otras.length]];
         const ops = [buena].concat(distract);
         const rot = n % 3;
         const opciones = ops.slice(rot).concat(ops.slice(0, rot));
@@ -421,7 +424,187 @@
     });
   }
 
+  // ---------- Fase 4: más formas de escribir ítems ----------
+
+  // Pares [bien, mal, regla] para el Espejo (o [bien, mal] con una regla común).
+  function espejoPares(pares, enunciado, reglaComun, pista) {
+    return pares.map((p, i) => {
+      const [bien, mal, regla] = p;
+      const primeroBien = i % 2 === 0;
+      return {
+        plantilla: "espejo",
+        enunciado: p[3] || enunciado,
+        opciones: primeroBien ? [bien, mal] : [mal, bien],
+        correcta: primeroBien ? 0 : 1,
+        solucion: bien,
+        audio: bien.replace(/\|/g, ""),
+        regla: regla || (typeof reglaComun === "function" ? reglaComun(bien) : reglaComun),
+        pista: pista || "",
+      };
+    });
+  }
+
+  // Elegir entre opciones escritas a mano: [enunciado, palabra, [opciones], índiceCorrecta, regla].
+  // La correcta va en la posición que se diga; aquí se rota para que no
+  // quede siempre en el mismo sitio.
+  function elegir(plantilla, filas, comun) {
+    return filas.map((f, n) => {
+      const [enunciado, palabra, opciones, correcta, regla, audio] = f;
+      const rot = n % opciones.length;
+      const ops = opciones.slice(rot).concat(opciones.slice(0, rot));
+      const buena = opciones[correcta];
+      return Object.assign(
+        {
+          plantilla: plantilla,
+          enunciado: enunciado,
+          palabra: palabra,
+          opciones: ops,
+          correcta: ops.indexOf(buena),
+          solucion: buena,
+          audio: audio || palabra || buena,
+          regla: regla,
+        },
+        comun || {}
+      );
+    });
+  }
+
+  // Puente con opciones propias para cada ítem. La palabra lleva «_»
+  // donde va la opción buena (o va vacía y se rellena después):
+  // hueco("Lo contrario de «hacer»: ¿qué prefijo falta?", "_hacer", "des", ["re", "pre"], regla, n)
+  function hueco(enunciado, palabra, buena, otras, regla, n) {
+    const ops = [buena].concat(otras);
+    const rot = n % ops.length;
+    const opciones = ops.slice(rot).concat(ops.slice(0, rot));
+    const sol = palabra.replace("_", buena);
+    return { plantilla: "puente", enunciado: enunciado, palabra: palabra, opciones: opciones, correcta: opciones.indexOf(buena), solucion: sol, audio: sol, regla: regla };
+  }
+
+  // Caza de una palabra dentro de una frase: "La noche es *fría*."
+  function cazaPalabra(frases, enunciado, reglaFn) {
+    return frases.map((f) => {
+      const limpia = f.replace(/\*/g, "");
+      const palabras = f.replace(/[.,¡!¿?]/g, "").split(" ");
+      const correcta = palabras.findIndex((w) => w.indexOf("*") === 0);
+      const objetivo = palabras[correcta].replace(/\*/g, "");
+      const opciones = palabras.map((w) => w.replace(/\*/g, ""));
+      return {
+        plantilla: "caza",
+        enunciado: enunciado,
+        palabra: limpia,
+        etiqueta: "Frase",
+        opciones: opciones,
+        correcta: correcta,
+        solucion: objetivo,
+        audio: limpia,
+        regla: reglaFn(objetivo, limpia),
+      };
+    });
+  }
+
+  // Escriba (ordenar) con piezas largas (oraciones de una historia,
+  // partes de una carta...): listas de piezas en su orden correcto.
+  function ordenarPiezas(listas, enunciado, regla) {
+    return listas.map((piezas) => ({
+      plantilla: "ordenar",
+      enunciado: enunciado,
+      piezas: piezas.slice(),
+      solucion: piezas.join(" "),
+      audio: piezas.join(" "),
+      regla: regla,
+    }));
+  }
+
+  // Unicornio: grupos consonánticos (BR/BL, PR/PL...). «¿Qué sílaba
+  // falta?» con la sílaba buena, la del otro grupo y la directa sin la
+  // segunda consonante (BRA / BLA / BA): justo lo que se confunde.
+  function ecoGrupo(grupos, lista) {
+    const items = [];
+    lista.forEach((m, n) => {
+      const sil = m.split(".");
+      const palabra = sil.join("");
+      const idx = sil.findIndex((s) => grupos.some((g) => base(s).indexOf(g) === 0 && base(s).length === g.length + 1));
+      if (idx < 0) return;
+      const buena = base(sil[idx]);
+      const g = grupos.find((x) => buena.indexOf(x) === 0);
+      const vocal = buena.slice(g.length);
+      const otro = grupos.find((x) => x !== g && x.charAt(0) === g.charAt(0)) || grupos.find((x) => x !== g);
+      const ops = [buena, otro + vocal, g.charAt(0) + vocal];
+      const rot = n % 3;
+      const opciones = ops.slice(rot).concat(ops.slice(0, rot));
+      items.push({
+        plantilla: "eco",
+        enunciado: "¿QUÉ SÍLABA FALTA?",
+        palabra: sil.map((s, i) => (i === idx ? "_" : s)).join(""),
+        opciones: opciones,
+        correcta: opciones.indexOf(buena),
+        solucion: palabra,
+        audio: palabra.toLowerCase(),
+        picto: palabra.toLowerCase(),
+        regla: palabra + ": " + sil.join(" - ") + ".",
+      });
+    });
+    return items.concat(ecoPalabra(lista));
+  }
+
+  // Unicornio: sílabas inversas (AL, EN, ES...). Opciones: la buena, la
+  // misma al revés (LA) y otra inversa.
+  function ecoInversa(lista) {
+    const inversas = ["AL", "EN", "ES", "IS", "OS", "UN", "AR", "IN"];
+    const items = [];
+    lista.forEach((m, n) => {
+      const sil = m.split(".");
+      const palabra = sil.join("");
+      const buena = base(sil[0]);
+      const alReves = buena.charAt(1) + buena.charAt(0);
+      const otra = inversas.filter((x) => x !== buena)[n % (inversas.length - 1)];
+      const ops = [buena, alReves, otra];
+      const rot = n % 3;
+      const opciones = ops.slice(rot).concat(ops.slice(0, rot));
+      items.push({
+        plantilla: "eco",
+        enunciado: "¿QUÉ SÍLABA FALTA?",
+        palabra: "_" + sil.slice(1).join(""),
+        opciones: opciones,
+        correcta: opciones.indexOf(buena),
+        solucion: palabra,
+        audio: palabra.toLowerCase(),
+        picto: palabra.toLowerCase(),
+        regla: palabra + ": " + sil.join(" - ") + ".",
+      });
+    });
+    return items.concat(ecoPalabra(lista));
+  }
+
+  // Gran repaso: copias de ítems de las fichas anteriores (con id propio
+  // de esta estación). Se toma uno de cada «paso» para cubrir todo.
+  function repaso(senda, hastaFicha, cuantos) {
+    const todos = [];
+    for (let f = 1; f < hastaFicha; f++) if (bancos[senda] && bancos[senda][f]) todos.push(bancos[senda][f].items);
+    const items = [];
+    let k = 0;
+    while (items.length < cuantos && todos.some((l) => l.length > k)) {
+      todos.forEach((l) => {
+        if (items.length < cuantos && l[k]) {
+          const copia = Object.assign({}, l[k]);
+          delete copia.id;
+          items.push(copia);
+        }
+      });
+      k += 3;
+    }
+    return items;
+  }
+
   window.LetraniaBanco = {
+    espejoPares,
+    hueco,
+    elegir,
+    cazaPalabra,
+    ordenarPiezas,
+    ecoGrupo,
+    ecoInversa,
+    repaso,
     ecoPalabra,
     ecoVocal,
     ecoIgual,

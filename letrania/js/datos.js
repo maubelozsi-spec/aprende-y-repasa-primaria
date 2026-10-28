@@ -82,6 +82,21 @@
   const RACHA_COFRE = 3; // cada 3 sesiones seguidas, un cofre (una carta)
   const ESENCIA_PUERTA = 20; // por defecto; el maestro lo cambia en Ajustes
 
+  // Cámara del Tesoro (apartado 7): se abre en la fecha que fija el
+  // maestro, se llegue o no al umbral; con menos gemas, menos piezas.
+  const PIEZAS_TESORO = 5;
+  function piezasTesoro(alianza, umbral) {
+    const u = Math.max(1, umbral || 600);
+    return Math.max(1, Math.min(PIEZAS_TESORO, Math.floor((PIEZAS_TESORO * (alianza || 0)) / u)));
+  }
+  // fecha "AAAA-MM-DD"; se compara con el día local del dispositivo.
+  function tesoroAbierto(fecha, ahora) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha || "")) return false;
+    const d = ahora || new Date();
+    const hoy = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    return hoy >= fecha;
+  }
+
   function regionDe(ficha) {
     const f = Math.min(Math.max(ficha || 1, 1), TOTAL_FICHAS);
     return REGIONES.findIndex((r) => f >= r.desde && f <= r.hasta);
@@ -147,6 +162,9 @@
     XP_GUARDIAN,
     RACHA_COFRE,
     ESENCIA_PUERTA,
+    PIEZAS_TESORO,
+    piezasTesoro,
+    tesoroAbierto,
     regionDe,
     contenidoDe,
     claseDe,
