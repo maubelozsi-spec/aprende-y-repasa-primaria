@@ -18,7 +18,7 @@ rules_version = '2';
 //   - "Novela Colectiva" (colecciones "novProyectos", "novFragmentos",
 //     "novFichas", "novNotas").
 //   - Juego "Letrania" (colecciones "letHeroes", "letMisiones",
-//     "letConfig").
+//     "letConfig", "letPartidas").
 //
 // ATENCIÓN: las reglas de Firestore son ÚNICAS por proyecto, no por
 // app. Este archivo es el ÚNICO que hay que pegar en la consola
@@ -458,7 +458,47 @@ service cloud.firestore {
           && (request.resource.data.nombreEstado == resource.data.nombreEstado
               || request.resource.data.nombreEstado in ["pendiente", "sin"])
           && (request.resource.data.nombrePropuesto == resource.data.nombrePropuesto
-              || request.resource.data.nombreEstado in ["pendiente", "sin"]));
+              || request.resource.data.nombreEstado in ["pendiente", "sin"]))
+        // El alumno cobra el premio del minijuego: UNA vez por sesión
+        // («premio» pasa a valer lo mismo que «inicio»), de 5 a 20 XP y
+        // de 0 a 2 gemas, y guarda lo que ha fallado («repaso»).
+        || (esAlumno(clave)
+          && sesionLetraniaViva(resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["xp", "gemas", "premio", "repaso"])
+          && resource.data.get("premio", null) != resource.data.inicio
+          && request.resource.data.premio == resource.data.inicio
+          && request.resource.data.xp - resource.data.xp >= 5
+          && request.resource.data.xp - resource.data.xp <= 20
+          && request.resource.data.gemas - resource.data.gemas >= 0
+          && request.resource.data.gemas - resource.data.gemas <= 2
+          && request.resource.data.repaso is list
+          && request.resource.data.repaso.size() <= 30)
+        // Rondas de entrenamiento después del premio: solo «repaso».
+        || (esAlumno(clave)
+          && sesionLetraniaViva(resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["repaso"])
+          && request.resource.data.repaso is list
+          && request.resource.data.repaso.size() <= 30);
+    }
+
+    // Una ronda de minijuego (aciertos e ítems fallados) para el informe
+    // de contenidos más fallados del maestro. La crea el alumno mientras
+    // le queda tiempo de sesión; solo la lee su docente.
+    match /letPartidas/{partidaId} {
+      function heroeDe(clave) {
+        return get(/databases/$(database)/documents/letHeroes/$(clave)).data;
+      }
+      allow create: if esAlumno(request.resource.data.clave)
+                    && request.resource.data.teacherId == heroeDe(request.resource.data.clave).teacherId
+                    && sesionLetraniaViva(heroeDe(request.resource.data.clave))
+                    && request.resource.data.keys().hasOnly(["teacherId", "clave", "ficha", "senda", "plantilla",
+                         "contenido", "aciertos", "total", "fallados", "palabras", "premio", "dia", "fecha"])
+                    && request.resource.data.fallados is list
+                    && request.resource.data.fallados.size() <= 40
+                    && request.resource.data.palabras is list
+                    && request.resource.data.palabras.size() <= 40;
+      allow read: if signedIn() && resource.data.teacherId == request.auth.uid;
+      allow delete: if esDocenteDueno(resource.data.teacherId);
     }
 
     // Registro de las casillas de cada ficha (evaluación continua y

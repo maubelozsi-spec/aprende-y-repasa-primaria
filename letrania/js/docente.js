@@ -13,6 +13,10 @@
 //   letMisiones/{clave}_{ficha} y el total de la Alianza en
 //   letConfig/{docente}.
 //
+// - Informe: lee las rondas de minijuego (letPartidas) de las dos
+//   últimas semanas solo cuando se pulsa «Ver informe» (una lectura por
+//   ronda: unas 100 para una clase en dos semanas).
+//
 // Consumo de Firestore al abrir el panel: 1 lectura por clase, 1 por
 // alumno de sus clases (para ver los nombres, que solo ve el docente),
 // 1 de ajustes y una escucha sobre los héroes del docente (unos 25
@@ -320,6 +324,70 @@ $("#guardarMisiones").addEventListener("click", async () => {
   }
 });
 
+// ---------- Informe de contenidos más fallados ----------
+
+function ultimosDias(n) {
+  const dias = [];
+  const d = new Date();
+  for (let i = 0; i < n; i++) {
+    dias.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"));
+    d.setDate(d.getDate() - 1);
+  }
+  return dias;
+}
+
+$("#verInforme").addEventListener("click", async () => {
+  const b = $("#verInforme");
+  b.disabled = true;
+  $("#informe").innerHTML = '<p class="nota">Cargando…</p>';
+  try {
+    // Dos filtros de igualdad («in» cuenta como tal): no hace falta crear
+    // ningún índice compuesto en la consola de Firebase.
+    const snap = await getDocs(query(collection(db, "letPartidas"), where("teacherId", "==", uid), where("dia", "in", ultimosDias(14))));
+    const f = $("#filtroClase").value;
+    const porContenido = {};
+    const porPalabra = {};
+    let rondas = 0;
+    snap.forEach((d) => {
+      const x = d.data();
+      const h = heroes[x.clave];
+      if (f && (!h || h.classId !== f)) return;
+      rondas++;
+      const k = L.SENDAS[x.senda].grupo + " · " + x.ficha + ". " + x.contenido;
+      if (!porContenido[k]) porContenido[k] = { items: 0, fallos: 0 };
+      porContenido[k].items += x.total || 0;
+      porContenido[k].fallos += Math.max(0, (x.total || 0) - (x.aciertos || 0));
+      (x.palabras || []).forEach((p) => (porPalabra[p] = (porPalabra[p] || 0) + 1));
+    });
+    if (!rondas) {
+      $("#informe").innerHTML = '<p class="nota">Todavía no hay rondas de minijuego en estas dos semanas.</p>';
+      return;
+    }
+    const filas = Object.keys(porContenido)
+      .map((k) => ({ k: k, pct: Math.round((porContenido[k].fallos / Math.max(1, porContenido[k].items)) * 100), n: porContenido[k].items }))
+      .sort((a, b) => b.pct - a.pct)
+      .slice(0, 10);
+    const palabras = Object.keys(porPalabra)
+      .sort((a, b) => porPalabra[b] - porPalabra[a])
+      .slice(0, 12);
+    $("#informe").innerHTML =
+      `<p class="nota">${rondas} rondas. Grupo · estación · contenido: % de ítems fallados a la primera.</p>` +
+      `<div class="barras-informe">${filas
+        .map((r, i) => `<div class="fila-informe"><span>${esc(r.k)}</span><span class="barra-informe"><i style="width:${r.pct}%;background:${i === 0 ? "var(--terra)" : "#d99a3d"}"></i></span><b>${r.pct}%</b><span class="nick">${r.n} ítems</span></div>`)
+        .join("")}</div>` +
+      (palabras.length ? `<h3 style="margin-top:14px;color:var(--terra)">Lo que más se falla</h3><p>${palabras.map((p) => esc(p) + " (" + porPalabra[p] + ")").join(" · ")}</p>` : "");
+  } catch (err) {
+    // Si Firebase pidiera un índice, su mensaje trae el enlace para
+    // crearlo (gratis, un clic en la consola).
+    const enlace = String((err && err.message) || "").match(/https:\/\/console\.firebase\.google\.com\S+/);
+    $("#informe").innerHTML = enlace
+      ? `<p class="nota">Firebase pide crear un índice para este informe (es gratis). <a href="${esc(enlace[0])}" target="_blank" rel="noopener">Créalo aquí</a> y vuelve a pulsar «Ver informe» en unos minutos.</p>`
+      : '<p class="nota">No se ha podido cargar el informe. ¿Están publicadas las reglas nuevas de Firestore?</p>';
+  } finally {
+    b.disabled = false;
+  }
+});
+
 // ---------- Exportar ----------
 
 $("#exportar").addEventListener("click", () => {
@@ -424,6 +492,19 @@ $("#ajGuardar").addEventListener("click", async () => {
   }
 });
 
+// Las gemas que se ganan jugando también llenan el cofre de la Alianza:
+// como el alumno no puede escribir en letConfig, el panel la pone al día
+// al abrirse si no cuadra (una escritura como mucho).
+let alianzaRevisada = false;
+function sincronizarAlianza() {
+  if (alianzaRevisada) return;
+  alianzaRevisada = true;
+  const total = Object.keys(heroes).reduce((s, c) => s + (heroes[c].gemas || 0), 0);
+  if (total === (ajustes.alianza || 0)) return;
+  ajustes.alianza = total;
+  setDoc(doc(db, "letConfig", uid), { teacherId: uid, alianza: total }, { merge: true }).catch(() => {});
+}
+
 // ---------- Arranque ----------
 
 async function iniciar() {
@@ -474,6 +555,7 @@ async function iniciar() {
     (snap) => {
       heroes = {};
       snap.forEach((d) => (heroes[d.id] = d.data()));
+      sincronizarAlianza();
       $("#cargando").hidden = true;
       $("#panel").hidden = false;
       pintarTabla();

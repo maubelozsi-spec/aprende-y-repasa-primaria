@@ -23,6 +23,9 @@
 // ============================================================
 
 import {
+  addDoc,
+  collection,
+  increment,
   doc,
   getDoc,
   getDocFromServer,
@@ -190,7 +193,9 @@ function pintarEstado() {
     $("#juego").hidden = false;
     arrancarReloj();
     pintarChip();
-    mostrar(vista);
+    // En plena prueba no se repinta: un cambio de su héroe (el premio
+    // recién guardado, por ejemplo) no debe cortar la partida.
+    if (vista !== "prueba") mostrar(vista);
   }
 }
 
@@ -303,17 +308,122 @@ function mostrar(v) {
   document.querySelectorAll("nav.tabs button[data-v]").forEach((b) => b.setAttribute("aria-selected", b.dataset.v === v));
   document.querySelectorAll(".view").forEach((s) => (s.hidden = s.id !== "v-" + v));
   if (v === "mapa") pintarMapa();
+  else if (v === "prueba") abrirPrueba();
   else pintarCreador();
 }
 document.querySelector("nav.tabs").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-v]");
   if (!b) return;
-  if (b.dataset.v === "mapa" && !heroe.retrato && !borrador.retrato) {
+  if (b.dataset.v !== "heroe" && !heroe.retrato) {
     aviso("Primero elige tu héroe y guárdalo.");
     return;
   }
   mostrar(b.dataset.v);
 });
+
+// ---------- Prueba de hoy (js/juego.js y el banco de su senda) ----------
+
+let juego = null;
+let partidasGuardadas = 0;
+const cargados = {};
+
+function cargarScript(src) {
+  if (!cargados[src]) {
+    cargados[src] = new Promise((ok, mal) => {
+      const s = document.createElement("script");
+      s.src = src;
+      s.onload = ok;
+      s.onerror = mal;
+      document.head.appendChild(s);
+    });
+  }
+  return cargados[src];
+}
+
+// Solo se descarga el banco de su senda (y los pictogramas, si es la
+// Senda del Unicornio): menos peso para los portátiles del centro.
+async function abrirPrueba() {
+  const v = $("#v-prueba");
+  if (!juego) {
+    v.innerHTML = '<div class="parch"><p style="margin:0">Preparando la prueba…</p></div>';
+    try {
+      await cargarScript("js/bancos/util.js");
+      await cargarScript("js/bancos/" + heroe.senda + ".js");
+      await cargarScript("js/juego.js");
+      if (uni()) await cargarScript("../js/arasaac.js").catch(() => {});
+    } catch (e) {
+      v.innerHTML = '<div class="parch"><p style="margin:0">No se ha podido cargar la prueba. Comprueba la conexión.</p></div>';
+      return;
+    }
+    juego = window.LetraniaJuego.crear({
+      contenedor: v,
+      heroe: () => heroe,
+      banco: window.LetraniaBanco.bancos[heroe.senda],
+      clave: esDemo ? "" : sesion.code,
+      efectos: efectos,
+      hablar: hablar,
+      alTerminar: guardarResultado,
+      alMapa: () => mostrar("mapa"),
+    });
+    $("#atribucion").hidden = !uni();
+  }
+  juego.mostrar();
+}
+
+// Premio de la sesión: hasta 20 XP (mínimo 5 por jugar) y 1-2 gemas,
+// UNA vez por sesión (firestore.rules lo comprueba con «premio», que
+// queda igual a «inicio»). Las rondas siguientes son de entrenamiento.
+// «repaso» guarda lo fallado para el calentamiento de otro día.
+async function guardarResultado(r) {
+  const yaPremiado = !!(heroe.premio && heroe.inicio && ms(heroe.premio) === ms(heroe.inicio));
+  const fallados = new Set(r.fallados);
+  const repaso = (heroe.repaso || [])
+    .filter((id) => r.acertadosRepaso.indexOf(id) === -1 && !fallados.has(id))
+    .concat(r.fallados)
+    .slice(-30);
+  const xp = Math.min(20, 5 + 2 * r.aciertos);
+  const gemas = r.aciertos >= Math.ceil(r.total * 0.7) ? 2 : 1;
+  if (esDemo) {
+    heroe.repaso = repaso;
+    if (heroe.premiadoDemo) return { yaPremiado: true };
+    heroe.premiadoDemo = true;
+    heroe.xp += xp;
+    heroe.gemas += gemas;
+    pintarChip();
+    return { xp: xp, gemas: gemas };
+  }
+  let premio;
+  if (!yaPremiado) {
+    await updateDoc(refHeroe(), { xp: increment(xp), gemas: increment(gemas), premio: heroe.inicio, repaso: repaso });
+    premio = { xp: xp, gemas: gemas };
+  } else {
+    if (repaso.join() !== (heroe.repaso || []).join()) await updateDoc(refHeroe(), { repaso: repaso });
+    premio = { yaPremiado: true };
+  }
+  // Registro para el informe del maestro (contenidos más fallados). Como
+  // mucho 6 rondas por sesión, para no gastar escrituras.
+  if (partidasGuardadas < 6) {
+    partidasGuardadas++;
+    const hoy = new Date(ahora());
+    const dia = hoy.getFullYear() + "-" + String(hoy.getMonth() + 1).padStart(2, "0") + "-" + String(hoy.getDate()).padStart(2, "0");
+    addDoc(collection(db, "letPartidas"), {
+      teacherId: heroe.teacherId,
+      clave: sesion.code,
+      ficha: r.ficha,
+      senda: heroe.senda,
+      plantilla: r.plantilla,
+      contenido: r.titulo,
+      aciertos: r.aciertos,
+      total: r.total,
+      fallados: r.fallados.slice(0, 40),
+      palabras: r.palabras.slice(0, 40).map((p) => String(p).slice(0, 60)),
+      premio: !yaPremiado,
+      dia: dia,
+      fecha: serverTimestamp(),
+    }).catch(() => {});
+  }
+  return premio;
+}
 
 // ---------- Héroe ----------
 
