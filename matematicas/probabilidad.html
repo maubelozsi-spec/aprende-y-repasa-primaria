@@ -29,7 +29,7 @@
       <header class="content-header">
         <p class="eyebrow">Matemáticas</p>
         <h1>Sucesos y probabilidad</h1>
-        <p class="content-subtitle">Sucesos seguros, posibles e imposibles, y cálculo de la probabilidad.</p>
+        <p class="content-subtitle">Sucesos seguros, posibles e imposibles, comparar probabilidades y calcularlas.</p>
       </header>
       <div class="ficha-download">
         <div class="ficha-download-icon">📄</div>
@@ -38,7 +38,12 @@
           <span>Descárgala en Word, trabájala en papel y comprueba tus respuestas.</span>
         </div>
           <div class="ficha-download-group">
+            <span class="grade-tag">5º</span>
             <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="5">Descargar ficha y soluciones (Word)</button>
+          </div>
+          <div class="ficha-download-group">
+            <span class="grade-tag">6º</span>
+            <button type="button" class="btn btn-secondary ficha-download-btn" data-ficha-curso="6">Descargar ficha y soluciones (Word)</button>
           </div>
       </div>
 
@@ -51,42 +56,54 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
       <!-- ================= TEORÍA ================= -->
       <section id="tab-teoria" class="tab-panel active theory">
 
-        <h2>Tipos de sucesos</h2>
+        <h2>Experimentos aleatorios y sucesos</h2>
+        <p>Un <strong>experimento aleatorio</strong> es el que no sabemos qué resultado va a dar hasta hacerlo: lanzar un dado, sacar una bola de una bolsa sin mirar, girar una ruleta. Un <strong>suceso</strong> es algo que puede pasar al hacerlo («sacar un número par»).</p>
         <div class="rule-box aguda">
           <h4>Suceso seguro</h4>
-          <p>Siempre ocurre, sin excepción.</p>
+          <p>Ocurre siempre.</p>
           <p class="examples"><strong>Ejemplo:</strong> al lanzar un dado, sacar un número menor que 7.</p>
         </div>
         <div class="rule-box llana">
           <h4>Suceso posible</h4>
           <p>Puede ocurrir o no.</p>
-          <p class="examples"><strong>Ejemplo:</strong> al lanzar una moneda, sacar cara.</p>
+          <p class="examples"><strong>Ejemplo:</strong> al lanzar un dado, sacar un número par.</p>
         </div>
         <div class="rule-box esdrujula">
           <h4>Suceso imposible</h4>
-          <p>Nunca puede ocurrir.</p>
-          <p class="examples"><strong>Ejemplo:</strong> al lanzar un dado normal, sacar un 8.</p>
+          <p>No ocurre nunca.</p>
+          <p class="examples"><strong>Ejemplo:</strong> al lanzar un dado, sacar un 8.</p>
         </div>
 
-        <h2>Comparar probabilidades</h2>
+        <h2>Más probable, menos probable, igual de probable</h2>
+        <div class="po-draw" id="pb-ejemplo"></div>
+        <p>En esta bolsa hay 3 bolas rojas (R) y 2 azules (A). Si sacamos una sin mirar, es <strong>más probable</strong> sacar roja, porque hay más. Pero no es seguro: también puede salir azul.</p>
         <div class="tip-box">
-          <strong>Cuantas más</strong> bolas (o casos) favorables haya, <strong>más probable</strong> es sacar ese resultado. Si dos bolsas tienen la misma proporción, la probabilidad es igual.
+          <strong>Cuidado al comparar dos bolsas:</strong> no gana la que tiene más bolas rojas, sino la que tiene más rojas <em>en proporción a todas sus bolas</em>. Bolsa A: 3 rojas y 1 azul (3 de 4). Bolsa B: 4 rojas y 4 azules (4 de 8, la mitad). Aunque B tiene más rojas, es más probable sacar roja en A.
         </div>
-        <p class="examples"><strong>Ejemplo:</strong> una bolsa con 4 bolas rojas y 1 azul tiene más probabilidad de dar una bola roja que una bolsa con 2 rojas y 3 azules.</p>
 
         <h2>Calcular la probabilidad</h2>
         <div class="rule-box sobresdrujula">
-          <h4>Fórmula</h4>
-          <p>Probabilidad = casos favorables ÷ casos totales, expresada como fracción.</p>
+          <h4>Regla de Laplace</h4>
+          <p>Si todos los resultados son igual de probables: <strong>probabilidad = casos favorables / casos posibles</strong>, y se escribe como una fracción.</p>
+        </div>
+        <table class="rules-table">
+          <tr><th>Experimento</th><th>Suceso</th><th>Favorables / posibles</th></tr>
+          <tr><td>Dado</td><td>Sacar un número par</td><td>3 (2, 4, 6) / 6 → <strong>3/6</strong></td></tr>
+          <tr><td>Bolsa: 3 rojas, 2 azules</td><td>Sacar roja</td><td>3 / 5 → <strong>3/5</strong></td></tr>
+          <tr><td>Baraja española (40)</td><td>Sacar un as</td><td>4 / 40 → <strong>4/40</strong></td></tr>
+        </table>
+        <div class="tip-box">
+          <strong>Para comprobar:</strong> la probabilidad de un suceso imposible es 0 (0 casos favorables) y la de un suceso seguro es 1 (todos los casos son favorables). Cualquier otra está entre 0 y 1: el numerador nunca puede ser mayor que el denominador.
         </div>
         <div class="tip-box">
-          <strong>Ejemplo:</strong> una bolsa con 3 bolas rojas y 2 azules (5 en total). La probabilidad de sacar una roja es 3/5.
+          <strong>La probabilidad no adivina:</strong> que algo tenga probabilidad 1/6 no quiere decir que salga justo una vez de cada seis. Si lanzas el dado muchas veces, cada cara sale más o menos 1 de cada 6. Pruébalo en Explora.
         </div>
 
         <p style="text-align:center; margin-top:32px;">
@@ -94,6 +111,40 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+
+        <div class="md-explore-card" id="pb-dado">
+          <h2>1. Lanza el dado muchas veces</h2>
+          <p class="md-explore-intro">Cada cara tiene la misma probabilidad, 1/6. ¿Salen todas lo mismo? Lanza pocas veces y luego muchas.</p>
+          <div class="ro-teclas">
+            <button type="button" class="btn btn-secondary" data-pb-lanzar="1">Lanzar 1 vez</button>
+            <button type="button" class="btn btn-secondary" data-pb-lanzar="10">Lanzar 10</button>
+            <button type="button" class="btn btn-secondary" data-pb-lanzar="100">Lanzar 100</button>
+            <button type="button" class="btn btn-secondary" data-pb-lanzar="1000">Lanzar 1.000</button>
+            <button type="button" class="btn btn-secondary" id="pb-dado-reset">Empezar de nuevo</button>
+          </div>
+          <div class="po-draw" id="pb-dado-draw"></div>
+          <p class="md-msg ok" id="pb-dado-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="md-explore-card" id="pb-bolsa">
+          <h2>2. Llena la bolsa</h2>
+          <p class="md-explore-intro">Pon y quita bolas y mira cómo cambia la probabilidad de sacar cada color. ¿Cuándo es seguro? ¿Cuándo es imposible?</p>
+          <div class="md-controls">
+            <div class="md-stepper"><span class="md-stepper-label">Rojas</span><button type="button" class="btn btn-secondary" data-pb-c="roja" data-pb-d="-1" aria-label="Quitar una bola roja">−</button><output id="pb-n-roja"></output><button type="button" class="btn btn-secondary" data-pb-c="roja" data-pb-d="1" aria-label="Añadir una bola roja">+</button></div>
+            <div class="md-stepper"><span class="md-stepper-label">Azules</span><button type="button" class="btn btn-secondary" data-pb-c="azul" data-pb-d="-1" aria-label="Quitar una bola azul">−</button><output id="pb-n-azul"></output><button type="button" class="btn btn-secondary" data-pb-c="azul" data-pb-d="1" aria-label="Añadir una bola azul">+</button></div>
+            <div class="md-stepper"><span class="md-stepper-label">Verdes</span><button type="button" class="btn btn-secondary" data-pb-c="verde" data-pb-d="-1" aria-label="Quitar una bola verde">−</button><output id="pb-n-verde"></output><button type="button" class="btn btn-secondary" data-pb-c="verde" data-pb-d="1" aria-label="Añadir una bola verde">+</button></div>
+          </div>
+          <div class="po-draw" id="pb-bolsa-draw"></div>
+          <div class="md-msg ok" id="pb-bolsa-msg" aria-live="polite"></div>
+        </div>
+
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -108,15 +159,22 @@
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
             <button class="btn btn-secondary active" data-mode="tipo">Seguro, posible o imposible</button>
-            <button class="btn btn-secondary" data-mode="comparar">Comparar probabilidades</button>
+            <button class="btn btn-secondary" data-mode="masprobable">¿Qué es más probable?</button>
+            <button class="btn btn-secondary" data-mode="comparar">Comparar bolsas</button>
             <button class="btn btn-secondary" data-mode="calcular">Calcular la probabilidad</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
           <p class="instructions" id="instructions"></p>
+          <div class="po-draw" id="game-visual" style="display:none;"></div>
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 
