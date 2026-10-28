@@ -117,9 +117,9 @@ const FORMACION_DIFFICULTY_EXPLANATIONS = {
   },
   discalculia: {
     badge: "Discalculia",
-    title: "Solo prefijo o sufijo y ayuda extra",
-    text: "Igual que en ACS, se trabaja solo distinguir prefijo de sufijo, dando más tiempo para pensar cada respuesta.",
-    example: "«infeliz» → prefijo",
+    title: "Mismo nivel que la clase",
+    text: "La discalculia afecta al cálculo y al sentido del número, no a la lengua: aquí se practica el mismo contenido que el resto de la clase. Si además hay dificultades de lectura, usa la adaptación de dislexia.",
+    example: "Mismas preguntas y mismos pasos que sin adaptación",
   },
   altas: {
     badge: "Altas capacidades",
@@ -188,7 +188,7 @@ function initGame(diff, registerRestart) {
   let lastDisplay = "";
 
   function applyDifficultyUI() {
-    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    const easyOnly = diff.is("acs");
     els.modeBtns.forEach((b) => (b.disabled = easyOnly));
 
     const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
@@ -228,7 +228,7 @@ function initGame(diff, registerRestart) {
     current = pickQuestion();
 
     els.instructions.textContent =
-      current.group.question() + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
+      current.group.question();
     els.wordDisplay.textContent = current.entry.display;
 
     els.feedback.classList.remove("show", "ok", "ko");

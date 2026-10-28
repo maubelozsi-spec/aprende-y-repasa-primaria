@@ -143,9 +143,9 @@ const MORFOLOGICO_DIFFICULTY_EXPLANATIONS = {
   },
   discalculia: {
     badge: "Discalculia",
-    title: "Solo sustantivo, adjetivo y verbo y ayuda extra",
-    text: "Igual que en ACS, se trabaja solo con sustantivo, adjetivo y verbo, dando más tiempo para pensar cada respuesta.",
-    example: "«Mi hermana mayor <u>estudia</u> mucho.» → verbo",
+    title: "Mismo nivel que la clase",
+    text: "La discalculia afecta al cálculo y al sentido del número, no a la lengua: aquí se practica el mismo contenido que el resto de la clase. Si además hay dificultades de lectura, usa la adaptación de dislexia.",
+    example: "Mismas preguntas y mismos pasos que sin adaptación",
   },
   altas: {
     badge: "Altas capacidades",
@@ -215,14 +215,14 @@ function initGame(diff, registerRestart) {
   let current;
 
   function pool() {
-    if (diff.is("acs") || diff.is("discalculia")) {
+    if (diff.is("acs")) {
       return ENTRIES_MORFOLOGICO.filter((e) => MORFOLOGICO_EASY_CATEGORIES.includes(e.category));
     }
     return ENTRIES_MORFOLOGICO;
   }
 
   function applyDifficultyUI() {
-    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    const easyOnly = diff.is("acs");
     els.catButtons.forEach((b) => {
       b.style.display = easyOnly && !MORFOLOGICO_EASY_CATEGORIES.includes(b.dataset.cat) ? "none" : "";
     });
@@ -250,7 +250,7 @@ function initGame(diff, registerRestart) {
     els.sentenceDisplay.innerHTML =
       current.words.map((w, i) => (i === current.target ? `<span class="target-word">${w}</span>` : w)).join(" ") + ".";
 
-    els.instructions.textContent = "¿Qué categoría gramatical es la palabra subrayada?" + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
+    els.instructions.textContent = "¿Qué categoría gramatical es la palabra subrayada?";
 
     els.catButtons.forEach((b) => {
       b.disabled = false;
