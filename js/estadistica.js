@@ -470,8 +470,9 @@ const MODE_GROUPS = {
   mediana: [genMediana],
   rango: [genRango],
 };
-// La mezcla de 5º: sin los modos de 6º.
-const MEZCLA = ["graficos", "frecuencias", "moda", "media"];
+// La mezcla de 5º (libro de 5º: diagramas de barras, moda y media): sin
+// los modos de 6º.
+const MEZCLA = ["graficos", "moda", "media"];
 
 const ACS_GENERATORS = [genGrafico, genGrafico, genFrecuencia, genModa];
 

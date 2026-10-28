@@ -319,7 +319,7 @@ function genSumaRestaDistinta(L) {
   let [a, b, c, d] = twoFracs(L.distDens);
   const resta = Math.random() < 0.5;
   if (resta && a * d < c * b) [a, b, c, d] = [c, d, a, b];
-  if (resta && a * d === c * b) a = a < b - 1 ? a + 1 : a;
+  if (resta && a * d === c * b) return genSumaRestaDistinta(L);
   const m = lcm(b, d);
   const A = a * (m / b);
   const C = c * (m / d);
@@ -331,8 +331,8 @@ function genSumaRestaDistinta(L) {
     display: `${fs(a, b)} ${op} ${fs(c, d)}`,
     options: uniqueOptions(correct, [fs(resta ? Math.abs(a - c) || 1 : a + c, b + d), fs(resta ? Math.abs(a - c) || 1 : a + c, b * d), fs(r + 1, m), fs(Math.max(1, r - 1), m), fs(r, m + 1)]),
     correct,
-    hint: `Busca el m.c.m. de ${b} y ${d} y pasa las dos fracciones a ese denominador.`,
-    explain: `m.c.m.(${b}, ${d}) = ${m}. ${fs(a, b)} = ${fs(A, m)} y ${fs(c, d)} = ${fs(C, m)}. ${fs(A, m)} ${op} ${fs(C, m)} = ${correct}${simplifyNote(r, m)}. No se ${resta ? "restan" : "suman"} los denominadores: ${fs(resta ? Math.abs(a - c) : a + c, b + d)} está mal.`,
+    hint: `Busca un denominador común: un número que esté en la tabla del ${b} y en la del ${d}. Pasa las dos fracciones a ese denominador.`,
+    explain: `Denominador común: ${m} (múltiplo de ${b} y de ${d}). ${fs(a, b)} = ${fs(A, m)} y ${fs(c, d)} = ${fs(C, m)}. ${fs(A, m)} ${op} ${fs(C, m)} = ${correct}${simplifyNote(r, m)}. No se ${resta ? "restan" : "suman"} los denominadores: ${fs(resta ? Math.abs(a - c) : a + c, b + d)} está mal.`,
   };
 }
 
@@ -483,7 +483,9 @@ const MODE_GROUPS = {
 };
 
 const ACS_GENERATORS = [genFraccionDe, genFraccionDe, genSumaIgual, genRestaIgual];
-const QUINTO_MODES = ["fracciondenum", "sumarrestar", "combinadas", "problemas"];
+// Libro de 5º: fracción de un número y suma y resta con el mismo y con
+// distinto denominador (la fracción como división, en el tema 4).
+const QUINTO_MODES = ["fracciondenum", "sumarrestar", "combinadas", "problemas", "distintodenom", "comodivision"];
 
 const OPFRACCIONES_DIFFICULTY_EXPLANATIONS = {
   acs: {
