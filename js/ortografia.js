@@ -16,7 +16,7 @@ const WORDS = window.ACENTUACION_BANCO.WORDS;
 
 const computeType = window.ACENTUACION_BANCO.computeType;
 
-// Tope de sílabas del pool sencillo (ACS y discalculia): deja fuera las
+// Tope de sílabas del pool sencillo (ACS): deja fuera las
 // palabras largas del banco compartido (espectáculo, devuélvemelo) sin tocar
 // el resto de perfiles. Baja el número para acortar más las palabras.
 const EASY_MAX_SILABAS = 4;
@@ -52,9 +52,9 @@ const ORTOGRAFIA_DIFFICULTY_EXPLANATIONS = {
   },
   discalculia: {
     badge: "Discalculia",
-    title: "Palabras más sencillas, sin el paso 4 y ayuda extra",
-    text: "Igual que en ACS, se usan palabras más sencillas y se omite el paso de diptongo/hiato/triptongo, dando más tiempo para pensar cada paso.",
-    example: "«me·sa» → llana, sin tilde, sin pasar al paso 4",
+    title: "Mismo nivel que la clase",
+    text: "La discalculia afecta al cálculo y al sentido del número, no a la lengua: aquí se practica el mismo contenido que el resto de la clase. Si además hay dificultades de lectura, usa la adaptación de dislexia.",
+    example: "Mismas preguntas y mismos pasos que sin adaptación",
   },
   altas: {
     badge: "Altas capacidades",
@@ -80,28 +80,128 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   renderDifficultyBox("difficulty-box", diff.get(), ORTOGRAFIA_DIFFICULTY_EXPLANATIONS);
 
+  if (document.getElementById("ac-maquina")) initExplore();
   if (document.getElementById("word-display")) {
     initGame(diff, (fn) => restartCallbacks.push(fn));
   }
 });
 
+// ------------------------------------------------------------
+// Reglas (compartidas por Explora y la explicación final)
+// ------------------------------------------------------------
+const TIPO_NOMBRE = { aguda: "aguda", llana: "llana", esdrujula: "esdrújula", sobresdrujula: "sobresdrújula", monosilaba: "monosílaba" };
+
+// «vocal», «n», «s» u «otra» según la última letra (la y final cuenta
+// como consonante: Uruguay, estoy).
+function claseFinal(palabra) {
+  const u = palabra.slice(-1).toLowerCase();
+  if ("aeiouáéíóú".includes(u)) return "vocal";
+  if (u === "n" || u === "s") return u;
+  return "otra";
+}
+
+function llevaTildePorRegla(tipo, fin) {
+  if (tipo === "esdrujula" || tipo === "sobresdrujula") return true;
+  if (tipo === "monosilaba") return false;
+  const vns = fin !== "otra";
+  return tipo === "aguda" ? vns : !vns;
+}
+
+function textoRegla(tipo) {
+  return {
+    aguda: "Las agudas llevan tilde si acaban en vocal, n o s.",
+    llana: "Las llanas llevan tilde si NO acaban en vocal, n o s.",
+    esdrujula: "Las esdrújulas llevan tilde siempre.",
+    sobresdrujula: "Las sobresdrújulas llevan tilde siempre.",
+  }[tipo];
+}
+
+const VOCALES_FUERTES = "aeo";
+
+// Dos vocales seguidas: «diptongo», «hiato» o «hiato_acentual».
+function grupoDeVocales(v1, v2, debilTonica) {
+  const f1 = VOCALES_FUERTES.includes(v1);
+  const f2 = VOCALES_FUERTES.includes(v2);
+  if (v1 === v2) return "hiato";
+  if (f1 && f2) return "hiato";
+  if (f1 !== f2) return debilTonica ? "hiato_acentual" : "diptongo";
+  return "diptongo";
+}
+
+// ============================================================
+// EXPLORA
+// ============================================================
+function initExplore() {
+  let tipo = "aguda";
+  let fin = "n";
+  const sinTilde = (w) => window.ACENTUACION_BANCO.quitarTilde(w);
+  function renderMaquina() {
+    document.querySelectorAll("[data-ac-tipo]").forEach((b) => b.classList.toggle("active", b.dataset.acTipo === tipo));
+    document.querySelectorAll("[data-ac-fin]").forEach((b) => b.classList.toggle("active", b.dataset.acFin === fin));
+    const lleva = llevaTildePorRegla(tipo, fin);
+    const ejemplos = WORDS.filter((w) => w.tipo === tipo && w.vowelGroup !== "hiato_acentual" && claseFinal(w.plain) === fin).map((w) => w.accented);
+    const finTxt = { vocal: "en vocal", n: "en n", s: "en s", otra: "en otra consonante" }[fin];
+    document.getElementById("ac-maquina-msg").innerHTML =
+      `Una palabra <strong>${TIPO_NOMBRE[tipo]}</strong> que acaba ${finTxt} <strong>${lleva ? "lleva tilde" : "no lleva tilde"}</strong>. ${textoRegla(tipo)}` +
+      (ejemplos.length ? `<br>Ejemplos: ${lenguaShuffle(ejemplos).slice(0, 4).join(", ")}.` : "") +
+      (tipo === "aguda" && fin === "otra" ? "<br>Ojo: la y final cuenta como consonante (Uruguay, estoy)." : "");
+  }
+  document.querySelectorAll("[data-ac-tipo]").forEach((b) => b.addEventListener("click", () => { tipo = b.dataset.acTipo; renderMaquina(); }));
+  document.querySelectorAll("[data-ac-fin]").forEach((b) => b.addEventListener("click", () => { fin = b.dataset.acFin; renderMaquina(); }));
+
+  let v1 = "i";
+  let v2 = "e";
+  let fuerza = false;
+  function renderVocales() {
+    document.querySelectorAll("[data-ac-v1]").forEach((b) => b.classList.toggle("active", b.dataset.acV1 === v1));
+    document.querySelectorAll("[data-ac-v2]").forEach((b) => b.classList.toggle("active", b.dataset.acV2 === v2));
+    const mixta = VOCALES_FUERTES.includes(v1) !== VOCALES_FUERTES.includes(v2);
+    const btn = document.getElementById("ac-fuerza");
+    btn.disabled = !mixta;
+    if (!mixta) fuerza = false;
+    btn.textContent = `La i o la u suenan con fuerza: ${fuerza ? "sí" : "no"}`;
+    const g = grupoDeVocales(v1, v2, fuerza);
+    const debil = VOCALES_FUERTES.includes(v1) ? v2 : v1;
+    const par = fuerza ? (debil === v1 ? `${{ i: "í", u: "ú" }[v1]}${v2}` : `${v1}${{ i: "í", u: "ú" }[v2]}`) : `${v1}${v2}`;
+    document.getElementById("ac-par").textContent = g === "diptongo" ? par : `${par[0]} · ${par.slice(1)}`;
+    const ej = WORDS.filter((w) => w.vowelGroup === g && sinTilde(w.groupLetters).toLowerCase() === `${v1}${v2}`).map((w) => w.silabas.join("·"));
+    const txt = {
+      diptongo: VOCALES_FUERTES.includes(v1) || VOCALES_FUERTES.includes(v2)
+        ? "<strong>Diptongo</strong>: una vocal fuerte (a, e, o) y una débil (i, u) que no suena con fuerza van en la misma sílaba."
+        : "<strong>Diptongo</strong>: dos vocales débiles distintas (i, u) van en la misma sílaba.",
+      hiato: v1 === v2 ? "<strong>Hiato</strong>: dos vocales iguales se separan en dos sílabas (le·er, chi·i·ta)." : "<strong>Hiato</strong>: dos vocales fuertes (a, e, o) se separan en dos sílabas.",
+      hiato_acentual: "<strong>Hiato acentual</strong>: la i o la u suena con fuerza, se separa de la otra vocal y <strong>siempre lleva tilde</strong>, aunque la regla general no lo pida (ra·íz, dí·a).",
+    }[g];
+    document.getElementById("ac-vocales-msg").innerHTML = txt + (ej.length ? `<br>Ejemplos: ${lenguaShuffle(ej).slice(0, 3).join(", ")}.` : "");
+  }
+  document.querySelectorAll("[data-ac-v1]").forEach((b) => b.addEventListener("click", () => { v1 = b.dataset.acV1; renderVocales(); }));
+  document.querySelectorAll("[data-ac-v2]").forEach((b) => b.addEventListener("click", () => { v2 = b.dataset.acV2; renderVocales(); }));
+  document.getElementById("ac-fuerza").addEventListener("click", () => { fuerza = !fuerza; renderVocales(); });
+
+  renderMaquina();
+  renderVocales();
+}
+
 function initTabs() {
   const tabBtns = document.querySelectorAll(".tab-btn");
   const panels = {
     teoria: document.getElementById("tab-teoria"),
+    explora: document.getElementById("tab-explora"),
     practica: document.getElementById("tab-practica"),
   };
   if (tabBtns.length === 0) return;
 
   function activateTab(name) {
     tabBtns.forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
-    Object.entries(panels).forEach(([key, el]) => el.classList.toggle("active", key === name));
+    Object.entries(panels).forEach(([key, el]) => el && el.classList.toggle("active", key === name));
   }
 
   tabBtns.forEach((btn) => btn.addEventListener("click", () => activateTab(btn.dataset.tab)));
 
-  const goBtn = document.getElementById("go-to-practice");
-  if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
+  ["go-to-practice", "go-to-practice-2"].forEach((id) => {
+    const goBtn = document.getElementById(id);
+    if (goBtn) goBtn.addEventListener("click", () => activateTab("practica"));
+  });
 }
 
 function initGame(diff, registerRestart) {
@@ -123,6 +223,8 @@ function initGame(diff, registerRestart) {
     scoreOk: document.getElementById("score-ok"),
     scoreKo: document.getElementById("score-ko"),
     progressFill: document.getElementById("progress-fill"),
+    hintBtn: document.getElementById("hint-btn"),
+    hintBox: document.getElementById("hint-box"),
     instructionEls: document.querySelectorAll(".instructions"),
   };
 
@@ -132,9 +234,29 @@ function initGame(diff, registerRestart) {
   let scoreKo = 0;
   let lastWord = null;
   let current, dividers, syllableAttempts, roundOk, skippedVowelGroup;
+  // Paso en el que está el alumno: decide qué pista se enseña.
+  let paso = "silabas";
+
+  const PISTAS = {
+    silabas: "Di la palabra despacio dando una palmada en cada golpe de voz. Cada sílaba tiene al menos una vocal. No se separan: pr, bl, tr…, ni ch, ll, rr.",
+    tonica: "Dila en voz alta como si llamaras a alguien desde lejos: la sílaba que alargas es la tónica.",
+    tilde: "Mira dónde está la fuerza (última, penúltima, antepenúltima) y en qué letra acaba la palabra. Agudas: tilde si acaban en vocal, n o s. Llanas: al revés. Esdrújulas y sobresdrújulas: siempre.",
+    vocales: "Busca dos o tres vocales seguidas. Fuertes: a, e, o. Débiles: i, u. Si van en el mismo golpe de voz es diptongo (o triptongo, con tres); si se separan, hiato. Ojo: en que, qui, gue, gui la u no suena.",
+  };
+  function showHint() {
+    if (!els.hintBox) return;
+    els.hintBox.innerHTML = `<strong>Pista:</strong> ${PISTAS[paso]}`;
+    els.hintBox.classList.add("show");
+  }
+  function hideHint() {
+    if (!els.hintBox) return;
+    els.hintBox.classList.remove("show");
+    els.hintBox.innerHTML = "";
+    els.hintBtn.disabled = false;
+  }
 
   function isEasyOnly() {
-    return diff.is("acs") || diff.is("discalculia");
+    return diff.is("acs");
   }
 
   function currentPool() {
@@ -145,7 +267,7 @@ function initGame(diff, registerRestart) {
 
   function applyDifficultyUI() {
     els.instructionEls.forEach((el, i) => {
-      el.textContent = originalInstructions[i] + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
+      el.textContent = originalInstructions[i];
     });
     if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
   }
@@ -269,6 +391,8 @@ function initGame(diff, registerRestart) {
     if (els.wordPanel) els.wordPanel.style.display = "none";
     els.checkSyllablesBtn.disabled = false;
     setProgress(0);
+    paso = "silabas";
+    hideHint();
 
     clearFeedback();
     renderWordDisplay(false);
@@ -306,6 +430,8 @@ function initGame(diff, registerRestart) {
 
   function goToStress() {
     setProgress(25);
+    paso = "tonica";
+    hideHint();
     els.stepSyllables.style.display = "none";
     els.stepStress.style.display = "";
     els.syllableRow.innerHTML = "";
@@ -336,6 +462,8 @@ function initGame(diff, registerRestart) {
 
   function goToTilde() {
     setProgress(50);
+    paso = "tilde";
+    hideHint();
     els.stepStress.style.display = "none";
     els.stepTilde.style.display = "";
     renderWordPanel("tónica");
@@ -366,6 +494,8 @@ function initGame(diff, registerRestart) {
 
   function goToVowelGroup() {
     setProgress(75);
+    paso = "vocales";
+    hideHint();
     els.stepTilde.style.display = "none";
     els.stepVowelgroup.style.display = "";
     renderWordPanel("tilde");
@@ -391,6 +521,8 @@ function initGame(diff, registerRestart) {
 
   function showFinalFeedback() {
     setProgress(100);
+    hideHint();
+    if (els.hintBtn) els.hintBtn.disabled = true;
     els.stepTilde.style.display = "none";
     els.stepVowelgroup.style.display = "none";
     renderWordPanel("tilde");
@@ -418,7 +550,10 @@ function initGame(diff, registerRestart) {
     } else if (current.vowelGroup === "hiato_acentual") {
       ruleText = `Es una palabra ${typeNames[type]}, pero lleva tilde por el <strong>hiato acentual</strong>: la vocal débil (i/u) suena con fuerza junto a una vocal fuerte, así que siempre se acentúa, aunque la regla general de las ${typeNames[type]}s no lo pida.`;
     } else {
-      ruleText = `Es una palabra <strong>${typeNames[type]}</strong> y por eso ${current.tilde ? "lleva tilde." : "no lleva tilde."}`;
+      const ultima = current.plain.slice(-1);
+      const fin = claseFinal(current.plain);
+      const porFinal = type === "aguda" || type === "llana" ? ` y acaba en «${ultima}»${ultima === "y" ? " (la y final cuenta como consonante)" : fin === "otra" ? ", que no es vocal, n ni s" : ""}` : "";
+      ruleText = `Es una palabra <strong>${typeNames[type]}</strong>${porFinal}: ${textoRegla(type).charAt(0).toLowerCase()}${textoRegla(type).slice(1, -1)}. Por eso <strong>${current.tilde ? "lleva tilde" : "no lleva tilde"}</strong>.`;
     }
 
     let vgText;
@@ -432,6 +567,9 @@ function initGame(diff, registerRestart) {
       vgText = `Tiene un <strong>triptongo</strong> (${current.groupLetters || ""}): tres vocales juntas en una sola sílaba.`;
     } else {
       vgText = "No tiene ningún grupo vocálico especial (ni diptongo, ni hiato, ni triptongo).";
+    }
+    if (/qu[ei]|gu[ei]/.test(current.plain)) {
+      vgText += " Ojo: en «que», «qui», «gue» y «gui» la u no suena, así que no forma diptongo.";
     }
 
     const syllablesHtml = current.syllables
@@ -457,6 +595,7 @@ function initGame(diff, registerRestart) {
   els.tildeNoBtn.addEventListener("click", () => chooseTilde(false));
   els.vgButtons.forEach((btn) => btn.addEventListener("click", () => chooseVowelGroup(btn.dataset.vg, btn)));
   els.nextBtn.addEventListener("click", startRound);
+  if (els.hintBtn) els.hintBtn.addEventListener("click", showHint);
 
   applyDifficultyUI();
   startRound();

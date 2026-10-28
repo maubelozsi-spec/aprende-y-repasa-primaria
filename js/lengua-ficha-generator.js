@@ -40,7 +40,8 @@ function lenguaResolveOptions(mode, entry, correct) {
 // "completar"]): la ficha los mezcla, repartiendo las preguntas a partes
 // iguales y en ese orden, de más fácil a más difícil.
 function lenguaModeKeysFor(config, dificultad) {
-  const easyOnly = dificultad === "acs" || dificultad === "discalculia";
+  // En Lengua la discalculia no reduce el contenido: solo la ACS.
+  const easyOnly = dificultad === "acs";
   if (easyOnly) return [config.easyMode];
   if (dificultad === "altas") return [config.altasMode];
   const def = config.defaultMode || config.easyMode;
@@ -56,7 +57,6 @@ function lenguaBuildProblem(mode, entry, dificultad) {
     const alreadyQuoted = /^["«]/.test(displayText.trim());
     enunciado += alreadyQuoted ? ` ${displayText}` : ` «${displayText}»`;
   }
-  if (dificultad === "discalculia") enunciado += " Tómate tu tiempo.";
 
   let respuesta = String(correct);
   if (!mode.answerFn && mode.explainField && entry[mode.explainField]) {
@@ -148,7 +148,7 @@ function lenguaFilledBox(text, bold, spacingAfter) {
 // las fichas de cada contenido no las imprimen.
 const LENGUA_DIFFICULTY_NOTES = {
   acs: "Adaptación curricular significativa: mismo contenido con un nivel de dificultad equivalente a dos cursos por debajo.",
-  discalculia: "Discalculia: mismo nivel que la ACS, dando más tiempo para pensar cada respuesta.",
+  discalculia: "Discalculia: mismo nivel que la clase (la discalculia no afecta a los contenidos de Lengua).",
   altas: "Altas capacidades: preguntas sobre el contenido más exigente de este tema.",
   dislexia: "Dislexia: mismo contenido, con letra más grande y más espacio entre líneas para facilitar la lectura.",
   tdah: "TDAH: cada pregunta se presenta en su propia página, para trabajar de una en una sin saturar la vista.",

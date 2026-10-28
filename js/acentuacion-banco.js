@@ -77,6 +77,14 @@
   ["ex.plí.ca.me.lo",1,"ninguno",""], ["de.vuél.ve.me.lo",1,"diptongo","ué"],
   ["re.pí.te.me.lo",1,"ninguno",""], ["en.tré.ga.se.lo",1,"ninguno",""],
   ["há.ga.se.lo",0,"ninguno",""],
+  // --- Con ch, ll, rr (no se separan) y qu, gu (la u no suena) ---
+  ["co.che",0,"ninguno",""], ["ca.lle",0,"ninguno",""], ["pe.rro",0,"ninguno",""],
+  ["ca.ba.llo",1,"ninguno",""], ["ca.rre.te.ra",2,"ninguno",""], ["chi.me.ne.a",2,"hiato","ea"],
+  ["gui.ta.rra",1,"ninguno",""], ["que.so",0,"ninguno",""], ["pin.güi.no",1,"diptongo","üi"],
+  ["lla.mó",1,"ninguno",""], ["co.rrió",1,"diptongo","ió"], ["ce.pi.llo",1,"ninguno",""],
+  ["chi.qui.llo",1,"ninguno",""], ["pa.ra.guas",1,"diptongo","ua"], ["ca.rrua.je",1,"diptongo","ua"],
+  ["má.qui.na",0,"ninguno",""], ["pe.rió.di.co",1,"diptongo","ió"], ["chó.fer",0,"ninguno",""],
+  ["ca.lle.jón",2,"ninguno",""],
   // --- Triptongos ---
   ["buey",0,"triptongo","uey"], ["miau",0,"triptongo","iau"],
   ["es.tu.diáis",2,"triptongo","iái"], ["cam.biáis",1,"triptongo","iái"],

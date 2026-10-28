@@ -122,9 +122,9 @@ const SUSTPRON_DIFFICULTY_EXPLANATIONS = {
   },
   discalculia: {
     badge: "Discalculia",
-    title: "Solo género y número y ayuda extra",
-    text: "Igual que en ACS, se trabaja solo el género y el número, dando más tiempo para pensar cada respuesta.",
-    example: "«coche» → masculino, singular",
+    title: "Mismo nivel que la clase",
+    text: "La discalculia afecta al cálculo y al sentido del número, no a la lengua: aquí se practica el mismo contenido que el resto de la clase. Si además hay dificultades de lectura, usa la adaptación de dislexia.",
+    example: "Mismas preguntas y mismos pasos que sin adaptación",
   },
   altas: {
     badge: "Altas capacidades",
@@ -192,7 +192,7 @@ function initGame(diff, registerRestart) {
   let lastWord = "";
 
   function applyDifficultyUI() {
-    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    const easyOnly = diff.is("acs");
     els.modeBtns.forEach((b) => (b.disabled = easyOnly));
 
     const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
@@ -234,7 +234,7 @@ function initGame(diff, registerRestart) {
   function startRound() {
     current = pickQuestion();
 
-    els.instructions.textContent = "Responde:" + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
+    els.instructions.textContent = "Responde:";
     els.wordDisplay.innerHTML = current.type.prompt(current.entry);
 
     els.feedback.classList.remove("show", "ok", "ko");

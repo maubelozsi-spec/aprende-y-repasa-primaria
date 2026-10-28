@@ -154,9 +154,9 @@ const SINTACTICO_DIFFICULTY_EXPLANATIONS = {
   },
   discalculia: {
     badge: "Discalculia",
-    title: "Oraciones más sencillas y ayuda extra",
-    text: "Igual que en ACS, se usan oraciones con como mucho un complemento y se simplifica el segundo juego, dando más tiempo para pensar cada paso.",
-    example: "«Los pájaros vuelan alto.» → sujeto: los pájaros · predicado verbal · CC",
+    title: "Mismo nivel que la clase",
+    text: "La discalculia afecta al cálculo y al sentido del número, no a la lengua: aquí se practica el mismo contenido que el resto de la clase. Si además hay dificultades de lectura, usa la adaptación de dislexia.",
+    example: "Mismas preguntas y mismos pasos que sin adaptación",
   },
   altas: {
     badge: "Altas capacidades",
@@ -232,7 +232,7 @@ function initSecondaryQuiz(diff, registerRestart) {
   let lastSentence = "";
 
   function applyDifficultyUI() {
-    const easyOnly = diff.is("acs") || diff.is("discalculia");
+    const easyOnly = diff.is("acs");
     els.modeBtns.forEach((b) => (b.disabled = easyOnly));
 
     const mezclaBtn = [...els.modeBtns].find((b) => b.dataset.mode === "mezcla");
@@ -271,7 +271,7 @@ function initSecondaryQuiz(diff, registerRestart) {
   function startQuizRound() {
     current = pickQuestion();
 
-    els.instructions.textContent = current.group.question() + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
+    els.instructions.textContent = current.group.question();
     els.sentenceDisplay.textContent = current.entry.sentence;
 
     els.feedback.classList.remove("show", "ok", "ko");
@@ -385,14 +385,14 @@ function initGame(diff, registerRestart) {
   let chosenComplements = new Set();
 
   function pool() {
-    if (diff.is("acs") || diff.is("discalculia")) return SINTACTICO_EASY_SENTENCES;
+    if (diff.is("acs")) return SINTACTICO_EASY_SENTENCES;
     if (diff.is("altas")) return SINTACTICO_ALTAS_SENTENCES;
     return SENTENCES;
   }
 
   function applyDifficultyUI() {
     els.instructionEls.forEach((el, i) => {
-      el.textContent = originalInstructions[i] + (diff.is("discalculia") ? " Tómate tu tiempo." : "");
+      el.textContent = originalInstructions[i];
     });
     if (els.card) els.card.classList.toggle("difficulty-readable", diff.is("dislexia"));
   }
