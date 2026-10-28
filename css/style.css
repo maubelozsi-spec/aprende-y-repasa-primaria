@@ -3734,3 +3734,10 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 .an-trio figure { margin: 0; text-align: center; }
 .an-trio svg { max-width: 180px; }
 .an-trio figcaption { font-size: 0.92rem; color: var(--text-soft); }
+
+/* Ortografía: h, g/j, x/s */
+.or-reglas .btn { font-size: 0.9rem; padding: 6px 10px; }
+.or-palabras { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 12px 0; }
+.or-chip { padding: 6px 12px; border-radius: 999px; background: var(--color-indigo-tint); font-size: 1.05rem; }
+.or-letra { color: var(--color-rose); font-size: 1.15em; }
+.or-sin { color: var(--color-rose); font-weight: 800; margin-right: 1px; }
