@@ -3728,3 +3728,9 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 .pb-pareja { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 .pb-pareja svg { max-width: 48%; }
 .pb-lista { margin: 0 0 6px; padding-left: 20px; }
+
+/* Ángulos según su posición */
+.an-trio { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 12px 0; }
+.an-trio figure { margin: 0; text-align: center; }
+.an-trio svg { max-width: 180px; }
+.an-trio figcaption { font-size: 0.92rem; color: var(--text-soft); }

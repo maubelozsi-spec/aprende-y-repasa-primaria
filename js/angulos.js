@@ -1,7 +1,7 @@
 // ============================================================
-// Ángulos (5º T1 bloque 1: el grado, el transportador y la
-// clasificación; complementarios y suplementarios como contenido
-// de 6º / ampliación)
+// Ángulos (5º, libro: clasificación según su amplitud y su posición
+// y cálculo de ángulos en triángulos y cuadriláteros; complementarios
+// y suplementarios como contenido de 6º / ampliación)
 // - Explora: abrir un ángulo sobre el transportador, los ángulos del
 //   reloj y complementario y suplementario. No guarda progreso.
 // - Práctica: los ángulos se generan al azar (en cualquier posición)
@@ -290,13 +290,209 @@ function genRelaciones(L) {
   };
 }
 
+// ------------------------------------------------------------
+// 5º: ángulos según su posición
+// ------------------------------------------------------------
+// Dos ángulos marcados (arcos de colores). tipo: consecutivos,
+// adyacentes u opuestos (por el vértice). Devuelve el SVG.
+function svgPosicion(tipo, a, b, giro = 0, etiquetas = ["", ""]) {
+  const S = 220;
+  const c = S / 2;
+  const L = 92;
+  // Se recoge lo dibujado para recortar el viewBox a su tamaño.
+  const usados = [[c, c]];
+  const P = (ang, r) => {
+    const q = [c + r * Math.cos(rad(ang)), c - r * Math.sin(rad(ang))];
+    usados.push(q);
+    return q;
+  };
+  const rayo = (ang, color = "var(--text)") => {
+    const [x, y] = P(ang, L);
+    return `<line x1="${c}" y1="${c}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${color}" stroke-width="3.5" stroke-linecap="round"/>`;
+  };
+  const arco = (a1, a2, r, color, txt) => {
+    const [sx, sy] = P(a1, r);
+    const [ex, ey] = P(a2, r);
+    const [tx, ty] = P((a1 + a2) / 2, r + 18);
+    return `<path class="an-arco" data-desde="${a1}" data-hasta="${a2}" d="M ${sx.toFixed(1)} ${sy.toFixed(1)} A ${r} ${r} 0 ${a2 - a1 > 180 ? 1 : 0} 0 ${ex.toFixed(1)} ${ey.toFixed(1)}" fill="none" stroke="${color}" stroke-width="4"/>` +
+      (txt ? `<text x="${tx.toFixed(1)}" y="${(ty + 5).toFixed(1)}" text-anchor="middle" font-size="14" font-weight="800" fill="${color}" stroke="var(--surface)" stroke-width="3" paint-order="stroke">${txt}</text>` : "");
+  };
+  let out = "";
+  if (tipo === "opuestos") {
+    // Dos rectas que se cortan; se marcan los ángulos opuestos.
+    out += rayo(giro) + rayo(giro + a) + rayo(giro + 180) + rayo(giro + 180 + a);
+    out += arco(giro, giro + a, 30, "var(--color-indigo)", etiquetas[0]) + arco(giro + 180, giro + 180 + a, 30, "var(--color-amber)", etiquetas[1]);
+  } else {
+    // Consecutivos: comparten el vértice y un lado. Adyacentes: además,
+    // los lados no comunes forman una recta (a + b = 180).
+    out += rayo(giro) + rayo(giro + a, "var(--color-plum)") + rayo(giro + a + b);
+    out += arco(giro, giro + a, 30, "var(--color-indigo)", etiquetas[0]) + arco(giro + a, giro + a + b, 40, "var(--color-amber)", etiquetas[1]);
+  }
+  out += `<circle cx="${c}" cy="${c}" r="5" fill="var(--text)"/>`;
+  const m = 18;
+  const x0 = Math.max(0, Math.min(...usados.map((q) => q[0])) - m);
+  const y0 = Math.max(0, Math.min(...usados.map((q) => q[1])) - m);
+  const x1 = Math.min(S, Math.max(...usados.map((q) => q[0])) + m);
+  const y1 = Math.min(S, Math.max(...usados.map((q) => q[1])) + m);
+  return `<svg viewBox="${x0.toFixed(0)} ${y0.toFixed(0)} ${(x1 - x0).toFixed(0)} ${(y1 - y0).toFixed(0)}" width="${(x1 - x0).toFixed(0)}" style="max-width:100%" role="img" aria-label="Dos ángulos ${tipo === "opuestos" ? "opuestos por el vértice" : tipo}">${out}</svg>`;
+}
+
+const POSICIONES = ["Consecutivos", "Adyacentes", "Opuestos por el vértice"];
+
+function genPosicion(L) {
+  const tipo = pick(["consecutivos", "adyacentes", "opuestos"]);
+  const paso = L === LEVELS.altas ? 5 : 10;
+  const giro = L === LEVELS.acs ? 0 : paso * randInt(0, 35);
+  let a = paso * randInt(Math.ceil(30 / paso), Math.floor(130 / paso));
+  let b;
+  if (tipo === "adyacentes") b = 180 - a;
+  else if (tipo === "consecutivos") {
+    do b = paso * randInt(Math.ceil(30 / paso), Math.floor(120 / paso));
+    while (Math.abs(a + b - 180) < 25 || a + b > 230);
+  } else b = a;
+  // A veces se pide calcular el otro ángulo (adyacentes u opuestos).
+  if (tipo !== "consecutivos" && Math.random() < 0.5) {
+    const otro = tipo === "adyacentes" ? 180 - a : a;
+    return {
+      instruction: `Estos ángulos son ${tipo === "adyacentes" ? "adyacentes" : "opuestos por el vértice"}. ¿Cuánto mide el ángulo naranja?`,
+      display: `El azul mide ${a}°.`,
+      visual: svgPosicion(tipo, a, b, giro, [`${a}°`, "?"]),
+      options: uniqueOptions(`${otro}°`, [tipo === "adyacentes" ? a : 180 - a, 90 - a > 0 ? 90 - a : 360 - a, otro + 10, otro - 10].filter((x) => x > 0).map((x) => `${x}°`)),
+      correct: `${otro}°`,
+      hint: tipo === "adyacentes" ? "Los dos ángulos adyacentes juntos forman una línea recta: un llano, 180°." : "Los ángulos opuestos por el vértice miden lo mismo.",
+      explain: tipo === "adyacentes" ? `Juntos forman un ángulo llano: 180° − ${a}° = ${180 - a}°.` : `Los ángulos opuestos por el vértice son iguales: el naranja también mide ${a}°.`,
+    };
+  }
+  const correct = { consecutivos: "Consecutivos", adyacentes: "Adyacentes", opuestos: "Opuestos por el vértice" }[tipo];
+  return {
+    instruction: "¿Cómo son estos dos ángulos según su posición?",
+    display: correct,
+    visual: svgPosicion(tipo, a, b, giro),
+    soloVisual: true,
+    options: POSICIONES,
+    keepOrder: true,
+    correct,
+    hint: "¿Comparten un lado? Si además los otros dos lados forman una línea recta, son adyacentes. Si los forman dos rectas que se cortan y están uno enfrente del otro, son opuestos por el vértice.",
+    explain: {
+      consecutivos: "Tienen el mismo vértice y un lado en común (el morado), pero los otros dos lados no forman una línea recta: son consecutivos.",
+      adyacentes: `Tienen un lado en común y los otros dos forman una línea recta: son adyacentes (${a}° + ${b}° = 180°). Los adyacentes también son consecutivos, pero «adyacentes» dice más.`,
+      opuestos: "Los forman dos rectas que se cortan y están uno enfrente del otro, sin lados en común: son opuestos por el vértice y miden lo mismo.",
+    }[tipo],
+  };
+}
+
+// ------------------------------------------------------------
+// 5º: ángulos de triángulos y cuadriláteros
+// ------------------------------------------------------------
+// Intersección de dos rectas p + t·u y q + s·v.
+function corte(p, u, q, v) {
+  const det = u[0] * v[1] - u[1] * v[0];
+  if (Math.abs(det) < 1e-9) return null;
+  const t = ((q[0] - p[0]) * v[1] - (q[1] - p[1]) * v[0]) / det;
+  const s2 = ((q[0] - p[0]) * u[1] - (q[1] - p[1]) * u[0]) / det;
+  return t > 0 && s2 > 0 ? [p[0] + t * u[0], p[1] + t * u[1]] : null;
+}
+const dir = (g) => [Math.cos(rad(g)), Math.sin(rad(g))];
+
+// Vértices (en sentido contrario a las agujas) de un polígono con esos
+// ángulos interiores: triángulo (3) o cuadrilátero convexo (4).
+function verticesDe(angs) {
+  const A = [0, 0];
+  const B = [1, 0];
+  if (angs.length === 3) {
+    const C = corte(A, dir(angs[0]), B, dir(180 - angs[1]));
+    return C ? [A, B, C] : null;
+  }
+  for (let k = 0; k < 40; k++) {
+    // D sobre el lado que sale de A; C donde se cortan el lado que sale de
+    // B y el que sale de D con el ángulo pedido en D.
+    const p = 0.5 + Math.random();
+    const D = [p * Math.cos(rad(angs[0])), p * Math.sin(rad(angs[0]))];
+    const dirDC = 180 + angs[0] + angs[3];
+    const C = corte(B, dir(180 - angs[1]), D, dir(dirDC));
+    if (!C) continue;
+    const lados = [[A, B], [B, C], [C, D], [D, A]].map(([u, v]) => Math.hypot(v[0] - u[0], v[1] - u[1]));
+    if (Math.min(...lados) / Math.max(...lados) < 0.35) continue;
+    return [A, B, C, D];
+  }
+  return null;
+}
+
+// Polígono con sus ángulos: los conocidos con su medida y uno con «?».
+function svgPoligono(vs, etiquetas) {
+  const W = 260;
+  const H = 210;
+  const xs = vs.map((v) => v[0]);
+  const ys = vs.map((v) => v[1]);
+  const esc = Math.min((W - 60) / (Math.max(...xs) - Math.min(...xs)), (H - 50) / (Math.max(...ys) - Math.min(...ys)));
+  const pt = (v) => [30 + (v[0] - Math.min(...xs)) * esc, H - 25 - (v[1] - Math.min(...ys)) * esc];
+  const ps = vs.map(pt);
+  let out = `<polygon points="${ps.map((p) => p.map((x) => x.toFixed(1)).join(",")).join(" ")}" fill="var(--color-indigo-tint)" stroke="var(--color-indigo)" stroke-width="3"/>`;
+  ps.forEach((p, i) => {
+    const prev = ps[(i + ps.length - 1) % ps.length];
+    const next = ps[(i + 1) % ps.length];
+    const u = [prev[0] - p[0], prev[1] - p[1]];
+    const v = [next[0] - p[0], next[1] - p[1]];
+    const nu = Math.hypot(...u);
+    const nv = Math.hypot(...v);
+    const bis = [u[0] / nu + v[0] / nv, u[1] / nu + v[1] / nv];
+    const nb = Math.hypot(...bis) || 1;
+    const r = 18;
+    const a1 = [p[0] + (u[0] / nu) * r, p[1] + (u[1] / nu) * r];
+    const a2 = [p[0] + (v[0] / nv) * r, p[1] + (v[1] / nv) * r];
+    // El arco va por dentro: el giro corto de u a v (en pantalla, la y va hacia abajo).
+    const sweep = u[0] * v[1] - u[1] * v[0] > 0 ? 1 : 0;
+    out += `<path d="M ${a1[0].toFixed(1)} ${a1[1].toFixed(1)} A ${r} ${r} 0 0 ${sweep} ${a2[0].toFixed(1)} ${a2[1].toFixed(1)}" fill="none" stroke="var(--color-plum)" stroke-width="2.5"/>`;
+    const t = [p[0] + (bis[0] / nb) * 40, p[1] + (bis[1] / nb) * 40];
+    out += `<text class="an-vert" data-x="${p[0].toFixed(2)}" data-y="${p[1].toFixed(2)}" x="${t[0].toFixed(1)}" y="${(t[1] + 5).toFixed(1)}" text-anchor="middle" font-size="14" font-weight="800" fill="${etiquetas[i] === "?" ? "var(--color-amber)" : "var(--text)"}">${etiquetas[i]}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" style="max-width:100%" role="img" aria-label="${vs.length === 3 ? "Triángulo" : "Cuadrilátero"} con sus ángulos">${out}</svg>`;
+}
+
+function genPoligonoAngulos(L) {
+  const cuatro = L !== LEVELS.acs && Math.random() < 0.45;
+  const paso = L === LEVELS.altas ? 1 : L === LEVELS.facil ? 10 : 5;
+  const total = cuatro ? 360 : 180;
+  let angs;
+  let vs;
+  do {
+    if (cuatro) {
+      angs = [0, 0, 0].map(() => paso * randInt(Math.ceil(55 / paso), Math.floor(125 / paso)));
+      angs.push(360 - angs[0] - angs[1] - angs[2]);
+    } else {
+      angs = [0, 0].map(() => paso * randInt(Math.ceil(25 / paso), Math.floor(100 / paso)));
+      angs.push(180 - angs[0] - angs[1]);
+    }
+    vs = angs.every((g) => g >= 20 && g <= 150) ? verticesDe(angs) : null;
+  } while (!vs);
+  const i = randInt(0, angs.length - 1);
+  const conocidos = angs.filter((_, k) => k !== i);
+  const x = angs[i];
+  const etiquetas = angs.map((g, k) => (k === i ? "?" : `${g}°`));
+  const fig = cuatro ? "cuadrilátero" : "triángulo";
+  const s = conocidos.reduce((a, b) => a + b, 0);
+  return {
+    instruction: `¿Cuánto mide el ángulo que falta en este ${fig}?`,
+    display: `Los otros ángulos miden ${conocidos.map((g) => `${g}°`).join(", ").replace(/, ([^,]*)$/, " y $1")}.`,
+    visual: svgPoligono(vs, etiquetas),
+    options: uniqueOptions(`${x}°`, [(cuatro ? 180 : 360) - s, x + 10, x - 10, 90, x + paso * 2].filter((y) => y > 0 && y < 360).map((y) => `${y}°`)),
+    correct: `${x}°`,
+    hint: cuatro ? "Los cuatro ángulos de un cuadrilátero suman 360°." : "Los tres ángulos de un triángulo suman 180°.",
+    explain: `En un ${fig} los ángulos suman ${total}°. Los conocidos suman ${conocidos.join(" + ")} = ${s}°. Falta ${total} − ${s} = ${x}°.`,
+  };
+}
+
 const MODE_GROUPS = {
   clasificar: [genClasificar],
   medir: [genMedir],
   estimar: [genEstimar],
   reloj: [genReloj, genGiros],
+  posicion: [genPosicion],
+  poligonos: [genPoligonoAngulos],
   relaciones: [genRelaciones],
 };
+// La mezcla es de 5º: sin complementarios y suplementarios.
+const MEZCLA = ["clasificar", "medir", "estimar", "reloj", "posicion", "poligonos"];
 
 const ACS_GENERATORS = [genClasificar, genClasificar, genEstimar, genGiros];
 
@@ -349,6 +545,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   renderDifficultyBox("difficulty-box", diff.get(), ANGULOS_DIFFICULTY_EXPLANATIONS);
 
+  const ej = (id, html) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  };
+  ej("an-ej-consecutivos", svgPosicion("consecutivos", 50, 70, 10));
+  ej("an-ej-adyacentes", svgPosicion("adyacentes", 60, 120, 0, ["60°", "120°"]));
+  ej("an-ej-opuestos", svgPosicion("opuestos", 50, 50, 15, ["50°", "50°"]));
   if (document.getElementById("an-abrir")) initExplore();
   if (document.getElementById("word-display")) initGame(diff, (fn) => restartCallbacks.push(fn));
 });
@@ -496,7 +699,7 @@ function initGame(diff, registerRestart) {
 
   function generatorsFor() {
     if (diff.is("acs")) return ACS_GENERATORS;
-    if (mode === "mezcla") return MODE_GROUPS[pick(Object.keys(MODE_GROUPS))];
+    if (mode === "mezcla") return MODE_GROUPS[pick(MEZCLA)];
     return MODE_GROUPS[mode];
   }
 

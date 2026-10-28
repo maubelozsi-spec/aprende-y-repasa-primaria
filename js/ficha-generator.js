@@ -2133,7 +2133,7 @@ function ofDistinta(nivel) {
   return {
     enunciado: `Calcula: ${n1}/${d1} ${op} ${n2}/${d2}.`,
     datos: [`Fracción 1: ${n1}/${d1}`, `Fracción 2: ${n2}/${d2}`],
-    operacion: `m.c.m.(${d1}, ${d2}) = ${m}. ${n1}/${d1} ${op} ${n2}/${d2} = ${A}/${m} ${op} ${C}/${m} = ${r}/${m}`,
+    operacion: `Denominador común: ${m} (múltiplo de ${d1} y de ${d2}). ${n1}/${d1} ${op} ${n2}/${d2} = ${A}/${m} ${op} ${C}/${m} = ${r}/${m}`,
     solucion: `${r}/${m}${ofSimplifica(r, m)}. El resultado es ${r}/${m}${ofSimplifica(r, m)}.`,
   };
 }
@@ -2215,7 +2215,7 @@ function genOperacionesFracciones(curso) {
   if (curso === "6") {
     return siguienteDeBaraja("of6", [ofDistinta, ofDistinta, ofMultiplicar, ofDividir, ofComoDivision, ofPrioridad, ofCantidad])(OF_NIVELES["6"]);
   }
-  return siguienteDeBaraja("of5", [ofSumaResta, ofSumaResta, ofPizza, ofCantidad, ofDinero, ofCombinadaIgual, ofEnergia])(OF_NIVELES["5"]);
+  return siguienteDeBaraja("of5", [ofSumaResta, ofDistinta, ofPizza, ofCantidad, ofDinero, ofCombinadaIgual, ofEnergia, ofComoDivision])(OF_NIVELES["5"]);
 }
 
 function ofRegaloACS() {
@@ -2254,7 +2254,7 @@ function genOperacionesFraccionesDiscalculia(curso) {
   if (curso === "6") {
     return siguienteDeBaraja("ofDisc6", [ofDistinta, ofMultiplicar, ofDividir, ofComoDivision, ofCantidad])(OF_NIVELES.disc6);
   }
-  return siguienteDeBaraja("ofDisc5", [ofSumaResta, ofPizza, ofCantidad, ofDinero, ofCombinadaIgual])(OF_NIVELES.disc5);
+  return siguienteDeBaraja("ofDisc5", [ofSumaResta, ofPizza, ofCantidad, ofDinero, ofCombinadaIgual, ofDistinta, ofComoDivision])(OF_NIVELES.disc5);
 }
 
 function ofExcursion() {
@@ -2945,7 +2945,7 @@ function genPorcentajes(curso) {
   if (curso === "6") {
     return siguienteDeBaraja("pc6", [pcFracDecPct, pcQuePorcentaje, pcEnergia, pcRebaja, pcIva, pcDe])(PC_NIVELES["6"]);
   }
-  return siguienteDeBaraja("pc5", [pcQueEs, pcCabeza, pcDe, pcRebaja, pcMercado, pcMercado])(PC_NIVELES["5"]);
+  return siguienteDeBaraja("pc5", [pcQueEs, pcCabeza, pcDe, pcRebaja, pcMercado, pcFracDecPct])(PC_NIVELES["5"]);
 }
 
 function pcAcsUno() {
@@ -2980,7 +2980,7 @@ function genPorcentajesACS() {
 function genPorcentajesDiscalculia(curso) {
   const d = PC_NIVELES.disc;
   if (curso === "6") return siguienteDeBaraja("pcDisc6", [pcFracDecPct, pcQuePorcentaje, pcRebaja, pcDe, pcQueEs])(d);
-  return siguienteDeBaraja("pcDisc5", [pcQueEs, pcCabeza, pcDe, pcRebaja, pcMercado])(d);
+  return siguienteDeBaraja("pcDisc5", [pcQueEs, pcCabeza, pcDe, pcRebaja, pcMercado, pcFracDecPct])(d);
 }
 
 function pcDescuentoIvaAltas() {
@@ -4141,9 +4141,11 @@ const ES_CONTEXTOS = [
 ];
 
 const ES_NIVELES = {
-  "5": { n: [6, 8], medio: false },
+  // 5º (libro: diagramas de barras, moda y media): recuento, sin hablar
+  // aún de «tabla de frecuencias».
+  "5": { n: [6, 8], medio: false, recuento: true },
   "6": { n: [7, 10], medio: true },
-  disc: { n: [4, 5], medio: false, facil: true },
+  disc: { n: [4, 5], medio: false, facil: true, recuento: true },
 };
 
 function esContexto(nivel) {
@@ -4180,7 +4182,7 @@ function esTabla(nivel) {
   while (esModaUnica(xs) === null);
   const f = esFrec(xs);
   return {
-    enunciado: `${esCap(c.frase(n))} son: ${xs.join(", ")}. Haz la tabla de frecuencias y dibuja el diagrama de barras. ¿Cuál es la moda?`,
+    enunciado: `${esCap(c.frase(n))} son: ${xs.join(", ")}. ${nivel.recuento ? "Haz una tabla con el recuento (cuántas veces sale cada dato)" : "Haz la tabla de frecuencias"} y dibuja el diagrama de barras. ¿Cuál es la moda?`,
     datos: [`${n} datos`],
     operacion: `Se cuenta cuántas veces sale cada dato (tachando): ${esTablaTxt(f)}. Total: ${[...f.values()].join(" + ")} = ${n}`,
     solucion: `Tabla: ${esTablaTxt(f)} (total ${n}). La moda es ${esModaUnica(xs)}.`,
@@ -4477,10 +4479,46 @@ function anVueltaCompleta(nivel) {
   };
 }
 
-// 5º (Tema 1): medir y clasificar. 6º: además complementarios, suplementarios y la vuelta completa.
+// Libro de 5º: clasificación según la posición (consecutivos,
+// adyacentes, opuestos por el vértice).
+function anPosicion(nivel) {
+  const paso = nivel.paso === 10 ? 10 : 5;
+  const a = paso * randomInt(Math.ceil(25 / paso), Math.floor(155 / paso));
+  const b = paso * randomInt(Math.ceil(25 / paso), Math.floor(155 / paso));
+  return {
+    enunciado: `Dibuja dos rectas que se cortan. a) Si uno de los cuatro ángulos mide ${a}°, ¿cuánto mide su adyacente? ¿Y su opuesto por el vértice? b) Dos ángulos adyacentes: uno mide ${b}°. ¿Cuánto mide el otro?`,
+    datos: ["Adyacentes: juntos forman un llano (180°).", "Opuestos por el vértice: miden lo mismo."],
+    operacion: `a) 180° − ${a}° = ${180 - a}°; opuesto: ${a}° · b) 180° − ${b}° = ${180 - b}°`,
+    solucion: `a) Adyacente: ${180 - a}°. Opuesto por el vértice: ${a}°. b) ${180 - b}°.`,
+  };
+}
+
+// Libro de 5º: cálculo de ángulos en triángulos y cuadriláteros.
+function anPoligono(nivel) {
+  const paso = nivel.paso === 10 ? 10 : 5;
+  const cuatro = Math.random() < 0.5;
+  let gs;
+  do {
+    gs = (cuatro ? [0, 0, 0] : [0, 0]).map(() => paso * randomInt(Math.ceil((cuatro ? 55 : 25) / paso), Math.floor((cuatro ? 125 : 100) / paso)));
+  } while ((cuatro ? 360 : 180) - gs.reduce((x, y) => x + y, 0) < 20 || (cuatro ? 360 : 180) - gs.reduce((x, y) => x + y, 0) > 150);
+  const tot = cuatro ? 360 : 180;
+  const sum = gs.reduce((x, y) => x + y, 0);
+  const lista = gs.map((g) => `${g}°`).join(", ").replace(/, ([^,]*)$/, " y $1");
+  return {
+    enunciado: cuatro
+      ? `Un cuadrilátero tiene tres ángulos de ${lista}. ¿Cuánto mide el cuarto ángulo?`
+      : `Un triángulo tiene dos ángulos de ${lista}. ¿Cuánto mide el tercero? ¿Es acutángulo, rectángulo u obtusángulo?`,
+    datos: [cuatro ? "Los ángulos de un cuadrilátero suman 360°." : "Los ángulos de un triángulo suman 180°."],
+    operacion: `${gs.join("° + ")}° = ${sum}° · ${tot}° − ${sum}° = ${tot - sum}°`,
+    solucion: cuatro ? `${tot - sum}°.` : `${tot - sum}°. Es ${Math.max(...gs, tot - sum) > 90 ? "obtusángulo" : Math.max(...gs, tot - sum) === 90 ? "rectángulo" : "acutángulo"}.`,
+  };
+}
+
+// 5º: medir, clasificar por amplitud y posición y ángulos de triángulos y
+// cuadriláteros. 6º: además complementarios, suplementarios y la vuelta completa.
 function genAngulos(curso) {
-  if (curso === "6") return siguienteDeBaraja("an6", [anClasificar, anDibujar, anErrorEscala, anReloj, anComplementario, anVueltaCompleta, anGiros])(AN_NIVELES["6"]);
-  return siguienteDeBaraja("an5", [anClasificar, anDibujar, anErrorEscala, anReloj, anGiros])(AN_NIVELES["5"]);
+  if (curso === "6") return siguienteDeBaraja("an6", [anClasificar, anDibujar, anErrorEscala, anReloj, anComplementario, anVueltaCompleta, anGiros, anPosicion, anPoligono])(AN_NIVELES["6"]);
+  return siguienteDeBaraja("an5", [anClasificar, anDibujar, anErrorEscala, anReloj, anGiros, anPosicion, anPoligono])(AN_NIVELES["5"]);
 }
 
 function anAcsObjetos() {
@@ -4500,7 +4538,7 @@ function genAngulosACS() {
 
 // Discalculia: los contenidos del curso con medidas redondas (múltiplos de 10°).
 function genAngulosDiscalculia(curso) {
-  const lista = [anClasificar, anDibujar, anErrorEscala, anReloj, anGiros];
+  const lista = [anClasificar, anDibujar, anErrorEscala, anReloj, anGiros, anPosicion, anPoligono];
   if (curso === "6") lista.push(anComplementario);
   return siguienteDeBaraja(`anDisc${curso}`, lista)(AN_NIVELES.disc);
 }
@@ -6031,7 +6069,7 @@ const TOPICS = [
   { id: "circunferencia", label: "Circunferencia y círculo", category: "Geometría y medidas", generate: genCircunferencia, generateACS: genCircunferenciaACS, generateDiscalculia: genCircunferenciaDiscalculia, generateAltas: genCircunferenciaAltas, resumen: "La circunferencia es la línea curva; el círculo, la superficie que encierra. Radio: del centro a la circunferencia. Diámetro: de lado a lado pasando por el centro; mide dos radios (d = 2 × r).", resumen6: "La circunferencia es la línea; el círculo, la superficie. El diámetro mide dos radios. La circunferencia mide un poco más de 3 diámetros: longitud = π × d = 2 × π × r, con π = 3,14." },
   { id: "proporcionalidad", label: "Proporcionalidad y escalas", category: "Geometría y medidas", generate: genProporcionalidad, generateACS: genProporcionalidadACS, generateDiscalculia: genProporcionalidadDiscalculia, generateAltas: genProporcionalidadAltas, resumen: "Dos magnitudes son proporcionales si al doble le corresponde el doble y al triple, el triple. En una tabla de proporcionalidad, al dividir cada valor entre su pareja sale siempre lo mismo: la constante. Para resolver un problema, se calcula lo que corresponde a 1 y se multiplica. Escala 1:100: 1 cm del plano son 100 cm (1 m) reales. Cuidado: un taxi con bajada de bandera o una oferta 3 × 2 no son proporcionales." },
   { id: "estadistica", label: "Estadística", category: "Geometría y medidas", generate: genEstadistica, generateACS: genEstadisticaACS, generateDiscalculia: genEstadisticaDiscalculia, generateAltas: genEstadisticaAltas, resumen: "La frecuencia de un dato es las veces que se repite; la tabla de frecuencias recoge cada dato con su frecuencia. En un diagrama de barras, mira primero cuánto vale cada raya de la escala. La moda es el dato que más se repite (el dato, no las veces). La media: se suman todos los datos y se divide entre cuántos hay.", resumen6: "Frecuencia: las veces que se repite un dato. Moda: el dato que más se repite. Media: suma de los datos entre el número de datos. Mediana: se ordenan los datos y se toma el del centro (si son pares, la media de los dos del centro). Rango: dato mayor − dato menor. Un dato muy distinto mueve mucho la media y poco la mediana." },
-  { id: "angulos", label: "Ángulos", category: "Geometría y medidas", generate: genAngulos, generateACS: genAngulosACS, generateDiscalculia: genAngulosDiscalculia, generateAltas: genAngulosAltas, resumen: "Un ángulo se mide en grados (°) con el transportador: el centro en el vértice, un lado en el 0 y se lee en la escala que empieza en ese 0. Agudo: menos de 90°. Recto: 90°. Obtuso: entre 90° y 180°. Llano: 180°. Una vuelta entera son 360°.", resumen6: "Un ángulo se mide en grados con el transportador (cuidado con la escala). Agudo < 90° · recto = 90° · obtuso entre 90° y 180° · llano = 180° · completo = 360°. Dos ángulos son complementarios si suman 90° y suplementarios si suman 180°." },
+  { id: "angulos", label: "Ángulos", category: "Geometría y medidas", generate: genAngulos, generateACS: genAngulosACS, generateDiscalculia: genAngulosDiscalculia, generateAltas: genAngulosAltas, resumen: "Un ángulo se mide en grados (°) con el transportador: el centro en el vértice, un lado en el 0 y se lee en la escala que empieza en ese 0. Agudo: menos de 90°. Recto: 90°. Obtuso: entre 90° y 180°. Llano: 180°. Una vuelta entera son 360°. Los adyacentes suman 180° y los opuestos por el vértice miden lo mismo. Los ángulos de un triángulo suman 180° y los de un cuadrilátero, 360°.", resumen6: "Un ángulo se mide en grados con el transportador (cuidado con la escala). Agudo < 90° · recto = 90° · obtuso entre 90° y 180° · llano = 180° · completo = 360°. Dos ángulos son complementarios si suman 90° y suplementarios si suman 180°." },
   { id: "coordenadas", label: "Coordenadas", category: "Geometría y medidas", generate: genCoordenadas, generateACS: genCoordenadasACS, generateDiscalculia: genCoordenadasDiscalculia, generateAltas: genCoordenadasAltas, resumen: "Cada punto del plano tiene dos coordenadas (x, y): primero lo que se anda en horizontal y después lo que se sube. Trasladar es deslizar la figura sin girarla; en la simetría la figura se refleja como en un espejo; en un giro, la figura gira alrededor de un centro. En los tres movimientos no cambian ni la forma ni el tamaño.", resumen6: "En los cuatro cuadrantes, a la izquierda y por debajo del origen las coordenadas son negativas. Traslación: se suma el vector. Simetría respecto al eje Y: cambia de signo la x; respecto al eje X: cambia de signo la y. Media vuelta alrededor del origen: cambian de signo las dos. Dos figuras son semejantes si todos sus lados se multiplican por el mismo número (la escala)." },
   { id: "cuerpos-geometricos", label: "Cuerpos geométricos", category: "Geometría y medidas", generate: genCuerposGeometricos, generateACS: genCuerposGeometricosACS, generateDiscalculia: genCuerposGeometricosDiscalculia, generateAltas: genCuerposGeometricosAltas, resumen: "Los poliedros tienen todas las caras planas; los cuerpos redondos, alguna superficie curva. Prisma: dos bases iguales y caras rectangulares. Pirámide: una base y caras triangulares que se juntan en un vértice. El desarrollo plano es el cuerpo abierto sobre la mesa.", resumen6: "Poliedros (prismas y pirámides) y cuerpos redondos (cilindro, cono, esfera). Prisma de base de n lados: n + 2 caras, 3n aristas, 2n vértices. Pirámide: n + 1 caras, 2n aristas, n + 1 vértices. Fórmula de Euler: caras + vértices = aristas + 2." },
   { id: "tiempo", label: "El tiempo", category: "Geometría y medidas", generate: genTiempo, generateACS: genTiempoACS, generateDiscalculia: genTiempoDiscalculia, generateAltas: genTiempoAltas, resumen: "1 día = 24 h, 1 h = 60 min, 1 min = 60 s: el tiempo va de 60 en 60, no de 100 en 100. 2 h 15 min = 135 min, y 1,5 h es hora y media (1 h 30 min). Para saber cuánto tiempo pasa, cuenta a saltos hasta la hora en punto." },

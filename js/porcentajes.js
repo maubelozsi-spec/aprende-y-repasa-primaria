@@ -294,8 +294,12 @@ const MODE_GROUPS = {
   porcentajedenum: [genPorcentajeDe],
   aumentodisminucion: [genAumentoDisminucion],
   problemas: [genProbMercado, genProbMercado, genProbClase],
-  sexto: [genFraccionPorcentaje, genQuePorcentaje],
+  fraccion: [genFraccionPorcentaje],
+  sexto: [genQuePorcentaje],
 };
+// Libro de 5º: relación entre fracción, decimal y porcentaje. «¿Qué
+// porcentaje es?» queda para 6º y fuera de la mezcla.
+const MEZCLA = ["relacion", "cabeza", "porcentajedenum", "aumentodisminucion", "problemas", "fraccion"];
 
 const ACS_GENERATORS = [genCabeza, genCabeza, genRelacion, genProbClase];
 
@@ -521,7 +525,7 @@ function initGame(diff, registerRestart) {
 
   function generatorsFor() {
     if (diff.is("acs")) return ACS_GENERATORS;
-    if (mode === "mezcla") return MODE_GROUPS[pick(Object.keys(MODE_GROUPS))];
+    if (mode === "mezcla") return MODE_GROUPS[pick(MEZCLA)];
     return MODE_GROUPS[mode];
   }
 
