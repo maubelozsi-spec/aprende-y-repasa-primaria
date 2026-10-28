@@ -51,6 +51,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -96,11 +97,47 @@
           <strong>Truco:</strong> no confundas la raya (—), más larga, con el guion (-), que se usa para separar sílabas al final de renglón o para unir palabras compuestas.
         </div>
 
+        <h2>Errores frecuentes</h2>
+        <div class="po-tabla-wrap">
+          <table class="rules-table">
+            <tr><th>Mal</th><th>Bien</th><th>Por qué</th></tr>
+            <tr><td>Dijo: «Ven pronto.»</td><td>Dijo: «Ven pronto».</td><td>El punto va detrás de las comillas.</td></tr>
+            <tr><td>No sé....</td><td>No sé...</td><td>Los puntos suspensivos son siempre tres.</td></tr>
+            <tr><td>pan, leche, etc...</td><td>pan, leche...</td><td>Los puntos suspensivos ya significan «etcétera».</td></tr>
+            <tr><td>—¿Vienes?— preguntó.</td><td>—¿Vienes? —preguntó.</td><td>La raya va pegada a las palabras del narrador.</td></tr>
+            <tr><td>Colón (1451-1506), llegó…</td><td>Colón (1451-1506) llegó…</td><td>No hay coma entre el sujeto y el verbo.</td></tr>
+          </table>
+        </div>
+
         <p style="text-align:center; margin-top:32px;">
           <button class="btn btn-primary" id="go-to-practice">Ir a practicar</button>
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+        <div class="md-explore-card" id="sp-explora">
+          <h2>1. Cada signo, para qué sirve</h2>
+          <p class="md-explore-intro">Elige un signo y mira sus usos, con ejemplos, y el error más frecuente.</p>
+          <div class="choice-row" id="sp-signos"></div>
+          <div class="sp-usos" id="sp-usos"></div>
+        </div>
+        <div class="md-explore-card" id="sp-aclaracion">
+          <h2>2. Una aclaración, tres maneras</h2>
+          <p class="md-explore-intro">La misma aclaración se puede escribir entre comas, entre paréntesis o entre rayas. Compara.</p>
+          <div class="choice-row">
+            <button type="button" class="btn btn-secondary" data-sp-forma="comas">Comas</button>
+            <button type="button" class="btn btn-secondary" data-sp-forma="parentesis">Paréntesis</button>
+            <button type="button" class="btn btn-secondary" data-sp-forma="rayas">Rayas</button>
+          </div>
+          <p class="po-big sp-frase" id="sp-frase"></p>
+          <div class="md-msg ok" id="sp-forma-msg" aria-live="polite"></div>
+        </div>
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -116,6 +153,7 @@
           <div class="choice-row" id="mode-picker">
             <button class="btn btn-secondary active" data-mode="identificar">Identificar el signo</button>
             <button class="btn btn-secondary" data-mode="completar">Elegir el signo correcto</button>
+            <button class="btn btn-secondary" data-mode="corregir">¿Cuál está bien puntuada?</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
@@ -123,6 +161,11 @@
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 

@@ -3749,3 +3749,10 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 .td-col h4 { margin: 0 0 4px; font-size: 1.3rem; }
 .td-col h4 span { font-size: 0.85rem; font-weight: 600; color: var(--text-soft); }
 .td-col p { margin: 4px 0; }
+
+/* Signos de puntuación */
+.sp-usos p { margin: 10px 0; }
+.sp-usos .examples { font-style: italic; }
+.sp-frase { font-size: 1.25rem; }
+.sp-frases { flex-direction: column; align-items: stretch; }
+.sp-frases .syllable-chip { text-align: left; white-space: normal; }
