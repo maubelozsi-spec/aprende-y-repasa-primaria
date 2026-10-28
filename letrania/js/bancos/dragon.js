@@ -479,7 +479,6 @@
       ["—¡Qué bien huele! —exclamó Luis.", "¡Qué bien huele! —exclamó Luis."],
       ["—Buenos días —saludó la panadera.", "Buenos días —saludó la panadera."],
       ["—Me llamo Pablo —contestó.", "—Me llamo Pablo, contestó."],
-      ["—¿Dónde vives? —le preguntó.", "—¿Dónde vives? —Le preguntó.", "Después de ? o !, lo que dice el narrador empieza con minúscula."],
       ["—Ven aquí —dijo mamá.", "Ven aquí, dijo mamá."],
       ["—Ya voy —gritó Marta.", "—Ya voy gritó Marta."],
       ["—Gracias —respondió Ana.", "Gracias —respondió Ana."],
