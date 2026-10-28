@@ -28,7 +28,7 @@
     <main class="content">
       <header class="content-header">
         <p class="eyebrow">Lengua · 6º de Primaria</p>
-        <h1>Siglas y abreviaturas</h1>
+        <h1>Siglas, abreviaturas y símbolos</h1>
         <p class="content-subtitle">Dos formas distintas de acortar palabras y expresiones.</p>
       </header>
       <div class="ficha-download">
@@ -51,6 +51,7 @@
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="teoria">Teoría</button>
+        <button class="tab-btn" data-tab="explora">Explora</button>
         <button class="tab-btn" data-tab="practica">Práctica</button>
       </div>
 
@@ -64,6 +65,9 @@
           <p class="examples"><strong>Ejemplos:</strong> ONU (Organización de las Naciones Unidas), ADN (ácido desoxirribonucleico), OVNI (objeto volador no identificado)</p>
         </div>
         <div class="tip-box">
+          <strong>En plural no cambian:</strong> el plural se ve en el artículo, no se añade -s. <em>Las ONG</em>, <em>los DNI</em> (no «ONGs», «DNIs»).
+        </div>
+        <div class="tip-box">
           <strong>Acrónimo:</strong> cuando una sigla se pronuncia como una palabra normal (no letra por letra), como "OVNI" o "láser", se llama acrónimo.
         </div>
 
@@ -73,14 +77,25 @@
           <p>Son la <strong>reducción de una palabra o expresión</strong>, eliminando letras finales o centrales, y terminan casi siempre con un <strong>punto</strong>.</p>
           <p class="examples"><strong>Ejemplos:</strong> Sr. (señor), pág. (página), etc. (etcétera), Dr. (doctor), c/ (calle)</p>
         </div>
+        <div class="tip-box">
+          <strong>Fíjate:</strong> si la palabra lleva tilde, la abreviatura la mantiene (<em>pág.</em>, <em>teléf.</em>). El plural se forma añadiendo -s (<em>págs.</em>, <em>Sres.</em>) o, si es de una sola letra, duplicándola (<em>EE. UU.</em>, Estados Unidos).
+        </div>
+
+        <h2>Los símbolos</h2>
+        <div class="rule-box esdrujula">
+          <h4>¿Qué son?</h4>
+          <p>Son formas fijas, iguales en todos los idiomas, sobre todo de medidas, monedas y puntos cardinales. Se escriben <strong>sin punto</strong> y <strong>no cambian en plural</strong>.</p>
+          <p class="examples"><strong>Ejemplos:</strong> km (kilómetro), kg (kilogramo), cm, min (minuto), h (hora), € (euro), % (por ciento), N (norte). Se escribe <em>5 km</em>, no «5 kms.».</p>
+        </div>
 
         <h2>Diferencias entre sigla y abreviatura</h2>
-        <table class="rules-table">
+        <div class="po-tabla-wrap"><table class="rules-table">
           <tr><th></th><th>Sigla</th><th>Abreviatura</th></tr>
           <tr><td>Se forma con</td><td>letras iniciales de varias palabras</td><td>reducción de una sola palabra</td></tr>
           <tr><td>Se escribe</td><td>en mayúsculas, sin puntos</td><td>normalmente con un punto</td></tr>
+          <tr><td>En plural</td><td>no cambia: las ONG</td><td>añade -s: págs.</td></tr>
           <tr><td>Ejemplo</td><td>UE (Unión Europea)</td><td>Ud. (usted)</td></tr>
-        </table>
+        </table></div>
 
         <div class="tip-box">
           <strong>Truco:</strong> si ves varias letras mayúsculas juntas representando varias palabras, es una sigla. Si ves una palabra recortada terminada en punto, es una abreviatura.
@@ -91,6 +106,30 @@
         </p>
 
         <div class="difficulty-box" id="difficulty-box"></div>
+      </section>
+
+      <!-- ================= EXPLORA ================= -->
+      <section id="tab-explora" class="tab-panel">
+        <div class="md-explore-card" id="sg-explora">
+          <h2>1. Desmonta la sigla</h2>
+          <p class="md-explore-intro">Elige una sigla y mira de qué palabra sale cada letra.</p>
+          <div class="choice-row" id="sg-siglas"></div>
+          <p class="po-big" id="sg-letras"></p>
+          <div class="md-msg ok" id="sg-msg" aria-live="polite"></div>
+        </div>
+        <div class="md-explore-card" id="sg-tipos">
+          <h2>2. Sigla, abreviatura o símbolo</h2>
+          <div class="choice-row">
+            <button type="button" class="btn btn-secondary" data-sg-tipo="sigla">Siglas</button>
+            <button type="button" class="btn btn-secondary" data-sg-tipo="abreviatura">Abreviaturas</button>
+            <button type="button" class="btn btn-secondary" data-sg-tipo="símbolo">Símbolos</button>
+          </div>
+          <div class="or-palabras" id="sg-tipo-ej"></div>
+          <div class="md-msg ok" id="sg-tipo-msg" aria-live="polite"></div>
+        </div>
+        <p style="text-align:center; margin-top:32px;">
+          <button class="btn btn-primary" id="go-to-practice-2">Ir a practicar</button>
+        </p>
       </section>
 
       <!-- ================= PRÁCTICA ================= -->
@@ -104,8 +143,9 @@
 
           <div class="game-step-label">Elige qué quieres practicar</div>
           <div class="choice-row" id="mode-picker">
-            <button class="btn btn-secondary active" data-mode="siglaoabrev">¿Sigla o abreviatura?</button>
+            <button class="btn btn-secondary active" data-mode="siglaoabrev">¿Sigla, abreviatura o símbolo?</button>
             <button class="btn btn-secondary" data-mode="significado">¿Qué significa?</button>
+            <button class="btn btn-secondary" data-mode="escritura">¿Cuál está bien escrita?</button>
             <button class="btn btn-secondary" data-mode="mezcla">Mezcla</button>
           </div>
 
@@ -113,6 +153,11 @@
           <div class="sentence-display" id="word-display"></div>
 
           <div class="syllable-row" id="answer-buttons"></div>
+
+          <div class="actions-row">
+            <button type="button" class="btn btn-secondary" id="hint-btn">Pista</button>
+          </div>
+          <div class="md-hint" id="hint-box" aria-live="polite"></div>
 
           <div id="feedback" class="feedback-box"></div>
 

@@ -3756,3 +3756,7 @@ table.rules-table.ro-lugares th, table.rules-table.ro-lugares td { text-align: c
 .sp-frase { font-size: 1.25rem; }
 .sp-frases { flex-direction: column; align-items: stretch; }
 .sp-frases .syllable-chip { text-align: left; white-space: normal; }
+
+/* Siglas */
+.sg-ini { color: var(--color-rose); font-size: 1.15em; }
+.or-chip small { color: var(--text-soft); margin-left: 4px; }
