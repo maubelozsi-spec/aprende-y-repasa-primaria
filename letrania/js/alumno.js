@@ -178,7 +178,7 @@ function pintarEstado() {
   document.body.classList.toggle("uni", uni());
   const e = estado();
   if (e === "sin-heroe") {
-    puerta("guardian-1", "Letrania está cerrada para ti", "Tu maestro todavía no te ha apuntado a Letrania.", `<a class="btn" href="../juegos/index.html">Volver a los juegos</a>`);
+    puerta("guardian-1", "Letrania está cerrada para ti", "Tu maestro todavía no te ha apuntado a Letrania.", `<a class="btn" href="../index.html">Volver al inicio</a>`);
   } else if (e === "cerrado") {
     puerta("guardian-2", "Aún no es tu turno", "Tu maestro abrirá Letrania cuando llegue el momento de jugar.", `<button class="btn sea" id="comprobar">Volver a mirar</button>`);
   } else if (e === "listo") {
@@ -189,7 +189,7 @@ function pintarEstado() {
       cancelarEscucha();
       cancelarEscucha = null;
     }
-    puerta("guardian-6", "Se acabó el tiempo de hoy", "Lo has hecho muy bien. Tu héroe te espera para la próxima sesión.", `<a class="btn sea" href="../juegos/index.html">Salir</a>`);
+    puerta("guardian-6", "Se acabó el tiempo de hoy", "Lo has hecho muy bien. Tu héroe te espera para la próxima sesión.", `<a class="btn sea" href="../index.html">Salir</a>`);
   } else {
     $("#puerta").hidden = true;
     $("#juego").hidden = false;

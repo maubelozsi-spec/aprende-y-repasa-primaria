@@ -276,6 +276,8 @@ window.Auth = {
   clearPreviewSession: clearPreviewSession,
 };
 
-document.dispatchEvent(new CustomEvent("ar:auth-ready"));
+// Promesa que espera quien necesite leer datos del alumno nada más
+// abrir la página (por ejemplo, la tarjeta de Letrania del inicio).
+window.Auth.dispositivoListo = refreshStudentDevice();
 
-refreshStudentDevice();
+document.dispatchEvent(new CustomEvent("ar:auth-ready"));

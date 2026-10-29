@@ -529,6 +529,9 @@ function initLayout() {
     loadModuleOnce(base + "js/firebase-init.js");
     loadModuleOnce(base + "js/auth.js");
     loadModuleOnce(base + "js/cloud-sync.js");
+    // Tarjeta de Letrania: solo en el inicio y solo si el maestro ha
+    // habilitado hoy a este alumno (ver letrania/js/tarjeta.js).
+    if (document.getElementById("tarjeta-letrania")) loadModuleOnce(base + "letrania/js/tarjeta.js");
   }
 
   const logoutLink = document.getElementById("sidebar-student-logout");
