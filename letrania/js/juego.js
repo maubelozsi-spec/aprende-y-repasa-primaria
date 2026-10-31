@@ -654,9 +654,59 @@
       raiz.innerHTML = `<div class="gamegrid">${fases(2)}${escena()}
         <div class="parch"><span class="eyebrow">Recompensas</span><h2>${titulo}</h2>
           <p style="margin:6px 0 0">${esc(texto)}</p>${cajas}${extras.length ? `<p class="nota">${esc(extras.join(" "))}</p>` : ""}
-          <div class="tools"><button class="btn sea" type="button" id="otra">Otra ronda</button><button class="btn ghost" type="button" id="alMapa">Ir al mapa</button></div>
+          <div class="tools">${botonArcade()}<button class="btn sea" type="button" id="otra">Otra ronda</button><button class="btn ghost" type="button" id="alMapa">Ir al mapa</button></div>
           <p class="muted" style="margin:12px 0 0;font-size:14px">La experiencia de la ficha en papel llega cuando tu maestro la marca.</p></div></div>`;
       if (uni) op.hablar("¡Muy bien!");
+    }
+
+    // ---------- Juego de recompensa (letrania/js/arcade.js) ----------
+    // Uno por sesión con premio (de 1 a 5 XP), después de cobrar el de la
+    // prueba; luego se puede repetir sin premio para batir el récord.
+
+    let arcadeCtl = null;
+    function botonArcade() {
+      const tipo = op.arcadeDisponible ? op.arcadeDisponible() : null;
+      if (!tipo || !window.LetraniaArcade) return "";
+      return tipo === "premio"
+        ? '<button class="btn" type="button" id="arcade">🎮 Juego de recompensa · 30 s · hasta 5 XP</button>'
+        : '<button class="btn ghost" type="button" id="arcade">🎮 Juego de la región (sin premio)</button>';
+    }
+    function arcade() {
+      pararViento();
+      const region = L.regionDe(G ? G.ficha : H().ficha) + 1;
+      if (G) G.fase = "fin";
+      arcadeCtl = window.LetraniaArcade.jugar({
+        raiz: raiz,
+        region: region,
+        heroeSrc: srcImg(H().retrato || "maga-1"),
+        tranquilo: uni,
+        uni: uni,
+        efectos: efectos(),
+        hablar: op.hablar,
+        alTerminar: async (puntos) => {
+          arcadeCtl = null;
+          let r;
+          try {
+            r = await op.guardarArcade(region, puntos);
+          } catch (e) {
+            r = { error: true };
+          }
+          const caja = raiz.querySelector(".arcade");
+          if (!caja) return;
+          const texto = r.error
+            ? "No se ha podido guardar. Avisa a tu maestro."
+            : (r.xp ? "Ganas " + r.xp + " XP. " : "Partida de entrenamiento, sin premio. ") + (r.nuevo ? "¡Nuevo récord: " + r.record + " puntos!" : "Tu récord: " + r.record + " puntos.");
+          caja.insertAdjacentHTML("beforeend", `<div class="arcade-fin" aria-live="polite"><p><b>${puntos} puntos.</b> ${esc(texto)}</p>
+            <div class="tools">${botonArcade()}<button class="btn sea" type="button" id="otra">Otra ronda</button><button class="btn ghost" type="button" id="alMapa">Ir al mapa</button></div></div>`);
+          if (uni) op.hablar(puntos + " puntos. " + texto);
+        },
+      });
+    }
+    function pararArcade() {
+      if (arcadeCtl) {
+        arcadeCtl.parar();
+        arcadeCtl = null;
+      }
     }
 
     function pintarFinGuardian(premio) {
@@ -682,6 +732,7 @@
       if (b.id === "vientoTog" || b.dataset.inicio) b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true");
       else if (b.dataset.ayuda) usarAyuda(b.dataset.ayuda, b);
       else if (b.id === "revancha") combatir(+b.dataset.region);
+      else if (b.id === "arcade") arcade();
       else if (b.id === "empezar") {
         const v = raiz.querySelector("#vientoTog");
         empezar(v && v.getAttribute("aria-pressed") === "true");
@@ -710,7 +761,17 @@
       mostrar: () => {
         if (!G || G.fase === "fin") inicio();
       },
-      parar: pararViento,
+      parar: () => {
+        pararViento();
+        pararArcade();
+      },
+      // Al cambiar de pestaña: si el juego de recompensa no ha acabado,
+      // no se cobra y se puede volver a jugar al terminar otra ronda.
+      pararArcade: () => {
+        if (!arcadeCtl) return;
+        pararArcade();
+        if (G) G.fase = "fin";
+      },
     };
   }
 

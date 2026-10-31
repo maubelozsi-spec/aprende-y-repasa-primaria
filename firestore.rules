@@ -439,6 +439,16 @@ service cloud.firestore {
           && lista.toSet().difference(["pista", "segunda", "lupa", "hada", "doble", "llave"].toSet()).size() == 0;
     }
 
+    // Récords de los juegos de recompensa: solo r1…r6, números enteros.
+    function puntosValidos(m, k) {
+      return m.get(k, 0) is int && m.get(k, 0) >= 0 && m.get(k, 0) <= 99999;
+    }
+    function recordsValidos(m) {
+      return m is map && m.keys().hasOnly(["r1", "r2", "r3", "r4", "r5", "r6"])
+          && puntosValidos(m, "r1") && puntosValidos(m, "r2") && puntosValidos(m, "r3")
+          && puntosValidos(m, "r4") && puntosValidos(m, "r5") && puntosValidos(m, "r6");
+    }
+
     function sesionLetraniaViva(h) {
       return h.habilitado == true
         && h.inicio is timestamp
@@ -513,6 +523,23 @@ service cloud.firestore {
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["repaso"])
           && request.resource.data.repaso is list
           && request.resource.data.repaso.size() <= 30)
+        // Juego de recompensa: UNA partida con premio por sesión, después
+        // de cobrar el de la prueba («arcade» pasa a valer «inicio»), de 1
+        // a 5 XP y nunca gemas. Puede guardar a la vez su récord.
+        || (esAlumno(clave)
+          && sesionLetraniaViva(resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["xp", "arcade", "records"])
+          && resource.data.get("premio", null) == resource.data.inicio
+          && resource.data.get("arcade", null) != resource.data.inicio
+          && request.resource.data.arcade == resource.data.inicio
+          && request.resource.data.xp - resource.data.xp >= 1
+          && request.resource.data.xp - resource.data.xp <= 5
+          && recordsValidos(request.resource.data.get("records", {})))
+        // Partidas de entrenamiento del juego de recompensa: solo el récord.
+        || (esAlumno(clave)
+          && sesionLetraniaViva(resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["records"])
+          && recordsValidos(request.resource.data.records))
         // Usar una carta recibida en el juego (pista, segunda, lupa, hada):
         // se gasta exactamente una.
         || (esAlumno(clave)

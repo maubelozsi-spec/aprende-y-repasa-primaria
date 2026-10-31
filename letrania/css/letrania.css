@@ -400,3 +400,16 @@ a.btn{display:inline-block;text-decoration:none}
   .diploma .firma{width:100%;display:flex;justify-content:space-between;font-size:11pt}
   .diploma .firma span{border-top:.3mm solid #2b1d12;padding-top:2mm;width:70mm}
 }
+
+/* ---------- Juego de recompensa (arcade.js) ---------- */
+.arcade canvas{display:block;width:100%;height:auto;border-radius:12px;border:3px solid var(--gold);background:#20254a;touch-action:none}
+.arcade-cab{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.arcade-cab h2{margin:0}
+.arcade-marcador{display:flex;gap:18px;font-size:20px;color:var(--ink)}
+.arcade-marcador b{font-variant-numeric:tabular-nums;color:var(--terra);font-size:26px}
+.arcade-flechas{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+.arcade-flechas button{font-size:34px;padding:14px 0;border-radius:14px;border:2px solid var(--gold);background:linear-gradient(#2e3468,var(--night-2));color:var(--star);touch-action:none;user-select:none;-webkit-user-select:none}
+.arcade-flechas button:active{transform:translateY(2px)}
+.arcade-fin{margin-top:12px}
+.arcade.uni h2,.arcade.uni .nota,.arcade.uni .arcade-fin p{text-transform:uppercase}
+.arcade.uni .arcade-flechas button{font-size:44px;padding:20px 0}

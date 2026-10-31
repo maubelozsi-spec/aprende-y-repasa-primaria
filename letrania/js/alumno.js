@@ -307,6 +307,7 @@ function pintarChip() {
 
 function mostrar(v) {
   vista = v;
+  if (v !== "prueba" && juego) juego.pararArcade();
   document.querySelectorAll("nav.tabs button[data-v]").forEach((b) => b.setAttribute("aria-selected", b.dataset.v === v));
   document.querySelectorAll(".view").forEach((s) => (s.hidden = s.id !== "v-" + v));
   if (v === "mapa") pintarMapa();
@@ -361,6 +362,7 @@ async function crearJuego() {
       await cargarScript("js/bancos/util.js");
       await cargarScript("js/bancos/" + heroe.senda + ".js");
       await cargarScript("js/juego.js");
+      await cargarScript("js/arcade.js");
       if (uni()) await cargarScript("../js/arasaac.js").catch(() => {});
     } catch (e) {
       v.innerHTML = '<div class="parch"><p style="margin:0">No se ha podido cargar la prueba. Comprueba la conexión.</p></div>';
@@ -379,6 +381,8 @@ async function crearJuego() {
       usarCarta: usarCarta,
       poder: poderActual,
       usarPoder: usarPoder,
+      arcadeDisponible: arcadeDisponible,
+      guardarArcade: guardarArcade,
     });
     $("#atribucion").hidden = !uni();
   }
@@ -637,6 +641,48 @@ async function guardarResultado(r) {
     }).catch(() => {});
   }
   return premio;
+}
+
+// ---------- Juego de recompensa ----------
+// Uno con premio por sesión (1-5 XP, nunca gemas), solo después de
+// cobrar el premio de la prueba. Las repeticiones solo guardan el récord
+// de la región (records.r1…r6). Las reglas imponen los mismos límites.
+
+function arcadeDisponible() {
+  if (esDemo) return heroe.arcadeDemo ? "libre" : "premio";
+  const cobrado = heroe.premio && heroe.inicio && ms(heroe.premio) === ms(heroe.inicio);
+  if (!cobrado) return null;
+  return heroe.arcade && ms(heroe.arcade) === ms(heroe.inicio) ? "libre" : "premio";
+}
+
+async function guardarArcade(region, puntos) {
+  const tipo = arcadeDisponible();
+  const clave = "r" + region;
+  const records = Object.assign({}, heroe.records || {});
+  const antes = records[clave] || 0;
+  const nuevo = puntos > antes;
+  if (nuevo) records[clave] = Math.min(Math.round(puntos), 99999);
+  const xp = tipo === "premio" ? window.LetraniaArcade.xpDe(region, puntos, uni()) : 0;
+  if (esDemo) {
+    if (xp) {
+      heroe.arcadeDemo = true;
+      heroe.xp += xp;
+      pintarChip();
+    }
+    heroe.records = records;
+    return { xp: xp, record: Math.max(antes, puntos), nuevo: nuevo };
+  }
+  const cambios = {};
+  if (xp) {
+    cambios.xp = increment(xp);
+    cambios.arcade = heroe.inicio;
+  }
+  if (nuevo) cambios.records = records;
+  if (Object.keys(cambios).length) await updateDoc(refHeroe(), cambios);
+  // Hasta que llegue el aviso de Firestore, para no ofrecer otro premio.
+  if (xp) heroe.arcade = heroe.inicio;
+  heroe.records = records;
+  return { xp: xp, record: Math.max(antes, puntos), nuevo: nuevo };
 }
 
 // ---------- Héroe ----------
