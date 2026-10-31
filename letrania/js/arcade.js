@@ -23,6 +23,12 @@
 // Todo se dibuja en un <canvas> con las mismas ilustraciones del juego
 // (fondo de la región, retrato del héroe, guardián): sin librerías ni
 // imágenes nuevas.
+//
+// Profundidad (2,5D): sombras en el suelo y luz de contorno en el héroe
+// siempre; y solo con «Efectos: sí» y sin «reducir movimiento», el héroe
+// respira, el paisaje lejano se desplaza mucho más despacio que el primer
+// plano (muelle y desierto) y en la cumbre las cosas nacen pequeñas a lo lejos
+// y crecen al acercarse.
 // ============================================================
 (function () {
   "use strict";
@@ -63,6 +69,8 @@
     const J = JUEGOS[region];
     const tranquilo = !!op.tranquilo;
     const efectos = !!op.efectos;
+    const reducir = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const mov = efectos && !reducir;
     const esc = L.esc;
 
     op.raiz.innerHTML = `<div class="parch arcade ${op.uni ? "uni" : ""}">
@@ -144,20 +152,38 @@
       return true;
     }
 
-    const juego = CREAR[region]({ cx, img, teclas, pulsadas, f, sumar, golpe, tranquilo, azar, choca, efectos, H, W });
+    const juego = CREAR[region]({ cx, img, teclas, pulsadas, f, sumar, golpe, tranquilo, azar, choca, efectos, mov, t: () => t, H, W });
 
     // ---------- Dibujo común ----------
+    // El paisaje se escala UNA vez a un lienzo aparte (con el oscurecido ya
+    // aplicado): copiarlo en cada fotograma es mucho más barato para los
+    // portátiles lentos que reescalar la acuarela de 1600 px.
+    let paisaje = null;
+    function prepararPaisaje(oscuro) {
+      const movil = mov && juego.fondoX !== undefined;
+      // En movimiento, la acuarela se amplía un 50 % y se recorre de
+      // izquierda a derecha UNA vez en toda la partida: sin repetirse.
+      const r = Math.max(W / img.fondo.naturalWidth, H / img.fondo.naturalHeight) * (movil ? 1.5 : 1);
+      const w = Math.ceil(img.fondo.naturalWidth * r);
+      const h = Math.ceil(img.fondo.naturalHeight * r);
+      const c = document.createElement("canvas");
+      c.width = movil ? w : W;
+      c.height = H;
+      const k = c.getContext("2d");
+      k.drawImage(img.fondo, movil ? 0 : (W - w) / 2, (H - h) / 2, w, h);
+      k.fillStyle = "rgba(21,24,51," + (oscuro === undefined ? 0.25 : oscuro) + ")";
+      k.fillRect(0, 0, c.width, c.height);
+      paisaje = { c: c, movil: movil };
+    }
     function fondo(oscuro) {
-      cx.fillStyle = "#20254a";
-      cx.fillRect(0, 0, W, H);
-      if (lista(img.fondo)) {
-        const r = Math.max(W / img.fondo.naturalWidth, H / img.fondo.naturalHeight);
-        const w = img.fondo.naturalWidth * r;
-        const h = img.fondo.naturalHeight * r;
-        cx.drawImage(img.fondo, (W - w) / 2, (H - h) / 2, w, h);
+      if (!paisaje && lista(img.fondo)) prepararPaisaje(oscuro);
+      if (!paisaje) {
+        cx.fillStyle = "#20254a";
+        cx.fillRect(0, 0, W, H);
+        return;
       }
-      cx.fillStyle = "rgba(21,24,51," + (oscuro === undefined ? 0.25 : oscuro) + ")";
-      cx.fillRect(0, 0, W, H);
+      if (paisaje.movil) cx.drawImage(paisaje.c, -Math.min(paisaje.c.width - W, juego.fondoX), 0);
+      else cx.drawImage(paisaje.c, 0, 0);
     }
     function aviso(lineas) {
       cx.fillStyle = "rgba(21,24,51,.72)";
@@ -242,13 +268,29 @@
     }
     if (lista(img.heroe)) {
       const w = (img.heroe.naturalWidth / img.heroe.naturalHeight) * alto;
-      const h = agachado ? alto * 0.55 : alto;
+      const respira = g.mov && !agachado ? 1 + 0.02 * Math.sin(g.t() * 4) : 1;
+      const h = (agachado ? alto * 0.55 : alto) * respira;
+      // Luz de contorno arriba a la izquierda (sombra sin desenfoque: barata).
+      cx.shadowColor = "rgba(255,236,190,.55)";
+      cx.shadowOffsetX = -2;
+      cx.shadowOffsetY = -2;
       cx.drawImage(img.heroe, x - w / 2, y - h, w, h);
+      cx.shadowColor = "transparent";
+      cx.shadowOffsetX = 0;
+      cx.shadowOffsetY = 0;
     } else {
       cx.fillStyle = "#c0582f";
       cx.fillRect(x - 20, y - (agachado ? alto * 0.55 : alto), 40, agachado ? alto * 0.55 : alto);
     }
     cx.globalAlpha = 1;
+  }
+  // Sombra en el suelo; se encoge y aclara cuanto más lejos está del suelo.
+  function sombra(cx, x, y, ancho, altura) {
+    const k = Math.max(0.35, 1 - (altura || 0) / 320);
+    cx.fillStyle = "rgba(20,12,6," + (0.4 * k).toFixed(3) + ")";
+    cx.beginPath();
+    cx.ellipse(x, y, (ancho / 2) * k, (ancho / 7) * k, 0, 0, Math.PI * 2);
+    cx.fill();
   }
   function figura(g, im, x, y, alto, colorSiNo) {
     const { cx } = g;
@@ -322,9 +364,13 @@
     const obs = [];
     const mon = [];
     let rayas = 0;
+    let medio = 0;
     return {
+      fondoX: 0,
       mover(dt) {
         const v = 380 * g.f();
+        this.fondoX += v * 0.03 * dt;
+        medio = (medio + v * 0.55 * dt) % 240;
         if (g.pulsadas.indexOf("up") !== -1 && y >= SUELO) vy = -900;
         vy += 2200 * dt;
         y = Math.min(SUELO, y + vy * dt);
@@ -366,6 +412,19 @@
         agachadoAhora = agachado;
       },
       dibujar(respiro) {
+        if (g.mov) {
+          // Capa media: bolardos y cabo del muelle, a media velocidad.
+          cx.fillStyle = "rgba(60,35,18,.75)";
+          cx.strokeStyle = "rgba(60,35,18,.6)";
+          cx.lineWidth = 3;
+          for (let x = -medio; x < W + 240; x += 240) {
+            cx.fillRect(x, SUELO - 38, 18, 38);
+            cx.beginPath();
+            cx.moveTo(x + 9, SUELO - 30);
+            cx.quadraticCurveTo(x + 129, SUELO - 8, x + 249, SUELO - 30);
+            cx.stroke();
+          }
+        }
         cx.fillStyle = "#5a3a1e";
         cx.fillRect(0, SUELO, W, 70);
         cx.fillStyle = "#7a5230";
@@ -387,20 +446,32 @@
           }
         });
         mon.forEach((m) => moneda(cx, m.x, m.y, m.r, m.l));
+        obs.forEach((o) => o.alta || sombra(cx, o.x + o.w / 2, SUELO + 2, o.w + 10, 0));
+        sombra(cx, X, SUELO + 2, 70, SUELO - y);
         heroe(g, X, y, 100, respiro, agachadoAhora);
       },
     };
   };
 
   // 2 · Descenso de la cumbre: bajar esquivando rocas y pinos (← →) y
-  // recogiendo tildes doradas.
+  // recogiendo tildes doradas. Con efectos, en perspectiva: todo nace
+  // pequeño en el horizonte y crece al acercarse (como los juegos de
+  // carreras antiguos).
   CREAR[2] = function (g) {
     const { cx, W, H } = g;
     const Y = 440;
+    const HORIZONTE = 150;
     let x = W / 2;
     let siguiente = 0.5;
     const cosas = [];
     const copos = Array.from({ length: 40 }, () => ({ x: Math.random() * W, y: Math.random() * H, v: g.azar(30, 80) }));
+    // Posición en pantalla y escala de cada cosa (lx va de -1 a 1).
+    function vista(c) {
+      if (!g.mov) return { x: W / 2 + c.lx * (W / 2 - 40), y: c.y, k: 1 };
+      const sp = Math.max(0, (c.y - HORIZONTE) / (Y - HORIZONTE));
+      const k = 0.3 + 0.7 * sp;
+      return { x: W / 2 + c.lx * (W / 2 - 40) * k, y: c.y, k: k };
+    }
     return {
       oscuro: 0.1,
       mover(dt) {
@@ -411,18 +482,21 @@
         const v = 300 * g.f();
         if ((siguiente -= dt) <= 0) {
           const tipo = Math.random() < (g.tranquilo ? 0.55 : 0.35) ? "tilde" : Math.random() < 0.5 ? "roca" : "pino";
-          cosas.push({ tipo: tipo, x: g.azar(40, W - 40), y: -40, r: tipo === "tilde" ? (g.tranquilo ? 30 : 22) : 28 });
+          cosas.push({ tipo: tipo, lx: g.azar(-1, 1), y: g.mov ? HORIZONTE : -40, r: tipo === "tilde" ? (g.tranquilo ? 30 : 22) : 28 });
           siguiente = g.azar(0.35, 0.7) / g.f();
         }
         const yo = { x: x - 22, y: Y - 70, w: 44, h: 64 };
         for (let i = cosas.length - 1; i >= 0; i--) {
           const c = cosas[i];
-          c.y += v * dt;
-          if (choca(yo, { x: c.x - c.r, y: c.y - c.r, w: c.r * 2, h: c.r * 2 })) {
-            if (c.tipo === "tilde") g.sumar(10, c.x, c.y);
+          if (g.mov) c.y += v * (0.35 + 0.95 * Math.max(0, (c.y - HORIZONTE) / (Y - HORIZONTE))) * dt;
+          else c.y += v * dt;
+          const p = vista(c);
+          const r = c.r * p.k;
+          if (p.k > 0.75 && choca(yo, { x: p.x - r, y: p.y - r, w: r * 2, h: r * 2 })) {
+            if (c.tipo === "tilde") g.sumar(10, p.x, p.y);
             else g.golpe(15);
             cosas.splice(i, 1);
-          } else if (c.y > H + 40) {
+          } else if (c.y > H + 60) {
             if (c.tipo !== "tilde") g.sumar(2);
             cosas.splice(i, 1);
           }
@@ -435,32 +509,50 @@
       dibujar(respiro) {
         cx.fillStyle = "rgba(240,248,255,.45)";
         cx.fillRect(0, 0, W, H);
+        if (g.mov) {
+          // Bordes de la pista hacia el horizonte.
+          cx.strokeStyle = "rgba(255,255,255,.55)";
+          cx.lineWidth = 3;
+          cx.beginPath();
+          cx.moveTo(W / 2 - (W / 2 - 40) * 0.3, HORIZONTE);
+          cx.lineTo(0, H);
+          cx.moveTo(W / 2 + (W / 2 - 40) * 0.3, HORIZONTE);
+          cx.lineTo(W, H);
+          cx.stroke();
+        }
         cx.fillStyle = "#fff";
         copos.forEach((c) => cx.fillRect(c.x, c.y, 3, 3));
-        cosas.forEach((c) => {
-          if (c.tipo === "tilde") {
-            moneda(cx, c.x, c.y, c.r, "´");
-          } else if (c.tipo === "roca") {
-            cx.fillStyle = "#7d8597";
-            cx.beginPath();
-            cx.ellipse(c.x, c.y, c.r + 6, c.r, 0, 0, Math.PI * 2);
-            cx.fill();
-            cx.fillStyle = "#a8b0c0";
-            cx.beginPath();
-            cx.ellipse(c.x - 8, c.y - 8, 10, 6, 0, 0, Math.PI * 2);
-            cx.fill();
-          } else {
-            cx.fillStyle = "#2f6b3e";
-            cx.beginPath();
-            cx.moveTo(c.x, c.y - c.r - 10);
-            cx.lineTo(c.x + c.r, c.y + c.r);
-            cx.lineTo(c.x - c.r, c.y + c.r);
-            cx.closePath();
-            cx.fill();
-            cx.fillStyle = "#fff";
-            cx.fillRect(c.x - 10, c.y - c.r + 2, 20, 6);
-          }
-        });
+        cosas
+          .slice()
+          .sort((a, b) => a.y - b.y)
+          .forEach((c) => {
+            const p = vista(c);
+            const r = c.r * p.k;
+            if (c.tipo !== "tilde") sombra(cx, p.x + 6 * p.k, p.y + r, r * 2.4, 0);
+            if (c.tipo === "tilde") {
+              moneda(cx, p.x, p.y, r, "´");
+            } else if (c.tipo === "roca") {
+              cx.fillStyle = "#7d8597";
+              cx.beginPath();
+              cx.ellipse(p.x, p.y, r + 6 * p.k, r, 0, 0, Math.PI * 2);
+              cx.fill();
+              cx.fillStyle = "#a8b0c0";
+              cx.beginPath();
+              cx.ellipse(p.x - 8 * p.k, p.y - 8 * p.k, 10 * p.k, 6 * p.k, 0, 0, Math.PI * 2);
+              cx.fill();
+            } else {
+              cx.fillStyle = "#2f6b3e";
+              cx.beginPath();
+              cx.moveTo(p.x, p.y - r - 10 * p.k);
+              cx.lineTo(p.x + r, p.y + r);
+              cx.lineTo(p.x - r, p.y + r);
+              cx.closePath();
+              cx.fill();
+              cx.fillStyle = "#fff";
+              cx.fillRect(p.x - 10 * p.k, p.y - r + 2 * p.k, 20 * p.k, 6 * p.k);
+            }
+          });
+        sombra(cx, x + 6, Y + 6, 90, 0);
         cx.fillStyle = "#c0582f";
         cx.fillRect(x - 32, Y - 6, 64, 10);
         heroe(g, x, Y, 80, respiro);
@@ -549,7 +641,13 @@
         cx.font = "bold 22px Andika, sans-serif";
         cx.fillText("Orilla", 12, ARRIBA + 48);
         monedas.forEach((m) => moneda(cx, m.col * C + C / 2, ARRIBA + m.fila * C + C / 2, g.tranquilo ? 26 : 20, m.l));
-        carriles.forEach((c) => c.sapos.forEach((s) => figura(g, g.img.guardian, s.x, ARRIBA + c.fila * C + C / 2, 64, "#5f8f3e")));
+        carriles.forEach((c) =>
+          c.sapos.forEach((s) => {
+            sombra(cx, s.x + 4, ARRIBA + c.fila * C + C - 10, 60, 0);
+            figura(g, g.img.guardian, s.x, ARRIBA + c.fila * C + C / 2, 64, "#5f8f3e");
+          })
+        );
+        sombra(cx, col * C + C / 2 + 4, ARRIBA + fila * C + C - 4, 56, 0);
         heroe(g, col * C + C / 2, ARRIBA + fila * C + C - 4, 72, respiro);
       },
     };
@@ -685,7 +783,11 @@
           cx.ellipse(x, y, g.tranquilo ? 11 : 8, g.tranquilo ? 6 : 4.5, -0.6, 0, Math.PI * 2);
           cx.fill();
         });
-        enemigos.forEach((e) => figura(g, g.img.guardian, OX + e.c * C + C / 2, e.f * C + C / 2, 54, "#8a4a2f"));
+        enemigos.forEach((e) => {
+          sombra(cx, OX + e.c * C + C / 2 + 4, e.f * C + C - 6, 44, 0);
+          figura(g, g.img.guardian, OX + e.c * C + C / 2, e.f * C + C / 2, 54, "#8a4a2f");
+        });
+        sombra(cx, OX + yo.c * C + C / 2 + 4, yo.f * C + C - 4, 46, 0);
         heroe(g, OX + yo.c * C + C / 2, yo.f * C + C - 2, 64, respiro);
       },
     };
@@ -699,9 +801,13 @@
     let y = H / 2;
     let siguiente = 0.8;
     const cols = [];
+    let dunas = 0;
     return {
       oscuro: 0.2,
+      fondoX: 0,
       mover(dt) {
+        this.fondoX += 260 * g.f() * 0.04 * dt;
+        dunas += 260 * g.f() * 0.45 * dt;
         const vel = g.tranquilo ? 300 : 420;
         if (g.teclas.up) y -= vel * dt;
         if (g.teclas.down) y += vel * dt;
@@ -735,6 +841,17 @@
         }
       },
       dibujar(respiro) {
+        if (g.mov) {
+          // Capa media: dunas a media velocidad.
+          cx.fillStyle = "rgba(160,95,45,.55)";
+          cx.beginPath();
+          cx.moveTo(0, H);
+          for (let x = 0; x <= W; x += 20) cx.lineTo(x, H - 70 - 26 * Math.sin((x + dunas) / 110) - 14 * Math.sin((x + dunas) / 47));
+          cx.lineTo(W, H);
+          cx.closePath();
+          cx.fill();
+        }
+        sombra(cx, X + 10, H - 22, 80, H - 22 - y);
         cols.forEach((c) => {
           [[0, c.arriba], [c.abajo, H - c.abajo]].forEach(([y0, h]) => {
             cx.fillStyle = "#c98f55";
@@ -790,6 +907,7 @@
         if (!g.tranquilo) figura(g, g.img.guardian, bx, 60, 110, "#1b1530");
         caen.forEach((c) => (c.malo ? borron(cx, c.x, c.y, c.r) : gema(cx, c.x, c.y, c.r)));
         if (respiro > 0) cx.globalAlpha = g.efectos && Math.floor(respiro * 10) % 2 === 0 ? 0.3 : 0.6;
+        sombra(cx, x + 8, H - 34, ANCHO * 1.1, 0);
         if (lista(g.img.cofre)) {
           const h = (g.img.cofre.naturalHeight / g.img.cofre.naturalWidth) * ANCHO;
           cx.drawImage(g.img.cofre, x - ANCHO / 2, H - 120 - h * 0.25, ANCHO, h);

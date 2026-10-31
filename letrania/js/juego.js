@@ -127,13 +127,14 @@
       const frac = G && G.fase === "fin" ? 1 : total ? hechos / total : 0;
       const izq = 6 + frac * 72;
       const guardian = G && (G.fase === "calentamiento" || (G.modo === "guardian" && !(G.fase === "fin" && G.gana)))
-        ? `<img class="esc-guardian ${efectos() ? "flota" : ""} ${G.golpe ? "golpe" : ""}" src="${srcImg(r.gimg)}" alt="${esc(r.guardian)}">`
+        ? `<span class="esc-sombra sombra-guardian ${efectos() ? "flota" : ""}" aria-hidden="true"></span><img class="esc-guardian ${efectos() ? "flota" : ""} ${G.golpe ? "golpe" : ""}" src="${srcImg(r.gimg)}" alt="${esc(r.guardian)}">`
         : "";
       return `<div class="escena" style="background-image:url('${srcImg("fondo-" + (ri + 1))}'),url('${srcImg("mapa")}')">
           <div class="pasos" aria-hidden="true">${pasos}</div>
-          <img class="esc-cofre" src="${srcImg("cofre")}" alt="">
+          <span class="esc-sombra sombra-cofre" aria-hidden="true"></span><img class="esc-cofre" src="${srcImg("cofre")}" alt="">
           ${guardian}
-          <img class="esc-heroe" src="${srcImg(H().retrato || "maga-1")}" alt="Tu héroe" style="left:${izq}%">
+          <span class="esc-sombra sombra-heroe" aria-hidden="true" style="left:${izq}%"></span>
+          <img class="esc-heroe ${efectos() ? "respira" : ""}" src="${srcImg(H().retrato || "maga-1")}" alt="Tu héroe" style="left:${izq}%">
         </div>`;
     }
 
