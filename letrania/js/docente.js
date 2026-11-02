@@ -422,7 +422,7 @@ $("#verInforme").addEventListener("click", async () => {
     $("#informe").innerHTML =
       `<p class="nota">${rondas} rondas. Grupo · estación · contenido: % de ítems fallados a la primera.</p>` +
       `<div class="barras-informe">${filas
-        .map((r, i) => `<div class="fila-informe"><span>${esc(r.k)}</span><span class="barra-informe"><i style="width:${r.pct}%;background:${i === 0 ? "var(--terra)" : "#d99a3d"}"></i></span><b>${r.pct}%</b><span class="nick">${r.n} ítems</span></div>`)
+        .map((r, i) => `<div class="fila-informe"><span>${esc(r.k)}</span><span class="barra-informe"><i style="width:${r.pct}%;background:${i === 0 ? "var(--terra)" : "#d99a3d"}"></i></span><b>${r.pct}%</b><span class="nick">${esc(r.n)} ítems</span></div>`)
         .join("")}</div>` +
       (palabras.length ? `<h3 style="margin-top:14px;color:var(--terra)">Lo que más se falla</h3><p>${palabras.map((p) => esc(p) + " (" + porPalabra[p] + ")").join(" · ")}</p>` : "");
   } catch (err) {

@@ -17,15 +17,34 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { db } from "./firebase-init.js";
 
+// Los datos de dailyStats y gamification los escribe el dispositivo del
+// alumno (y cualquiera que conozca su clave), así que aquí no se confía en
+// ellos: todo texto se escapa antes de ir a innerHTML y todo número se
+// convierte en número. Si no, un "aciertos" con HTML dentro ejecutaría
+// código en el panel del docente, con su sesión abierta.
+function escHtml(v) {
+  return String(v == null ? "" : v)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function num(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
 function findTopicLabel(topicId) {
   for (const section of NAV) {
     for (const group of section.groups || []) {
       for (const item of group.items || []) {
-        if (item.id === topicId) return item.label;
+        if (item.id === topicId) return escHtml(item.label);
       }
     }
   }
-  return topicId;
+  return escHtml(topicId);
 }
 
 function formatTs(ts) {
@@ -35,7 +54,8 @@ function formatTs(ts) {
 }
 
 function formatDateKey(dateKey) {
-  if (!dateKey || dateKey.length !== 8) return dateKey;
+  if (!dateKey || dateKey.length !== 8) return escHtml(dateKey);
+  dateKey = escHtml(dateKey);
   return dateKey.slice(6, 8) + "/" + dateKey.slice(4, 6) + "/" + dateKey.slice(0, 4);
 }
 
@@ -74,9 +94,9 @@ async function renderStudentActivity(container, code, data, classNames) {
             " · " +
             findTopicLabel(s.topicId) +
             "</div><div class=\"review-item-text\">" +
-            (s.aciertos || 0) +
+            num(s.aciertos) +
             " aciertos · " +
-            (s.fallos || 0) +
+            num(s.fallos) +
             " fallos</div></div>"
           );
         })
@@ -84,9 +104,9 @@ async function renderStudentActivity(container, code, data, classNames) {
 
   card.innerHTML =
     "<h2>" +
-    data.nickname +
+    escHtml(data.nickname) +
     " <span class=\"content-subtitle\">(" +
-    (classNames[data.classId] || "clase") +
+    escHtml(classNames[data.classId] || "clase") +
     ")</span></h2>" +
     "<h3>Últimos inicios de sesión</h3><ul class=\"activity-login-list\">" +
     loginsHtml +

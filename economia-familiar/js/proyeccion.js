@@ -13,7 +13,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.2/f
 import { db, auth } from "./firebase-init.js";
 import { NOMBRES_MES } from "./catalogos.js";
 import { euros } from "./motor.js";
-import { graficaLineas, PALETA_FAMILIAS, el, escapaHtml } from "./comun.js";
+import { graficaLineas, PALETA_FAMILIAS, el, escapaHtml, saneaFamilia, saneaMes } from "./comun.js";
 
 const $ = el;
 
@@ -49,8 +49,8 @@ async function cargarPartida(pid) {
     getDocs(query(collection(db, "ecoMeses"), where("partidaId", "==", pid), where("teacherId", "==", uid))),
   ]);
   partida = { id: pid, ...pSnap.data() };
-  familias = fSnap.docs.map((d) => ({ codigo: d.id, ...d.data() }));
-  meses = mSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  familias = fSnap.docs.map((d) => saneaFamilia({ codigo: d.id, ...d.data() }));
+  meses = mSnap.docs.map((d) => saneaMes({ id: d.id, ...d.data() }));
   pintar();
 }
 

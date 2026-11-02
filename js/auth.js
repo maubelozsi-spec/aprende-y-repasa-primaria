@@ -104,6 +104,7 @@ function clearStudentSession() {
     localStorage.removeItem(STUDENT_SESSION_KEY);
     localStorage.removeItem(VISIBILITY_STORAGE_KEY);
     localStorage.removeItem(SOLUCIONES_STORAGE_KEY);
+    localStorage.removeItem(SESION_REGISTRADA_KEY);
   } catch (e) {
     // localStorage no disponible.
   }
@@ -203,10 +204,41 @@ function normalizeCode(code) {
     .replace(/[^A-Z0-9]/g, "");
 }
 
+// Ficha sesionesAlumno/{uid}: le dice a las reglas de Firestore de qué
+// alumno (y, por tanto, de qué docente) es esta sesión anónima. Sin
+// ella, las reglas no tienen forma de saber a qué clase pertenece una
+// sesión anónima y tendrían que dejar leer los datos de la Novela
+// Colectiva a CUALQUIER sesión, que es justo lo que permitía sacar las
+// claves de todo el alumnado. Solo se escribe cuando cambia la sesión
+// o la clave (no en cada carga), para no gastar escrituras.
+const SESION_REGISTRADA_KEY = "ar_sesion_registrada";
+
+async function registrarSesionAlumno(code, teacherId) {
+  const uid = auth.currentUser && auth.currentUser.uid;
+  if (!uid || !code || !teacherId) return;
+  const marca = uid + "|" + code + "|" + teacherId;
+  try {
+    if (localStorage.getItem(SESION_REGISTRADA_KEY) === marca) return;
+  } catch (e) {
+    // localStorage no disponible: se escribe igualmente.
+  }
+  await setDoc(doc(db, "sesionesAlumno", uid), {
+    code: code,
+    teacherId: teacherId,
+    ts: serverTimestamp(),
+  });
+  try {
+    localStorage.setItem(SESION_REGISTRADA_KEY, marca);
+  } catch (e) {
+    // localStorage no disponible.
+  }
+}
+
 async function claimStudentCode(rawCode) {
   const code = normalizeCode(rawCode);
   if (!code) throw new Error("Introduce la clave que te ha dado tu profesor o profesora.");
 
+  await auth.authStateReady();
   if (!auth.currentUser) {
     await signInAnonymously(auth);
   }
@@ -227,6 +259,13 @@ async function claimStudentCode(rawCode) {
     ts: serverTimestamp(),
     ua: navigator.userAgent.slice(0, 120),
   });
+
+  try {
+    await registrarSesionAlumno(code, data.teacherId);
+  } catch (e) {
+    // Sin la ficha solo falla la Novela Colectiva; se reintenta en la
+    // siguiente carga (refreshStudentDevice).
+  }
 
   const profile = {
     code: code,
@@ -252,11 +291,16 @@ async function refreshStudentDevice() {
   const session = loadStudentSession();
   if (!session || !session.code) return;
   try {
+    // Espera a que Firebase recupere la sesión guardada: si no, al cargar
+    // la página currentUser aún es null y se abriría una sesión anónima
+    // nueva en cada visita.
+    await auth.authStateReady();
     if (!auth.currentUser) await signInAnonymously(auth);
     await updateDoc(doc(db, "students", session.code), {
       authUid: auth.currentUser.uid,
       lastLoginAt: serverTimestamp(),
     });
+    await registrarSesionAlumno(session.code, session.teacherId);
   } catch (e) {
     // Sin conexión o clave desactivada: se sigue practicando en local.
   }

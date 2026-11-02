@@ -33,7 +33,10 @@ async function pintar() {
   cont.innerHTML = '<p class="texto-suave">Buscando tus novelas…</p>';
   let lista = [];
   try {
-    lista = await proyectosDelAlumno(s.code);
+    // Antes de leer, la sesión tiene que estar registrada como la de este
+    // alumno (sesionesAlumno), o las reglas no dejan ver sus novelas.
+    if (window.Auth.dispositivoListo) await window.Auth.dispositivoListo;
+    lista = await proyectosDelAlumno(s.code, s.teacherId);
   } catch (e) {
     cont.innerHTML = '<p class="aviso-caja error">No he podido conectar. Comprueba el wifi e inténtalo otra vez.</p>';
     return;

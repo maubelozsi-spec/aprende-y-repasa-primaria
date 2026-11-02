@@ -22,7 +22,7 @@ import {
 } from "./motor.js";
 import {
   CLAVE_SESION_DOCENTE, guardarSesion, cargarSesion, borrarSesion,
-  aviso, confirmar, graficaLineas, PALETA_FAMILIAS, el, escapaHtml,
+  aviso, confirmar, graficaLineas, PALETA_FAMILIAS, el, escapaHtml, saneaFamilia, saneaMes,
 } from "./comun.js";
 
 const $ = el;
@@ -221,9 +221,9 @@ async function abrirPartida(pid) {
     getDocs(query(collection(db, "ecoPrestamosFamilias"), where("partidaId", "==", pid))),
   ]);
   partida = { id: pid, ...pSnap.data() };
-  familias = fSnap.docs.map((d) => ({ codigo: d.id, ...d.data() })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  familias = fSnap.docs.map((d) => saneaFamilia({ codigo: d.id, ...d.data() })).sort((a, b) => a.nombre.localeCompare(b.nombre));
   eventos = eSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-  meses = mSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  meses = mSnap.docs.map((d) => saneaMes({ id: d.id, ...d.data() }));
   prestamos = prSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
   pintarPartida();
 }
@@ -382,8 +382,8 @@ async function recargarDatosPartida() {
     getDocs(query(collection(db, "ecoMeses"), where("partidaId", "==", partida.id), where("teacherId", "==", docente.uid))),
     getDocs(query(collection(db, "ecoPrestamosFamilias"), where("partidaId", "==", partida.id))),
   ]);
-  familias = fSnap.docs.map((d) => ({ codigo: d.id, ...d.data() })).sort((a, b) => a.nombre.localeCompare(b.nombre));
-  meses = mSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  familias = fSnap.docs.map((d) => saneaFamilia({ codigo: d.id, ...d.data() })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  meses = mSnap.docs.map((d) => saneaMes({ id: d.id, ...d.data() }));
   prestamos = prSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 

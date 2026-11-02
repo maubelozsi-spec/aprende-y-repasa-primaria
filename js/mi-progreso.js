@@ -143,7 +143,10 @@ function renderProgressOwner() {
   const titulo = document.getElementById("progress-title");
   if (alumno) {
     if (titulo) titulo.textContent = "Progreso de " + alumno.nickname;
-    el.innerHTML = "Has entrado como <strong>" + alumno.nickname + "</strong>.";
+    el.textContent = "Has entrado como ";
+    const fuerte = document.createElement("strong");
+    fuerte.textContent = alumno.nickname;
+    el.append(fuerte, ".");
   } else {
     el.innerHTML =
       "<strong>Sin identificar:</strong> nadie ha entrado con su clave en este navegador, así que estos datos no están asociados a ningún alumno concreto.";

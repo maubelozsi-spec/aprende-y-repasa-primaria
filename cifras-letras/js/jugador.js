@@ -669,12 +669,12 @@ function resumenRondaCerrada(r) {
       "</strong> · <strong style='color:var(--acento);'>+" + (mia.puntos || 0) + " puntos</strong></p>";
   }
   html += deRonda.map((resp) =>
-    '<div class="fila-respuesta ' + resp.estado + '">' +
+    '<div class="fila-respuesta ' + escapaHtml(resp.estado) + '">' +
     '<span class="nombre">' + escapaHtml(resp.nombre) + "</span>" +
     '<span class="jugada">' + (r.tipo === "letras"
       ? escapaHtml(String(resp.palabra || "").toUpperCase())
       : escapaHtml(String(resp.resultado != null ? resp.resultado : "—"))) + "</span>" +
-    '<span style="font-weight:800; color:var(--acento);">+' + (resp.puntos || 0) + "</span>" +
+    '<span style="font-weight:800; color:var(--acento);">+' + (Number(resp.puntos) || 0) + "</span>" +
     "</div>").join("") || '<p class="texto-suave">Nadie envió respuesta.</p>';
   if (r.solucion) {
     html += '<div class="centrado"><div class="solucion-caja">' + (r.tipo === "letras"
@@ -696,7 +696,7 @@ function pintarPodio() {
     html += '<div class="puesto ' + clases[idx] + '">' +
       '<div class="emoji">' + emojis[idx] + "</div>" +
       '<div class="nombre">' + escapaHtml(j.nombre) + "</div>" +
-      '<div class="pts">' + (j.puntos || 0) + " pts</div></div>";
+      '<div class="pts">' + (Number(j.puntos) || 0) + " pts</div></div>";
   }
   html += "</div>";
   const yo = jugadores.find((j) => j.id === sesion.jugadorId);
@@ -716,6 +716,6 @@ function pintarMarcador() {
     jugadores.map((j, i) =>
       '<tr class="' + (j.id === sesion.jugadorId ? "yo" : "") + '"><td>' + (medallas[i] || (i + 1) + "º") + "</td><td>" +
       escapaHtml(j.nombre) + (j.esAnfitrion ? " 🎙️" : "") + "</td>" +
-      '<td class="puntos">' + (j.puntos || 0) + "</td></tr>").join("") +
+      '<td class="puntos">' + (Number(j.puntos) || 0) + "</td></tr>").join("") +
     "</table>";
 }

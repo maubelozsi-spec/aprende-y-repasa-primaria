@@ -58,15 +58,34 @@ async function genUniqueCode() {
 
 // ---------------- Progreso del alumnado ----------------
 
+// Los datos de dailyStats y gamification los escribe el dispositivo del
+// alumno (y cualquiera que conozca su clave), así que aquí no se confía en
+// ellos: todo texto se escapa antes de ir a innerHTML y todo número se
+// convierte en número. Si no, un "aciertos" con HTML dentro ejecutaría
+// código en el panel del docente, con su sesión abierta.
+function escHtml(v) {
+  return String(v == null ? "" : v)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function num(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
 function etiquetaDeTema(topicId) {
   for (const section of NAV) {
     for (const group of section.groups || []) {
       for (const item of group.items || []) {
-        if (item.id === topicId) return item.label;
+        if (item.id === topicId) return escHtml(item.label);
       }
     }
   }
-  return topicId;
+  return escHtml(topicId);
 }
 
 function formatearFechaHora(ts) {
@@ -89,11 +108,12 @@ async function estadisticasDeAlumno(code) {
   snap.forEach((d) => {
     const s = d.data();
     if (!s.topicId) return;
-    if (!porTema[s.topicId]) porTema[s.topicId] = { aciertos: 0, fallos: 0 };
-    porTema[s.topicId].aciertos += s.aciertos || 0;
-    porTema[s.topicId].fallos += s.fallos || 0;
-    aciertos += s.aciertos || 0;
-    fallos += s.fallos || 0;
+    const tema = String(s.topicId);
+    if (!Object.prototype.hasOwnProperty.call(porTema, tema)) porTema[tema] = { aciertos: 0, fallos: 0 };
+    porTema[tema].aciertos += num(s.aciertos);
+    porTema[tema].fallos += num(s.fallos);
+    aciertos += num(s.aciertos);
+    fallos += num(s.fallos);
   });
   return { porTema, aciertos, fallos };
 }
@@ -112,7 +132,16 @@ async function progresoChispa(code) {
 // Solo los ciclos en los que ha superado algún reto.
 function ciclosChispaJugados(resumen) {
   return Object.keys(CICLOS_CHISPA)
-    .map((c) => Object.assign({ ciclo: CICLOS_CHISPA[c] }, (resumen || {})[c] || {}))
+    .map((c) => {
+      const r = (resumen || {})[c] || {};
+      return {
+        ciclo: CICLOS_CHISPA[c],
+        retos: num(r.retos),
+        total: num(r.total) || 1,
+        estrellas: num(r.estrellas),
+        zona: r.zona ? escHtml(r.zona) : "",
+      };
+    })
     .filter((r) => r.retos > 0);
 }
 
@@ -405,7 +434,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const abrir = document.createElement("button");
         abrir.type = "button";
         abrir.className = "content-list-item class-list-item";
-        abrir.innerHTML = `<div class="content-list-text"><strong>${data.name}</strong></div>`;
+        abrir.innerHTML = `<div class="content-list-text"><strong>${escHtml(data.name)}</strong></div>`;
         abrir.addEventListener("click", () => openClass(docSnap.id, data));
 
         const acciones = document.createElement("div");
@@ -540,7 +569,7 @@ document.addEventListener("DOMContentLoaded", () => {
         await refreshStudents();
       } catch (err) {
         studentListEl.innerHTML =
-          '<p class="content-subtitle">No se ha podido cargar la lista de alumnos: ' + err.message + "</p>";
+          '<p class="content-subtitle">No se ha podido cargar la lista de alumnos: ' + escHtml(err.message) + "</p>";
       }
     }
 
@@ -582,7 +611,7 @@ document.addEventListener("DOMContentLoaded", () => {
           .map(
             (f) =>
               "<tr>" +
-              "<td><strong>" + f.nombre + "</strong></td>" +
+              "<td><strong>" + escHtml(f.nombre) + "</strong></td>" +
               "<td>" + f.ultimo + "</td>" +
               "<td>" + (f.temas || "—") + "</td>" +
               '<td class="ok">' + f.aciertos + "</td>" +
@@ -627,8 +656,8 @@ document.addEventListener("DOMContentLoaded", () => {
         row.className = "student-row" + (data.active === false ? " inactive" : "");
         row.innerHTML = `
           <div class="student-row-main">
-            <strong>${data.nickname}</strong>
-            <span class="student-key">Clave: <span class="student-code">${code}</span></span>
+            <strong>${escHtml(data.nickname)}</strong>
+            <span class="student-key">Clave: <span class="student-code">${escHtml(code)}</span></span>
             <button type="button" class="btn-copiar" data-action="copiar" title="Copiar la clave">Copiar</button>
             ${data.active === false ? '<span class="status-pill status-soon">Desactivado</span>' : ""}
             <span class="status-pill status-personalizado"${data.personalizado === true ? "" : " hidden"} title="Sus contenidos individuales mandan sobre los de la clase">Contenidos personalizados</span>
@@ -675,7 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
             progPanel.appendChild(bloqueChispa);
             progPanel.dataset.cargado = "1";
           } catch (err) {
-            progPanel.innerHTML = '<p class="content-subtitle">No se ha podido cargar el progreso: ' + err.message + "</p>";
+            progPanel.innerHTML = '<p class="content-subtitle">No se ha podido cargar el progreso: ' + escHtml(err.message) + "</p>";
           }
         });
 
@@ -906,7 +935,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     refreshClasses().catch((err) => {
       classListEl.innerHTML =
-        '<p class="content-subtitle">No se han podido cargar tus clases: ' + err.message + "</p>";
+        '<p class="content-subtitle">No se han podido cargar tus clases: ' + escHtml(err.message) + "</p>";
     });
   });
 });
