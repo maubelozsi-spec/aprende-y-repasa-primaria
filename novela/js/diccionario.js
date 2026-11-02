@@ -7,6 +7,11 @@
 // "misma palabra sin tildes" que es la que permite decir
 // "¿le falta la tilde?" en vez de un simple "no la conozco".
 //
+// Además, en segundo plano se carga el diccionario completo de español
+// (diccionario-worker.js). Una palabra que no está aquí pero sí en el
+// completo se da por buena: este vocabulario propio no conoce palabras
+// tan normales como "sudar" o "sensación".
+//
 // AVISO: ningún diccionario es completo. Una palabra que no esté
 // aquí NO es una falta: el corrector la marca como duda y el
 // docente puede darla por buena para todo el proyecto. Los nombres
@@ -341,6 +346,64 @@ export function palabrasDelProyecto() {
 export function existe(palabra) {
   const p = String(palabra || "").toLowerCase();
   return FORMAS.has(p) || DEL_PROYECTO.has(p);
+}
+
+// ---------- diccionario completo (en segundo plano) ----------
+
+const COMPLETO = new Map();       // palabra → true | false
+let trabajador = null;
+let fallido = false;
+let siguienteId = 1;
+const pendientes = new Map();
+
+function arrancarTrabajador() {
+  if (trabajador || fallido) return trabajador;
+  try {
+    trabajador = new Worker(new URL("./diccionario-worker.js", import.meta.url));
+    trabajador.onmessage = (e) => {
+      const { id, resultado, error } = e.data || {};
+      const fin = pendientes.get(id);
+      if (!fin) return;
+      pendientes.delete(id);
+      if (error) { fallido = true; fin(); return; }
+      for (const p in resultado) COMPLETO.set(p, resultado[p] === true);
+      fin();
+    };
+    trabajador.onerror = () => {
+      fallido = true;
+      pendientes.forEach((fin) => fin());
+      pendientes.clear();
+    };
+  } catch (e) {
+    fallido = true;
+    trabajador = null;
+  }
+  return trabajador;
+}
+
+// Empieza a cargar el diccionario completo (tarda unos segundos la
+// primera vez); conviene llamarla al abrir la página.
+export function prepararDiccionarioCompleto() {
+  arrancarTrabajador();
+}
+
+// Consulta en el diccionario completo las palabras que el vocabulario
+// propio no conoce. Nunca falla: si el diccionario no carga o tarda más
+// de `espera` ms, el corrector sigue solo con el vocabulario propio.
+export function comprobarPalabras(lista, espera) {
+  const nuevas = Array.from(new Set((lista || []).map((p) => String(p || "").toLowerCase())))
+    .filter((p) => p.length > 1 && !COMPLETO.has(p) && !existe(p));
+  if (!nuevas.length || !arrancarTrabajador()) return Promise.resolve();
+  const id = siguienteId++;
+  return new Promise((resolver) => {
+    const reloj = setTimeout(() => { pendientes.delete(id); resolver(); }, espera || 15000);
+    pendientes.set(id, () => { clearTimeout(reloj); resolver(); });
+    trabajador.postMessage({ id: id, palabras: nuevas });
+  });
+}
+
+export function existeEnCompleto(palabra) {
+  return COMPLETO.get(String(palabra || "").toLowerCase()) === true;
 }
 
 export function esPropioConocido(palabra) {

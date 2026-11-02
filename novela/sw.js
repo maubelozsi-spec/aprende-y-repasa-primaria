@@ -10,7 +10,7 @@
 // resto de la web). IMPORTANTE: subir CACHE_NAME en cada cambio.
 // ============================================================
 
-const CACHE_NAME = "novela-cache-v3";
+const CACHE_NAME = "novela-cache-v4";
 
 const APP_SHELL = [
   "./",
