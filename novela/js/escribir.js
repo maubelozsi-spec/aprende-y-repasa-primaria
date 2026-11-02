@@ -164,7 +164,7 @@ function abrirDetalle(div, id) {
 
   const mio = f.autorId === estado.sesion.publicId;
   const autor = estado.proyecto.autoriaVisible
-    ? `Escrita por <span class="autor">${escapaHtml(f.autorNombre || "alguien de la clase")}</span>`
+    ? `Escrita por <span class="autor">${escapaHtml((estado.proyecto.nombresAutores || {})[f.autorId] || "alguien de la clase")}</span>`
     : (mio ? "Esta parte la escribiste <strong>tú</strong>" : "Escrita por alguien de la clase");
 
   const caja = document.createElement("div");
@@ -338,7 +338,7 @@ function pintarAvisos(avisos, manual) {
 async function pedirYGuardarFicha(nombre, tipoSugerido) {
   const ficha = await pedirFicha(nombre, tipoSugerido);
   if (!ficha) return null;
-  await crearFicha(estado.proyecto, Object.assign({ autorId: estado.sesion.publicId, autorNombre: estado.sesion.nickname || "" }, ficha));
+  await crearFicha(estado.proyecto, Object.assign({ autorId: estado.sesion.publicId }, ficha));
   anadirPalabrasDelProyecto([ficha.nombre]);
   aviso("Ficha de " + ficha.nombre + " guardada. ¡Gracias!", "exito");
   return ficha;
@@ -529,7 +529,6 @@ async function publicar() {
       await publicarFragmento(estado.proyecto, {
         texto: texto,
         autorId: estado.sesion.publicId,
-        autorNombre: estado.sesion.nickname || "",
         entidades: Array.from(vistos),
         avisos: faltas.length,
       });

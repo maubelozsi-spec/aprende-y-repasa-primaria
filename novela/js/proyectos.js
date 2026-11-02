@@ -12,8 +12,11 @@
 // Identidad del alumnado: los documentos de la novela NUNCA guardan la
 // clave de acceso (la ven todos los compañeros de la novela y, con ella,
 // se entra como ese alumno). Guardan su identificador público
-// (students/{clave}.publicId, aleatorio y sin valor para entrar) y, en
-// lo que escribe, su apodo (autorNombre) para firmar.
+// (students/{clave}.publicId, aleatorio y sin valor para entrar). Lo que
+// escribe NO lleva su nombre: si el docente activa "autoría visible", su
+// panel copia los apodos en el proyecto (nombresAutores) y los borra al
+// desactivarla, para que con la autoría oculta nadie pueda saber, ni
+// mirando los datos, quién escribió cada parte.
 //
 // Nota sobre el plan gratuito: 25 alumnos escuchando la novela en
 // directo gasta lecturas deprisa. Por eso se escucha SOLO el
@@ -150,7 +153,6 @@ export async function publicarFragmento(proyecto, datos) {
       texto: datos.texto,
       textoOriginal: datos.texto,     // lo que escribió el alumno, intacto
       autorId: datos.autorId,
-      autorNombre: String(datos.autorNombre || "").slice(0, 60),
       estado: p.moderacionPrevia ? "pendiente" : "publicado",
       entidades: datos.entidades || [],
       avisosAlPublicar: datos.avisos || 0,
@@ -214,7 +216,6 @@ export async function crearFicha(proyecto, datos) {
     respuestas: datos.respuestas || {},
     estadoNarrativo: datos.estadoNarrativo || "en la historia",
     autorId: datos.autorId,
-    autorNombre: String(datos.autorNombre || "").slice(0, 60),
     creadoEn: serverTimestamp(),
   });
   return ref.id;
@@ -306,6 +307,23 @@ export async function clasesDelDocente(teacherId) {
 
 // ---------- identificador público y migración (panel docente) ----------
 
+// Apodos de los participantes, para guardar en el proyecto SOLO mientras
+// la autoría es visible: { publicId: apodo }.
+export function nombresDeAutores(participantes, alumnos) {
+  const m = {};
+  (participantes || []).forEach((id) => {
+    const a = (alumnos || []).find((x) => x.publicId && x.publicId === id);
+    if (a) m[id] = String(a.nickname || "").slice(0, 60);
+  });
+  return m;
+}
+
+// Lo que hay que escribir en el proyecto según la autoría: los apodos si
+// es visible; si no, borrarlos.
+export function campoNombresAutores(autoriaVisible, participantes, alumnos) {
+  return autoriaVisible ? nombresDeAutores(participantes, alumnos) : deleteField();
+}
+
 // Identificador público de un alumno: aleatorio, sin relación con su clave.
 export function nuevoIdPublico() {
   const bytes = new Uint8Array(9);
@@ -348,6 +366,7 @@ export async function migrarClavesDeNovelas(teacherId, alumnos) {
     ["turnoDe", "cerradorAutorizado", "cerradaPor"].forEach((k) => {
       if (p[k] && idDe(p[k]) !== p[k]) c[k] = idDe(p[k]);
     });
+    if (p.autoriaVisible && !p.nombresAutores) c.nombresAutores = nombresDeAutores(part, alumnos);
     if (Object.keys(c).length) cambios.push([d.ref, c]);
   });
 
@@ -359,7 +378,6 @@ export async function migrarClavesDeNovelas(teacherId, alumnos) {
       const a = porClave.get(f.autorCode);
       cambios.push([d.ref, {
         autorId: a ? a.publicId : "",
-        autorNombre: f.autorNombre || (a ? String(a.nickname || "").slice(0, 60) : ""),
         autorCode: deleteField(),
       }]);
     });

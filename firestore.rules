@@ -441,8 +441,10 @@ service cloud.firestore {
     }
 
     // Lo nuevo que escribe un alumno: en nombre propio, en un proyecto de
-    // su docente en el que está autorizado, sin claves y firmado como mucho
-    // con un apodo corto.
+    // su docente en el que está autorizado, sin claves y sin nombre (con la
+    // autoría oculta, ni mirando los datos se sabe quién escribió cada
+    // parte; los apodos solo los pone el docente en el proyecto, en
+    // nombresAutores, cuando activa la autoría visible).
     function escritoPorAlumno() {
       return esAutor(request.resource.data.autorId)
         && request.resource.data.proyectoId is string
@@ -450,8 +452,7 @@ service cloud.firestore {
         && proyectoNovela(request.resource.data.proyectoId).get("participantes", []).hasAny([request.resource.data.autorId])
         && request.resource.data.teacherId == proyectoNovela(request.resource.data.proyectoId).teacherId
         && !("autorCode" in request.resource.data)
-        && request.resource.data.get("autorNombre", "") is string
-        && request.resource.data.get("autorNombre", "").size() <= 60;
+        && !("autorNombre" in request.resource.data);
     }
 
     match /novProyectos/{proyectoId} {

@@ -116,10 +116,10 @@ novela/
   escrituraAbierta, siguienteOrden, numFragmentos, numPalabras, resumenManual,
   turnoDe, cerradorAutorizado`.
 - `novFragmentos/{id}`: `proyectoId, teacherId, orden, texto, textoOriginal,
-  autorId, autorNombre, estado (publicado|pendiente|cambios|oculto), palabras, creadoEn,
+  autorId, estado (publicado|pendiente|cambios|oculto), palabras, creadoEn,
   editadoEn, vecesEditado`.
 - `novFichas/{id}`: `proyectoId, teacherId, tipo, nombre, respuestas{},
-  estadoNarrativo, autorId, autorNombre`.
+  estadoNarrativo, autorId`.
 - `novNotas/{id}`: `proyectoId, teacherId, fragmentoId, destinatarioId, tipo,
   texto, leido, resuelto`.
 
@@ -127,7 +127,9 @@ Ningún documento de la novela guarda la clave de acceso del alumno: la
 leen todos los compañeros, y con ella se entra como ese alumno. Se guarda
 su identificador público (`students/{clave}.publicId`, aleatorio) en
 `participantes`, `turnoDe`, `cerradorAutorizado`, `cerradaPor`, `autorId` y
-`destinatarioId`, y su apodo en `autorNombre` para firmar. El panel
+`destinatarioId`. Las partes no llevan el nombre de quien las escribe:
+solo si el docente activa la autoría visible, su panel copia los apodos
+en `novProyectos.nombresAutores` (y los borra al desactivarla). El panel
 docente da `publicId` a los alumnos antiguos y migra las novelas que aún
 llevaban claves (`novela/js/proyectos.js`, `migrarClavesDeNovelas`).
 

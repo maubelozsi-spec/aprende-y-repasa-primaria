@@ -75,9 +75,8 @@ function anexoFichas(doc, fichas) {
 
 export function descargarNovela(proyecto, fragmentos, fichas, alumnos) {
   const publicados = fragmentos.filter((f) => f.estado === "publicado");
-  const nombres = new Map(publicados.map((f) => [f.autorId, f.autorNombre]));
-  const autores = Array.from(nombres.keys())
-    .map((id) => nombreDe(alumnos, id, nombres.get(id)));
+  const autores = Array.from(new Set(publicados.map((f) => f.autorId)))
+    .map((id) => nombreDe(alumnos, id, (proyecto.nombresAutores || {})[id]));
   const doc = nuevoDocumento({ titulo: proyecto.titulo });
 
   portada(doc, proyecto, {
@@ -116,7 +115,7 @@ export function descargarCuadernoDocente(proyecto, fragmentos, fichas, notas, al
   for (const f of publicados) {
     const datos = indiceDeFaltas(f.textoOriginal || f.texto);
     doc.parrafo(
-      "#" + f.orden + " · " + nombreDe(alumnos, f.autorId, f.autorNombre) + conClave(alumnos, f.autorId) + " · " +
+      "#" + f.orden + " · " + nombreDe(alumnos, f.autorId) + conClave(alumnos, f.autorId) + " · " +
       datos.palabras + " palabras · " + datos.por100 + " faltas por cada 100 palabras" +
       (f.vecesEditado ? " · corregido " + f.vecesEditado + " vez/veces" : "") +
       (f.estado === "pendiente" ? " · PENDIENTE DE APROBAR" : ""),
@@ -136,14 +135,14 @@ export function descargarCuadernoDocente(proyecto, fragmentos, fichas, notas, al
   doc.salto(10);
   const porAlumno = new Map();
   for (const f of publicados) {
-    const d = porAlumno.get(f.autorId) || { partes: 0, palabras: 0, faltas: 0, total: 0, nombre: f.autorNombre };
+    const d = porAlumno.get(f.autorId) || { partes: 0, palabras: 0, faltas: 0, total: 0 };
     const idx = indiceDeFaltas(f.textoOriginal || f.texto);
     d.partes++; d.palabras += idx.palabras; d.faltas += idx.faltas; d.total += idx.palabras;
     porAlumno.set(f.autorId, d);
   }
   for (const [id, d] of Array.from(porAlumno.entries()).sort((a, b) => b[1].palabras - a[1].palabras)) {
     const por100 = Math.round((d.faltas * 1000) / (d.total || 1)) / 10;
-    doc.parrafo(nombreDe(alumnos, id, d.nombre) + conClave(alumnos, id) + ": " + d.partes + " partes, " +
+    doc.parrafo(nombreDe(alumnos, id) + conClave(alumnos, id) + ": " + d.partes + " partes, " +
       d.palabras + " palabras, " + por100 + " faltas por cada 100 palabras",
       { fuente: "normal", tamano: 10.5, interlineado: 15 });
   }
