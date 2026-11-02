@@ -42,12 +42,16 @@ const estado = {
 
 // ---------- arranque ----------
 
-function arrancar() {
+async function arrancar() {
   estado.sesion = window.Auth && window.Auth.loadStudentSession();
   estado.proyectoId = param("p");
 
   if (!estado.sesion) { location.href = "index.html"; return; }
   if (!estado.proyectoId) { location.href = "index.html"; return; }
+
+  // Las reglas solo dejan leer la novela a una sesión registrada como la
+  // de un alumno de este docente (sesionesAlumno, ver js/auth.js).
+  if (window.Auth.dispositivoListo) await window.Auth.dispositivoListo;
 
   el("quien-soy").textContent = estado.sesion.code;
 
@@ -66,7 +70,7 @@ function arrancar() {
     pintarEditor();
   });
 
-  escucharFragmentos(estado.proyectoId, (lista) => {
+  escucharFragmentos(estado.proyectoId, estado.sesion.teacherId, (lista) => {
     const habiaAntes = estado.ultimoConocido;
     estado.fragmentos = lista;
     const visibles = fragmentosVisibles();
@@ -80,14 +84,14 @@ function arrancar() {
     pintarCabecera();
   });
 
-  escucharFichas(estado.proyectoId, (lista) => {
+  escucharFichas(estado.proyectoId, estado.sesion.teacherId, (lista) => {
     estado.fichas = lista;
     anadirPalabrasDelProyecto(nombresFichados(lista));
     pintarFichas();
     pintarResumen();
   });
 
-  escucharNotas(estado.proyectoId, (lista) => {
+  escucharNotas(estado.proyectoId, estado.sesion.teacherId, (lista) => {
     estado.notas = lista.filter((n) => n.destinatarioCode === estado.sesion.code);
     pintarNotas();
   });

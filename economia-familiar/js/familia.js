@@ -24,7 +24,7 @@ import {
 import { crearRuleta, tirarDado } from "./ruleta.js";
 import {
   CLAVE_SESION_FAMILIA, guardarSesion, cargarSesion, borrarSesion,
-  aviso, confirmar, graficaLineas, el, escapaHtml,
+  aviso, confirmar, graficaLineas, el, escapaHtml, saneaFamilia,
 } from "./comun.js";
 
 // ---------- estado global de la página ----------
@@ -413,7 +413,7 @@ function pintarHistorial() {
 function pintarRanking() {
   const c = $("subvista-ranking");
   const filas = Object.entries((marcador && marcador.familias) || {})
-    .map(([pubId, f]) => ({ pubId: pubId, ...f }))
+    .map(([pubId, f]) => saneaFamilia({ pubId: escapaHtml(pubId), ...f }))
     .sort((a, b) => (b.ahorros || 0) - (a.ahorros || 0));
   if (!filas.length) {
     c.innerHTML = '<div class="tarjeta">El ranking aparecerá cuando las familias completen su primer mes.</div>';
@@ -963,7 +963,7 @@ function pintarPaso() {
   // ---------- SOLIDARIDAD ----------
   if (paso === "solidaridad") {
     const otras = Object.entries((marcador && marcador.familias) || {})
-      .map(([pubId, f]) => ({ pubId: pubId, ...f }))
+      .map(([pubId, f]) => saneaFamilia({ pubId: escapaHtml(pubId), ...f }))
       .filter((f) => f.pubId !== familia.publicId);
     const misDeudas = prestamos.filter((p) =>
       p.aPublicId === familia.publicId && p.estado === "aceptado" &&

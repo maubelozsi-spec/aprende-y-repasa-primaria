@@ -12,7 +12,7 @@
 // ============================================================
 
 import {
-  el, aviso, escapaHtml, confirmar, modal, fechaCorta, colorDeCodigo,
+  el, aviso, escapaHtml, numero, confirmar, modal, fechaCorta, colorDeCodigo,
 } from "./comun.js";
 import {
   crearProyecto, escucharProyectosDelDocente, escucharProyecto, escucharFragmentos,
@@ -185,7 +185,7 @@ function pintarListaProyectos() {
     <li data-id="${p.id}" class="${estado.proyecto && estado.proyecto.id === p.id ? "activo" : ""}">
       <span class="nombre-proyecto">${escapaHtml(p.titulo)}</span>
       <span class="etiqueta ${p.estado === "cerrado" ? "morada" : p.estado === "pausado" ? "ambar" : "verde"}">${p.estado}</span>
-      <span class="pequeno texto-suave">${p.numFragmentos || 0} partes · ${(p.participantes || []).length} alumnos</span>
+      <span class="pequeno texto-suave">${numero(p.numFragmentos)} partes · ${(p.participantes || []).length} alumnos</span>
     </li>`).join("");
   cont.querySelectorAll("li[data-id]").forEach((li) =>
     li.addEventListener("click", () => abrirProyecto(li.dataset.id)));
@@ -265,17 +265,17 @@ function abrirProyecto(id) {
     pintarAutorizar();
     pintarNovela();
   }));
-  estado.desuscribir.push(escucharFragmentos(id, (lista) => {
+  estado.desuscribir.push(escucharFragmentos(id, estado.docente.uid, (lista) => {
     estado.fragmentos = lista;
     pintarNovela();
     pintarParticipacion();
     pintarPendientes();
   }));
-  estado.desuscribir.push(escucharFichas(id, (lista) => {
+  estado.desuscribir.push(escucharFichas(id, estado.docente.uid, (lista) => {
     estado.fichas = lista;
     pintarFichas();
   }));
-  estado.desuscribir.push(escucharNotas(id, (lista) => {
+  estado.desuscribir.push(escucharNotas(id, estado.docente.uid, (lista) => {
     estado.notas = lista;
   }));
 }
@@ -299,7 +299,7 @@ function pintarNovela() {
     if (f.estado === "oculto") clases.push("oculto-docente");
     if (f.estado === "cambios") clases.push("necesita-cambios");
     const color = colorDeCodigo(f.autorCode);
-    return `<div class="${clases.join(" ")}" data-id="${f.id}" style="border-left-color:${color}">${escapaHtml(f.texto)}</div>`;
+    return `<div class="${clases.join(" ")}" data-id="${escapaHtml(f.id)}" style="border-left-color:${color}">${escapaHtml(f.texto)}</div>`;
   }).join("");
 
   cont.querySelectorAll(".fragmento").forEach((div) =>
@@ -323,12 +323,12 @@ function abrirDetalle(div, id) {
   const caja = document.createElement("div");
   caja.className = "detalle-fragmento";
   caja.innerHTML =
-    `<span>Parte ${f.orden}</span>` +
+    `<span>Parte ${numero(f.orden)}</span>` +
     `<span class="autor" style="color:${colorDeCodigo(f.autorCode)}">${escapaHtml(alumno ? (alumno.nickname || f.autorCode) : f.autorCode)}</span>` +
     `<span class="codigo-alumno">${escapaHtml(f.autorCode)}</span>` +
     `<span>${escapaHtml(fechaCorta(f.creadoEn))}</span>` +
     `<span>${idx.palabras} palabras · ${idx.por100} faltas/100</span>` +
-    (f.vecesEditado ? `<span class="etiqueta">corregido ${f.vecesEditado}×</span>` : "") +
+    (f.vecesEditado ? `<span class="etiqueta">corregido ${numero(f.vecesEditado)}×</span>` : "") +
     `<span class="botonera">
       ${f.estado === "pendiente" ? '<button class="btn btn-mini btn-exito" data-accion="aprobar">Aprobar</button>' : ""}
       ${hayIA() ? '<button class="btn btn-mini btn-secundario" data-accion="ia">🤖 Revisar con IA</button>' : ""}
@@ -407,11 +407,11 @@ function pintarPendientes() {
   cont.innerHTML = `<h2>⏳ ${pendientes.length} parte(s) esperando tu visto bueno</h2>` +
     pendientes.map((f) => `
       <div class="nota">
-        <div class="cabecera-nota">${escapaHtml(f.autorCode)} · parte ${f.orden}</div>
+        <div class="cabecera-nota">${escapaHtml(f.autorCode)} · parte ${numero(f.orden)}</div>
         <div>${escapaHtml(f.texto)}</div>
         <div class="botonera" style="margin-top:6px">
-          <button class="btn btn-mini btn-exito" data-ok="${f.id}">Publicar</button>
-          <button class="btn btn-mini btn-secundario" data-no="${f.id}">Devolver para corregir</button>
+          <button class="btn btn-mini btn-exito" data-ok="${escapaHtml(f.id)}">Publicar</button>
+          <button class="btn btn-mini btn-secundario" data-no="${escapaHtml(f.id)}">Devolver para corregir</button>
         </div>
       </div>`).join("");
   cont.querySelectorAll("[data-ok]").forEach((b) =>
@@ -503,9 +503,9 @@ function pintarFichas() {
         <span class="codigo-alumno">${escapaHtml(f.autorCode || "")}</span></div>
       <dl class="ficha-detalle">${respuestas}</dl>
       <div class="botonera">
-        ${f.tipo === "personaje" ? `<select data-estado="${f.id}">${ESTADOS_NARRATIVOS.map((e) =>
+        ${f.tipo === "personaje" ? `<select data-estado="${escapaHtml(f.id)}">${ESTADOS_NARRATIVOS.map((e) =>
           `<option ${e === (f.estadoNarrativo || "en la historia") ? "selected" : ""}>${e}</option>`).join("")}</select>` : ""}
-        <button class="btn btn-mini btn-peligro" data-borrar="${f.id}">Borrar ficha</button>
+        <button class="btn btn-mini btn-peligro" data-borrar="${escapaHtml(f.id)}">Borrar ficha</button>
       </div>
     </div>`;
   }).join("");
@@ -573,7 +573,7 @@ async function cerrarNovela() {
 
 async function borrarLaNovela() {
   if (!await confirmar("Se borrará la novela entera con todas sus partes, fichas y mensajes. Esto no se puede deshacer.", "Borrar todo")) return;
-  await borrarProyecto(estado.proyecto.id);
+  await borrarProyecto(estado.proyecto.id, estado.docente.uid);
   estado.proyecto = null;
   el("proyecto").classList.add("oculto");
   el("sin-proyecto").classList.remove("oculto");

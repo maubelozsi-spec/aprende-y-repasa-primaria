@@ -6,7 +6,7 @@
 // código llegan en cuanto hay conexión).
 // ============================================================
 
-const CACHE = "eco-familiar-v3";
+const CACHE = "eco-familiar-v4";
 const ARCHIVOS = [
   "./",
   "./index.html",

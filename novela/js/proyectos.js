@@ -65,9 +65,13 @@ export function escucharProyectosDelDocente(teacherId, cb) {
   });
 }
 
-// Proyectos en los que el docente ha autorizado a este alumno.
-export async function proyectosDelAlumno(codigo) {
-  const q = query(collection(db, PROYECTOS), where("participantes", "array-contains", codigo));
+// Proyectos en los que el docente ha autorizado a este alumno. El filtro
+// por teacherId es obligatorio: las reglas de Firestore solo dejan a
+// una sesión de alumno listar los proyectos de SU docente.
+export async function proyectosDelAlumno(codigo, teacherId) {
+  const q = query(collection(db, PROYECTOS),
+    where("teacherId", "==", teacherId),
+    where("participantes", "array-contains", codigo));
   const snap = await getDocs(q);
   const lista = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
   lista.sort((a, b) => (b.creadoEn?.seconds || 0) - (a.creadoEn?.seconds || 0));
@@ -93,10 +97,11 @@ export async function quitarAlumno(id, codigo) {
   await updateDoc(doc(db, PROYECTOS, id), { participantes: arrayRemove(codigo) });
 }
 
-export async function borrarProyecto(id) {
+export async function borrarProyecto(id, teacherId) {
   // se borran también sus fragmentos, fichas y notas
   for (const col of [FRAGMENTOS, FICHAS, NOTAS]) {
-    const snap = await getDocs(query(collection(db, col), where("proyectoId", "==", id)));
+    const snap = await getDocs(query(collection(db, col),
+      where("teacherId", "==", teacherId), where("proyectoId", "==", id)));
     for (const d of snap.docs) await deleteDoc(d.ref);
   }
   await deleteDoc(doc(db, PROYECTOS, id));
@@ -104,8 +109,11 @@ export async function borrarProyecto(id) {
 
 // ---------- fragmentos ----------
 
-export function escucharFragmentos(proyectoId, cb) {
-  const q = query(collection(db, FRAGMENTOS), where("proyectoId", "==", proyectoId));
+// teacherId: el del docente dueño del proyecto (las reglas exigen el filtro).
+export function escucharFragmentos(proyectoId, teacherId, cb) {
+  const q = query(collection(db, FRAGMENTOS),
+    where("teacherId", "==", teacherId),
+    where("proyectoId", "==", proyectoId));
   return onSnapshot(q, (snap) => {
     const lista = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
     lista.sort((a, b) => (a.orden || 0) - (b.orden || 0));
@@ -178,8 +186,11 @@ export async function borrarFragmento(id) {
 
 // ---------- fichas de personajes, lugares e inventos ----------
 
-export function escucharFichas(proyectoId, cb) {
-  const q = query(collection(db, FICHAS), where("proyectoId", "==", proyectoId));
+// teacherId: el del docente dueño del proyecto (las reglas exigen el filtro).
+export function escucharFichas(proyectoId, teacherId, cb) {
+  const q = query(collection(db, FICHAS),
+    where("teacherId", "==", teacherId),
+    where("proyectoId", "==", proyectoId));
   return onSnapshot(q, (snap) => {
     const lista = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
     lista.sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es"));
@@ -211,8 +222,11 @@ export async function borrarFicha(id) {
 
 // ---------- notas del docente ----------
 
-export function escucharNotas(proyectoId, cb) {
-  const q = query(collection(db, NOTAS), where("proyectoId", "==", proyectoId));
+// teacherId: el del docente dueño del proyecto (las reglas exigen el filtro).
+export function escucharNotas(proyectoId, teacherId, cb) {
+  const q = query(collection(db, NOTAS),
+    where("teacherId", "==", teacherId),
+    where("proyectoId", "==", proyectoId));
   return onSnapshot(q, (snap) => {
     const lista = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
     lista.sort((a, b) => (b.creadoEn?.seconds || 0) - (a.creadoEn?.seconds || 0));

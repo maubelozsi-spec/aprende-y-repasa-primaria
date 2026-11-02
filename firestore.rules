@@ -41,6 +41,42 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == teacherId;
     }
 
+    // Sesión de docente: cuenta con correo, nunca una sesión anónima
+    // (las del alumnado y los jugadores).
+    function esDocente() {
+      return signedIn() && request.auth.token.firebase.sign_in_provider != "anonymous";
+    }
+
+    // ¿Es esta sesión la del dispositivo activo de un alumno del docente
+    // indicado? Se apoya en sesionesAlumno/{uid} (lo escribe js/auth.js al
+    // entrar con la clave) y se comprueba contra la ficha del alumno, así
+    // que deja de valer en cuanto la clave se usa en otro dispositivo, se
+    // desactiva o se borra.
+    function sesionAlumno() {
+      return get(/databases/$(database)/documents/sesionesAlumno/$(request.auth.uid)).data;
+    }
+    function esAlumnoDe(teacherId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/sesionesAlumno/$(request.auth.uid))
+        && sesionAlumno().teacherId == teacherId
+        && get(/databases/$(database)/documents/students/$(sesionAlumno().code)).data.authUid == request.auth.uid
+        && get(/databases/$(database)/documents/students/$(sesionAlumno().code)).data.get("active", true) != false;
+    }
+
+    // Lo escribe la propia sesión al entrar con la clave, y solo si esa
+    // clave la tiene reclamada ella y el docente es el de la ficha.
+    match /sesionesAlumno/{uid} {
+      allow get, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(["code", "teacherId", "ts"])
+        && request.resource.data.code is string
+        && request.resource.data.code.matches("^[A-Z0-9]{1,20}$")
+        && get(/databases/$(database)/documents/students/$(request.resource.data.code)).data.authUid == uid
+        && request.resource.data.teacherId
+             == get(/databases/$(database)/documents/students/$(request.resource.data.code)).data.teacherId;
+    }
+
     // ================= App educativa =================
 
     match /teachers/{teacherId} {
@@ -70,7 +106,7 @@ service cloud.firestore {
     match /classes/{classId} {
       allow get: if signedIn();
       allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
-      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow create: if esDocente() && request.resource.data.teacherId == request.auth.uid;
       allow update, delete: if isOwnerTeacher(resource.data.teacherId);
     }
 
@@ -79,14 +115,17 @@ service cloud.firestore {
     // propio docente. La herramienta funciona igual sin esta colección.
     match /udiHistorial/{entryId} {
       allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
-      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow create: if esDocente() && request.resource.data.teacherId == request.auth.uid;
       allow delete: if isOwnerTeacher(resource.data.teacherId);
     }
 
     match /students/{code} {
       allow get: if signedIn();
       allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
-      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      // Solo un docente (cuenta con correo) da de alta alumnos. Si una
+      // sesión anónima pudiera crearse su propio "alumno", pasaría todas
+      // las comprobaciones de esAlumno() de las demás apps.
+      allow create: if esDocente() && request.resource.data.teacherId == request.auth.uid;
       // Cualquier sesión que conozca la clave puede reclamar al alumno,
       // y solo puede tocar authUid y lastLoginAt. Antes la clave quedaba
       // atada al primer dispositivo que la usaba, así que el mismo
@@ -150,6 +189,12 @@ service cloud.firestore {
                     && request.resource.data.atendido == false
                     && request.resource.data.mensaje is string
                     && request.resource.data.mensaje.size() <= 500
+                    && request.resource.data.get("nickname", "") is string
+                    && request.resource.data.get("nickname", "").size() <= 100
+                    && request.resource.data.get("motivo", "") is string
+                    && request.resource.data.get("motivo", "").size() <= 40
+                    && request.resource.data.get("origen", "") is string
+                    && request.resource.data.get("origen", "").size() <= 40
                     && request.resource.data.keys().hasOnly(["teacherId", "classId", "studentCode", "nickname",
                          "motivo", "mensaje", "origen", "atendido", "createdAt"]);
       allow read: if signedIn() && resource.data.teacherId == request.auth.uid;
@@ -269,7 +314,9 @@ service cloud.firestore {
       // estrellas… de cada familia, sin códigos): lo leen todas las
       // sesiones y lo actualiza cada familia al cerrar su mes.
       allow read: if signedIn();
-      allow write: if signedIn();
+      allow create, update: if signedIn();
+      // Ningún cliente lo borra: así nadie puede vaciar el marcador ajeno.
+      allow delete: if false;
     }
 
     match /ecoPrestamosFamilias/{prestamoId} {
@@ -303,10 +350,18 @@ service cloud.firestore {
       allow list: if signedIn() && resource.data.teacherId == request.auth.uid;
       // Crear: cualquier sesión identificada que se apunte a sí misma
       // como anfitrión (docente en las de aula, alumno en las libres).
-      allow create: if signedIn() && request.resource.data.anfitrionUid == request.auth.uid;
+      // teacherId solo puede ser el propio (o ninguno, en las salas
+      // libres): si no, un alumno podría colar una partida suya en la
+      // lista del docente y seguir controlándola como anfitrión.
+      allow create: if signedIn() && request.resource.data.anfitrionUid == request.auth.uid
+                    && request.resource.data.get("teacherId", null) in [null, request.auth.uid];
       // Dirigir la partida (sorteos, tiempo, cierre): solo el
       // anfitrión o el docente propietario.
-      allow update, delete: if signedIn()
+      allow update: if signedIn()
+        && (resource.data.anfitrionUid == request.auth.uid
+            || resource.data.teacherId == request.auth.uid)
+        && request.resource.data.get("teacherId", null) == resource.data.get("teacherId", null);
+      allow delete: if signedIn()
         && (resource.data.anfitrionUid == request.auth.uid
             || resource.data.teacherId == request.auth.uid);
     }
@@ -321,7 +376,8 @@ service cloud.firestore {
       // partida (reparto de puntos). Nivel "de aula": cualquier
       // sesión identificada de la clase.
       allow update: if signedIn();
-      allow delete: if signedIn();
+      // La app nunca borra jugadores: así nadie puede echar a los demás.
+      allow delete: if false;
     }
 
     match /cylRespuestas/{respuestaId} {
@@ -329,7 +385,7 @@ service cloud.firestore {
       // (para el marcador y la proyección) y las corrige quien
       // dirige. Sin datos personales: apodo, palabra y cuentas.
       allow read, create, update: if signedIn();
-      allow delete: if signedIn();
+      allow delete: if false;
     }
 
     // ================= Novela Colectiva =================
@@ -354,12 +410,30 @@ service cloud.firestore {
                          "actualizadoEn", "turnoDe", "turnoDesde"]);
     }
 
+    // LECTURA: solo el docente dueño y el alumnado de ese docente. Antes
+    // cualquier sesión anónima podía listar estas colecciones y sacar de
+    // "participantes", "autorCode" y "destinatarioCode" las claves de
+    // TODO el alumnado (y con ellas entrar como cualquiera y leer, p. ej.,
+    // su diario de La Ciudadela). Las consultas tienen que filtrar por
+    // teacherId para que la regla se pueda comprobar.
+    function puedeLeerNovela() {
+      return isOwnerTeacher(resource.data.teacherId) || esAlumnoDe(resource.data.teacherId);
+    }
+
+    // El alumno solo puede escribir en un proyecto de su docente en el que
+    // está autorizado.
+    function proyectoDelAlumno(proyectoId, code) {
+      return get(/databases/$(database)/documents/novProyectos/$(proyectoId)).data.teacherId
+               == get(/databases/$(database)/documents/students/$(code)).data.teacherId
+          && get(/databases/$(database)/documents/novProyectos/$(proyectoId)).data.get("participantes", []).hasAny([code]);
+    }
+
     match /novProyectos/{proyectoId} {
-      allow read: if signedIn();
-      allow create: if signedIn() && request.resource.data.teacherId == request.auth.uid;
+      allow read: if puedeLeerNovela();
+      allow create: if esDocente() && request.resource.data.teacherId == request.auth.uid;
       allow update: if isOwnerTeacher(resource.data.teacherId)
                     // publicar (contadores y turno) lo hace el alumnado
-                    || (signedIn() && soloContadoresDeNovela())
+                    || (esAlumnoDe(resource.data.teacherId) && soloContadoresDeNovela())
                     // y dar por terminada la novela, SOLO el alumno al que
                     // el docente ha autorizado expresamente para ello
                     || (esAlumno(request.resource.data.cerradaPor)
@@ -370,10 +444,15 @@ service cloud.firestore {
     }
 
     match /novFragmentos/{fragmentoId} {
-      allow read: if signedIn();
+      allow read: if puedeLeerNovela();
       // Solo se puede publicar en nombre propio: el código del autor
-      // tiene que ser el de la clave con la que se entró.
+      // tiene que ser el de la clave con la que se entró, en un proyecto
+      // de su docente en el que esté autorizado.
       allow create: if esAlumno(request.resource.data.autorCode)
+                    && request.resource.data.proyectoId is string
+                    && proyectoDelAlumno(request.resource.data.proyectoId, request.resource.data.autorCode)
+                    && request.resource.data.teacherId
+                         == get(/databases/$(database)/documents/novProyectos/$(request.resource.data.proyectoId)).data.teacherId
                     && request.resource.data.texto is string
                     && request.resource.data.texto.size() < 4000;
       // El alumno solo puede corregir SU parte y solo el texto; el
@@ -388,16 +467,22 @@ service cloud.firestore {
     }
 
     match /novFichas/{fichaId} {
-      allow read: if signedIn();
-      allow create: if esAlumno(request.resource.data.autorCode)
+      allow read: if puedeLeerNovela();
+      allow create: if (esAlumno(request.resource.data.autorCode)
+                        && request.resource.data.proyectoId is string
+                        && proyectoDelAlumno(request.resource.data.proyectoId, request.resource.data.autorCode)
+                        && request.resource.data.teacherId
+                             == get(/databases/$(database)/documents/novProyectos/$(request.resource.data.proyectoId)).data.teacherId)
                     || isOwnerTeacher(request.resource.data.teacherId);
       allow update: if isOwnerTeacher(resource.data.teacherId)
-                    || esAlumno(resource.data.autorCode);
+                    || (esAlumno(resource.data.autorCode)
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasNone(["teacherId", "proyectoId", "autorCode"]));
       allow delete: if isOwnerTeacher(resource.data.teacherId);
     }
 
     match /novNotas/{notaId} {
-      allow read: if signedIn();
+      allow read: if puedeLeerNovela();
       // Las indicaciones solo las escribe el docente; el alumno
       // destinatario únicamente puede marcarlas como leídas.
       allow create: if isOwnerTeacher(request.resource.data.teacherId);

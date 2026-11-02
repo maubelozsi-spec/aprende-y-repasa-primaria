@@ -169,10 +169,48 @@ export const PALETA_FAMILIAS = [
 
 export function el(id) { return document.getElementById(id); }
 
+// Escapa también las comillas: el resultado se usa dentro de atributos
+// (class="…", data-id="…", value="…"), no solo como texto.
 export function escapaHtml(texto) {
-  const div = document.createElement("div");
-  div.textContent = texto == null ? "" : String(texto);
-  return div.innerHTML;
+  return String(texto == null ? "" : texto)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Número seguro para pintar: lo que no sea un número finito vale 0. Los
+// "números" que llegan de Firestore pueden ser texto con HTML dentro.
+export function numero(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+// Datos de una familia (ecoFamilias o una fila de ecoMarcador) listos
+// para pintar con innerHTML. El dispositivo de la familia puede escribir
+// cualquier campo de su documento (y cualquier sesión, el marcador), así
+// que los emojis se escapan y los contadores se convierten en número.
+// Los nombres y textos libres siguen pasando por escapaHtml al pintarse.
+export function saneaFamilia(f) {
+  const s = Object.assign({}, f);
+  s.emoji = escapaHtml(f.emoji);
+  ["estrellas", "corazones", "alertas", "ahorros"].forEach((k) => { s[k] = numero(f[k]); });
+  if (f.ise != null) s.ise = numero(f.ise);
+  if (f.meta) s.meta = Object.assign({}, f.meta, { emoji: escapaHtml(f.meta.emoji) });
+  if (f.negocio) s.negocio = Object.assign({}, f.negocio, { emoji: escapaHtml(f.negocio.emoji) });
+  if (Array.isArray(f.retos)) {
+    s.retos = f.retos.map((r) => Object.assign({}, r, { meses: escapaHtml(r && r.meses), importe: numero(r && r.importe) }));
+  }
+  if (Array.isArray(f.insignias)) s.insignias = f.insignias.map((id) => escapaHtml(id));
+  return s;
+}
+
+// Registro mensual (ecoMeses): el ISE se pinta tal cual en las tablas.
+export function saneaMes(r) {
+  const s = Object.assign({}, r);
+  if (r.ise != null) s.ise = numero(r.ise);
+  return s;
 }
 
 export function fecha(ts) {

@@ -25,10 +25,22 @@ export function borrarSesion(clave) {
 
 export function el(id) { return document.getElementById(id); }
 
+// Escapa también las comillas: el resultado se usa dentro de atributos
+// (class="…", data-id="…", value="…"), no solo como texto.
 export function escapaHtml(texto) {
-  const div = document.createElement("div");
-  div.textContent = texto == null ? "" : String(texto);
-  return div.innerHTML;
+  return String(texto == null ? "" : texto)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Número seguro para pintar: lo que no sea un número finito vale 0. Los
+// "números" que llegan de Firestore pueden ser texto con HTML dentro.
+export function numero(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
 }
 
 // ---------- avisos ----------

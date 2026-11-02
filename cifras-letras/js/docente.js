@@ -146,9 +146,9 @@ async function cargarYPintarPartidas() {
     '<div class="fila-respuesta">' +
     '<span class="nombre">' + escapaHtml(p.nombre) + "</span>" +
     '<span class="jugada">Código: <strong>' + escapaHtml(p.codigo) + "</strong> · " +
-    (p.estado === "fin" ? "terminado" : p.estado === "lobby" ? "en el vestíbulo" : "ronda " + ((p.rondasJugadas || 0) + 1)) + "</span>" +
-    '<button class="btn btn-mini btn-principal" data-abrir="' + p.id + '">Abrir</button>' +
-    '<button class="btn btn-mini btn-peligro" data-borrar="' + p.id + '">Borrar</button>' +
+    (p.estado === "fin" ? "terminado" : p.estado === "lobby" ? "en el vestíbulo" : "ronda " + ((Number(p.rondasJugadas) || 0) + 1)) + "</span>" +
+    '<button class="btn btn-mini btn-principal" data-abrir="' + escapaHtml(p.id) + '">Abrir</button>' +
+    '<button class="btn btn-mini btn-peligro" data-borrar="' + escapaHtml(p.id) + '">Borrar</button>' +
     "</div>").join("");
   cont.querySelectorAll("[data-abrir]").forEach((b) => b.addEventListener("click", () => abrirPartida(b.dataset.abrir)));
   cont.querySelectorAll("[data-borrar]").forEach((b) => b.addEventListener("click", async () => {
@@ -262,7 +262,7 @@ function pintarCabecera() {
   const enlaceProy = "proyeccion.html?codigo=" + partida.codigo;
   $("zona-cabecera").innerHTML =
     "<h2>" + escapaHtml(partida.nombre) + "</h2>" +
-    '<div class="codigo-partida">' + partida.codigo + "</div>" +
+    '<div class="codigo-partida">' + escapaHtml(partida.codigo) + "</div>" +
     '<p class="texto-suave" style="margin-top:8px;">Los equipos entran en <strong>cifras-letras → Jugar</strong> con este código · ' +
     '<a href="' + enlaceProy + '" target="_blank">abrir proyección 📽️</a></p>';
 }
@@ -383,16 +383,16 @@ function pintarControl() {
       const ev = evaluarRespuesta(resp, r, partida.config);
       const estado = decisiones.get(resp.id) || (ev.estado === "pendiente" ? "pendiente" : ev.estado);
       const jugada = r.tipo === "letras"
-        ? "<strong>" + escapaHtml(String(resp.palabra || "").toUpperCase()) + "</strong> (" + (resp.palabra || "").length + " letras → " + ev.puntosPosibles + " pts)"
+        ? "<strong>" + escapaHtml(String(resp.palabra || "").toUpperCase()) + "</strong> (" + String(resp.palabra || "").length + " letras → " + ev.puntosPosibles + " pts)"
         : escapaHtml((resp.pasos || []).map((p) => p.a + " " + p.op + " " + p.b + " = " + p.r).join(" · ") || "sin operaciones") +
           " → <strong>" + escapaHtml(String(resp.resultado != null ? resp.resultado : "?")) + "</strong> (" + ev.puntosPosibles + " pts)";
       const rae = r.tipo === "letras"
         ? ' · <a href="' + enlaceRae(resp.palabra) + '" target="_blank">ver en la RAE ↗</a>' : "";
-      return '<div class="fila-respuesta ' + estado + '" data-resp="' + resp.id + '">' +
+      return '<div class="fila-respuesta ' + estado + '" data-resp="' + escapaHtml(resp.id) + '">' +
         '<span class="nombre">' + escapaHtml(resp.nombre) + "</span>" +
         '<span class="jugada">' + jugada + "</span>" +
-        '<button class="btn btn-mini btn-exito" data-ok="' + resp.id + '">✓ Vale</button>' +
-        '<button class="btn btn-mini btn-peligro" data-no="' + resp.id + '">✗ No vale</button>' +
+        '<button class="btn btn-mini btn-exito" data-ok="' + escapaHtml(resp.id) + '">✓ Vale</button>' +
+        '<button class="btn btn-mini btn-peligro" data-no="' + escapaHtml(resp.id) + '">✗ No vale</button>' +
         '<span class="motivo">' + escapaHtml(ev.motivo || "") + (estado === "pendiente" ? " · decide con los botones" : " · " + estado) + rae + "</span>" +
         "</div>";
     }).join("");
@@ -412,12 +412,12 @@ function resumenRondaCerrada(r) {
   let html = "<h3>" + etiquetaRonda(r) + " · Resultados</h3>";
   const deRonda = respuestasDeLaRonda().slice().sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
   html += deRonda.map((resp) =>
-    '<div class="fila-respuesta ' + resp.estado + '">' +
+    '<div class="fila-respuesta ' + escapaHtml(resp.estado) + '">' +
     '<span class="nombre">' + escapaHtml(resp.nombre) + "</span>" +
     '<span class="jugada">' + (r.tipo === "letras"
       ? escapaHtml(String(resp.palabra || "").toUpperCase())
       : escapaHtml(String(resp.resultado != null ? resp.resultado : "—"))) + "</span>" +
-    '<span class="puntos" style="font-weight:800; color:var(--acento);">+' + (resp.puntos || 0) + "</span>" +
+    '<span class="puntos" style="font-weight:800; color:var(--acento);">+' + (Number(resp.puntos) || 0) + "</span>" +
     "</div>").join("") || '<p class="texto-suave">Sin respuestas.</p>';
   if (r.solucion) {
     html += '<div class="centrado"><div class="solucion-caja">' + (r.tipo === "letras"
@@ -458,6 +458,6 @@ function pintarMarcador(cont, lista) {
   cont.innerHTML = '<table class="tabla-marcador"><tr><th></th><th>Equipo</th><th style="text-align:right;">Puntos</th></tr>' +
     lista.map((j, i) =>
       "<tr><td>" + (medallas[i] || (i + 1) + "º") + "</td><td>" + escapaHtml(j.nombre) + "</td>" +
-      '<td class="puntos">' + (j.puntos || 0) + "</td></tr>").join("") +
+      '<td class="puntos">' + (Number(j.puntos) || 0) + "</td></tr>").join("") +
     "</table>";
 }

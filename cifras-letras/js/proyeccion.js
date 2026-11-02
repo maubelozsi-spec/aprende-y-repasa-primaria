@@ -127,12 +127,12 @@ function pintar() {
     } else if (r.estado === "cerrada") {
       const deRonda = respuestasDeLaRonda().slice().sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
       html += deRonda.map((resp) =>
-        '<div class="fila-respuesta ' + resp.estado + '" style="max-width:640px; margin:6px auto; text-align:left;">' +
+        '<div class="fila-respuesta ' + escapaHtml(resp.estado) + '" style="max-width:640px; margin:6px auto; text-align:left;">' +
         '<span class="nombre">' + escapaHtml(resp.nombre) + "</span>" +
         '<span class="jugada">' + (r.tipo === "letras"
           ? escapaHtml(String(resp.palabra || "").toUpperCase())
           : escapaHtml(String(resp.resultado != null ? resp.resultado : "—"))) + "</span>" +
-        '<span style="font-weight:800; color:var(--acento); font-size:1.2rem;">+' + (resp.puntos || 0) + "</span>" +
+        '<span style="font-weight:800; color:var(--acento); font-size:1.2rem;">+' + (Number(resp.puntos) || 0) + "</span>" +
         "</div>").join("") || '<p class="texto-suave">Nadie envió respuesta.</p>';
       if (r.solucion) {
         html += '<div class="solucion-caja">' + (r.tipo === "letras"
@@ -158,7 +158,7 @@ function pintarPodio() {
     html += '<div class="puesto ' + clases[idx] + '">' +
       '<div class="emoji">' + emojis[idx] + "</div>" +
       '<div class="nombre">' + escapaHtml(j.nombre) + "</div>" +
-      '<div class="pts">' + (j.puntos || 0) + " pts</div></div>";
+      '<div class="pts">' + (Number(j.puntos) || 0) + " pts</div></div>";
   }
   return html + "</div>";
 }
@@ -171,6 +171,6 @@ function pintarMarcador() {
   cont.innerHTML = '<table class="tabla-marcador"><tr><th></th><th>Equipo</th><th style="text-align:right;">Puntos</th></tr>' +
     jugadores.map((j, i) =>
       "<tr><td>" + (medallas[i] || (i + 1) + "º") + "</td><td>" + escapaHtml(j.nombre) + "</td>" +
-      '<td class="puntos">' + (j.puntos || 0) + "</td></tr>").join("") +
+      '<td class="puntos">' + (Number(j.puntos) || 0) + "</td></tr>").join("") +
     "</table>";
 }
