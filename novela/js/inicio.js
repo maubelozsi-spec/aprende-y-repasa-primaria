@@ -36,7 +36,13 @@ async function pintar() {
     // Antes de leer, la sesión tiene que estar registrada como la de este
     // alumno (sesionesAlumno), o las reglas no dejan ver sus novelas.
     if (window.Auth.dispositivoListo) await window.Auth.dispositivoListo;
-    lista = await proyectosDelAlumno(s.code, s.teacherId);
+    const actual = sesion() || s;
+    if (!actual.publicId) {
+      cont.innerHTML = '<div class="aviso-caja alerta">Tu profe tiene que abrir una vez el panel de la Novela Colectiva ' +
+        "para que puedas entrar en tus novelas. Prueba más tarde.</div>";
+      return;
+    }
+    lista = await proyectosDelAlumno(actual.publicId, actual.teacherId);
   } catch (e) {
     cont.innerHTML = '<p class="aviso-caja error">No he podido conectar. Comprueba el wifi e inténtalo otra vez.</p>';
     return;

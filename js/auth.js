@@ -272,6 +272,9 @@ async function claimStudentCode(rawCode) {
     nickname: data.nickname || code,
     classId: data.classId,
     teacherId: data.teacherId,
+    // Identificador público (no sirve para entrar): con él firma en las
+    // apps donde los compañeros leen lo que escribe (Novela Colectiva).
+    publicId: data.publicId || null,
   };
   saveStudentSession(profile);
   return profile;
@@ -301,6 +304,14 @@ async function refreshStudentDevice() {
       lastLoginAt: serverTimestamp(),
     });
     await registrarSesionAlumno(session.code, session.teacherId);
+    // Sesiones abiertas antes de que el alumno tuviera identificador
+    // público (se lo da el panel de la Novela): se recoge una vez.
+    if (!session.publicId) {
+      const snap = await getDoc(doc(db, "students", session.code));
+      if (snap.exists() && snap.data().publicId) {
+        saveStudentSession(Object.assign({}, session, { publicId: snap.data().publicId }));
+      }
+    }
   } catch (e) {
     // Sin conexión o clave desactivada: se sigue practicando en local.
   }

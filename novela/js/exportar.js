@@ -75,12 +75,12 @@ function anexoFichas(doc, fichas) {
 
 export function descargarNovela(proyecto, fragmentos, fichas, alumnos) {
   const publicados = fragmentos.filter((f) => f.estado === "publicado");
-  const autores = Array.from(new Set(publicados.map((f) => f.autorCode)))
-    .map((c) => nombreDe(alumnos, c));
+  const autores = Array.from(new Set(publicados.map((f) => f.autorId)))
+    .map((id) => nombreDe(alumnos, id, (proyecto.nombresAutores || {})[id]));
   const doc = nuevoDocumento({ titulo: proyecto.titulo });
 
   portada(doc, proyecto, {
-    autores: new Set(publicados.map((f) => f.autorCode)).size,
+    autores: new Set(publicados.map((f) => f.autorId)).size,
     fragmentos: publicados.length,
     palabras: publicados.reduce((s, f) => s + (f.palabras || 0), 0),
   }, "Una novela escrita entre toda la clase");
@@ -104,7 +104,7 @@ export function descargarCuadernoDocente(proyecto, fragmentos, fichas, notas, al
   const publicados = fragmentos.filter((f) => f.estado !== "oculto");
 
   portada(doc, proyecto, {
-    autores: new Set(publicados.map((f) => f.autorCode)).size,
+    autores: new Set(publicados.map((f) => f.autorId)).size,
     fragmentos: publicados.length,
     palabras: publicados.reduce((s, f) => s + (f.palabras || 0), 0),
   }, "Cuaderno del docente: autoría, correcciones y datos de participación");
@@ -115,7 +115,7 @@ export function descargarCuadernoDocente(proyecto, fragmentos, fichas, notas, al
   for (const f of publicados) {
     const datos = indiceDeFaltas(f.textoOriginal || f.texto);
     doc.parrafo(
-      "#" + f.orden + " · " + nombreDe(alumnos, f.autorCode) + " (" + f.autorCode + ") · " +
+      "#" + f.orden + " · " + nombreDe(alumnos, f.autorId) + conClave(alumnos, f.autorId) + " · " +
       datos.palabras + " palabras · " + datos.por100 + " faltas por cada 100 palabras" +
       (f.vecesEditado ? " · corregido " + f.vecesEditado + " vez/veces" : "") +
       (f.estado === "pendiente" ? " · PENDIENTE DE APROBAR" : ""),
@@ -135,18 +135,19 @@ export function descargarCuadernoDocente(proyecto, fragmentos, fichas, notas, al
   doc.salto(10);
   const porAlumno = new Map();
   for (const f of publicados) {
-    const d = porAlumno.get(f.autorCode) || { partes: 0, palabras: 0, faltas: 0, total: 0 };
+    const d = porAlumno.get(f.autorId) || { partes: 0, palabras: 0, faltas: 0, total: 0 };
     const idx = indiceDeFaltas(f.textoOriginal || f.texto);
     d.partes++; d.palabras += idx.palabras; d.faltas += idx.faltas; d.total += idx.palabras;
-    porAlumno.set(f.autorCode, d);
+    porAlumno.set(f.autorId, d);
   }
-  for (const [codigo, d] of Array.from(porAlumno.entries()).sort((a, b) => b[1].palabras - a[1].palabras)) {
+  for (const [id, d] of Array.from(porAlumno.entries()).sort((a, b) => b[1].palabras - a[1].palabras)) {
     const por100 = Math.round((d.faltas * 1000) / (d.total || 1)) / 10;
-    doc.parrafo(nombreDe(alumnos, codigo) + " (" + codigo + "): " + d.partes + " partes, " +
+    doc.parrafo(nombreDe(alumnos, id) + conClave(alumnos, id) + ": " + d.partes + " partes, " +
       d.palabras + " palabras, " + por100 + " faltas por cada 100 palabras",
       { fuente: "normal", tamano: 10.5, interlineado: 15 });
   }
-  const sinEscribir = (alumnos || []).filter((a) => !porAlumno.has(a.code));
+  const autorizados = new Set(proyecto.participantes || []);
+  const sinEscribir = (alumnos || []).filter((a) => a.publicId && autorizados.has(a.publicId) && !porAlumno.has(a.publicId));
   if (sinEscribir.length) {
     doc.salto(8);
     doc.parrafo("Todavía no han escrito nada: " +
@@ -160,7 +161,7 @@ export function descargarCuadernoDocente(proyecto, fragmentos, fichas, notas, al
     doc.parrafo("Indicaciones enviadas", { fuente: "titular", tamano: 15 });
     doc.salto(10);
     for (const n of notas) {
-      doc.parrafo("A " + nombreDe(alumnos, n.destinatarioCode) + " (" + n.destinatarioCode + ")" +
+      doc.parrafo("A " + nombreDe(alumnos, n.destinatarioId) + conClave(alumnos, n.destinatarioId) +
         (n.leido ? " · leída" : " · sin leer"),
         { fuente: "pie", tamano: 9, gris: true, interlineado: 12 });
       doc.parrafo(n.texto, { fuente: "normal", tamano: 10.5, interlineado: 15 });
@@ -172,9 +173,17 @@ export function descargarCuadernoDocente(proyecto, fragmentos, fichas, notas, al
   descargar(doc.aBlob(), nombreArchivo(proyecto, "cuaderno-docente"));
 }
 
-function nombreDe(alumnos, codigo) {
-  const a = (alumnos || []).find((x) => x.code === codigo);
-  return a ? (a.nickname || a.code) : codigo;
+// Las novelas guardan el identificador público del alumno (publicId), no
+// su clave. Con la lista de alumnos del docente se recupera su nombre y,
+// en el cuaderno del docente, su clave; sin ella, el apodo con que firmó.
+function nombreDe(alumnos, id, respaldo) {
+  const a = (alumnos || []).find((x) => x.publicId && x.publicId === id);
+  return a ? (a.nickname || a.code) : (respaldo || "alumno/a");
+}
+
+function conClave(alumnos, id) {
+  const a = (alumnos || []).find((x) => x.publicId && x.publicId === id);
+  return a ? " (" + a.code + ")" : "";
 }
 
 function nombreArchivo(proyecto, sufijo) {

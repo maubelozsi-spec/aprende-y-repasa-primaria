@@ -52,6 +52,13 @@ async function arrancar() {
   // Las reglas solo dejan leer la novela a una sesión registrada como la
   // de un alumno de este docente (sesionesAlumno, ver js/auth.js).
   if (window.Auth.dispositivoListo) await window.Auth.dispositivoListo;
+  // Tras registrar el dispositivo, la sesión ya lleva el identificador
+  // público del alumno (publicId), que es lo que firma en la novela.
+  estado.sesion = window.Auth.loadStudentSession() || estado.sesion;
+  if (!estado.sesion.publicId) {
+    el("cargando").textContent = "Tu profe tiene que abrir una vez el panel de la Novela Colectiva para que puedas escribir. Prueba más tarde.";
+    return;
+  }
 
   el("quien-soy").textContent = estado.sesion.code;
 
@@ -92,7 +99,7 @@ async function arrancar() {
   });
 
   escucharNotas(estado.proyectoId, estado.sesion.teacherId, (lista) => {
-    estado.notas = lista.filter((n) => n.destinatarioCode === estado.sesion.code);
+    estado.notas = lista.filter((n) => n.destinatarioId === estado.sesion.publicId);
     pintarNotas();
   });
 
@@ -117,7 +124,7 @@ async function arrancar() {
 function fragmentosVisibles() {
   return estado.fragmentos.filter((f) =>
     f.estado === "publicado" ||
-    (f.autorCode === estado.sesion.code && (f.estado === "pendiente" || f.estado === "cambios")));
+    (f.autorId === estado.sesion.publicId && (f.estado === "pendiente" || f.estado === "cambios")));
 }
 
 function pintarNovela() {
@@ -130,7 +137,7 @@ function pintarNovela() {
   }
   cont.innerHTML = lista.map((f) => {
     const clases = ["fragmento"];
-    if (f.autorCode === estado.sesion.code) clases.push("mio");
+    if (f.autorId === estado.sesion.publicId) clases.push("mio");
     if (f.estado === "pendiente") clases.push("pendiente");
     if (f.estado === "cambios") clases.push("necesita-cambios");
     return `<div class="${clases.join(" ")}" data-id="${f.id}">${escapaHtml(f.texto)}</div>`;
@@ -155,9 +162,9 @@ function abrirDetalle(div, id) {
   if (!f) return;
   div.classList.add("abierto");
 
-  const mio = f.autorCode === estado.sesion.code;
+  const mio = f.autorId === estado.sesion.publicId;
   const autor = estado.proyecto.autoriaVisible
-    ? `Escrita por <span class="autor">${escapaHtml(f.autorCode)}</span>`
+    ? `Escrita por <span class="autor">${escapaHtml((estado.proyecto.nombresAutores || {})[f.autorId] || "alguien de la clase")}</span>`
     : (mio ? "Esta parte la escribiste <strong>tú</strong>" : "Escrita por alguien de la clase");
 
   const caja = document.createElement("div");
@@ -195,7 +202,7 @@ function pintarCabecera() {
       "Tu profe la abrirá cuando toque.</div>");
   }
   if (p.modoTurno === "cola" && p.estado === "abierto") {
-    const mio = p.turnoDe === estado.sesion.code;
+    const mio = p.turnoDe === estado.sesion.publicId;
     if (mio) {
       trozos.push('<div class="aviso-caja exito"><strong>Es tu turno.</strong> ' +
         'Escribe tu parte y envíala. <button class="btn btn-mini btn-secundario" id="btn-soltar">Dejar el turno</button></div>');
@@ -207,7 +214,7 @@ function pintarCabecera() {
         '<button class="btn btn-mini btn-principal" id="btn-turno">Pedir el turno</button></div>');
     }
   }
-  if (p.cerradorAutorizado === estado.sesion.code && p.estado === "abierto") {
+  if (p.cerradorAutorizado === estado.sesion.publicId && p.estado === "abierto") {
     trozos.push('<div class="aviso-caja"><strong>Tu profe te ha dado permiso para dar por terminada esta novela.</strong> ' +
       "Hazlo solo cuando la clase esté de acuerdo en que ya tiene final. " +
       '<button class="btn btn-mini btn-exito" id="btn-terminar">Dar por terminada</button></div>');
@@ -222,7 +229,7 @@ function pintarCabecera() {
 
   const btnTurno = el("btn-turno");
   if (btnTurno) btnTurno.addEventListener("click", async () => {
-    const conseguido = await pedirTurno(estado.proyectoId, estado.sesion.code);
+    const conseguido = await pedirTurno(estado.proyectoId, estado.sesion.publicId);
     aviso(conseguido ? "¡Turno tuyo! Escribe tranquilo." : "Se te han adelantado. Espera un poco.", conseguido ? "exito" : "info");
   });
   const btnSoltar = el("btn-soltar");
@@ -234,7 +241,7 @@ function pintarCabecera() {
       "¿Seguro que la novela ya tiene final? Después nadie podrá escribir más (tu profe siempre puede volver a abrirla).",
       "Sí, ya está terminada");
     if (!seguro) return;
-    await actualizarProyecto(estado.proyectoId, { estado: "cerrado", escrituraAbierta: false, cerradaPor: estado.sesion.code });
+    await actualizarProyecto(estado.proyectoId, { estado: "cerrado", escrituraAbierta: false, cerradaPor: estado.sesion.publicId });
     aviso("¡Novela terminada! Ahora tu profe puede descargarla en PDF. 🎉", "exito");
   });
 }
@@ -331,7 +338,7 @@ function pintarAvisos(avisos, manual) {
 async function pedirYGuardarFicha(nombre, tipoSugerido) {
   const ficha = await pedirFicha(nombre, tipoSugerido);
   if (!ficha) return null;
-  await crearFicha(estado.proyecto, Object.assign({ autorCode: estado.sesion.code }, ficha));
+  await crearFicha(estado.proyecto, Object.assign({ autorId: estado.sesion.publicId }, ficha));
   anadirPalabrasDelProyecto([ficha.nombre]);
   aviso("Ficha de " + ficha.nombre + " guardada. ¡Gracias!", "exito");
   return ficha;
@@ -402,7 +409,7 @@ function pintarNotas() {
       ${f ? `<div class="cita">${escapaHtml(f.texto.slice(0, 110))}…</div>` : ""}
       <div>${escapaHtml(n.texto)}</div>
       <div class="botonera" style="margin-top:6px">
-        ${f && f.autorCode === estado.sesion.code ? `<button class="btn btn-mini btn-secundario" data-corregir="${f.id}">Ir a corregirlo</button>` : ""}
+        ${f && f.autorId === estado.sesion.publicId ? `<button class="btn btn-mini btn-secundario" data-corregir="${f.id}">Ir a corregirlo</button>` : ""}
         ${n.leido ? '<span class="pequeno texto-suave">Leído</span>' : `<button class="btn btn-mini btn-principal" data-leido="${n.id}">Ya lo he leído</button>`}
       </div>
     </div>`;
@@ -452,7 +459,7 @@ async function publicar() {
     aviso("Te has pasado de " + max + " líneas. Recorta un poco y vuelve a intentarlo.", "error");
     return;
   }
-  if (estado.proyecto.modoTurno === "cola" && estado.proyecto.turnoDe !== estado.sesion.code && !estado.editando) {
+  if (estado.proyecto.modoTurno === "cola" && estado.proyecto.turnoDe !== estado.sesion.publicId && !estado.editando) {
     aviso("Esta novela va por turnos y ahora no es el tuyo. Pide el turno arriba.", "error");
     return;
   }
@@ -506,7 +513,7 @@ async function publicar() {
   // aviso suave: no acaparar
   const visibles = fragmentosVisibles();
   const ultimas = visibles.slice(-2);
-  if (!estado.editando && ultimas.length === 2 && ultimas.every((f) => f.autorCode === estado.sesion.code)) {
+  if (!estado.editando && ultimas.length === 2 && ultimas.every((f) => f.autorId === estado.sesion.publicId)) {
     const sigo = await confirmar(
       "Las dos últimas partes también las has escrito tú. ¿Seguro que no le toca a otro compañero?",
       "Publicar igualmente");
@@ -521,7 +528,7 @@ async function publicar() {
     } else {
       await publicarFragmento(estado.proyecto, {
         texto: texto,
-        autorCode: estado.sesion.code,
+        autorId: estado.sesion.publicId,
         entidades: Array.from(vistos),
         avisos: faltas.length,
       });
