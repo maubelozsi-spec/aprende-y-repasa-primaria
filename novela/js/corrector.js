@@ -18,7 +18,12 @@
 // luego del docente, que lo ve todo en su panel).
 // ============================================================
 
-import { existe, sugerencias, mismasSinTilde, esPropioConocido, sinTildes } from "./diccionario.js";
+import {
+  existe, sugerencias, mismasSinTilde, esPropioConocido, sinTildes,
+  existeEnCompleto, comprobarPalabras, prepararDiccionarioCompleto,
+} from "./diccionario.js";
+
+export { prepararDiccionarioCompleto };
 
 const LETRAS = "a-záéíóúüñA-ZÁÉÍÓÚÜÑ";
 const RE_PALABRA = new RegExp("[" + LETRAS + "]+", "g");
@@ -86,6 +91,21 @@ export function revisaPalabra(palabraOriginal) {
   if (p.length < 2) return null;
   if (existe(p)) return null;
   if (quitaEncliticos(p)) return null;
+
+  // Está en el diccionario completo: la palabra existe. Aun así, si se
+  // parece mucho a una palabra corriente (cambiando una tilde o una
+  // letra de las que se confunden: baca/vaca, tubo/tuvo, termino/término),
+  // se pregunta sin darlo por falta: puede ser justo lo que quería.
+  if (existeEnCompleto(p)) {
+    const otra = mismasSinTilde(p)[0] || (faltaPorCambio(p) || {}).correcta;
+    if (!otra || otra === p) return null;
+    return {
+      tipo: "duda",
+      correcta: null,
+      sugerencias: [otra],
+      regla: "¿Querías decir «" + otra + "»? «" + p + "» también existe, pero significa otra cosa.",
+    };
+  }
 
   // ¿es la misma palabra mal acentuada?
   const conTilde = mismasSinTilde(p);
@@ -319,6 +339,13 @@ function respetaMayuscula(original, sugerida) {
 // Aplica una sugerencia sobre el texto y devuelve el texto nuevo.
 export function aplicarSugerencia(texto, aviso, sugerida) {
   return texto.slice(0, aviso.inicio) + sugerida + texto.slice(aviso.fin);
+}
+
+// Antes de revisar: consulta en el diccionario completo (en segundo
+// plano) las palabras del texto que el vocabulario propio no conoce.
+// Nunca falla; como mucho espera `espera` ms.
+export function prepararTexto(texto, espera) {
+  return comprobarPalabras(String(texto || "").match(RE_PALABRA) || [], espera);
 }
 
 // Resumen corto para el panel docente: faltas por cada 100 palabras.

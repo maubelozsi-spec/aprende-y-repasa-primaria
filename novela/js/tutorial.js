@@ -5,13 +5,19 @@
 // ============================================================
 
 import { el, escapaHtml, contarLineas } from "./comun.js";
-import { revisarTexto, aplicarSugerencia } from "./corrector.js";
+import { revisarTexto, aplicarSugerencia, prepararTexto, prepararDiccionarioCompleto } from "./corrector.js";
 
 const demo = el("demo");
 let avisosActuales = [];
 
-function revisar() {
+prepararDiccionarioCompleto();
+let turno = 0;
+
+async function revisar() {
   const texto = demo.value;
+  const miTurno = ++turno;
+  await prepararTexto(texto);
+  if (miTurno !== turno) return;
   const lineas = contarLineas(texto);
   el("demo-contador").textContent = lineas + " de 10 líneas";
   const barra = el("demo-barra");

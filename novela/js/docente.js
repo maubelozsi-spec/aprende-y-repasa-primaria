@@ -21,7 +21,7 @@ import {
   borrarFicha, alumnosDelDocente, clasesDelDocente,
   asegurarIdsPublicos, migrarClavesDeNovelas, campoNombresAutores,
 } from "./proyectos.js";
-import { indiceDeFaltas } from "./corrector.js";
+import { indiceDeFaltas, prepararTexto } from "./corrector.js";
 import { TIPOS, ESTADOS_NARRATIVOS } from "./fichas.js";
 import { descargarNovela, descargarCuadernoDocente } from "./exportar.js";
 import { MODELOS, ajustesIA, guardarAjustesIA, hayIA, revisarCoherenciaConIA, resumirConIA } from "./ia.js";
@@ -311,6 +311,12 @@ function abrirProyecto(id) {
     pintarNovela();
     pintarParticipacion();
     pintarPendientes();
+    // Las faltas por cada 100 palabras se recalculan cuando el diccionario
+    // completo ha comprobado las palabras que el vocabulario propio no
+    // conoce (si no, contarían como dudas palabras que existen).
+    prepararTexto(lista.map((f) => f.textoOriginal || f.texto).join(" ")).then(() => {
+      if (estado.fragmentos === lista) pintarParticipacion();
+    });
   }));
   estado.desuscribir.push(escucharFichas(id, estado.docente.uid, (lista) => {
     estado.fichas = lista;

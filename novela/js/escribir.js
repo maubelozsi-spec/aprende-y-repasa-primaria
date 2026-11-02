@@ -21,7 +21,7 @@ import {
   publicarFragmento, editarFragmento, crearFicha, marcarNotaLeida,
   pedirTurno, soltarTurno, actualizarProyecto,
 } from "./proyectos.js";
-import { revisarTexto, aplicarSugerencia } from "./corrector.js";
+import { revisarTexto, aplicarSugerencia, prepararTexto, prepararDiccionarioCompleto } from "./corrector.js";
 import { anadirPalabrasDelProyecto } from "./diccionario.js";
 import { pedirFicha, verFicha, nombresFichados, buscarFicha, TIPOS } from "./fichas.js";
 import { revisarContinuidad } from "./coherencia.js";
@@ -61,6 +61,9 @@ async function arrancar() {
   }
 
   el("quien-soy").textContent = estado.sesion.code;
+  // El diccionario completo tarda unos segundos en prepararse: se empieza
+  // ya, mientras el alumno lee la novela.
+  prepararDiccionarioCompleto();
 
   escucharProyecto(estado.proyectoId, (p) => {
     if (!p) {
@@ -285,9 +288,17 @@ function programarRevision() {
   temporizador = setTimeout(() => revisarYPintar(false), 900);
 }
 
-function revisarYPintar(manual) {
+let turnoRevision = 0;
+async function revisarYPintar(manual) {
   const texto = el("editor").value;
   if (!texto.trim()) { el("avisos").innerHTML = ""; return []; }
+  // Primero se consultan en el diccionario completo las palabras que el
+  // vocabulario propio no conoce; si entretanto el alumno sigue
+  // escribiendo, esta revisión se descarta y vale la siguiente.
+  const turno = ++turnoRevision;
+  if (manual) el("avisos").innerHTML = '<p class="texto-suave">Revisando…</p>';
+  await prepararTexto(texto);
+  if (turno !== turnoRevision) return [];
   const { avisos } = revisarTexto(texto, { nombresFichados: nombresFichados(estado.fichas) });
   estado.avisosActuales = avisos;
   pintarAvisos(avisos, manual);
@@ -478,6 +489,7 @@ async function publicar() {
   }
 
   // 2. fichas de los nombres nuevos
+  await prepararTexto(texto);
   const { avisos, propios } = revisarTexto(texto, { nombresFichados: nombresFichados(estado.fichas) });
   const nuevos = [];
   const vistos = new Set();
