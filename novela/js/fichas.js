@@ -151,8 +151,8 @@ export function verFicha(ficha, opciones) {
           return r ? `<dt>${escapaHtml(p.texto)}</dt><dd>${escapaHtml(r)}</dd>` : "";
         }).join("")}
       </dl>
-      ${conf.mostrarAutor && ficha.autorCode
-        ? `<p class="pequeno texto-suave">Ficha creada por <span class="codigo-alumno">${escapaHtml(ficha.autorCode)}</span></p>` : ""}
+      ${conf.mostrarAutor && ficha.autorNombre
+        ? `<p class="pequeno texto-suave">Ficha creada por <span class="codigo-alumno">${escapaHtml(ficha.autorNombre)}</span></p>` : ""}
       <div class="modal-botones">
         ${conf.puedeEditar ? '<button class="btn btn-secundario" id="ficha-editar">Cambiar el estado</button>' : ""}
         <button class="btn btn-principal" id="ficha-cerrar">Cerrar</button>

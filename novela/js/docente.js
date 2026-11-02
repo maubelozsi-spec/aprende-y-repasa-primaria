@@ -19,6 +19,7 @@ import {
   escucharFichas, escucharNotas, actualizarProyecto, borrarProyecto,
   cambiarEstadoFragmento, borrarFragmento, crearNota, actualizarFicha,
   borrarFicha, alumnosDelDocente, clasesDelDocente,
+  asegurarIdsPublicos, migrarClavesDeNovelas,
 } from "./proyectos.js";
 import { indiceDeFaltas } from "./corrector.js";
 import { TIPOS, ESTADOS_NARRATIVOS } from "./fichas.js";
@@ -37,6 +38,44 @@ const estado = {
   desuscribir: [],
 };
 
+// ---------- identidad del alumnado ----------
+//
+// Las novelas guardan el identificador público de cada alumno
+// (publicId), nunca su clave: los compañeros leen estos documentos. El
+// docente sí ve la clave en su panel, porque la saca de su lista de
+// alumnos, no de la novela.
+
+const MARCA_MIGRACION = "nov_claves_migradas_v1_";
+
+async function prepararIdentidades() {
+  try {
+    await asegurarIdsPublicos(estado.alumnos);
+    let hecho = false;
+    try { hecho = localStorage.getItem(MARCA_MIGRACION + estado.docente.uid) === "1"; } catch (e) { /* sin localStorage */ }
+    if (!hecho) {
+      const n = await migrarClavesDeNovelas(estado.docente.uid, estado.alumnos);
+      try { localStorage.setItem(MARCA_MIGRACION + estado.docente.uid, "1"); } catch (e) { /* sin localStorage */ }
+      if (n) aviso("He quitado las claves del alumnado de " + n + " documento(s) de tus novelas.", "info");
+    }
+  } catch (e) {
+    aviso("No he podido preparar las novelas para el alumnado (" + (e.message || e) + "). Recarga la página.", "error");
+  }
+}
+
+function alumnoDe(publicId) {
+  return estado.alumnos.find((a) => a.publicId && a.publicId === publicId) || null;
+}
+
+function nombreDe(publicId, respaldo) {
+  const a = alumnoDe(publicId);
+  return a ? (a.nickname || a.code) : (respaldo || "alumno/a");
+}
+
+function claveDe(publicId) {
+  const a = alumnoDe(publicId);
+  return a ? a.code : "";
+}
+
 // ---------- arranque ----------
 
 async function arrancar() {
@@ -50,6 +89,7 @@ async function arrancar() {
 
   estado.clases = await clasesDelDocente(estado.docente.uid);
   estado.alumnos = await alumnosDelDocente(estado.docente.uid, null);
+  await prepararIdentidades();
 
   escucharProyectosDelDocente(estado.docente.uid, (lista) => {
     estado.proyectos = lista;
@@ -166,7 +206,7 @@ async function revisarFragmentoConIA(f) {
   if (!enviar) return;
   await crearNota(estado.proyecto, {
     fragmentoId: f.id,
-    destinatarioCode: f.autorCode,
+    destinatarioId: f.autorId,
     tipo: "indicacion",
     texto: enviar,
   });
@@ -235,7 +275,8 @@ async function nuevaNovela() {
   if (!datos) return;
   const participantes = estado.alumnos
     .filter((a) => !datos.classId || a.classId === datos.classId)
-    .map((a) => a.code);
+    .map((a) => a.publicId)
+    .filter(Boolean);
   const id = await crearProyecto({
     teacherId: estado.docente.uid,
     classId: datos.classId,
@@ -287,7 +328,7 @@ function pintarNovela() {
   const cont = el("fragmentos");
   el("datos-novela").textContent =
     estado.fragmentos.length + " partes · " + (estado.proyecto.numPalabras || 0) + " palabras · " +
-    new Set(estado.fragmentos.map((f) => f.autorCode)).size + " autores";
+    new Set(estado.fragmentos.map((f) => f.autorId)).size + " autores";
 
   if (!estado.fragmentos.length) {
     cont.innerHTML = '<p class="novela-vacia">Todavía no ha escrito nadie.</p>';
@@ -298,7 +339,7 @@ function pintarNovela() {
     if (f.estado === "pendiente") clases.push("pendiente");
     if (f.estado === "oculto") clases.push("oculto-docente");
     if (f.estado === "cambios") clases.push("necesita-cambios");
-    const color = colorDeCodigo(f.autorCode);
+    const color = colorDeCodigo(f.autorId);
     return `<div class="${clases.join(" ")}" data-id="${escapaHtml(f.id)}" style="border-left-color:${color}">${escapaHtml(f.texto)}</div>`;
   }).join("");
 
@@ -317,15 +358,14 @@ function abrirDetalle(div, id) {
   const f = estado.fragmentos.find((x) => x.id === id);
   if (!f) return;
   div.classList.add("abierto");
-  const alumno = estado.alumnos.find((a) => a.code === f.autorCode);
   const idx = indiceDeFaltas(f.textoOriginal || f.texto);
 
   const caja = document.createElement("div");
   caja.className = "detalle-fragmento";
   caja.innerHTML =
     `<span>Parte ${numero(f.orden)}</span>` +
-    `<span class="autor" style="color:${colorDeCodigo(f.autorCode)}">${escapaHtml(alumno ? (alumno.nickname || f.autorCode) : f.autorCode)}</span>` +
-    `<span class="codigo-alumno">${escapaHtml(f.autorCode)}</span>` +
+    `<span class="autor" style="color:${colorDeCodigo(f.autorId)}">${escapaHtml(nombreDe(f.autorId, f.autorNombre))}</span>` +
+    `<span class="codigo-alumno">${escapaHtml(claveDe(f.autorId))}</span>` +
     `<span>${escapaHtml(fechaCorta(f.creadoEn))}</span>` +
     `<span>${idx.palabras} palabras · ${idx.por100} faltas/100</span>` +
     (f.vecesEditado ? `<span class="etiqueta">corregido ${numero(f.vecesEditado)}×</span>` : "") +
@@ -369,7 +409,7 @@ async function mandarNota(fragmento, tipo, titulo) {
       felicitacion: "Me ha encantado cómo has descrito el bosque. ¡Sigue así!",
     };
     caja.innerHTML = `
-      <h2>${escapaHtml(titulo)} para ${escapaHtml(fragmento.autorCode)}</h2>
+      <h2>${escapaHtml(titulo)} para ${escapaHtml(nombreDe(fragmento.autorId, fragmento.autorNombre))}</h2>
       <div class="cita" style="font-family:var(--serif); font-style:italic; border-left:3px solid var(--borde-fuerte); padding-left:10px; margin:8px 0">
         ${escapaHtml(fragmento.texto.slice(0, 220))}${fragmento.texto.length > 220 ? "…" : ""}
       </div>
@@ -392,7 +432,7 @@ async function mandarNota(fragmento, tipo, titulo) {
   if (!texto) return;
   await crearNota(estado.proyecto, {
     fragmentoId: fragmento.id,
-    destinatarioCode: fragmento.autorCode,
+    destinatarioId: fragmento.autorId,
     tipo: tipo,
     texto: texto,
   });
@@ -407,7 +447,7 @@ function pintarPendientes() {
   cont.innerHTML = `<h2>⏳ ${pendientes.length} parte(s) esperando tu visto bueno</h2>` +
     pendientes.map((f) => `
       <div class="nota">
-        <div class="cabecera-nota">${escapaHtml(f.autorCode)} · parte ${numero(f.orden)}</div>
+        <div class="cabecera-nota">${escapaHtml(nombreDe(f.autorId, f.autorNombre))} · parte ${numero(f.orden)}</div>
         <div>${escapaHtml(f.texto)}</div>
         <div class="botonera" style="margin-top:6px">
           <button class="btn btn-mini btn-exito" data-ok="${escapaHtml(f.id)}">Publicar</button>
@@ -435,10 +475,10 @@ function pintarAutorizar() {
     cont.innerHTML = '<p class="texto-suave">No tienes alumnos dados de alta. Créalos en el panel general del profesorado.</p>';
     return;
   }
-  cont.innerHTML = alumnos.map((a) => `
+  cont.innerHTML = alumnos.filter((a) => a.publicId).map((a) => `
     <label class="interruptor">
-      <input type="checkbox" value="${a.code}" ${autorizados.has(a.code) ? "checked" : ""}>
-      <span>${escapaHtml(a.nickname || a.code)} <span class="codigo-alumno">${a.code}</span></span>
+      <input type="checkbox" value="${escapaHtml(a.publicId)}" ${autorizados.has(a.publicId) ? "checked" : ""}>
+      <span>${escapaHtml(a.nickname || a.code)} <span class="codigo-alumno">${escapaHtml(a.code)}</span></span>
     </label>`).join("");
 }
 
@@ -447,38 +487,39 @@ function marcarTodos(valor) {
 }
 
 async function guardarAutorizados() {
-  const codigos = Array.from(el("lista-autorizar").querySelectorAll("input:checked")).map((i) => i.value);
-  await actualizarProyecto(estado.proyecto.id, { participantes: codigos });
-  aviso("Guardado: " + codigos.length + " alumnos pueden escribir.", "exito");
+  const ids = Array.from(el("lista-autorizar").querySelectorAll("input:checked")).map((i) => i.value);
+  await actualizarProyecto(estado.proyecto.id, { participantes: ids });
+  aviso("Guardado: " + ids.length + " alumnos pueden escribir.", "exito");
 }
 
 function pintarParticipacion() {
   const cont = el("tabla-participacion");
   const autorizados = (estado.proyecto && estado.proyecto.participantes) || [];
   const datos = new Map();
-  for (const codigo of autorizados) datos.set(codigo, { partes: 0, palabras: 0, faltas: 0, total: 0, ultima: null });
+  for (const id of autorizados) datos.set(id, { partes: 0, palabras: 0, faltas: 0, total: 0, ultima: null });
+  const nombres = new Map();
   for (const f of estado.fragmentos) {
-    const d = datos.get(f.autorCode) || { partes: 0, palabras: 0, faltas: 0, total: 0, ultima: null };
+    if (f.autorNombre) nombres.set(f.autorId, f.autorNombre);
+    const d = datos.get(f.autorId) || { partes: 0, palabras: 0, faltas: 0, total: 0, ultima: null };
     const idx = indiceDeFaltas(f.textoOriginal || f.texto);
     d.partes++; d.palabras += idx.palabras; d.faltas += idx.faltas; d.total += idx.palabras;
     d.ultima = f.creadoEn;
-    datos.set(f.autorCode, d);
+    datos.set(f.autorId, d);
   }
   const maxPalabras = Math.max(1, ...Array.from(datos.values()).map((d) => d.palabras));
   const filas = Array.from(datos.entries()).sort((a, b) => b[1].palabras - a[1].palabras);
 
   cont.innerHTML = `<table class="tabla">
     <thead><tr><th>Alumno</th><th>Partes</th><th>Palabras</th><th>Faltas /100</th><th>Última vez</th><th></th></tr></thead>
-    <tbody>${filas.map(([codigo, d]) => {
-      const a = estado.alumnos.find((x) => x.code === codigo);
+    <tbody>${filas.map(([id, d]) => {
       const por100 = Math.round((d.faltas * 1000) / (d.total || 1)) / 10;
       return `<tr class="${d.partes ? "" : "sin-escribir"}">
-        <td>${escapaHtml(a ? (a.nickname || codigo) : codigo)} <span class="codigo-alumno">${codigo}</span></td>
+        <td>${escapaHtml(nombreDe(id, nombres.get(id)))} <span class="codigo-alumno">${escapaHtml(claveDe(id))}</span></td>
         <td class="num">${d.partes}</td>
         <td class="num">${d.palabras}</td>
         <td class="num">${d.partes ? por100 : "—"}</td>
         <td>${d.ultima ? escapaHtml(fechaCorta(d.ultima)) : "todavía no ha escrito"}</td>
-        <td><span class="barra-participacion"><div style="width:${(d.palabras / maxPalabras) * 100}%; background:${colorDeCodigo(codigo)}"></div></span></td>
+        <td><span class="barra-participacion"><div style="width:${(d.palabras / maxPalabras) * 100}%; background:${colorDeCodigo(id)}"></div></span></td>
       </tr>`;
     }).join("")}</tbody></table>`;
 }
@@ -500,7 +541,7 @@ function pintarFichas() {
     return `<div class="nota" style="background:var(--papel-hondo); border-left-color:var(--azul)">
       <div class="cabecera-nota">${t.icono} ${escapaHtml(f.nombre)}
         <span class="etiqueta">${t.etiqueta}</span>
-        <span class="codigo-alumno">${escapaHtml(f.autorCode || "")}</span></div>
+        <span class="codigo-alumno">${escapaHtml(f.autorId ? nombreDe(f.autorId, f.autorNombre) + " · " + claveDe(f.autorId) : "")}</span></div>
       <dl class="ficha-detalle">${respuestas}</dl>
       <div class="botonera">
         ${f.tipo === "personaje" ? `<select data-estado="${escapaHtml(f.id)}">${ESTADOS_NARRATIVOS.map((e) =>
@@ -539,8 +580,8 @@ function pintarAjustes() {
   const sel = el("aj-cerrador");
   const autorizados = p.participantes || [];
   sel.innerHTML = '<option value="">Solo yo</option>' + estado.alumnos
-    .filter((a) => autorizados.includes(a.code))
-    .map((a) => `<option value="${a.code}" ${p.cerradorAutorizado === a.code ? "selected" : ""}>${escapaHtml(a.nickname || a.code)} (${a.code})</option>`)
+    .filter((a) => a.publicId && autorizados.includes(a.publicId))
+    .map((a) => `<option value="${escapaHtml(a.publicId)}" ${p.cerradorAutorizado === a.publicId ? "selected" : ""}>${escapaHtml(a.nickname || a.code)} (${escapaHtml(a.code)})</option>`)
     .join("");
 }
 

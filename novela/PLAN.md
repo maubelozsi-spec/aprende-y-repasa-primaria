@@ -116,12 +116,20 @@ novela/
   escrituraAbierta, siguienteOrden, numFragmentos, numPalabras, resumenManual,
   turnoDe, cerradorAutorizado`.
 - `novFragmentos/{id}`: `proyectoId, teacherId, orden, texto, textoOriginal,
-  autorCode, estado (publicado|pendiente|cambios|oculto), palabras, creadoEn,
+  autorId, autorNombre, estado (publicado|pendiente|cambios|oculto), palabras, creadoEn,
   editadoEn, vecesEditado`.
 - `novFichas/{id}`: `proyectoId, teacherId, tipo, nombre, respuestas{},
-  estadoNarrativo, autorCode`.
-- `novNotas/{id}`: `proyectoId, teacherId, fragmentoId, destinatarioCode, tipo,
+  estadoNarrativo, autorId, autorNombre`.
+- `novNotas/{id}`: `proyectoId, teacherId, fragmentoId, destinatarioId, tipo,
   texto, leido, resuelto`.
+
+Ningún documento de la novela guarda la clave de acceso del alumno: la
+leen todos los compañeros, y con ella se entra como ese alumno. Se guarda
+su identificador público (`students/{clave}.publicId`, aleatorio) en
+`participantes`, `turnoDe`, `cerradorAutorizado`, `cerradaPor`, `autorId` y
+`destinatarioId`, y su apodo en `autorNombre` para firmar. El panel
+docente da `publicId` a los alumnos antiguos y migra las novelas que aún
+llevaban claves (`novela/js/proyectos.js`, `migrarClavesDeNovelas`).
 
 Las reglas están en `firestore.rules` (raíz): cada uno solo publica en su
 nombre, solo corrige su parte, `textoOriginal` no se puede sobrescribir y solo

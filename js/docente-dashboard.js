@@ -47,6 +47,15 @@ function genCode() {
   return code;
 }
 
+// Identificador público del alumno (lo usan las apps donde los
+// compañeros leen lo que escribe, como la Novela Colectiva, en lugar de
+// su clave). Aleatorio y sin relación con la clave.
+function genPublicId() {
+  const bytes = new Uint8Array(9);
+  crypto.getRandomValues(bytes);
+  return "a" + Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 async function genUniqueCode() {
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = genCode();
@@ -921,6 +930,7 @@ document.addEventListener("DOMContentLoaded", () => {
         teacherId: teacher.uid,
         classId: currentClass.id,
         nickname: nickname,
+        publicId: genPublicId(),
         active: true,
         authUid: null,
         hiddenTopics: [],

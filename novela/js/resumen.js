@@ -40,7 +40,7 @@ export function construirResumen(proyecto, fragmentos, fichas) {
   const lugares = (fichas || []).filter((f) => f.tipo === "lugar");
   const inventos = (fichas || []).filter((f) => f.tipo === "invento");
 
-  const autores = new Set(publicados.map((f) => f.autorCode));
+  const autores = new Set(publicados.map((f) => f.autorId));
   const palabras = publicados.reduce((s, f) => s + (f.palabras || 0), 0);
 
   // cómo empieza: primera frase del primer fragmento

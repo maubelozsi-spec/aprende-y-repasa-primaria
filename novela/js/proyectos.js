@@ -9,6 +9,12 @@
 //   novFichas       personajes, lugares y palabras inventadas
 //   novNotas        correcciones e indicaciones del docente
 //
+// Identidad del alumnado: los documentos de la novela NUNCA guardan la
+// clave de acceso (la ven todos los compañeros de la novela y, con ella,
+// se entra como ese alumno). Guardan su identificador público
+// (students/{clave}.publicId, aleatorio y sin valor para entrar) y, en
+// lo que escribe, su apodo (autorNombre) para firmar.
+//
 // Nota sobre el plan gratuito: 25 alumnos escuchando la novela en
 // directo gasta lecturas deprisa. Por eso se escucha SOLO el
 // proyecto abierto y sus fragmentos, y nada más.
@@ -17,7 +23,7 @@
 import {
   collection, doc, addDoc, getDocs, updateDoc, deleteDoc,
   query, where, onSnapshot, serverTimestamp, runTransaction,
-  arrayUnion, arrayRemove, increment,
+  arrayUnion, arrayRemove, increment, writeBatch, deleteField,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { db } from "./firebase-init.js";
 
@@ -68,10 +74,10 @@ export function escucharProyectosDelDocente(teacherId, cb) {
 // Proyectos en los que el docente ha autorizado a este alumno. El filtro
 // por teacherId es obligatorio: las reglas de Firestore solo dejan a
 // una sesión de alumno listar los proyectos de SU docente.
-export async function proyectosDelAlumno(codigo, teacherId) {
+export async function proyectosDelAlumno(publicId, teacherId) {
   const q = query(collection(db, PROYECTOS),
     where("teacherId", "==", teacherId),
-    where("participantes", "array-contains", codigo));
+    where("participantes", "array-contains", publicId));
   const snap = await getDocs(q);
   const lista = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
   lista.sort((a, b) => (b.creadoEn?.seconds || 0) - (a.creadoEn?.seconds || 0));
@@ -89,12 +95,12 @@ export async function actualizarProyecto(id, cambios) {
   await updateDoc(doc(db, PROYECTOS, id), Object.assign({ actualizadoEn: serverTimestamp() }, cambios));
 }
 
-export async function autorizarAlumnos(id, codigos) {
-  await updateDoc(doc(db, PROYECTOS, id), { participantes: arrayUnion.apply(null, codigos) });
+export async function autorizarAlumnos(id, publicIds) {
+  await updateDoc(doc(db, PROYECTOS, id), { participantes: arrayUnion.apply(null, publicIds) });
 }
 
-export async function quitarAlumno(id, codigo) {
-  await updateDoc(doc(db, PROYECTOS, id), { participantes: arrayRemove(codigo) });
+export async function quitarAlumno(id, publicId) {
+  await updateDoc(doc(db, PROYECTOS, id), { participantes: arrayRemove(publicId) });
 }
 
 export async function borrarProyecto(id, teacherId) {
@@ -143,7 +149,8 @@ export async function publicarFragmento(proyecto, datos) {
       orden: orden,
       texto: datos.texto,
       textoOriginal: datos.texto,     // lo que escribió el alumno, intacto
-      autorCode: datos.autorCode,
+      autorId: datos.autorId,
+      autorNombre: String(datos.autorNombre || "").slice(0, 60),
       estado: p.moderacionPrevia ? "pendiente" : "publicado",
       entidades: datos.entidades || [],
       avisosAlPublicar: datos.avisos || 0,
@@ -157,7 +164,7 @@ export async function publicarFragmento(proyecto, datos) {
       numFragmentos: increment(1),
       numPalabras: increment(palabras),
       actualizadoEn: serverTimestamp(),
-      turnoDe: p.modoTurno === "cola" && p.turnoDe === datos.autorCode ? null : (p.turnoDe || null),
+      turnoDe: p.modoTurno === "cola" && p.turnoDe === datos.autorId ? null : (p.turnoDe || null),
     });
   });
   return refFragmento.id;
@@ -206,7 +213,8 @@ export async function crearFicha(proyecto, datos) {
     nombre: datos.nombre,
     respuestas: datos.respuestas || {},
     estadoNarrativo: datos.estadoNarrativo || "en la historia",
-    autorCode: datos.autorCode,
+    autorId: datos.autorId,
+    autorNombre: String(datos.autorNombre || "").slice(0, 60),
     creadoEn: serverTimestamp(),
   });
   return ref.id;
@@ -239,7 +247,7 @@ export async function crearNota(proyecto, datos) {
     proyectoId: proyecto.id,
     teacherId: proyecto.teacherId,
     fragmentoId: datos.fragmentoId || null,
-    destinatarioCode: datos.destinatarioCode,
+    destinatarioId: datos.destinatarioId,
     tipo: datos.tipo || "indicacion",   // correccion | indicacion | felicitacion
     texto: datos.texto,
     leido: false,
@@ -264,13 +272,13 @@ export async function borrarNota(id) {
 
 // En modo cola solo escribe quien tiene el turno. Se pide con una
 // transacción para que no se lo lleven dos a la vez.
-export async function pedirTurno(proyectoId, codigo) {
+export async function pedirTurno(proyectoId, publicId) {
   const ref = doc(db, PROYECTOS, proyectoId);
   return runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
     const p = snap.data();
-    if (p.turnoDe && p.turnoDe !== codigo) return false;
-    tx.update(ref, { turnoDe: codigo, turnoDesde: serverTimestamp() });
+    if (p.turnoDe && p.turnoDe !== publicId) return false;
+    tx.update(ref, { turnoDe: publicId, turnoDesde: serverTimestamp() });
     return true;
   });
 }
@@ -294,4 +302,81 @@ export async function clasesDelDocente(teacherId) {
   const q = query(collection(db, "classes"), where("teacherId", "==", teacherId));
   const snap = await getDocs(q);
   return snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+}
+
+// ---------- identificador público y migración (panel docente) ----------
+
+// Identificador público de un alumno: aleatorio, sin relación con su clave.
+export function nuevoIdPublico() {
+  const bytes = new Uint8Array(9);
+  crypto.getRandomValues(bytes);
+  return "a" + Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Da un identificador público a los alumnos que aún no lo tienen (los
+// creados antes de este cambio). Lo hace el docente, que es quien puede
+// escribir en su ficha. Devuelve cuántos ha completado.
+export async function asegurarIdsPublicos(alumnos) {
+  const sinId = alumnos.filter((a) => !a.publicId);
+  for (let i = 0; i < sinId.length; i += 400) {
+    const lote = writeBatch(db);
+    sinId.slice(i, i + 400).forEach((a) => {
+      a.publicId = nuevoIdPublico();
+      lote.update(doc(db, "students", a.code), { publicId: a.publicId });
+    });
+    await lote.commit();
+  }
+  return sinId.length;
+}
+
+// Quita las claves de acceso de las novelas guardadas antes de este
+// cambio y las sustituye por el identificador público. Solo toca los
+// documentos que aún llevan claves, así que repetirla no cuesta
+// escrituras. Las lecturas sí: por eso el panel la ejecuta una vez por
+// navegador (ver novela/js/docente.js).
+export async function migrarClavesDeNovelas(teacherId, alumnos) {
+  const porClave = new Map(alumnos.filter((a) => a.publicId).map((a) => [a.code, a]));
+  const idDe = (v) => (porClave.has(v) ? porClave.get(v).publicId : v);
+  const cambios = [];
+
+  const proyectos = await getDocs(query(collection(db, PROYECTOS), where("teacherId", "==", teacherId)));
+  proyectos.forEach((d) => {
+    const p = d.data();
+    const c = {};
+    const part = (p.participantes || []).map(idDe);
+    if (part.some((v, i) => v !== (p.participantes || [])[i])) c.participantes = part;
+    ["turnoDe", "cerradorAutorizado", "cerradaPor"].forEach((k) => {
+      if (p[k] && idDe(p[k]) !== p[k]) c[k] = idDe(p[k]);
+    });
+    if (Object.keys(c).length) cambios.push([d.ref, c]);
+  });
+
+  for (const col of [FRAGMENTOS, FICHAS]) {
+    const snap = await getDocs(query(collection(db, col), where("teacherId", "==", teacherId)));
+    snap.forEach((d) => {
+      const f = d.data();
+      if (!("autorCode" in f)) return;
+      const a = porClave.get(f.autorCode);
+      cambios.push([d.ref, {
+        autorId: a ? a.publicId : "",
+        autorNombre: f.autorNombre || (a ? String(a.nickname || "").slice(0, 60) : ""),
+        autorCode: deleteField(),
+      }]);
+    });
+  }
+
+  const notas = await getDocs(query(collection(db, NOTAS), where("teacherId", "==", teacherId)));
+  notas.forEach((d) => {
+    const n = d.data();
+    if (!("destinatarioCode" in n)) return;
+    const a = porClave.get(n.destinatarioCode);
+    cambios.push([d.ref, { destinatarioId: a ? a.publicId : "", destinatarioCode: deleteField() }]);
+  });
+
+  for (let i = 0; i < cambios.length; i += 400) {
+    const lote = writeBatch(db);
+    cambios.slice(i, i + 400).forEach(([ref, c]) => lote.update(ref, c));
+    await lote.commit();
+  }
+  return cambios.length;
 }
