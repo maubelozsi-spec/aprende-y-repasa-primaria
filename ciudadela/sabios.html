@@ -40,6 +40,12 @@
           <p class="dato"><b>¿Sabías que…?</b> Muchos años después, Zenón decía que aquel naufragio había sido su mejor viaje. Un obstáculo que se convirtió en su camino.</p>
           <button type="button" class="btn suave peq leer" data-leer="zenon"><span data-icono="altavoz"></span>Escuchar</button>
         </div>
+        <figure class="sabio-video">
+          <video controls preload="none" playsinline poster="video/zenon.jpg" aria-label="Vídeo: Superpoderes mentales">
+            <source src="video/zenon.mp4" type="video/mp4">
+          </video>
+          <figcaption>Vídeo: <b>Superpoderes mentales</b> · 6 min</figcaption>
+        </figure>
       </article>
 
       <article class="sabio v-coraje" id="seneca">
@@ -52,6 +58,12 @@
           <p class="dato"><b>¿Sabías que…?</b> En Córdoba hay una estatua de Séneca junto a la Puerta de Almodóvar. Si vas, salúdale de nuestra parte.</p>
           <button type="button" class="btn suave peq leer" data-leer="seneca"><span data-icono="altavoz"></span>Escuchar</button>
         </div>
+        <figure class="sabio-video">
+          <video controls preload="none" playsinline poster="video/seneca.jpg" aria-label="Vídeo: El pequeño estoico">
+            <source src="video/seneca.mp4" type="video/mp4">
+          </video>
+          <figcaption>Vídeo: <b>El pequeño estoico</b> · 6 min</figcaption>
+        </figure>
       </article>
 
       <article class="sabio v-justicia" id="epicteto">
@@ -76,6 +88,12 @@
           <p class="dato"><b>¿Sabías que…?</b> La familia de su padre procedía de Ucubi, la actual Espejo, un pueblo de la provincia de Córdoba.</p>
           <button type="button" class="btn suave peq leer" data-leer="marco"><span data-icono="altavoz"></span>Escuchar</button>
         </div>
+        <figure class="sabio-video">
+          <video controls preload="none" playsinline poster="video/marco-aurelio.jpg" aria-label="Vídeo: El diario del emperador">
+            <source src="video/marco-aurelio.mp4" type="video/mp4">
+          </video>
+          <figcaption>Vídeo: <b>El diario del emperador</b> · 8 min</figcaption>
+        </figure>
       </article>
     </div>
   </section>
@@ -209,6 +227,15 @@
         var texto = [];
         for (var j = 0; j < partes.length; j++) texto.push(partes[j].textContent);
         C.hablar(texto.join(". "));
+      });
+    }
+
+    // Solo suena un vídeo a la vez, y la lectura en voz alta se calla al darle al play.
+    var videos = document.querySelectorAll(".sabio-video video");
+    for (var k = 0; k < videos.length; k++) {
+      videos[k].addEventListener("play", function () {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        for (var m = 0; m < videos.length; m++) if (videos[m] !== this) videos[m].pause();
       });
     }
   });

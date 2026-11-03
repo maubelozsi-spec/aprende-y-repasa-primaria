@@ -592,6 +592,10 @@ body.proyectando .escenario-cuerpo{padding-inline:clamp(28px,6vw,110px)}
 .dato{margin-top:12px; padding:10px 12px; border-radius:10px; background:var(--papel-2); font-size:15px}
 .dato b{color:var(--v)}
 .sabio .leer{margin-top:12px}
+.sabio-video{grid-column:1 / -1; margin:0}
+.sabio-video video{display:block; width:100%; aspect-ratio:16 / 9; border-radius:12px; background:#000; border:1px solid var(--linea)}
+.sabio-video figcaption{margin-top:6px; font-size:14px; color:var(--tinta-suave)}
+.sabio-video figcaption b{color:var(--v)}
 
 .virtudes-grandes{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr)); gap:14px}
 .virtud-grande{background:var(--papel); border-radius:var(--r); border:1px solid var(--linea); overflow:hidden; box-shadow:var(--sombra); display:flex; flex-direction:column}
