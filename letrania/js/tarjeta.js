@@ -1,21 +1,23 @@
 // ============================================================
-// Letrania · tarjeta del inicio (index.html) para el alumnado.
+// Letrania · acceso desde Juegos para el alumnado.
 //
-// La tarjeta solo aparece mientras el maestro tiene habilitado al
+// Muestra los elementos marcados con [data-letrania-acceso]: el aviso
+// dentro de la tarjeta Juegos del inicio (index.html) y la tarjeta de
+// Letrania en juegos/index.html. Solo aparecen mientras el maestro tiene habilitado al
 // alumno (hoy y con minutos sin gastar). Al quitarle el acceso
 // desaparece, pero su héroe, XP, gemas y estación siguen guardados en
 // letHeroes/{clave}: quitar el acceso solo cambia «habilitado».
 //
-// La carga js/layout.js solo en el inicio y solo si hay sesión de
+// La carga js/layout.js solo en esas dos páginas y solo si hay sesión de
 // alumno. Consumo: una escucha sobre SU documento de letHeroes mientras
-// el inicio está abierto (1 lectura al abrir y otra por cada cambio del
+// la página está abierta (1 lectura al abrir y otra por cada cambio del
 // maestro); se cancela al salir de la página.
 // ============================================================
 
 import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 import { db } from "../../js/firebase-init.js";
 
-const tarjeta = document.getElementById("tarjeta-letrania");
+const elementos = document.querySelectorAll("[data-letrania-acceso]");
 
 function sesion() {
   try {
@@ -36,8 +38,10 @@ function pintar(h) {
     hasta = h.inicio ? ms(h.inicio) + (h.minutos || 15) * 60000 : ms(h.habilitadoHasta);
   }
   const visible = hasta > Date.now();
-  tarjeta.style.display = visible ? "" : "none";
-  tarjeta.hidden = !visible;
+  elementos.forEach((el) => {
+    el.style.display = visible ? "" : "none";
+    el.hidden = !visible;
+  });
   if (visible) ocultarT = setTimeout(() => pintar(h), Math.min(hasta - Date.now() + 500, 2147483000));
 }
 
@@ -49,7 +53,7 @@ function dispositivoListo() {
 }
 
 const s = sesion();
-if (tarjeta && s && s.code) {
+if (elementos.length && s && s.code) {
   dispositivoListo().then(() => {
     const cancelar = onSnapshot(
       doc(db, "letHeroes", s.code),
