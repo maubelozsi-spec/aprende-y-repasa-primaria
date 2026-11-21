@@ -14,7 +14,7 @@
 // IMPORTANTE: subir CACHE_NAME en cada cambio notable de la app.
 // ============================================================
 
-const CACHE_NAME = "iv-cache-v1";
+const CACHE_NAME = "iv-cache-v2";
 
 const APP_SHELL = [
   "./",
@@ -34,7 +34,6 @@ const APP_SHELL = [
   "js/evaluador.js",
   "js/gramatica.js",
   "js/pronunciacion.js",
-  "js/ia.js",
   "js/datos-conversaciones.js",
   "js/datos-vocabulario.js",
   "js/datos-lexico.js",

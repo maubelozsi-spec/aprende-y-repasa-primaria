@@ -76,9 +76,9 @@ autorizado en Ajustes) y descargar los dos PDF.
   el cuaderno del docente con autoría, participación e indicaciones.
 - **Tutorial** para el alumnado con un recuadro para practicar con el corrector
   de verdad sin guardar nada.
-- **IA opcional** (`js/ia.js`): solo en el panel docente y solo si el docente
-  pega su clave de la API. Revisa la coherencia de una parte y redacta el
-  resumen. Propone; nunca cambia el texto.
+- **Sin IA de pago**: la capa opcional con la API de Anthropic se retiró
+  por el requisito de coste cero. La coherencia y el resumen los hacen
+  `coherencia.js` y `resumen.js`, que funcionan sin conexión y gratis.
 - **PWA**: instalable y utilizable con el wifi caído.
 
 ---
@@ -106,7 +106,6 @@ novela/
     moderacion.js    filtro de seguridad
     pdf.js           escritor de PDF propio
     exportar.js      los dos documentos finales
-    ia.js            capa opcional de IA (solo panel docente)
 ```
 
 ## 4. Datos (Firestore)

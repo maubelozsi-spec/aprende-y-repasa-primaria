@@ -23,9 +23,6 @@ const POR_DEFECTO = {
   ajustes: {
     nuevasPorDia: 8,
     modoEntrada: "voz",
-    usarIA: false,
-    claveIA: "",
-    modeloIA: "claude-opus-5",
   },
   racha: { ultimoDia: null, dias: 0 },
   estadisticas: { turnos: 0, perfectos: 0, repasos: 0 },
@@ -34,6 +31,8 @@ const POR_DEFECTO = {
 function clonar(objeto) {
   return JSON.parse(JSON.stringify(objeto));
 }
+
+const QUITADOS = ["usarIA", "claveIA", "modeloIA"];
 
 function fusionar(base, guardado) {
   const resultado = clonar(base);
@@ -45,6 +44,9 @@ function fusionar(base, guardado) {
       resultado[clave] = guardado[clave];
     }
   });
+  // Restos de la antigua capa de IA de pago (retirada por el requisito
+  // de coste cero): la clave de la API no debe quedarse guardada.
+  QUITADOS.forEach((campo) => { delete resultado.ajustes[campo]; });
   resultado.version = VERSION;
   return resultado;
 }
@@ -55,7 +57,11 @@ export function leer() {
   if (cache) return cache;
   try {
     const crudo = localStorage.getItem(CLAVE);
-    cache = fusionar(POR_DEFECTO, crudo ? JSON.parse(crudo) : null);
+    const guardado = crudo ? JSON.parse(crudo) : null;
+    cache = fusionar(POR_DEFECTO, guardado);
+    const teniaClave = guardado && guardado.ajustes &&
+      QUITADOS.some((campo) => campo in guardado.ajustes);
+    if (teniaClave) guardar(cache); // borra la clave del navegador
   } catch (e) {
     cache = clonar(POR_DEFECTO);
   }
@@ -216,20 +222,13 @@ export function resumen(todosLosIds, totalNiveles) {
 // ---------- respaldo ----------
 
 export function exportar() {
-  const datos = clonar(leer());
-  // La clave de la API nunca sale del dispositivo, ni siquiera en
-  // el respaldo: es un secreto personal y un archivo se comparte
-  // con demasiada facilidad.
-  if (datos.ajustes) datos.ajustes.claveIA = "";
-  return JSON.stringify(datos, null, 2);
+  return JSON.stringify(leer(), null, 2);
 }
 
 export function importar(textoJson) {
   const entrante = JSON.parse(textoJson);
   if (!entrante || typeof entrante !== "object") throw new Error("El archivo no tiene el formato esperado.");
-  const claveActual = leer().ajustes.claveIA;
   cache = fusionar(POR_DEFECTO, entrante);
-  cache.ajustes.claveIA = claveActual; // se conserva la clave del dispositivo
   return guardar(cache);
 }
 
