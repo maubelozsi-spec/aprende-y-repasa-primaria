@@ -8,7 +8,6 @@ import {
   resumen, leer, tarjeta, progresoNivel, ajustes, guardarAjustes,
   exportar, importar, borrarTodo,
 } from "./almacen.js";
-import { hayIA, MODELOS, probarClave } from "./ia.js";
 import { aviso, escapar, pintarCabecera, confirmar } from "./comun.js";
 import { soportaMicrofono } from "./voz.js";
 
@@ -29,7 +28,6 @@ function pintar() {
     ${bloqueVocabulario()}
     ${bloqueFlojas()}
     ${bloqueAjustes(a)}
-    ${bloqueIA(a)}
     ${bloqueRespaldo()}`;
 
   enlazar();
@@ -169,54 +167,13 @@ function bloqueAjustes(a) {
     </div>`;
 }
 
-function bloqueIA(a) {
-  return `
-    <div class="tarjeta">
-      <h2>Conversación libre con IA <span class="caja-caja">opcional</span></h2>
-      <p class="texto-suave" style="font-size:0.92rem">
-        La app funciona entera sin esto. Si pegas aquí tu clave de la API de Anthropic, además de los
-        guiones podrás recibir correcciones sobre <strong>cualquier</strong> frase que digas, con
-        traducción real y explicaciones a medida.
-      </p>
-      <div class="tarjeta-plana" style="margin-bottom:14px">
-        <p style="margin:0; font-size:0.88rem">
-          <strong>Sobre la clave:</strong> se guarda solo en este navegador y se envía directamente a
-          la API de Anthropic. Es razonable en tu móvil o tu ordenador personal; no la pongas en un
-          equipo compartido, y no publiques la app con la clave dentro. El uso lo pagas tú, según lo
-          que consumas.
-        </p>
-      </div>
-
-      <label for="usar-ia">
-        <input type="checkbox" id="usar-ia" ${a.usarIA ? "checked" : ""} style="width:auto; margin-right:6px">
-        Activar las correcciones con IA
-      </label>
-
-      <label for="clave" style="margin-top:12px">Clave de la API</label>
-      <input type="password" id="clave" value="${escapar(a.claveIA)}" placeholder="sk-ant-..." autocomplete="off">
-
-      <label for="modelo" style="margin-top:12px">Modelo</label>
-      <select id="modelo">
-        ${MODELOS.map((m) => `<option value="${m.id}" ${a.modeloIA === m.id ? "selected" : ""}>${escapar(m.nombre)}</option>`).join("")}
-      </select>
-
-      <div class="fila-botones" style="margin-top:12px">
-        <button class="btn btn-principal" id="btn-guardar-ia">Guardar</button>
-        <button class="btn btn-secundario" id="btn-probar-ia">Probar la conexión</button>
-      </div>
-      <p class="texto-tenue" id="estado-ia" style="margin:10px 0 0">
-        ${hayIA() ? "IA activada." : "IA desactivada: la app usa las correcciones propias, que funcionan sin conexión."}
-      </p>
-    </div>`;
-}
-
 function bloqueRespaldo() {
   return `
     <div class="tarjeta">
       <h2>Copia de seguridad</h2>
       <p class="texto-suave" style="font-size:0.92rem">
         Tu progreso vive solo en este dispositivo. Si cambias de móvil, descarga el archivo aquí
-        y cárgalo en el nuevo. (La clave de la API no se incluye en el archivo, a propósito.)
+        y cárgalo en el nuevo.
       </p>
       <div class="fila-botones">
         <button class="btn btn-secundario" id="btn-exportar">Descargar mi progreso</button>
@@ -247,41 +204,6 @@ function enlazar() {
       aviso("Ajuste guardado.", "exito");
     });
   }
-
-  document.getElementById("btn-guardar-ia").addEventListener("click", () => {
-    guardarAjustes({
-      usarIA: document.getElementById("usar-ia").checked,
-      claveIA: document.getElementById("clave").value.trim(),
-      modeloIA: document.getElementById("modelo").value,
-    });
-    document.getElementById("estado-ia").textContent = hayIA()
-      ? "IA activada."
-      : "IA desactivada: la app usa las correcciones propias, que funcionan sin conexión.";
-    aviso("Ajustes de IA guardados.", "exito");
-  });
-
-  document.getElementById("btn-probar-ia").addEventListener("click", async () => {
-    const boton = document.getElementById("btn-probar-ia");
-    const estado = document.getElementById("estado-ia");
-    guardarAjustes({
-      usarIA: true,
-      claveIA: document.getElementById("clave").value.trim(),
-      modeloIA: document.getElementById("modelo").value,
-    });
-    boton.disabled = true;
-    estado.textContent = "Probando…";
-    try {
-      const mensaje = await probarClave();
-      estado.textContent = "✅ " + mensaje;
-      document.getElementById("usar-ia").checked = true;
-      aviso("Conexión correcta.", "exito");
-    } catch (error) {
-      estado.textContent = "❌ " + error.message;
-      aviso(error.message, "error");
-    } finally {
-      boton.disabled = false;
-    }
-  });
 
   document.getElementById("btn-exportar").addEventListener("click", () => {
     const blob = new Blob([exportar()], { type: "application/json" });

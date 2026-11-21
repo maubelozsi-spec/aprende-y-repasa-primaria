@@ -7,9 +7,7 @@
 // avisa de los saltos más gordos.
 //
 // Importante: NUNCA reescribe ni impide publicar. Solo avisa, y
-// quien escribe decide. Si el docente activa la IA opcional, esa
-// revisión se hace además con un modelo de verdad (ver ia.js), pero
-// la regla es la misma: propone, no cambia.
+// quien escribe decide.
 // ============================================================
 
 

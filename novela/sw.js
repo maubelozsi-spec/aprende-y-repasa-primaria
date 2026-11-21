@@ -10,7 +10,7 @@
 // resto de la web). IMPORTANTE: subir CACHE_NAME en cada cambio.
 // ============================================================
 
-const CACHE_NAME = "novela-cache-v4";
+const CACHE_NAME = "novela-cache-v5";
 
 const APP_SHELL = [
   "./",
@@ -36,7 +36,6 @@ const APP_SHELL = [
   "js/moderacion.js",
   "js/pdf.js",
   "js/exportar.js",
-  "js/ia.js",
   "../js/firebase-config.js",
   "../js/auth.js",
   "../js/firebase-init.js",
