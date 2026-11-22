@@ -405,6 +405,10 @@ import "../../js/auth.js";
     grupoArea: "lengua",
     grupoPrueba: 1,
     susArea: "ambas",
+    conTexto: "",
+    conArea: "ambas",
+    conEstado: "problema",
+    conPeriodo: 0,
     susCriterio: "prueba",
     susPrueba: 1,
     susTrimestre: 1,
@@ -450,7 +454,7 @@ import "../../js/auth.js";
     pintarAvisos();
     vaciar(main);
     main.classList.remove("vista-fija");
-    ({ individual: vistaIndividual, grupo: vistaGrupo, suspensos: vistaSuspensos, resumen: vistaResumen, pruebas: vistaPruebas, copia: vistaCopia })[UI.vista]();
+    ({ individual: vistaIndividual, grupo: vistaGrupo, suspensos: vistaSuspensos, contenidos: vistaContenidos, resumen: vistaResumen, pruebas: vistaPruebas, copia: vistaCopia })[UI.vista]();
     window.scrollTo(0, 0);
   }
 
@@ -1198,6 +1202,153 @@ import "../../js/auth.js";
       });
     });
     return res;
+  }
+
+  // ---------------- Buscar por contenido ----------------
+  //
+  // Un mismo contenido sale en varias SdA con nombres parecidos
+  // («Divisiones y su prueba», «Divisiones», «Divisiones y ¿es divisor?»).
+  // Esta vista los busca por texto en todas las SdA y dice qué alumnos
+  // lo fallan o lo tienen en proceso en cada una.
+
+  var SUGERENCIAS_CONTENIDO = {
+    mates: ["divisiones", "multiplicaciones", "sumas", "restas", "problemas", "jerarquía", "múltiplos", "divisores", "redondeo", "ángulos", "coordenadas", "fracciones", "decimales"],
+    lengua: ["comprensión lectora", "comprensión oral", "dictado", "acentuación", "agudas", "verbo", "sinónimos", "prefijos", "enunciado", "diptongos"],
+  };
+  function normalizar(t) {
+    return String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[«»"]/g, "");
+  }
+  // Términos separados por comas: basta con que coincida uno.
+  function terminosBusqueda(t) {
+    return String(t || "").split(",").map(normalizar).map(function (x) { return x.trim(); }).filter(Boolean);
+  }
+
+  // Contenidos que coinciden: [{area, pn, version, item}]
+  function contenidosQueCoinciden(texto, areaSel, t) {
+    var terms = terminosBusqueda(texto);
+    if (!terms.length) return [];
+    var res = [];
+    areasDe(areaSel).forEach(function (area) {
+      pruebasDeTrimestre(t).forEach(function (pn) {
+        ["ordinaria", "acs"].forEach(function (version) {
+          plantilla(area, pn, version).forEach(function (it) {
+            var c = normalizar(it.contenido);
+            if (terms.some(function (q) { return c.indexOf(q) !== -1; })) res.push({ area: area, pn: pn, version: version, item: it });
+          });
+        });
+      });
+    });
+    return res;
+  }
+
+  function vistaContenidos() {
+    var caja = h("section", { class: "tarjeta no-imprimir" });
+    var entrada = h("input", {
+      type: "search", class: "campo campo-buscar", value: UI.conTexto, placeholder: "Por ejemplo: divisiones   (varios: divisiones, problemas)",
+      "aria-label": "Contenido que buscas",
+    });
+    var temporizadorBusqueda = null;
+    entrada.addEventListener("input", function () {
+      clearTimeout(temporizadorBusqueda);
+      temporizadorBusqueda = setTimeout(function () { UI.conTexto = entrada.value; pintarResultado(); }, 250);
+    });
+    var sugerencias = h("div", { class: "sugerencias" });
+    function pintarSugerencias() {
+      vaciar(sugerencias);
+      areasDe(UI.conArea).forEach(function (area) {
+        SUGERENCIAS_CONTENIDO[area].forEach(function (sug) {
+          sugerencias.appendChild(h("button", { type: "button", class: "chip-sug", text: sug, onclick: function () { entrada.value = sug; UI.conTexto = sug; pintarResultado(); } }));
+        });
+      });
+    }
+    var filtros = h("div", { class: "filtros" }, [
+      h("label", { class: "campo-grupo campo-ancho" }, ["Contenido", entrada]),
+      h("label", { class: "campo-grupo" }, ["Área", selectArea(UI.conArea, function (e) { UI.conArea = e.target.value; pintarSugerencias(); pintarResultado(); }, true)]),
+      h("label", { class: "campo-grupo" }, ["Mostrar", opciones(h("select", { class: "campo", onchange: function (e) { UI.conEstado = e.target.value; pintarResultado(); } }), [
+        { v: "problema", t: "Lo fallan o en proceso" },
+        { v: "falla", t: "Solo lo fallan" },
+        { v: "todos", t: "Todos los marcados" },
+      ], UI.conEstado)]),
+      h("label", { class: "campo-grupo" }, ["Periodo", opciones(h("select", { class: "campo", onchange: function (e) { UI.conPeriodo = +e.target.value; pintarResultado(); } }),
+        [{ v: 0, t: "Todo el curso" }, { v: 1, t: "1.º trimestre" }, { v: 2, t: "2.º trimestre" }, { v: 3, t: "3.º trimestre" }], UI.conPeriodo)]),
+    ]);
+    var resultado = h("div", { class: "resultado-contenidos" });
+    caja.appendChild(h("h2", { text: "¿Quién tiene problemas con…?" }));
+    caja.appendChild(h("p", { class: "nota-pie", text: "Escribe un contenido y verás, en todas las SdA donde aparece, qué alumnos lo fallan o lo tienen en proceso. Solo cuenta lo que has marcado en la ficha de cada alumno." }));
+    caja.appendChild(filtros);
+    caja.appendChild(sugerencias);
+    main.appendChild(caja);
+    main.appendChild(resultado);
+    pintarSugerencias();
+    pintarResultado();
+
+    function pintarResultado() {
+      vaciar(resultado);
+      var cols = contenidosQueCoinciden(UI.conTexto, UI.conArea, UI.conPeriodo);
+      if (!terminosBusqueda(UI.conTexto).length) {
+        resultado.appendChild(h("p", { class: "vacio", text: "Escribe un contenido o pulsa una de las sugerencias." }));
+        return;
+      }
+      if (!cols.length) {
+        resultado.appendChild(h("p", { class: "aviso aviso-suave", text: "Ningún contenido de las SdA contiene «" + UI.conTexto + "». Prueba con otra palabra (por ejemplo, «division» en vez de «dividir»)." }));
+        return;
+      }
+      var filas = [];
+      activos().forEach(function (n) {
+        var celdas = cols.map(function (c) {
+          if (versionDe(n, c.area, c.pn) !== c.version) return null;
+          var r = leerReg(n, c.area, c.pn);
+          if (!r || r.np) return null;
+          return estadoItem(r, c.item.id);
+        });
+        var falla = celdas.filter(function (e) { return e === 2; }).length;
+        var proceso = celdas.filter(function (e) { return e === 1; }).length;
+        var controla = celdas.filter(function (e) { return e === 0; }).length;
+        var incluir = UI.conEstado === "falla" ? falla > 0 : UI.conEstado === "problema" ? falla + proceso > 0 : falla + proceso + controla > 0;
+        if (incluir) filas.push({ n: n, celdas: celdas, falla: falla, proceso: proceso, controla: controla });
+      });
+      filas.sort(function (a, b) { return (b.falla * 2 + b.proceso) - (a.falla * 2 + a.proceso) || a.n - b.n; });
+
+      var cab = h("tr", {}, [h("th", { text: "N.º" }), h("th", { class: "th-cuenta", text: "Falla" }), h("th", { class: "th-cuenta", text: "En proceso" })].concat(cols.map(function (c) {
+        return h("th", { class: "th-contenido", title: nombreArea(c.area) + " · " + etqPn(c.pn) + (c.version === "acs" ? " (ACS)" : "") + " · " + c.item.contenido }, [
+          h("span", { class: "th-sda", text: (UI.conArea === "ambas" ? (c.area === "lengua" ? "Len. " : "Mat. ") : "") + etqPn(c.pn) + (c.version === "acs" ? " ACS" : "") }),
+          h("span", { class: "th-nombre", text: c.item.contenido }),
+        ]);
+      })));
+      var tb = h("tbody");
+      filas.forEach(function (f) {
+        tb.appendChild(h("tr", {}, [
+          h("th", {}, [h("button", { type: "button", class: "btn-num", text: String(f.n), title: "Abrir la ficha del n.º " + f.n, onclick: function () { UI.alumno = f.n; irA("individual"); } })].concat(badgesPerfil(f.n))),
+          h("td", { class: "td-cuenta" + (f.falla ? " cuenta-sus" : ""), text: String(f.falla) }),
+          h("td", { class: "td-cuenta", text: String(f.proceso) }),
+        ].concat(f.celdas.map(function (e) {
+          var es = e === null ? null : ESTADOS[e];
+          return h("td", { class: "celda-estado" + (e === null ? "" : " est-" + e), title: es ? es.label : "Sin marcar", text: e === 2 ? "✕" : e === 1 ? "~" : e === 0 ? "✓" : "" });
+        }))));
+      });
+      var resumenTxt = filas.length
+        ? filas.length + (filas.length === 1 ? " alumno" : " alumnos") + (UI.conEstado === "falla" ? " lo fallan" : UI.conEstado === "problema" ? " lo fallan o lo tienen en proceso" : " con algo marcado") + " en " + cols.length + (cols.length === 1 ? " contenido" : " contenidos") + "."
+        : "Nadie lo falla ni lo tiene en proceso en los contenidos marcados.";
+      var tarj = h("section", { class: "tarjeta" }, [
+        h("div", { class: "fila-titulo" }, [
+          h("h3", { text: resumenTxt }),
+          filas.length ? h("div", { class: "acciones" }, [
+            h("button", { type: "button", class: "btn", text: "🖨 Imprimir lista", onclick: function () { window.print(); } }),
+            h("button", { type: "button", class: "btn btn-primario", text: "Resumen de estos alumnos", onclick: function () {
+              UI.resSel = {};
+              filas.forEach(function (f) { UI.resSel[f.n] = true; });
+              UI.resArea = UI.conArea; UI.resPeriodo = UI.conPeriodo;
+              irA("resumen");
+            } }),
+          ]) : null,
+        ]),
+        h("p", { class: "leyenda leyenda-estados" }, [
+          h("span", { class: "est-ley est-2", text: "✕ Lo falla" }), h("span", { class: "est-ley est-1", text: "~ En proceso" }), h("span", { class: "est-ley est-0", text: "✓ Lo controla" }), h("span", { class: "muted", text: "vacío = sin marcar" }),
+        ]),
+        filas.length ? h("div", { class: "tabla-scroll" }, [h("table", { class: "tabla-contenidos" }, [h("thead", {}, [cab]), tb])]) : null,
+      ]);
+      resultado.appendChild(tarj);
+    }
   }
 
   function vistaSuspensos() {
