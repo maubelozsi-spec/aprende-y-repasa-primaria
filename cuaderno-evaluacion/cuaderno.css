@@ -737,3 +737,24 @@ body { font-size: 14px; }
 .grupo-nombre.sin-nombre { border-color: rgba(255, 255, 255, .6); font-style: italic; }
 .chip-alumno.chip-mas { border-style: dashed; color: var(--primario); font-size: 1.1rem; background: transparent; }
 .chip-alumno.chip-mas:hover { background: var(--primario-claro); }
+
+/* Tutoría: registro de incidencias y anotaciones por alumno. */
+.form-tutoria { display: flex; flex-direction: column; gap: 6px; margin: 6px 0 10px; }
+.form-tutoria .campo { width: 100%; padding: 4px 8px; font-size: .85rem; }
+.form-tutoria-fila { display: grid; grid-template-columns: 1fr 1.3fr; gap: 6px; }
+.form-tutoria .acciones-mini { margin-top: 0; }
+.lista-tutoria { list-style: none; padding: 0; margin: 0; font-size: .83rem; }
+.lista-tutoria li { border-left: 4px solid var(--borde); background: var(--superficie-2); border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; }
+.lista-tutoria li.vacio { border-left-color: transparent; background: transparent; }
+.lista-tutoria .tut-incidencia { border-left-color: var(--dif); }
+.lista-tutoria .tut-familia { border-left-color: var(--lengua); }
+.lista-tutoria .tut-observacion { border-left-color: var(--texto-3); }
+.lista-tutoria .tut-positivo { border-left-color: #0ca30c; }
+.lista-tutoria .tut-otro { border-left-color: var(--borde); }
+.tut-cab { display: flex; justify-content: space-between; gap: 6px; }
+.tut-tipo { font-size: .72rem; font-weight: 700; color: var(--texto-2); }
+.tut-texto { white-space: pre-wrap; margin-top: 2px; }
+.tut-acuerdo { margin-top: 3px; font-size: .8rem; color: var(--texto-2); }
+.tut-acciones { display: flex; gap: 12px; margin-top: 3px; font-size: .78rem; }
+.lista-tutoria-res li { background: transparent; padding: 3px 8px; margin-bottom: 3px; }
+@media print { .lista-tutoria li { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
