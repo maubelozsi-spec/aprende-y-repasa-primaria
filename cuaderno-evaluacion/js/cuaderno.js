@@ -8,7 +8,7 @@
 //   cuadernoEval/{uid}                -> registro de pruebas editado y
 //                                         fecha de la última copia
 //   cuadernoEval/{uid}/alumnos/{1-40} -> perfil, notas, dificultades,
-//                                         anotaciones y medidas
+//                                         anotaciones, medidas y tutoría
 //
 // Consumo (plan Spark): al abrir la página se leen como mucho 26
 // documentos con lecturas puntuales (sin onSnapshot). Los cambios se
@@ -72,7 +72,7 @@ import "../../js/auth.js";
 
   // Cada cuenta empieza con su cuaderno vacío.
   function estadoInicial() {
-    return { version: 1, grupo: "", alumnos: {}, registros: {}, plantillas: {}, medidas: {}, ultimaCopia: null };
+    return { version: 1, grupo: "", alumnos: {}, registros: {}, plantillas: {}, medidas: {}, tutoria: {}, ultimaCopia: null };
   }
   var GRUPO_ORIGINAL = "5.º C · 2026-27";
 
@@ -81,6 +81,7 @@ import "../../js/auth.js";
     s.registros = s.registros || {};
     s.plantillas = s.plantillas || {};
     s.medidas = s.medidas || {};
+    s.tutoria = s.tutoria || {};
     return s;
   }
 
@@ -111,6 +112,7 @@ import "../../js/auth.js";
       s.alumnos[d.id] = { activo: x.activo !== false, perfil: x.perfil || {} };
       if (x.registros) s.registros[d.id] = x.registros;
       if (x.medidas) s.medidas[d.id] = x.medidas;
+      if (x.tutoria) s.tutoria[d.id] = x.tutoria;
     });
     // Cuadernos creados antes de que hubiera varias cuentas (5.º C): se
     // conservan su nombre de grupo y la ACS de la alumna n.º 17, que hasta
@@ -143,6 +145,7 @@ import "../../js/auth.js";
       perfil: a.perfil,
       registros: S.registros[k] || {},
       medidas: S.medidas[k] || [],
+      tutoria: S.tutoria[k] || [],
       actualizado: serverTimestamp(),
     };
   }
@@ -411,6 +414,7 @@ import "../../js/auth.js";
     resPeriodo: 0,
     resNotas: true,
     resMedidas: true,
+    resTutoria: true,
     resPagina: false,
     plArea: "lengua",
     plPrueba: 1,
@@ -541,9 +545,9 @@ import "../../js/auth.js";
       h("h3", { class: "subtit", text: "Perfil" }),
       perfil,
       h("p", { class: "nota-pie", text: "Sin nombres ni diagnósticos." }),
-      (n === nAlumnos() && n > N_ALUMNOS_INICIAL && !S.registros[n] && !(S.medidas[n] || []).length)
+      (n === nAlumnos() && n > N_ALUMNOS_INICIAL && !S.registros[n] && !(S.medidas[n] || []).length && !(S.tutoria[n] || []).length)
         ? h("button", { type: "button", class: "btn-enlace", text: "Quitar el n.º " + n + " de la lista", title: "Solo mientras no tenga notas ni medidas", onclick: function () {
-            if (S.registros[n] || (S.medidas[n] || []).length) { alert("El n.º " + n + " ya tiene datos: márcalo como «Número sin alumno» en su lugar."); pintar(); return; }
+            if (S.registros[n] || (S.medidas[n] || []).length || (S.tutoria[n] || []).length) { alert("El n.º " + n + " ya tiene datos: márcalo como «Número sin alumno» en su lugar."); pintar(); return; }
             S.numAlumnos = n - 1;
             delete S.alumnos[n];
             guardar("meta");
@@ -551,7 +555,7 @@ import "../../js/auth.js";
           } })
         : null,
       h("button", { type: "button", class: "btn btn-primario btn-bloque", text: "📋 Preparar tutoría", title: "Resumen imprimible de este alumno/a (todo el curso, las dos áreas)", onclick: function () {
-        UI.resSel = {}; UI.resSel[n] = true; UI.resArea = "ambas"; UI.resPeriodo = 0; UI.resNotas = true; UI.resMedidas = true;
+        UI.resSel = {}; UI.resSel[n] = true; UI.resArea = "ambas"; UI.resPeriodo = 0; UI.resNotas = true; UI.resMedidas = true; UI.resTutoria = true;
         irA("resumen");
       } }),
     ]);
@@ -597,12 +601,13 @@ import "../../js/auth.js";
       panelSdA(n, area, prueba(area, pnSel)),
     ]);
 
-    // ---- Columna derecha: avance, ejes, criterios, medidas ----
+    // ---- Columna derecha: avance, ejes, criterios, medidas, tutoría ----
     var PANELES = [
       { id: "avance", t: "Avance" },
       { id: "ejes", t: "Ejes" },
       { id: "criterios", t: "Criterios" },
       { id: "medidas", t: "Medidas" + ((S.medidas[n] || []).length ? " (" + S.medidas[n].length + ")" : "") },
+      { id: "tutoria", t: "Tutoría" + ((S.tutoria[n] || []).length ? " (" + S.tutoria[n].length + ")" : "") },
     ];
     var panelSel = UI.panelDer || "avance";
     var tabsDer = h("div", { class: "seg seg-ancho", role: "tablist", "aria-label": "Información del alumno" });
@@ -629,12 +634,14 @@ import "../../js/auth.js";
       } else if (panelSel === "criterios") {
         cuerpoDer.appendChild(h("p", { class: "nota-pie", text: nombreArea(area) + (alumno(n).perfil["acs_" + area] ? " · criterios de " + CE_CRITERIOS_ACS.nivel + " (ACS)" : " · criterios de 5.º") + ": % de lo marcado que controla. Evidencia para calificar, no la calificación." }));
         cuerpoDer.appendChild(tablaCriterios(n, area));
+      } else if (panelSel === "tutoria") {
+        cuerpoDer.appendChild(panelTutoria(n));
       } else {
         cuerpoDer.appendChild(panelMedidas(n));
       }
     }
     pintarDer();
-    if (panelSel !== "medidas") refrescosIndividual.push(pintarDer);
+    if (panelSel !== "medidas" && panelSel !== "tutoria") refrescosIndividual.push(pintarDer);
 
     var colC = h("section", { class: "col col-c" }, [tabsDer, cuerpoDer]);
 
@@ -823,6 +830,74 @@ import "../../js/auth.js";
       ]));
     });
     if (!lista.length) ul.appendChild(h("li", { class: "vacio", text: "Sin medidas registradas." }));
+    caja.appendChild(ul);
+    return caja;
+  }
+
+  // Tutoría: incidencias y anotaciones de interés sobre el alumno, con
+  // fecha, tipo y, si lo hay, el acuerdo o seguimiento.
+  var TIPOS_TUTORIA = [
+    { id: "incidencia", label: "Incidencia / convivencia" },
+    { id: "familia", label: "Reunión con la familia" },
+    { id: "observacion", label: "Observación" },
+    { id: "positivo", label: "Aspecto positivo" },
+    { id: "otro", label: "Otro" },
+  ];
+  function etiquetaTipoTutoria(id) {
+    var t = TIPOS_TUTORIA.filter(function (x) { return x.id === id; })[0];
+    return t ? t.label : "Otro";
+  }
+  function ordenarPorFecha(lista) {
+    return lista.slice().sort(function (a, b) { return (b.fecha || "").localeCompare(a.fecha || ""); });
+  }
+
+  function panelTutoria(n) {
+    var lista = (S.tutoria[n] = S.tutoria[n] || []);
+    var editando = null;
+    var caja = h("div", { class: "tutoria" }, [
+      h("p", { class: "nota-pie", text: "Incidencias, reuniones con la familia y observaciones de interés. Hechos y acuerdos, sin nombres de otros alumnos ni diagnósticos." }),
+    ]);
+    var fF = h("input", { type: "date", class: "campo", value: new Date().toISOString().slice(0, 10), "aria-label": "Fecha" });
+    var fT = opciones(h("select", { class: "campo", "aria-label": "Tipo" }), TIPOS_TUTORIA.map(function (t) { return { v: t.id, t: t.label }; }), "observacion");
+    var fX = h("textarea", { class: "campo", rows: "3", placeholder: "Qué ha pasado o qué has observado", "aria-label": "Anotación", required: true });
+    var fA = h("input", { type: "text", class: "campo", placeholder: "Acuerdo o seguimiento (opcional)", "aria-label": "Acuerdo o seguimiento" });
+    var bG = h("button", { type: "submit", class: "btn btn-primario", text: "Añadir" });
+    var bC = h("button", { type: "button", class: "btn", text: "Cancelar", hidden: true, onclick: function () { editando = null; form.reset(); fF.value = new Date().toISOString().slice(0, 10); bG.textContent = "Añadir"; bC.hidden = true; } });
+    var form = h("form", {
+      class: "form-tutoria",
+      onsubmit: function (e) {
+        e.preventDefault();
+        var texto = fX.value.trim();
+        if (!texto) return;
+        var dato = { fecha: fF.value, tipo: fT.value, texto: texto, acuerdo: fA.value.trim() };
+        if (editando) Object.assign(editando, dato); else lista.push(dato);
+        guardar(n); pintar();
+      },
+    }, [h("div", { class: "form-tutoria-fila" }, [fF, fT]), fX, fA, h("div", { class: "acciones acciones-mini" }, [bG, bC])]);
+    caja.appendChild(form);
+
+    var ul = h("ul", { class: "lista-tutoria" });
+    ordenarPorFecha(lista).forEach(function (t) {
+      ul.appendChild(h("li", { class: "tut-" + (t.tipo || "otro") }, [
+        h("div", { class: "tut-cab" }, [
+          h("strong", { text: fechaLarga(t.fecha) }),
+          h("span", { class: "tut-tipo", text: etiquetaTipoTutoria(t.tipo) }),
+        ]),
+        h("div", { class: "tut-texto", text: t.texto }),
+        t.acuerdo ? h("div", { class: "tut-acuerdo" }, [h("strong", { text: "Acuerdo / seguimiento: " }), t.acuerdo]) : null,
+        h("div", { class: "tut-acciones" }, [
+          h("button", { type: "button", class: "btn-enlace", text: "Editar", onclick: function () {
+            editando = t;
+            fF.value = t.fecha || ""; fT.value = t.tipo || "otro"; fX.value = t.texto || ""; fA.value = t.acuerdo || "";
+            bG.textContent = "Guardar cambios"; bC.hidden = false; fX.focus();
+          } }),
+          h("button", { type: "button", class: "btn-enlace", text: "Borrar", onclick: function () {
+            if (confirm("¿Borrar esta anotación de tutoría?")) { lista.splice(lista.indexOf(t), 1); guardar(n); pintar(); }
+          } }),
+        ]),
+      ]));
+    });
+    if (!lista.length) ul.appendChild(h("li", { class: "vacio", text: "Sin anotaciones de tutoría." }));
     caja.appendChild(ul);
     return caja;
   }
@@ -1189,6 +1264,7 @@ import "../../js/auth.js";
         [{ v: 0, t: "Todo el curso" }, { v: 1, t: "1.º trimestre" }, { v: 2, t: "2.º trimestre" }, { v: 3, t: "3.º trimestre" }], UI.resPeriodo)]),
       h("label", { class: "check" }, [h("input", { type: "checkbox", checked: UI.resNotas, onchange: function (e) { UI.resNotas = e.target.checked; } }), " Incluir anotaciones"]),
       h("label", { class: "check" }, [h("input", { type: "checkbox", checked: UI.resMedidas, onchange: function (e) { UI.resMedidas = e.target.checked; } }), " Incluir medidas"]),
+      h("label", { class: "check" }, [h("input", { type: "checkbox", checked: UI.resTutoria, onchange: function (e) { UI.resTutoria = e.target.checked; } }), " Incluir tutoría"]),
       h("label", { class: "check" }, [h("input", { type: "checkbox", checked: UI.resPagina, onchange: function (e) { UI.resPagina = e.target.checked; } }), " Un alumno por página al imprimir"]),
     ]);
     var salida = h("div", { id: "resumen-salida", class: "resumen-salida" });
@@ -1310,6 +1386,15 @@ import "../../js/auth.js";
           return h("li", { text: fechaLarga(m.fecha) + " · " + (m.area === "ambas" ? "Ambas áreas" : nombreArea(m.area)) + " · " + m.medida + (m.resultado ? " → " + m.resultado : "") });
         })));
       }
+      if (UI.resTutoria && (S.tutoria[n] || []).length) {
+        bloque.appendChild(h("h4", { text: "Tutoría" }));
+        bloque.appendChild(h("ul", { class: "lista-tutoria lista-tutoria-res" }, ordenarPorFecha(S.tutoria[n]).map(function (t) {
+          return h("li", { class: "tut-" + (t.tipo || "otro") }, [
+            h("strong", { text: fechaLarga(t.fecha) + " · " + etiquetaTipoTutoria(t.tipo) + ": " }), t.texto,
+            t.acuerdo ? h("em", { text: " Acuerdo: " + t.acuerdo }) : null,
+          ]);
+        })));
+      }
       if (bloque.childNodes.length === 1) bloque.appendChild(h("p", { class: "vacio", text: "Sin datos registrados en este periodo." }));
       salida.appendChild(bloque);
     });
@@ -1399,7 +1484,7 @@ import "../../js/auth.js";
   function exportar() {
     S.ultimaCopia = new Date().toISOString();
     guardar("meta");
-    var copia = { version: S.version, exportado: S.ultimaCopia, grupo: S.grupo || "", numAlumnos: nAlumnos(), alumnos: S.alumnos, registros: S.registros, plantillas: S.plantillas, medidas: S.medidas, ultimaCopia: S.ultimaCopia };
+    var copia = { version: S.version, exportado: S.ultimaCopia, grupo: S.grupo || "", numAlumnos: nAlumnos(), alumnos: S.alumnos, registros: S.registros, plantillas: S.plantillas, medidas: S.medidas, tutoria: S.tutoria, ultimaCopia: S.ultimaCopia };
     var blob = new Blob([JSON.stringify(copia, null, 1)], { type: "application/json" });
     var a = h("a", { href: URL.createObjectURL(blob), download: "cuaderno-evaluacion-" + S.ultimaCopia.slice(0, 10) + ".json" });
     document.body.appendChild(a);
