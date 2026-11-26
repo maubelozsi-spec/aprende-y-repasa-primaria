@@ -72,7 +72,7 @@ import "../../js/auth.js";
 
   // Cada cuenta empieza con su cuaderno vacío.
   function estadoInicial() {
-    return { version: 1, grupo: "", alumnos: {}, registros: {}, plantillas: {}, medidas: {}, tutoria: {}, ultimaCopia: null };
+    return { version: 1, grupo: "", alumnos: {}, registros: {}, plantillas: {}, medidas: {}, tutoria: {}, seneca: {}, tareas: [], ultimaCopia: null };
   }
   var GRUPO_ORIGINAL = "5.º C · 2026-27";
 
@@ -82,6 +82,8 @@ import "../../js/auth.js";
     s.plantillas = s.plantillas || {};
     s.medidas = s.medidas || {};
     s.tutoria = s.tutoria || {};
+    s.seneca = s.seneca || {};
+    s.tareas = s.tareas || [];
     return s;
   }
 
@@ -105,6 +107,8 @@ import "../../js/auth.js";
       s.plantillas = m.plantillas || {};
       s.ultimaCopia = m.ultimaCopia || null;
       s.grupo = m.grupo || "";
+      s.seneca = m.seneca || {};
+      s.tareas = m.tareas || [];
       if (m.numAlumnos) s.numAlumnos = m.numAlumnos;
     }
     res[1].forEach(function (d) {
@@ -157,7 +161,7 @@ import "../../js/auth.js";
     pendientes = {};
     var lote = writeBatch(db);
     claves.forEach(function (k) {
-      if (k === "meta") lote.set(base(), { grupo: S.grupo || "", numAlumnos: nAlumnos(), plantillas: S.plantillas, ultimaCopia: S.ultimaCopia || null, actualizado: serverTimestamp() });
+      if (k === "meta") lote.set(base(), { grupo: S.grupo || "", numAlumnos: nAlumnos(), plantillas: S.plantillas, seneca: S.seneca || {}, tareas: S.tareas || [], ultimaCopia: S.ultimaCopia || null, actualizado: serverTimestamp() });
       else lote.set(doc(base(), "alumnos", k), docAlumno(k));
     });
     guardando = true;
@@ -452,9 +456,10 @@ import "../../js/auth.js";
 
   function pintar() {
     pintarAvisos();
+    pintarContadorTareas();
     vaciar(main);
     main.classList.remove("vista-fija");
-    ({ individual: vistaIndividual, grupo: vistaGrupo, suspensos: vistaSuspensos, contenidos: vistaContenidos, resumen: vistaResumen, pruebas: vistaPruebas, copia: vistaCopia })[UI.vista]();
+    ({ individual: vistaIndividual, grupo: vistaGrupo, suspensos: vistaSuspensos, contenidos: vistaContenidos, seneca: vistaSeneca, resumen: vistaResumen, pruebas: vistaPruebas, copia: vistaCopia })[UI.vista]();
     window.scrollTo(0, 0);
   }
 
@@ -1204,6 +1209,123 @@ import "../../js/auth.js";
     return res;
   }
 
+  // ---------------- Séneca y tareas pendientes ----------------
+  //
+  // Control de qué notas de SdA ya están pasadas al cuaderno de Séneca
+  // (por área) y una lista de tareas pendientes del docente. Todo va en
+  // el documento del cuaderno (meta): una escritura por cambio.
+
+  function claveSeneca(area, pn) {
+    return area + "-" + pn;
+  }
+  function tareasPendientes() {
+    return (S.tareas || []).filter(function (t) { return !t.hecha; }).length;
+  }
+  function pintarContadorTareas() {
+    var b = document.querySelector('.pestana[data-vista="seneca"]');
+    if (!b) return;
+    var p = tareasPendientes();
+    b.textContent = "Séneca y tareas" + (p ? " (" + p + ")" : "");
+  }
+  function hoyISO() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function vistaSeneca() {
+    main.classList.add("vista-fija");
+    var lista = activos();
+
+    // ---- Notas pasadas a Séneca ----
+    var tabla = h("table", { class: "tabla-simple tabla-seneca" }, [h("thead", {}, [h("tr", {}, [
+      h("th", { text: "SdA" }),
+    ].concat(CE_AREAS.map(function (a) { return h("th", { text: a.label }); })))])]);
+    var tb = h("tbody");
+    for (var t = 1; t <= 3; t++) {
+      tb.appendChild(h("tr", { class: "fila-trim" }, [h("th", { colspan: String(1 + CE_AREAS.length), text: t + ".º trimestre" })]));
+      pruebasDeTrimestre(t).forEach(function (pn) {
+        tb.appendChild(h("tr", {}, [h("th", {}, [
+          h("strong", { text: etqPn(pn) }),
+          h("small", { class: "muted", text: " " + (metaPrueba("lengua", pn).fecha ? fechaLarga(metaPrueba("lengua", pn).fecha) : "") }),
+        ])].concat(CE_AREAS.map(function (a) {
+          var k = claveSeneca(a.id, pn);
+          var est = S.seneca[k] || {};
+          var conNota = lista.filter(function (n) { var r = leerReg(n, a.id, pn); return r && (r.np || num(r.nota) !== null); }).length;
+          var completo = conNota === lista.length && lista.length > 0;
+          return h("td", { class: "celda-seneca" + (est.hecho ? " hecho" : "") }, [
+            h("label", { class: "check-seneca", title: est.hecho ? "Pasadas a Séneca el " + fechaLarga(est.fecha) : "Marca cuando hayas pasado estas notas a Séneca" }, [
+              h("input", { type: "checkbox", checked: !!est.hecho, onchange: function (e) {
+                if (e.target.checked) S.seneca[k] = { hecho: true, fecha: hoyISO() };
+                else delete S.seneca[k];
+                guardar("meta"); pintar();
+              } }),
+              est.hecho ? " En Séneca · " + fechaLarga(est.fecha) : " Pendiente",
+            ]),
+            h("span", { class: "notas-cuaderno" + (completo ? " completo" : conNota ? " parcial" : ""), title: "Alumnos con nota (o NP) en este cuaderno", text: conNota + "/" + lista.length + " con nota" }),
+          ]);
+        }))));
+      });
+    }
+    tabla.appendChild(tb);
+    var hechas = Object.keys(S.seneca).filter(function (k) { return S.seneca[k] && S.seneca[k].hecho; }).length;
+    var colSeneca = h("section", { class: "col col-seneca" }, [
+      h("div", { class: "fila-titulo" }, [h("h2", { text: "Notas pasadas a Séneca" }), h("span", { class: "pill pill-ok", text: hechas + " de " + (9 * CE_AREAS.length) })]),
+      h("p", { class: "nota-pie", text: "Marca cada SdA cuando hayas introducido sus notas en tu cuaderno de Séneca; se guarda la fecha. «x/y con nota» te avisa si en este cuaderno aún falta alguna nota antes de pasarlas." }),
+      h("div", { class: "col-scroll" }, [tabla]),
+    ]);
+
+    // ---- Tareas pendientes ----
+    var fT = h("input", { type: "text", class: "campo", placeholder: "Qué te falta por hacer", "aria-label": "Tarea", required: true, maxlength: "300" });
+    var fF = h("input", { type: "date", class: "campo", "aria-label": "Fecha límite (opcional)", title: "Fecha límite (opcional)" });
+    var form = h("form", { class: "form-tarea", onsubmit: function (e) {
+      e.preventDefault();
+      var texto = fT.value.trim();
+      if (!texto) return;
+      S.tareas.push({ id: Date.now().toString(36), texto: texto, limite: fF.value || "", creada: hoyISO(), hecha: false });
+      guardar("meta"); pintar();
+    } }, [fT, fF, h("button", { type: "submit", class: "btn btn-primario", text: "Añadir" })]);
+
+    function itemTarea(t) {
+      var vencida = !t.hecha && t.limite && t.limite < hoyISO();
+      return h("li", { class: "tarea" + (t.hecha ? " hecha" : "") + (vencida ? " vencida" : "") }, [
+        h("label", { class: "tarea-check" }, [
+          h("input", { type: "checkbox", checked: !!t.hecha, onchange: function (e) {
+            t.hecha = e.target.checked;
+            t.hechaEl = t.hecha ? hoyISO() : "";
+            guardar("meta"); pintar();
+          } }),
+          h("span", { class: "tarea-texto", text: t.texto }),
+        ]),
+        h("span", { class: "tarea-meta", text: t.hecha ? "Hecha · " + fechaLarga(t.hechaEl) : t.limite ? (vencida ? "Vencida · " : "Para el ") + fechaLarga(t.limite) : "" }),
+        h("button", { type: "button", class: "btn-enlace", text: "Borrar", "aria-label": "Borrar tarea", onclick: function () {
+          if (!confirm("¿Borrar esta tarea?")) return;
+          S.tareas.splice(S.tareas.indexOf(t), 1);
+          guardar("meta"); pintar();
+        } }),
+      ]);
+    }
+    var pend = S.tareas.filter(function (t) { return !t.hecha; }).sort(function (a, b) {
+      return (a.limite || "9999").localeCompare(b.limite || "9999") || (a.creada || "").localeCompare(b.creada || "");
+    });
+    var hech = S.tareas.filter(function (t) { return t.hecha; }).sort(function (a, b) { return (b.hechaEl || "").localeCompare(a.hechaEl || ""); });
+    var colTareas = h("section", { class: "col col-tareas" }, [
+      h("div", { class: "fila-titulo" }, [h("h2", { text: "Me falta por hacer" }), pend.length ? h("span", { class: "pill pill-dif", text: pend.length + " pendiente" + (pend.length === 1 ? "" : "s") }) : null]),
+      form,
+      h("div", { class: "col-scroll" }, [
+        h("ul", { class: "lista-tareas" }, pend.length ? pend.map(itemTarea) : [h("li", { class: "vacio", text: "Nada pendiente." })]),
+        hech.length ? h("details", { class: "ver-datos" }, [
+          h("summary", { text: "Hechas (" + hech.length + ")" }),
+          h("ul", { class: "lista-tareas" }, hech.map(itemTarea)),
+          h("button", { type: "button", class: "btn-enlace", text: "Borrar todas las hechas", onclick: function () {
+            if (!confirm("¿Borrar las " + hech.length + " tareas hechas?")) return;
+            S.tareas = S.tareas.filter(function (t) { return !t.hecha; });
+            guardar("meta"); pintar();
+          } }),
+        ]) : null,
+      ]),
+    ]);
+    main.appendChild(h("div", { class: "ficha-2col ficha-seneca" }, [colSeneca, colTareas]));
+  }
+
   // ---------------- Buscar por contenido ----------------
   //
   // Un mismo contenido sale en varias SdA con nombres parecidos
@@ -1635,7 +1757,7 @@ import "../../js/auth.js";
   function exportar() {
     S.ultimaCopia = new Date().toISOString();
     guardar("meta");
-    var copia = { version: S.version, exportado: S.ultimaCopia, grupo: S.grupo || "", numAlumnos: nAlumnos(), alumnos: S.alumnos, registros: S.registros, plantillas: S.plantillas, medidas: S.medidas, tutoria: S.tutoria, ultimaCopia: S.ultimaCopia };
+    var copia = { version: S.version, exportado: S.ultimaCopia, grupo: S.grupo || "", numAlumnos: nAlumnos(), alumnos: S.alumnos, registros: S.registros, plantillas: S.plantillas, medidas: S.medidas, tutoria: S.tutoria, seneca: S.seneca, tareas: S.tareas, ultimaCopia: S.ultimaCopia };
     var blob = new Blob([JSON.stringify(copia, null, 1)], { type: "application/json" });
     var a = h("a", { href: URL.createObjectURL(blob), download: "cuaderno-evaluacion-" + S.ultimaCopia.slice(0, 10) + ".json" });
     document.body.appendChild(a);
