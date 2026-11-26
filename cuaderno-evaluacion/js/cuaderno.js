@@ -459,7 +459,21 @@ import "../../js/auth.js";
     pintarContadorTareas();
     vaciar(main);
     main.classList.remove("vista-fija");
-    ({ individual: vistaIndividual, grupo: vistaGrupo, suspensos: vistaSuspensos, contenidos: vistaContenidos, seneca: vistaSeneca, resumen: vistaResumen, pruebas: vistaPruebas, copia: vistaCopia })[UI.vista]();
+    var VISTAS = { individual: vistaIndividual, grupo: vistaGrupo, suspensos: vistaSuspensos, contenidos: vistaContenidos, seneca: vistaSeneca, resumen: vistaResumen, pruebas: vistaPruebas, copia: vistaCopia };
+    if (!VISTAS[UI.vista]) UI.vista = "individual";
+    // Si una vista falla, se dice en pantalla en vez de dejarla en blanco.
+    try {
+      VISTAS[UI.vista]();
+    } catch (er) {
+      vaciar(main);
+      main.classList.remove("vista-fija");
+      main.appendChild(h("section", { class: "tarjeta" }, [
+        h("h2", { text: "No se ha podido mostrar esta pestaña" }),
+        h("p", { text: "Recarga la página con Ctrl+F5 (en Mac, Cmd+Mayús+R). Si sigue pasando, copia este mensaje y envíalo:" }),
+        h("pre", { class: "error-vista", text: String((er && (er.stack || er.message)) || er) }),
+      ]));
+      if (window.console) console.error(er);
+    }
     window.scrollTo(0, 0);
   }
 
