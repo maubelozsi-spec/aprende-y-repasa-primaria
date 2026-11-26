@@ -780,3 +780,36 @@ body { font-size: 14px; }
 .leyenda-estados { gap: 6px; margin: 4px 0 8px; }
 .est-ley { font-size: .74rem; font-weight: 700; border-radius: 6px; padding: 2px 8px; }
 @media print { .celda-estado, .est-ley { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+
+/* Séneca y tareas pendientes. */
+.tabla-seneca td, .tabla-seneca th { vertical-align: middle; padding: 4px 8px; }
+.tabla-seneca .fila-trim th { background: var(--superficie-2); font-size: .75rem; color: var(--texto-2); text-transform: uppercase; letter-spacing: .03em; }
+.celda-seneca { display: table-cell; }
+.celda-seneca.hecho { background: var(--n-bg); }
+.check-seneca { display: inline-flex; align-items: center; gap: 4px; font-size: .84rem; font-weight: 600; cursor: pointer; margin-right: 8px; }
+.celda-seneca.hecho .check-seneca { color: var(--n-tx); }
+.notas-cuaderno { font-size: .72rem; color: var(--texto-3); white-space: nowrap; }
+.notas-cuaderno.parcial { color: var(--b-tx); font-weight: 700; }
+.notas-cuaderno.completo { color: var(--n-tx); }
+.form-tarea { display: grid; grid-template-columns: 1fr 150px auto; gap: 6px; margin-bottom: 8px; }
+.form-tarea .campo { padding: 5px 8px; font-size: .88rem; }
+.lista-tareas { list-style: none; padding: 0; margin: 0; }
+.tarea { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; padding: 6px 8px; border-bottom: 1px solid var(--rejilla); font-size: .88rem; }
+.tarea-check { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+.tarea-check input { margin-top: 3px; }
+.tarea.hecha .tarea-texto { text-decoration: line-through; color: var(--texto-3); }
+.tarea-meta { font-size: .74rem; color: var(--texto-3); white-space: nowrap; }
+.tarea.vencida .tarea-meta { color: var(--sus-bg); font-weight: 700; }
+@media (min-width: 1100px) and (min-height: 560px) {
+  .vista-fija .ficha-seneca { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 600px) { .form-tarea { grid-template-columns: 1fr; } }
+/* Con ocho pestañas: barra más ajustada en portátiles. */
+@media (max-width: 1400px) {
+  .barra .pestana { padding: 5px 7px; font-size: .82rem; }
+  .usuario { display: none; }
+  .barra { gap: 6px 10px; }
+}
+@media (max-width: 1200px) {
+  .barra .estado-guardado { display: none; }
+}
