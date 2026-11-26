@@ -813,3 +813,4 @@ body { font-size: 14px; }
 @media (max-width: 1200px) {
   .barra .estado-guardado { display: none; }
 }
+.error-vista { white-space: pre-wrap; font-size: .75rem; background: var(--superficie-2); border: 1px solid var(--borde); border-radius: 8px; padding: 8px; max-height: 240px; overflow: auto; }
